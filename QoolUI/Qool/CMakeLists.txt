@@ -6,6 +6,9 @@ qt_add_qml_module(Qool
     VERSION 4.0
     QML_FILES MyItemControls.qml
     SOURCES myitem.cpp myitem.h
+
+    SOURCES qool_shapehelperbasic.h qool_shapehelperbasic.cpp
+    SOURCES qool_octagonshapehelper.h qool_octagonshapehelper.cpp
 )
 
 set_target_properties(Qool PROPERTIES
@@ -19,6 +22,8 @@ set_target_properties(Qool PROPERTIES
 target_compile_definitions(Qool
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(Qool
-    PRIVATE Qt6::Quick)
+    PRIVATE Qt6::Quick
+    PRIVATE QoolCommon
+)
 
 target_include_directories(Qool PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
