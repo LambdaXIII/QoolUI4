@@ -23,3 +23,7 @@ void MyItem::paint(QPainter *painter)
 }
 
 MyItem::~MyItem() {}
+
+QString MyItem::greeting() const {
+  return "Hello World!";
+}

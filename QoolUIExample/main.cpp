@@ -5,7 +5,9 @@ int main(int argc, char* argv[]) {
   QGuiApplication app(argc, argv);
 
   QQmlApplicationEngine engine;
-  engine.addImportPath(QStringLiteral("."));
+  // engine.addImportPath(QStringLiteral("."));
+  engine.addImportPath(QStringLiteral("qml"));
+  engine.addPluginPath(QStringLiteral("qoolplugins"));
 
   QObject::connect(
     &engine, &QQmlApplicationEngine::objectCreationFailed, &app,

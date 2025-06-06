@@ -1,8 +1,8 @@
-qt_add_library(Qool STATIC)
+qt_add_library(Qool SHARED)
 qt_add_qml_module(Qool
     URI Qool
     RESOURCE_PREFIX /qoolui
-    OUTPUT_DIRECTORY QOOLUI/Qool
+    # OUTPUT_DIRECTORY QOOLUI/Qool
     VERSION 4.0
     QML_FILES MyItemControls.qml
     SOURCES myitem.cpp myitem.h

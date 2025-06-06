@@ -12,6 +12,8 @@ public:
     explicit MyItem(QQuickItem *parent = nullptr);
     void paint(QPainter *painter) override;
     ~MyItem() override;
+
+    Q_INVOKABLE QString greeting() const;
 };
 
 #endif // MYITEM_H
