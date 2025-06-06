@@ -24,11 +24,17 @@ class OctagonShapeHelper: public ShapeHelperBasic {
 
 #define POINT_DECL(_N_)                                                \
   QOOL_BINDABLE_PROPERTY_READONLY(                                     \
-    OctagonShapeHelper, QPointF, point##_N_)                           \
+    OctagonShapeHelper, QPointF, ext##_N_)                             \
   QOOL_BINDABLE_PROPERTY_READONLY(                                     \
-    OctagonShapeHelper, qreal, point##_N_##x)                          \
+    OctagonShapeHelper, qreal, ext##_N_##x)                            \
   QOOL_BINDABLE_PROPERTY_READONLY(                                     \
-    OctagonShapeHelper, qreal, point##_N_##y)
+    OctagonShapeHelper, qreal, ext##_N_##y)                            \
+  QOOL_BINDABLE_PROPERTY_READONLY(                                     \
+    OctagonShapeHelper, QPointF, int##_N_)                             \
+  QOOL_BINDABLE_PROPERTY_READONLY(                                     \
+    OctagonShapeHelper, qreal, int##_N_##x)                            \
+  QOOL_BINDABLE_PROPERTY_READONLY(                                     \
+    OctagonShapeHelper, qreal, int##_N_##y)
 
   POINT_DECL(TL)
   POINT_DECL(LT)
@@ -40,6 +46,19 @@ class OctagonShapeHelper: public ShapeHelperBasic {
   POINT_DECL(RB)
 
 #undef POINT_DECL
+
+  QOOL_BINDABLE_PROPERTY(OctagonShapeHelper, qreal, borderWidth)
+
+  QOOL_BINDABLE_PROPERTY_READONLY(
+    OctagonShapeHelper, QPolygonF, polygon)
+  QOOL_BINDABLE_PROPERTY_READONLY(
+    OctagonShapeHelper, QPolygonF, intPolygon)
+
+private:
+  Q_SLOT void updateTLCorner();
+  Q_SLOT void updateTRCorner();
+  Q_SLOT void updateBLCorner();
+  Q_SLOT void updateBRCorner();
 
 public:
   explicit OctagonShapeHelper(QObject* parent = nullptr);
