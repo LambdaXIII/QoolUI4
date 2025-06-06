@@ -16,6 +16,7 @@ add_library(GENERAL_HELP INTERFACE EXCLUDE_FROM_ALL
   .clang-format
   README.md
   qool_qml_project_setup.cmake
+  .gitignore
 )
 
 if(NOT DEFINED QOOLUI_QML_PROJECT_SETUP_LOADED)
