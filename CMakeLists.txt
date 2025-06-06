@@ -32,6 +32,6 @@ set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "deployment ou
 
 
 
-
+add_subdirectory(QoolUI/QoolCommon)
 add_subdirectory(QoolUI/Qool)
 add_subdirectory(QoolUIExample)
