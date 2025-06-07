@@ -7,8 +7,7 @@ qt_add_qml_module(Qool
     QML_FILES MyItemControls.qml
     SOURCES myitem.cpp myitem.h
 
-    SOURCES qool_shapehelperbasic.h qool_shapehelperbasic.cpp
-    SOURCES qool_octagonshapehelper.h qool_octagonshapehelper.cpp
+    SOURCES shapehelper/qool_octagonsettings.h shapehelper/qool_octagonsettings.cpp
 )
 
 set_target_properties(Qool PROPERTIES
@@ -26,4 +25,7 @@ target_link_libraries(Qool
     PRIVATE QoolCommon
 )
 
-target_include_directories(Qool PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(Qool
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapehelper"
+)
