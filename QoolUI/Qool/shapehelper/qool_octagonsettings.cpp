@@ -4,6 +4,13 @@ QOOL_NS_BEGIN
 
 OctagonSettings::OctagonSettings(QObject* parent)
   : QObject { parent } {
+  QOOL_PROPERTY_BINDABLE_INIT_VALUE(cutSizeTL, 0);
+  QOOL_PROPERTY_BINDABLE_INIT_VALUE(cutSizeTR, 0);
+  QOOL_PROPERTY_BINDABLE_INIT_VALUE(cutSizeBL, 0);
+  QOOL_PROPERTY_BINDABLE_INIT_VALUE(cutSizeBR, 0);
+  QOOL_PROPERTY_BINDABLE_INIT_VALUE(borderWidth, 0);
+  QOOL_PROPERTY_BINDABLE_INIT_VALUE(borderColor, Qt::red);
+  QOOL_PROPERTY_BINDABLE_INIT_VALUE(fillColor, Qt::yellow);
 }
 
 QString OctagonSettings::cutSizes() const {

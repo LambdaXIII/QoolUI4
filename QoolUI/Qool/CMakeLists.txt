@@ -8,6 +8,7 @@ qt_add_qml_module(Qool
     SOURCES myitem.cpp myitem.h
 
     SOURCES shapehelper/qool_octagonsettings.h shapehelper/qool_octagonsettings.cpp
+    SOURCES shapehelper/qool_abstractshapehelper.h shapehelper/qool_abstractshapehelper.cpp
 )
 
 set_target_properties(Qool PROPERTIES
