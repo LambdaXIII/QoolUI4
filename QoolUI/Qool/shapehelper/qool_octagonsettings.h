@@ -8,6 +8,7 @@
 #include <QColor>
 #include <QObject>
 #include <QObjectBindableProperty>
+#include <QPointF>
 #include <QQmlEngine>
 
 QOOL_NS_BEGIN
