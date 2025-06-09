@@ -1,15 +1,14 @@
-qt_add_library(Qool SHARED)
+# qt_add_library(Qool STATIC)
 qt_add_qml_module(Qool
     URI Qool
     RESOURCE_PREFIX /qoolui
     # OUTPUT_DIRECTORY QOOLUI/Qool
     VERSION 4.0
-    QML_FILES MyItemControls.qml
-    SOURCES myitem.cpp myitem.h
 
     SOURCES shapehelper/qool_octagonsettings.h shapehelper/qool_octagonsettings.cpp
     SOURCES shapehelper/qool_abstractshapehelper.h shapehelper/qool_abstractshapehelper.cpp
     SOURCES shapehelper/qool_octagonshapehelper.h shapehelper/qool_octagonshapehelper.cpp
+    QML_FILES OctagonShape.qml
 )
 
 set_target_properties(Qool PROPERTIES

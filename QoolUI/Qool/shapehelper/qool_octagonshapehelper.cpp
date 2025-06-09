@@ -1,5 +1,7 @@
 #include "qool_octagonshapehelper.h"
 
+#include <QDebug>
+
 QOOL_NS_BEGIN
 
 OctagonShapeHelper::OctagonShapeHelper(QObject* parent)
@@ -94,6 +96,46 @@ OctagonShapeHelper::OctagonShapeHelper(QObject* parent)
 
   // TODO: 计算内部点的位置
   // TODO: 绑定多边形变量
+
+  // 合并点坐标
+#define CONNECT_POINT_XY(_N_)                                          \
+  m_external##_N_.setBinding([&] {                                     \
+    return QPointF(                                                    \
+      m_external##_N_##x.value(), m_external##_N_##y.value());         \
+  });                                                                  \
+  m_internal##_N_.setBinding([&] {                                     \
+    return QPointF(                                                    \
+      m_internal##_N_##x.value(), m_internal##_N_##y.value());         \
+  });
+
+  CONNECT_POINT_XY(TL)
+  CONNECT_POINT_XY(TR)
+  CONNECT_POINT_XY(BL)
+  CONNECT_POINT_XY(BR)
+  CONNECT_POINT_XY(LT)
+  CONNECT_POINT_XY(LB)
+  CONNECT_POINT_XY(RT)
+  CONNECT_POINT_XY(RB)
+
+#undef CONNECT_POINT_XY
+}
+
+void OctagonShapeHelper::dumpPoints() const {
+  qDebug() << "目标对象" << target();
+  qDebug() << "形状尺寸" << width() << "x" << height();
+  qDebug() << "外部点坐标" << externalPoints();
+}
+
+QList<QPointF> OctagonShapeHelper::externalPoints() const {
+  return { m_externalTL.value(), m_externalTR.value(),
+    m_externalRT.value(), m_externalRB.value(), m_externalBR.value(),
+    m_externalBL.value(), m_externalLB.value(), m_externalLT.value() };
+}
+
+QList<QPointF> OctagonShapeHelper::internalPoints() const {
+  return { m_internalTL.value(), m_internalTR.value(),
+    m_internalRT.value(), m_internalRB.value(), m_internalBR.value(),
+    m_internalBL.value(), m_internalLB.value(), m_internalLT.value() };
 }
 
 QOOL_NS_END

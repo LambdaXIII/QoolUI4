@@ -1,4 +1,7 @@
 import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import QtQuick.Shapes
 import Qool
 
 Window {
@@ -7,12 +10,15 @@ Window {
     visible: true
     title: qsTr("Hello World")
 
-    MyItem {
-        id: myitem
-    }
-
-    Text {
-        text: myitem.greeting()
-        anchors.centerIn: parent
+    OctagonShape {
+        id: shape
+        anchors.fill: parent
+        settings {
+            cutSizeTL: 60
+            cutSizeBL: 20
+            cutSizeTR: 60
+            cutSizeBR: 100
+            fillColor: "green"
+        }
     }
 }

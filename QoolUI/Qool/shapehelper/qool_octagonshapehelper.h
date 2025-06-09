@@ -22,8 +22,12 @@ class OctagonShapeHelper: public AbstractShapeHelper {
 
 public:
   explicit OctagonShapeHelper(QObject* parent = nullptr);
+  Q_INVOKABLE void dumpPoints() const;
 
 protected:
+  QList<QPointF> externalPoints() const;
+  QList<QPointF> internalPoints() const;
+
   QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeBorderWidth)
   QOOL_BINDABLE_MEMBER(
     OctagonShapeHelper, qreal, safeInternalLeftBorder)
