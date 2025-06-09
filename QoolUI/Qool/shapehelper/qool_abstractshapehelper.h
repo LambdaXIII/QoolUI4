@@ -21,6 +21,7 @@ class AbstractShapeHelper: public QObject {
 
 public:
   explicit AbstractShapeHelper(QObject* parent = nullptr);
+  virtual Q_INVOKABLE void dumpInfo() const;
 
 private:
   Q_SLOT void resetSizeBindings();

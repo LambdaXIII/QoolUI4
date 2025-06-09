@@ -1,5 +1,7 @@
 #include "qool_abstractshapehelper.h"
 
+#include "qoolcommon/debug.hpp"
+
 #include <QSizeF>
 
 QOOL_NS_BEGIN
@@ -13,6 +15,11 @@ AbstractShapeHelper::AbstractShapeHelper(QObject* parent)
 
   connect(
     this, SIGNAL(targetChanged()), this, SLOT(resetSizeBindings()));
+}
+
+void AbstractShapeHelper::dumpInfo() const {
+  xDebugQ << "当前形状目标：" << target();
+  xDebugQ << "当前形状尺寸" << width() << "x" << height();
 }
 
 void AbstractShapeHelper::resetSizeBindings() {

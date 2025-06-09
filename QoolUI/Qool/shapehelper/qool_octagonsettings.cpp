@@ -1,5 +1,7 @@
 #include "qool_octagonsettings.h"
 
+#include "qoolcommon/debug.hpp"
+
 QOOL_NS_BEGIN
 
 OctagonSettings::OctagonSettings(QObject* parent)
@@ -13,42 +15,67 @@ OctagonSettings::OctagonSettings(QObject* parent)
   QOOL_PROPERTY_BINDABLE_INIT_VALUE(fillColor, Qt::yellow);
 }
 
+void OctagonSettings::dumpInfo() const {
+  for (int i = 0; i < metaObject()->propertyCount(); i++) {
+    const auto& prop = metaObject()->property(i);
+    xDebugQ << QString(xDBGRed "%1" xDBGGreen "[" xDBGYellow
+                               "%2" xDBGGreen "]" xDBGReset)
+                 .arg(prop.name(), prop.typeName())
+            << '=' << prop.read(this);
+  }
+}
+
 QString OctagonSettings::cutSizes() const {
-  const QStringList sizes { QString::number(m_cutSizeTL.value()),
-    QString::number(m_cutSizeTR.value()),
-    QString::number(m_cutSizeBR.value()),
-    QString::number(m_cutSizeBL.value()) };
+  const std::array<qreal, 4> numbers({ m_cutSizeTL.value(),
+    m_cutSizeTR.value(), m_cutSizeBR.value(), m_cutSizeBL.value() });
+
+  const std::set<qreal> the_set(numbers.cbegin(), numbers.cend());
+  if (the_set.size() == 1)
+    return QString::number(numbers.at(0));
+
+  QStringList sizes {};
+  std::transform(numbers.begin(), numbers.end(),
+    std::back_inserter(sizes),
+    [&](qreal x) { return QString::number(x); });
   return sizes.join(' ');
 }
 
 void OctagonSettings::set_cutSizes(const QString& sizes) {
   const QStringList ss = sizes.split(' ', Qt::SkipEmptyParts);
   std::vector<qreal> numbers {};
-  std::transform(ss.begin(), ss.end(), numbers.end(),
+  std::transform(ss.begin(), ss.end(), std::back_inserter(numbers),
     [](const QString& x) { return x.toDouble(); });
 
-  Qt::beginPropertyUpdateGroup();
-
-  for (int i = 0; i < numbers.size(); i++) {
-    switch (i) {
-    case 0:
-      set_cutSizeTL(numbers.at(i));
-      break;
-    case 1:
-      set_cutSizeTR(numbers.at(i));
-      break;
-    case 2:
-      set_cutSizeBR(numbers.at(i));
-      break;
-    case 3:
-      set_cutSizeBL(numbers.at(i));
-      break;
-    default:
-      break;
+  if (numbers.size() == 1) {
+    Qt::beginPropertyUpdateGroup();
+    const auto a = numbers.at(0);
+    set_cutSizeTL(a);
+    set_cutSizeTR(a);
+    set_cutSizeBL(a);
+    set_cutSizeBR(a);
+    Qt::endPropertyUpdateGroup();
+  } else {
+    Qt::beginPropertyUpdateGroup();
+    for (int i = 0; i < numbers.size(); i++) {
+      switch (i) {
+      case 0:
+        set_cutSizeTL(numbers.at(i));
+        break;
+      case 1:
+        set_cutSizeTR(numbers.at(i));
+        break;
+      case 2:
+        set_cutSizeBR(numbers.at(i));
+        break;
+      case 3:
+        set_cutSizeBL(numbers.at(i));
+        break;
+      default:
+        break;
+      }
     }
+    Qt::endPropertyUpdateGroup();
   }
-
-  Qt::endPropertyUpdateGroup();
 }
 
 QOOL_NS_END

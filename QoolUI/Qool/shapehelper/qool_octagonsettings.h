@@ -37,6 +37,7 @@ class OctagonSettings: public QObject {
 
 public:
   explicit OctagonSettings(QObject* parent = nullptr);
+  Q_INVOKABLE void dumpInfo() const;
 };
 
 QOOL_NS_END
