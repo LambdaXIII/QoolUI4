@@ -22,25 +22,20 @@ class OctagonShapeHelper: public AbstractShapeHelper {
 
 public:
   explicit OctagonShapeHelper(QObject* parent = nullptr);
-  Q_INVOKABLE void dumpPoints() const;
+  Q_INVOKABLE void dumpInfo() const override;
 
 protected:
   QList<QPointF> externalPoints() const;
   QList<QPointF> internalPoints() const;
 
   QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeBorderWidth)
-  QOOL_BINDABLE_MEMBER(
-    OctagonShapeHelper, qreal, safeInternalLeftBorder)
-  QOOL_BINDABLE_MEMBER(
-    OctagonShapeHelper, qreal, safeInternalRightBorder)
-  QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeInternalTopBorder)
-  QOOL_BINDABLE_MEMBER(
-    OctagonShapeHelper, qreal, safeInternalBottomBorder)
   QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, shortEdgeLength)
   QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeTL)
   QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeTR)
   QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeBL)
   QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeBR)
+
+  QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, internalDistance)
 
 #define DECL_POINT(_N_)                                                \
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(                         \
