@@ -14,11 +14,8 @@ Window {
         id: shape
         anchors.fill: parent
         settings {
-            borderWidth: 60
-            cutSizeTL: 20
-            cutSizeBL: 160
-            cutSizeTR: 60
-            cutSizeBR: 100
+            borderWidth: 25
+            cutSizes: "40"
             fillColor: "green"
         }
     }

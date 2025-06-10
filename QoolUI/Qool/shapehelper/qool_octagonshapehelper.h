@@ -29,13 +29,21 @@ protected:
   QList<QPointF> internalPoints() const;
 
   QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeBorderWidth)
-  QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, shortEdgeLength)
-  QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeTL)
-  QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeTR)
-  QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeBL)
-  QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeBR)
-
   QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, internalDistance)
+  QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, shortEdgeLength)
+  // QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeTL)
+  // QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeTR)
+  // QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeBL)
+  // QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeBR)
+
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    OctagonShapeHelper, qreal, safeTR)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    OctagonShapeHelper, qreal, safeTL)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    OctagonShapeHelper, qreal, safeBL)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    OctagonShapeHelper, qreal, safeBR)
 
 #define DECL_POINT(_N_)                                                \
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(                         \

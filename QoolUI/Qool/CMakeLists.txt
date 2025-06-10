@@ -1,9 +1,22 @@
+set(QOOL_NS "qoolui")
+
+file(GLOB QOOL_INTERNAL_QML_FILES "${CMAKE_CURRENT_SOURCE_DIR}/_private/**.*")
+set_source_files_properties(
+    ${QOOL_INTERNAL_QML_FILES}
+    PROPERTIES
+        QT_QML_INTERNAL_TYPE TRUE
+)
+
+
 # qt_add_library(Qool STATIC)
 qt_add_qml_module(Qool
     URI Qool
     RESOURCE_PREFIX /qoolui
     # OUTPUT_DIRECTORY QOOLUI/Qool
     VERSION 4.0
+    NAMESPACE ${QOOL_NS}
+
+    QML_FILES ${QOOL_INTERNAL_QML_FILES}
 
     SOURCES shapehelper/qool_octagonsettings.h shapehelper/qool_octagonsettings.cpp
     SOURCES shapehelper/qool_abstractshapehelper.h shapehelper/qool_abstractshapehelper.cpp

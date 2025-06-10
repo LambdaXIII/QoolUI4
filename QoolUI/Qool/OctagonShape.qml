@@ -13,8 +13,7 @@ Shape {
         target: root
     }
 
-    preferredRendererType: Shape.CurveRenderer
-
+    // preferredRendererType: Shape.CurveRenderer
     ShapePath {
         id: strokeShape
         fillColor: root.settings.borderColor
