@@ -1,6 +1,6 @@
 set(QOOL_NS "qoolui")
 
-file(GLOB QOOL_INTERNAL_QML_FILES "${CMAKE_CURRENT_SOURCE_DIR}/_private/**.*")
+file(GLOB QOOL_INTERNAL_QML_FILES "${CMAKE_CURRENT_SOURCE_DIR}/_private/*.qml")
 set_source_files_properties(
     ${QOOL_INTERNAL_QML_FILES}
     PROPERTIES
@@ -16,11 +16,12 @@ qt_add_qml_module(Qool
     VERSION 4.0
     NAMESPACE ${QOOL_NS}
 
-    QML_FILES ${QOOL_INTERNAL_QML_FILES}
+    QML_FILES _private/QoolWindowCloseButtonFace.qml
 
     SOURCES shapehelper/qool_octagonsettings.h shapehelper/qool_octagonsettings.cpp
     SOURCES shapehelper/qool_abstractshapehelper.h shapehelper/qool_abstractshapehelper.cpp
     SOURCES shapehelper/qool_octagonshapehelper.h shapehelper/qool_octagonshapehelper.cpp
+    SOURCES shapehelper/qool_shapehelper.h shapehelper/qool_shapehelper.cpp
     QML_FILES OctagonShape.qml
 )
 
