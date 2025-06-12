@@ -7,7 +7,6 @@ set_source_files_properties(
         QT_QML_INTERNAL_TYPE TRUE
 )
 
-
 # qt_add_library(Qool STATIC)
 qt_add_qml_module(Qool
     URI Qool

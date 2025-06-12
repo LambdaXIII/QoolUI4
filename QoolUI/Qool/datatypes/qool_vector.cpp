@@ -44,6 +44,18 @@ const QVector2D& Vector::vector2d() const {
   return m_data->at(3);
 }
 
+QVector2D Vector::normalizedVector() const {
+  return vector2d().normalized();
+}
+
+float Vector::x() const {
+  return m_data->at(2).x();
+}
+
+float Vector::y() const {
+  return m_data->at(2).y();
+}
+
 float Vector::length() const {
   return m_data->at(3).length();
 }
@@ -110,11 +122,6 @@ bool Vector::operator!=(const Vector& other) const {
   return ! operator==(other);
 }
 
-bool Vector::qFuzzyCompare(const Vector& v1, const Vector& v2) {
-  return qFuzzyCompare(v1.from(), v2.from())
-         && qFuzzyCompare(v1.to(), v2.to());
-}
-
 Vector Vector::operator+(const Vector& other) const {
   QVector2D new_to = to() + other.vector2d();
   return { from().toPointF(), new_to.toPointF() };
@@ -128,6 +135,29 @@ Vector Vector::operator+(const QVector2D& other) const {
 Vector Vector::operator*(qreal factor) const {
   QPointF new_to = to().toPointF() * factor;
   return { from().toPointF(), new_to };
+}
+
+Vector Vector::withNewFrom(const QPointF& f) const {
+  return { QVector2D(f), m_data->at(1) };
+}
+
+Vector Vector::withNewTo(const QPointF& t) const {
+  return { m_data->at(0), QVector2D(t) };
+}
+
+Vector Vector::withNewLength(float new_length) const {
+  const auto length1 = length();
+  if (length1 == 0) {
+    return Vector(QPointF(new_length, 0));
+  }
+  const float factor = new_length / length1;
+  const float _x = m_data->at(1).x() * factor;
+  const float _y = m_data->at(1).y() * factor;
+  return Vector(m_data->at(0), QVector2D(_x, _y));
+}
+
+Vector::Vector(const QVector2D& v1, const QVector2D& v2)
+  : m_data { new Data({ v1, v2, v2 - v1 }) } {
 }
 
 QOOL_NS_END

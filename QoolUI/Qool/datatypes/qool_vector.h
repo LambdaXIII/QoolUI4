@@ -30,6 +30,9 @@ public:
   const QVector2D& from() const;
   const QVector2D& to() const;
   const QVector2D& vector2d() const;
+  QVector2D normalizedVector() const;
+  float x() const;
+  float y() const;
 
   float length() const;
   float radian() const;
@@ -40,13 +43,19 @@ public:
 
   bool operator==(const Vector& other) const;
   bool operator!=(const Vector& other) const;
-  static bool qFuzzyCompare(const Vector& v1, const Vector& v2);
 
   Vector operator+(const Vector& other) const;
   Vector operator+(const QVector2D& other) const;
   Vector operator*(qreal factor) const;
 
+  Q_INVOKABLE Vector withNewFrom(const QPointF&) const;
+  Q_INVOKABLE Vector withNewTo(const QPointF&) const;
+  Q_INVOKABLE Vector withNewLength(float) const;
+  Q_INVOKABLE Vector withNewRadian(float) const;
+  Q_INVOKABLE Vector withNewAngle(float) const;
+
 private:
+  Vector(const QVector2D& v1, const QVector2D& v2);
   std::shared_ptr<Data> m_data;
   static std::shared_ptr<Data> m_zero_data;
 };
