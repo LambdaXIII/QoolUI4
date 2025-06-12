@@ -1,8 +1,28 @@
 #include "qool_shapehelper.h"
 
+#include "gadgets/qool_shapehelpergadget.h"
 #include "qoolcommon/debug.hpp"
 
 QOOL_NS_BEGIN
+
+QQmlListProperty<QObject> ShapeHelper::gadgets() {
+  return { this, nullptr, __append_gadget, nullptr, nullptr, nullptr };
+}
+
+void ShapeHelper::__append_gadget(
+  QQmlListProperty<QObject>* list, QObject* item) {
+  ShapeHelper* obj = qobject_cast<ShapeHelper*>(list->object);
+  obj->m_gadgets.append(item);
+  item->setParent(obj);
+
+  ShapeHelperGadget* gadget = qobject_cast<ShapeHelperGadget*>(item);
+  if (gadget == nullptr) {
+    xWarning << xDBGToken(obj->staticMetaObject.className()) << item
+             << "is not a ShapeHelperGadget.";
+    return;
+  }
+  gadget->set_shapeHelper(obj);
+}
 
 ShapeHelper::ShapeHelper(QObject* parent)
   : AbstractShapeHelper { parent } {

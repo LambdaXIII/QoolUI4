@@ -10,12 +10,23 @@
 #include <QObject>
 #include <QPointF>
 #include <QQmlEngine>
+#include <QQmlListProperty>
 
 QOOL_NS_BEGIN
 
 class ShapeHelper: public AbstractShapeHelper {
   Q_OBJECT
   QML_ELEMENT
+
+  // gadget support
+  Q_CLASSINFO("DefaultProperty", "gadgets")
+  QML_LIST_PROPERTY_ASSIGN_BEHAVIOR_APPEND
+  Q_PROPERTY(QQmlListProperty<QObject> gadgets READ gadgets CONSTANT)
+  QObjectList m_gadgets;
+  QQmlListProperty<QObject> gadgets();
+  static void __append_gadget(
+    QQmlListProperty<QObject>* list, QObject* item);
+
 public:
   explicit ShapeHelper(QObject* parent = nullptr);
   Q_INVOKABLE void dumpInfo() const override;
