@@ -20,6 +20,14 @@ public:
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
     ShapeHelperGadget, ShapeHelper*, shapeHelper)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+    ShapeHelperGadget, QQuickItem*, shapeTarget)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    ShapeHelperGadget, qreal, targetWidth)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    ShapeHelperGadget, qreal, targetHeight)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    ShapeHelperGadget, QSizeF, targetSize)
 };
 
 QOOL_NS_END
