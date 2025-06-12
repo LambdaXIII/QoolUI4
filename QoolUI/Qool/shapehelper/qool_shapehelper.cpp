@@ -15,14 +15,15 @@ ShapeHelper::ShapeHelper(QObject* parent)
 
 void ShapeHelper::dumpInfo() const {
   QMap<QString, QPointF> points;
-#define INSERT_POINT(N) points[#N] = point##N();
-  QOOL_MACRO_FOREACH(INSERT_POINT, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-  QOOL_MACRO_FOREACH(
-    INSERT_POINT, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
-  QOOL_MACRO_FOREACH(INSERT_POINT, 20, 21, 22, 23, 24)
-  QOOL_MACRO_FOREACH(INSERT_POINT, A, B, C, D, E, F, G, H, I, J, K, L,
-    M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z)
-#undef INSERT_POINT
+#define INSERT_P(N) points[#N] = point##N();
+  QOOL_FOREACH_10(INSERT_P, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+  QOOL_FOREACH_10(INSERT_P, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+  QOOL_FOREACH_5(INSERT_P, 20, 21, 22, 23, 24)
+
+  QOOL_FOREACH_10(INSERT_P, Q, W, E, R, T, Y, U, I, O, P)
+  QOOL_FOREACH_9(INSERT_P, A, S, D, F, G, H, J, K, L)
+  QOOL_FOREACH_7(INSERT_P, Z, X, C, V, B, N, M)
+#undef INSERT_P
 
   QStringList results;
   for (auto iter = points.constBegin(); iter != points.constEnd();
@@ -38,7 +39,7 @@ void ShapeHelper::dumpInfo() const {
   xDebugQ << results;
 }
 
-#define IMPL_POINT(_N_)                                                \
+#define IMPL_P(_N_)                                                    \
   qreal ShapeHelper::point##_N_##x() const {                           \
     return m_point##_N_##x.value();                                    \
   }                                                                    \
@@ -67,30 +68,38 @@ void ShapeHelper::dumpInfo() const {
     return &m_point##_N_##y;                                           \
   }                                                                    \
   void ShapeHelper::__setup_point##_N_() {                             \
-    connect(this, &ShapeHelper::point##_N_##xChanged, this,            \
+    connect(this,                                                      \
+      &ShapeHelper::point##_N_##xChanged,                              \
+      this,                                                            \
       &ShapeHelper::point##_N_##Changed);                              \
-    connect(this, &ShapeHelper::point##_N_##yChanged, this,            \
+    connect(this,                                                      \
+      &ShapeHelper::point##_N_##yChanged,                              \
+      this,                                                            \
       &ShapeHelper::point##_N_##Changed);                              \
   }                                                                    \
   QBindable<QPointF> ShapeHelper::bindable_point##_N_() {              \
     return QBindable<QPointF>(this, "point" #_N_);                     \
   }
 
-QOOL_MACRO_FOREACH(IMPL_POINT, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-QOOL_MACRO_FOREACH(IMPL_POINT, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
-QOOL_MACRO_FOREACH(IMPL_POINT, 20, 21, 22, 23, 24)
-QOOL_MACRO_FOREACH(IMPL_POINT, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
-  O, P, Q, R, S, T, U, V, W, X, Y, Z)
+QOOL_FOREACH_10(IMPL_P, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+QOOL_FOREACH_10(IMPL_P, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+QOOL_FOREACH_5(IMPL_P, 20, 21, 22, 23, 24)
 
-#undef IMPL_POINT
+QOOL_FOREACH_10(IMPL_P, Q, W, E, R, T, Y, U, I, O, P)
+QOOL_FOREACH_9(IMPL_P, A, S, D, F, G, H, J, K, L)
+QOOL_FOREACH_7(IMPL_P, Z, X, C, V, B, N, M)
+
+#undef IMPL_P
 
 void ShapeHelper::__setup_all_points() {
 #define SETUP_P(NAME) __setup_point##NAME();
-  QOOL_MACRO_FOREACH(SETUP_P, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-  QOOL_MACRO_FOREACH(SETUP_P, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19);
-  QOOL_MACRO_FOREACH(SETUP_P, 20, 21, 22, 23, 24);
-  QOOL_MACRO_FOREACH(SETUP_P, A, B, C, D, E, F, G, H, I, J, K, L, M, N,
-    O, P, Q, R, S, T, U, V, W, X, Y, Z);
+  QOOL_FOREACH_10(SETUP_P, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+  QOOL_FOREACH_10(SETUP_P, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19);
+  QOOL_FOREACH_5(SETUP_P, 20, 21, 22, 23, 24);
+
+  QOOL_FOREACH_10(SETUP_P, Q, W, E, R, T, Y, U, I, O, P);
+  QOOL_FOREACH_9(SETUP_P, A, S, D, F, G, H, J, K, L);
+  QOOL_FOREACH_7(SETUP_P, Z, X, C, V, B, N, M);
 #undef SETUP_P
 } // __setup_all_points
 

@@ -6,6 +6,7 @@
 #include "qoolcommon/macro_foreach.hpp"
 #include "qoolcommon/qoolns.hpp"
 
+#include <QBindable>
 #include <QObject>
 #include <QPointF>
 #include <QQmlEngine>
@@ -22,7 +23,7 @@ public:
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
     ShapeHelper, QPointF, boundingCenter)
 
-#define DECL_POINT(NAME)                                               \
+#define DECL_P(NAME)                                                   \
 public:                                                                \
   Q_SIGNAL void point##NAME##Changed();                                \
   Q_SIGNAL void point##NAME##xChanged();                               \
@@ -53,14 +54,15 @@ private:                                                               \
     qreal point##NAME##y READ point##NAME##y WRITE set_point##NAME##y  \
       NOTIFY point##NAME##yChanged BINDABLE bindable_point##NAME##y)
 
-  QOOL_MACRO_FOREACH(DECL_POINT, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-  QOOL_MACRO_FOREACH(DECL_POINT, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
-  QOOL_MACRO_FOREACH(DECL_POINT, 20, 21, 22, 23, 24)
+  QOOL_FOREACH_10(DECL_P, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+  QOOL_FOREACH_10(DECL_P, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+  QOOL_FOREACH_5(DECL_P, 20, 21, 22, 23, 24)
 
-  QOOL_MACRO_FOREACH(DECL_POINT, A, B, C, D, E, F, G, H, I, J, K, L, M,
-    N, O, P, Q, R, S, T, U, V, W, X, Y, Z)
+  QOOL_FOREACH_10(DECL_P, Q, W, E, R, T, Y, U, I, O, P)
+  QOOL_FOREACH_9(DECL_P, A, S, D, F, G, H, J, K, L)
+  QOOL_FOREACH_7(DECL_P, Z, X, C, V, B, N, M)
 
-#undef DECL_POINT
+#undef DECL_P
 
 private:
   void __setup_all_points();
