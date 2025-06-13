@@ -122,3 +122,19 @@ Polar2D Polar2D::fromPolar(const std::pair<qreal, qreal>& polar) {
 }
 
 QOOL_NS_END
+
+QVector2D operator+(const QVector2D& a, const QOOL_NS::Polar2D& b) {
+  return a + b.toVector2D();
+}
+
+QVector2D operator-(const QVector2D& a, const QOOL_NS::Polar2D& b) {
+  return a - b.toVector2D();
+}
+
+QPointF operator+(const QPointF& a, const QOOL_NS::Polar2D& b) {
+  return a + b.toPointF();
+}
+
+QPointF operator-(const QPointF& a, const QOOL_NS::Polar2D& b) {
+  return a - b.toPointF();
+}

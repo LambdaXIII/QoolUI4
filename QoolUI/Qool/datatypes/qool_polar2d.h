@@ -78,4 +78,9 @@ private:
 
 QOOL_NS_END
 
+QVector2D operator+(const QVector2D&, const QOOL_NS::Polar2D&);
+QVector2D operator-(const QVector2D&, const QOOL_NS::Polar2D&);
+QPointF operator+(const QPointF&, const QOOL_NS::Polar2D&);
+QPointF operator-(const QPointF&, const QOOL_NS::Polar2D&);
+
 #endif // QOOL_POLAR2D_H
