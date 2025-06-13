@@ -24,6 +24,7 @@ qt_add_qml_module(Qool
     QML_FILES OctagonShape.qml
     SOURCES shapehelper/gadgets/qool_shapehelpergadget.h shapehelper/gadgets/qool_shapehelpergadget.cpp
     SOURCES datatypes/qool_vector.h datatypes/qool_vector.cpp
+    SOURCES shapehelper/gadgets/qool_shapehelpergadget_circle.h shapehelper/gadgets/qool_shapehelpergadget_circle.cpp
 )
 
 set_target_properties(Qool PROPERTIES
