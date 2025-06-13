@@ -127,6 +127,18 @@ inline float degrees_from_radians(float rad) {
   return rad * 180.0f / M_PI;
 }
 
+inline std::pair<float, float> polar_from_xy(float x, float y) {
+  float angle = std::atan2(y, x);
+  float radius = std::hypot(x, y);
+  return { radius, angle };
+}
+
+inline std::pair<float, float> xy_from_polar(float r, float a) {
+  float x = r * std::cos(a);
+  float y = r * std::sin(a);
+  return { x, y };
+}
+
 }; // namespace math
 
 QOOL_NS_END
