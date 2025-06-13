@@ -32,12 +32,12 @@ Vector::Vector(const QPointF& from, const QPointF& to) {
   m_data = std::shared_ptr<Data>(new Data({ v1, v2, v3 }));
 }
 
-const QVector2D& Vector::from() const {
-  return m_data->at(0);
+QPointF Vector::from() const {
+  return m_data->at(0).toPointF();
 }
 
-const QVector2D& Vector::to() const {
-  return m_data->at(1);
+QPointF Vector::to() const {
+  return m_data->at(1).toPointF();
 }
 
 const QVector2D& Vector::vector2d() const {
@@ -93,18 +93,18 @@ bool Vector::operator!=(const Vector& other) const {
 }
 
 Vector Vector::operator+(const Vector& other) const {
-  QVector2D new_to = to() + other.vector2d();
-  return { from().toPointF(), new_to.toPointF() };
+  QVector2D new_to = m_data->at(1) + other.vector2d();
+  return { from(), new_to.toPointF() };
 }
 
 Vector Vector::operator+(const QVector2D& other) const {
-  QVector2D new_to = to() + other;
-  return { from().toPointF(), new_to.toPointF() };
+  QVector2D new_to = m_data->at(1) + other;
+  return { from(), new_to.toPointF() };
 }
 
 Vector Vector::operator*(qreal factor) const {
-  QPointF new_to = to().toPointF() * factor;
-  return { from().toPointF(), new_to };
+  auto new_to = m_data->at(1) * factor;
+  return { from(), new_to.toPointF() };
 }
 
 Vector Vector::withNewFrom(const QPointF& f) const {
@@ -139,7 +139,7 @@ Vector Vector::withNewDegrees(float deg) const {
 }
 
 Vector Vector::withNewVector2D(const QVector2D& vector) const {
-  const auto v1 = from();
+  const auto v1 = m_data->at(0);
   const auto v2 = v1 + vector;
   return Vector(v1, v2);
 }

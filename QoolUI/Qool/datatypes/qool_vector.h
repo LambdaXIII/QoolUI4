@@ -27,8 +27,8 @@ public:
   Vector(const Vector& other);
   Vector(const QPointF& from, const QPointF& to);
 
-  const QVector2D& from() const;
-  const QVector2D& to() const;
+  QPointF from() const;
+  QPointF to() const;
   const QVector2D& vector2d() const;
   QVector2D normalizedVector() const;
   float x() const;
@@ -60,8 +60,8 @@ private:
   std::shared_ptr<Data> m_data;
   static std::shared_ptr<Data> m_zero_data;
 
-  Q_PROPERTY(QVector2D from READ from CONSTANT)
-  Q_PROPERTY(QVector2D to READ to CONSTANT)
+  Q_PROPERTY(QPointF from READ from CONSTANT)
+  Q_PROPERTY(QPointF to READ to CONSTANT)
   Q_PROPERTY(QVector2D vector2d READ vector2d CONSTANT)
   Q_PROPERTY(QVector2D normalized READ normalizedVector CONSTANT)
   Q_PROPERTY(float x READ x CONSTANT)
