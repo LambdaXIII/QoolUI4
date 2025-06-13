@@ -1,6 +1,7 @@
 #ifndef QOOL_SHAPEHELPERGADGET_CIRCLE_H
 #define QOOL_SHAPEHELPERGADGET_CIRCLE_H
 
+#include "datatypes/qool_polar2d.h"
 #include "qool_shapehelpergadget.h"
 
 #include <QObject>
@@ -25,6 +26,9 @@ public:
   Q_INVOKABLE qreal distanceFromCenter(const QPointF& p) const;
   Q_INVOKABLE bool isInside(const QPointF& p) const;
   Q_INVOKABLE bool isOnCircle(const QPointF& p) const;
+  Q_INVOKABLE Polar2D polar(const QPointF&) const;
+
+  Q_INVOKABLE QPointF keepInside(const QPointF&) const;
 };
 
 QOOL_NS_END

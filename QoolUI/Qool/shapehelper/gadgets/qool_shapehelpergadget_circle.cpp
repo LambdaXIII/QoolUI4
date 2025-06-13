@@ -1,6 +1,9 @@
 #include "qool_shapehelpergadget_circle.h"
 
+#include "datatypes/qool_polar2d.h"
 #include "qoolcommon/math.hpp"
+
+#include <QPointF>
 
 QOOL_NS_BEGIN
 
@@ -24,6 +27,18 @@ bool ShapeHelperGadget_Circle::isInside(const QPointF& p) const {
 
 bool ShapeHelperGadget_Circle::isOnCircle(const QPointF& p) const {
   return math::is_equal(distanceFromCenter(p), radius());
+}
+
+Polar2D ShapeHelperGadget_Circle::polar(const QPointF& p) const {
+  return { vectorFromCenter(p) };
+}
+
+QPointF ShapeHelperGadget_Circle::keepInside(const QPointF& p) const {
+  const auto r = radius();
+  const auto polar = Polar2D(vectorFromCenter(p));
+  if (polar.radius() <= r)
+    return p;
+  return polar.withRadius(r).toPointF();
 }
 
 QOOL_NS_END
