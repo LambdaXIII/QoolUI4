@@ -24,14 +24,14 @@ public:
   Polar2D(const QPointF&);
   Polar2D(const QPoint&);
   Polar2D(const QVector2D&);
-  Polar2D(float radius, float angle);
+  Polar2D(qreal radius, qreal angle);
 
   Polar2D(const Polar2D& other);
 
-  float radius() const;
-  float angle() const;
-  float x() const;
-  float y() const;
+  qreal radius() const;
+  qreal angle() const;
+  qreal x() const;
+  qreal y() const;
   bool isCenter() const;
 
   Q_INVOKABLE QVector2D toVector2D() const;
@@ -42,13 +42,13 @@ public:
   operator QPointF() const;
   operator QPoint() const;
 
-  Q_INVOKABLE Polar2D withRadius(float r) const;
-  Q_INVOKABLE Polar2D withAngle(float a) const;
+  Q_INVOKABLE Polar2D withRadius(qreal r) const;
+  Q_INVOKABLE Polar2D withAngle(qreal a) const;
 
-  static Polar2D fromPos(float x, float y);
-  static Polar2D fromPos(const std::pair<float, float>& xy);
-  static Polar2D fromPolar(float r, float a);
-  static Polar2D fromPolar(const std::pair<float, float>& polar);
+  static Polar2D fromPos(qreal x, qreal y);
+  static Polar2D fromPos(const std::pair<qreal, qreal>& xy);
+  static Polar2D fromPolar(qreal r, qreal a);
+  static Polar2D fromPolar(const std::pair<qreal, qreal>& polar);
 
 private:
   struct Data: public QSharedData {
@@ -68,10 +68,10 @@ private:
 
   QSharedDataPointer<Data> m_data;
 
-  Q_PROPERTY(float radius READ radius CONSTANT)
-  Q_PROPERTY(float angle READ angle CONSTANT)
-  Q_PROPERTY(float x READ x CONSTANT)
-  Q_PROPERTY(float y READ y CONSTANT)
+  Q_PROPERTY(qreal radius READ radius CONSTANT)
+  Q_PROPERTY(qreal angle READ angle CONSTANT)
+  Q_PROPERTY(qreal x READ x CONSTANT)
+  Q_PROPERTY(qreal y READ y CONSTANT)
   Q_PROPERTY(bool isCenter READ isCenter CONSTANT)
   Q_PROPERTY(QVector2D vector2D READ toVector2D CONSTANT)
 };

@@ -41,7 +41,7 @@ Polar2D::Polar2D(const QVector2D& p)
   m_data->a = polar.second;
 }
 
-Polar2D::Polar2D(float radius, float angle) {
+Polar2D::Polar2D(qreal radius, qreal angle) {
   auto xy = math::xy_from_polar(radius, angle);
   m_data->x = xy.first;
   m_data->y = xy.second;
@@ -53,19 +53,19 @@ Polar2D::Polar2D(const Polar2D& other)
   : m_data { other.m_data } {
 }
 
-float Polar2D::radius() const {
+qreal Polar2D::radius() const {
   return m_data->r;
 }
 
-float Polar2D::angle() const {
+qreal Polar2D::angle() const {
   return m_data->a;
 }
 
-float Polar2D::x() const {
+qreal Polar2D::x() const {
   return m_data->x;
 }
 
-float Polar2D::y() const {
+qreal Polar2D::y() const {
   return m_data->y;
 }
 
@@ -97,27 +97,27 @@ Polar2D::operator QPoint() const {
   return toPoint();
 }
 
-Polar2D Polar2D::withRadius(float r) const {
+Polar2D Polar2D::withRadius(qreal r) const {
   return Polar2D(r, angle());
 }
 
-Polar2D Polar2D::withAngle(float a) const {
+Polar2D Polar2D::withAngle(qreal a) const {
   return Polar2D(radius(), a);
 }
 
-Polar2D Polar2D::fromPos(float x, float y) {
+Polar2D Polar2D::fromPos(qreal x, qreal y) {
   return Polar2D(QPointF(x, y));
 }
 
-Polar2D Polar2D::fromPos(const std::pair<float, float>& xy) {
+Polar2D Polar2D::fromPos(const std::pair<qreal, qreal>& xy) {
   return fromPos(xy.first, xy.second);
 }
 
-Polar2D Polar2D::fromPolar(float r, float a) {
+Polar2D Polar2D::fromPolar(qreal r, qreal a) {
   return Polar2D(r, a);
 }
 
-Polar2D Polar2D::fromPolar(const std::pair<float, float>& polar) {
+Polar2D Polar2D::fromPolar(const std::pair<qreal, qreal>& polar) {
   return Polar2D(polar.first, polar.second);
 }
 
