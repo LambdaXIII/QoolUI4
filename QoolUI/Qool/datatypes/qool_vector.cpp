@@ -1,6 +1,6 @@
 #include "qool_vector.h"
 
-#include <cmath>
+#include "qoolcommon/math.hpp"
 
 QOOL_NS_BEGIN
 
@@ -60,45 +60,15 @@ float Vector::length() const {
   return m_data->at(3).length();
 }
 
-// 测算象限
-int __quadrant(float x, float y) {
-  if (x >= 0 && y >= 0)
-    return 1;
-  if (x < 0 && y >= 0)
-    return 2;
-  if (x < 0 && y < 0)
-    return 3;
-  if (x >= 0 && y < 0)
-    return 4;
-  return 0;
-}
-
-float __normalize_radian(float rad) {
-  while (rad >= M_PI * 2 || rad < 0) {
-    if (rad >= M_PI * 2)
-      rad -= M_PI * 2;
-    if (rad < 0)
-      rad += M_PI * 2;
-  }
-  return rad;
-}
-
-float Vector::radian() const {
+float Vector::radians() const {
   const auto& x = m_data->at(3).x();
   const auto& y = m_data->at(3).y();
-  float atan = std::atan(y / x);
-  int q = __quadrant(x, y);
-  float result = atan;
-  if (q == 2 || q == 3)
-    result = atan + M_PI;
-  if (q == 4)
-    result = atan + M_PI * 2;
-  return __normalize_radian(result);
+  return math::vector_radians(x, y);
 }
 
-float Vector::angle() const {
-  static const qreal ONE_CIRCLE_RADIAN { M_PI * 2 };
-  return radian() / ONE_CIRCLE_RADIAN;
+float Vector::degrees() const {
+  const auto rad = radians();
+  return qRadiansToDegrees(rad);
 }
 
 Vector::operator QVector2D() const {
@@ -154,6 +124,24 @@ Vector Vector::withNewLength(float new_length) const {
   const float _x = m_data->at(1).x() * factor;
   const float _y = m_data->at(1).y() * factor;
   return Vector(m_data->at(0), QVector2D(_x, _y));
+}
+
+Vector Vector::withNewRadians(float new_rad) const {
+  const float old_length = length();
+  const auto xy = math::vector_from_radians(old_length, new_rad);
+  QVector2D vec { xy.first, xy.second };
+  return withNewVector2D(vec);
+}
+
+Vector Vector::withNewDegrees(float deg) const {
+  const float rad = qDegreesToRadians(deg);
+  return withNewRadians(rad);
+}
+
+Vector Vector::withNewVector2D(const QVector2D& vector) const {
+  const auto v1 = from();
+  const auto v2 = v1 + vector;
+  return Vector(v1, v2);
 }
 
 Vector::Vector(const QVector2D& v1, const QVector2D& v2)

@@ -13,7 +13,7 @@ find_package(Qt6 6.2 COMPONENTS Core Quick REQUIRED)
 qt_standard_project_setup(REQUIRES 6.5)
 
 if(QT_KNOWN_POLICY_QPT0004)
-  qt_policy(SET QPT0004 NEW)
+qt_policy(SET QPT0004 NEW)
 endif()
 
 add_library(GENERAL_HELP INTERFACE EXCLUDE_FROM_ALL

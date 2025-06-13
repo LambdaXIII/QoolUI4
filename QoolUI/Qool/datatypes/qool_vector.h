@@ -35,8 +35,8 @@ public:
   float y() const;
 
   float length() const;
-  float radian() const;
-  float angle() const;
+  float radians() const;
+  float degrees() const;
 
   operator QVector2D() const;
   operator QPointF() const;
@@ -51,13 +51,24 @@ public:
   Q_INVOKABLE Vector withNewFrom(const QPointF&) const;
   Q_INVOKABLE Vector withNewTo(const QPointF&) const;
   Q_INVOKABLE Vector withNewLength(float) const;
-  Q_INVOKABLE Vector withNewRadian(float) const;
-  Q_INVOKABLE Vector withNewAngle(float) const;
+  Q_INVOKABLE Vector withNewRadians(float) const;
+  Q_INVOKABLE Vector withNewDegrees(float) const;
+  Q_INVOKABLE Vector withNewVector2D(const QVector2D&) const;
 
 private:
   Vector(const QVector2D& v1, const QVector2D& v2);
   std::shared_ptr<Data> m_data;
   static std::shared_ptr<Data> m_zero_data;
+
+  Q_PROPERTY(QVector2D from READ from CONSTANT)
+  Q_PROPERTY(QVector2D to READ to CONSTANT)
+  Q_PROPERTY(QVector2D vector2d READ vector2d CONSTANT)
+  Q_PROPERTY(QVector2D normalized READ normalizedVector CONSTANT)
+  Q_PROPERTY(float x READ x CONSTANT)
+  Q_PROPERTY(float y READ y CONSTANT)
+  Q_PROPERTY(float length READ length CONSTANT)
+  Q_PROPERTY(float radians READ radians CONSTANT)
+  Q_PROPERTY(float degrees READ degrees CONSTANT)
 };
 
 QOOL_NS_END
