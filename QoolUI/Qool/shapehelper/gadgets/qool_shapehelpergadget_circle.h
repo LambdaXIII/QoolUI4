@@ -26,7 +26,7 @@ public:
   Q_INVOKABLE qreal distanceFromCenter(const QPointF& p) const;
   Q_INVOKABLE bool isInside(const QPointF& p) const;
   Q_INVOKABLE bool isOnCircle(const QPointF& p) const;
-  Q_INVOKABLE Polar2D polar(const QPointF&) const;
+  Q_INVOKABLE Polar2D polar2d(const QPointF&) const;
 
   Q_INVOKABLE QPointF keepInside(const QPointF&) const;
 };

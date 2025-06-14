@@ -29,7 +29,7 @@ bool ShapeHelperGadget_Circle::isOnCircle(const QPointF& p) const {
   return math::is_equal(distanceFromCenter(p), radius());
 }
 
-Polar2D ShapeHelperGadget_Circle::polar(const QPointF& p) const {
+Polar2D ShapeHelperGadget_Circle::polar2d(const QPointF& p) const {
   return { vectorFromCenter(p) };
 }
 
