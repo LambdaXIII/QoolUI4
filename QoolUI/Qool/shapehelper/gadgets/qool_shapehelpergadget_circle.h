@@ -18,6 +18,15 @@ class ShapeHelperGadget_Circle: public ShapeHelperGadget {
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
     ShapeHelperGadget_Circle, qreal, radius)
 
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    ShapeHelperGadget_Circle, QPointF, topPoint)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    ShapeHelperGadget_Circle, QPointF, bottomPoint)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    ShapeHelperGadget_Circle, QPointF, leftPoint)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    ShapeHelperGadget_Circle, QPointF, rightPoint)
+
 public:
   explicit ShapeHelperGadget_Circle(QObject* parent = nullptr);
   ~ShapeHelperGadget_Circle() = default;
@@ -29,6 +38,10 @@ public:
   Q_INVOKABLE Polar2D polar2d(const QPointF&) const;
 
   Q_INVOKABLE QPointF keepInside(const QPointF&) const;
+
+  Q_INVOKABLE QPointF pointFromRadians(qreal rad) const;
+  Q_INVOKABLE QPointF pointFromDegrees(qreal degree) const;
+  Q_INVOKABLE QPointF pointFromPercentage(qreal percent) const;
 };
 
 QOOL_NS_END
