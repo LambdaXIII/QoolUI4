@@ -10,13 +10,15 @@ Window {
     visible: true
     title: qsTr("Hello World")
 
-    OctagonShape {
+    OctagonRoundedShape {
         id: shape
         anchors.fill: parent
         settings {
-            borderWidth: 25
-            cutSizes: "40"
+            borderWidth: 80
+            cutSizes: "20 30 40 60"
             fillColor: "green"
         }
+
+        Component.onCompleted: shape.shapeControl.dumpInfo()
     }
 }

@@ -138,14 +138,4 @@ Shape {
             y: shapeControl.internalTLy
         }
     } //fill shape
-
-    Timer {
-        id: debugTimer
-        interval: 1000
-        onTriggered: shapeControl.dumpInfo()
-    }
-
-    Component.onCompleted: {
-        debugTimer.start()
-    }
 }

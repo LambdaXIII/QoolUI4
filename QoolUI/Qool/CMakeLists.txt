@@ -27,6 +27,7 @@ qt_add_qml_module(Qool
     SOURCES shapehelper/gadgets/qool_shapehelpergadget_circle.h shapehelper/gadgets/qool_shapehelpergadget_circle.cpp
     SOURCES datatypes/qool_polar2d.h datatypes/qool_polar2d.cpp
     SOURCES shapehelper/qool_octagoncontainmentmasker.h shapehelper/qool_octagoncontainmentmasker.cpp
+    QML_FILES OctagonRoundedShape.qml
 )
 
 set_target_properties(Qool PROPERTIES
