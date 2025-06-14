@@ -1,4 +1,4 @@
-file(GLOB QOOL_COMMON_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/qoolcommon/*.hpp")
+file(GLOB_RECURSE QOOL_COMMON_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/qoolcommon/*.hpp")
 
 add_library(QoolCommon INTERFACE
     ${QOOL_COMMON_HEADERS}
