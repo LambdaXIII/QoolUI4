@@ -203,6 +203,23 @@ void OctagonShapeHelper::dumpInfo() const {
   xDebugQ << "内部路径点：" << format_points(internalPoints());
 }
 
+bool OctagonShapeHelper::contains(const QPointF& point) const {
+  const auto x = point.x();
+  const auto y = point.y();
+  const QRectF boundingRect { 0, 0, m_width, m_height };
+  if (! boundingRect.contains(point))
+    return false;
+  if (x + y < m_safeTL)
+    return false;
+  if (m_width - x + y < m_safeTR)
+    return false;
+  if (x + m_height - y < m_safeTL)
+    return false;
+  if (m_width - x + m_height - y < m_safeBR)
+    return false;
+  return true;
+}
+
 QList<QPointF> OctagonShapeHelper::externalPoints() const {
   return { m_externalTL.value(), m_externalTR.value(),
     m_externalRT.value(), m_externalRB.value(), m_externalBR.value(),

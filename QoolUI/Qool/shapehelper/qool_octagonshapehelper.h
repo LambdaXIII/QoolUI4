@@ -24,6 +24,8 @@ public:
   explicit OctagonShapeHelper(QObject* parent = nullptr);
   Q_INVOKABLE void dumpInfo() const override;
 
+  Q_INVOKABLE bool contains(const QPointF& point) const;
+
 protected:
   QList<QPointF> externalPoints() const;
   QList<QPointF> internalPoints() const;
@@ -31,10 +33,6 @@ protected:
   QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeBorderWidth)
   QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, internalDistance)
   QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, shortEdgeLength)
-  // QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeTL)
-  // QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeTR)
-  // QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeBL)
-  // QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeCutSizeBR)
 
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
     OctagonShapeHelper, qreal, safeTR)
