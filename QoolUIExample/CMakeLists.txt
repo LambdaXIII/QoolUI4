@@ -9,6 +9,9 @@ qt_add_qml_module(appQoolUIExample
     VERSION 1.0
     QML_FILES
         Main.qml
+        QML_FILES pages/OctagonShapeTestPage.qml
+        QML_FILES pages/components/SimpleSliderControl.qml
+        QML_FILES pages/components/OctagonShapeControlPanel.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import QtQuick.Shapes
 import Qool
+import "pages"
 
 Window {
     width: 600
@@ -10,15 +11,7 @@ Window {
     visible: true
     title: qsTr("Hello World")
 
-    OctagonShape {
-        id: shape
+    OctagonShapeTestPage {
         anchors.fill: parent
-        settings {
-            borderWidth: 40
-            cutSizes: "80"
-            fillColor: "green"
-        }
-
-        Component.onCompleted: shape.shapeControl.dumpInfo()
     }
 }
