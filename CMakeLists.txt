@@ -16,6 +16,8 @@ if(QT_KNOWN_POLICY_QTP0004)
 qt_policy(SET QTP0004 NEW)
 endif()
 
+set(QT_QML_GENERATE_QMLLS_INI ON)
+
 add_library(GENERAL_HELP INTERFACE EXCLUDE_FROM_ALL
   .clang-format
   README.md

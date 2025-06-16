@@ -19,6 +19,17 @@ class AbstractShapeHelper: public QObject {
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
     AbstractShapeHelper, qreal, height)
 
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    AbstractShapeHelper, qreal, shortEdge)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    AbstractShapeHelper, qreal, longEdge)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    AbstractShapeHelper, qreal, widthHeightRatio)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    AbstractShapeHelper, qreal, halfWidth)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    AbstractShapeHelper, qreal, halfHeight)
+
 public:
   explicit AbstractShapeHelper(QObject* parent = nullptr);
   virtual Q_INVOKABLE void dumpInfo() const;

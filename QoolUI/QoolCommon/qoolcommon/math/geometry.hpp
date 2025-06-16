@@ -3,6 +3,7 @@
 
 #include "../qoolns.hpp"
 #include "numbers.hpp"
+#include "utils.hpp"
 
 #include <cmath>
 #include <utility>
@@ -20,7 +21,7 @@ namespace math {
  * \return
  */
 inline int quadrant(float xpos, float ypos) {
-  if (xpos == 0 and ypos == 0)
+  if (xpos == 0 && ypos == 0)
     return 0;
 
   if (xpos >= 0 && ypos >= 0)
@@ -73,20 +74,6 @@ inline std::pair<float, float> vector_from_radians(
 inline float vector_radians(float xpos, float ypos) {
   const float atan = std::atan(ypos / xpos);
   return std::atan2(ypos, xpos); // 直接计算角度，无需处理象限
-}
-
-template <typename N>
-inline bool is_equal(N a, N b, float epsilon = M_FUZZY_EPSILON) {
-  const auto aa = std::abs(a);
-  const auto ab = std::abs(b);
-  if (aa < epsilon && ab > epsilon)
-    return true;
-  return std::abs(a - b) / std::max(aa, ab) < epsilon;
-}
-
-template <typename N>
-inline bool is_zero(N a, float epsilon = M_EPSILON) {
-  return std::abs(a) < epsilon;
 }
 
 /*

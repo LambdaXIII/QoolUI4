@@ -5,17 +5,17 @@ import QtQuick.Shapes
 import Qool
 
 Window {
-    width: 640
-    height: 480
+    width: 600
+    height: 400
     visible: true
     title: qsTr("Hello World")
 
-    OctagonRoundedShape {
+    OctagonShape {
         id: shape
         anchors.fill: parent
         settings {
-            borderWidth: 80
-            cutSizes: "20 30 40 60"
+            borderWidth: 40
+            cutSizes: "80"
             fillColor: "green"
         }
 

@@ -21,77 +21,77 @@ Shape {
         strokeColor: "transparent"
         joinStyle: ShapePath.BevelJoin
 
-        startX: shapeControl.externalTLx
-        startY: shapeControl.externalTLy
+        startX: root.shapeControl.extTLx
+        startY: root.shapeControl.extTLy
 
         PathLine {
-            x: shapeControl.externalTRx
-            y: shapeControl.externalTRy
+            x: root.shapeControl.extTRx
+            y: root.shapeControl.extTRy
         }
         PathLine {
-            x: shapeControl.externalRTx
-            y: shapeControl.externalRTy
+            x: root.shapeControl.extRTx
+            y: root.shapeControl.extRTy
         }
         PathLine {
-            x: shapeControl.externalRBx
-            y: shapeControl.externalRBy
+            x: root.shapeControl.extRBx
+            y: root.shapeControl.extRBy
         }
         PathLine {
-            x: shapeControl.externalBRx
-            y: shapeControl.externalBRy
+            x: root.shapeControl.extBRx
+            y: root.shapeControl.extBRy
         }
         PathLine {
-            x: shapeControl.externalBLx
-            y: shapeControl.externalBLy
+            x: root.shapeControl.extBLx
+            y: root.shapeControl.extBLy
         }
         PathLine {
-            x: shapeControl.externalLBx
-            y: shapeControl.externalLBy
+            x: root.shapeControl.extLBx
+            y: root.shapeControl.extLBy
         }
         PathLine {
-            x: shapeControl.externalLTx
-            y: shapeControl.externalLTy
+            x: root.shapeControl.extLTx
+            y: root.shapeControl.extLTy
         }
         PathLine {
-            x: shapeControl.externalTLx
-            y: shapeControl.externalTLy
+            x: root.shapeControl.extTLx
+            y: root.shapeControl.extTLy
         }
         //inner
         PathMove {
-            x: shapeControl.internalTLx
-            y: shapeControl.internalTLy
+            x: root.shapeControl.intTLx
+            y: root.shapeControl.intTLy
         }
         PathLine {
-            x: shapeControl.internalTRx
-            y: shapeControl.internalTRy
+            x: root.shapeControl.intTRx
+            y: root.shapeControl.intTRy
         }
         PathLine {
-            x: shapeControl.internalRTx
-            y: shapeControl.internalRTy
+            x: root.shapeControl.intRTx
+            y: root.shapeControl.intRTy
         }
         PathLine {
-            x: shapeControl.internalRBx
-            y: shapeControl.internalRBy
+            x: root.shapeControl.intRBx
+            y: root.shapeControl.intRBy
         }
         PathLine {
-            x: shapeControl.internalBRx
-            y: shapeControl.internalBRy
+            x: root.shapeControl.intBRx
+            y: root.shapeControl.intBRy
         }
         PathLine {
-            x: shapeControl.internalBLx
-            y: shapeControl.internalBLy
+            x: root.shapeControl.intBLx
+            y: root.shapeControl.intBLy
         }
         PathLine {
-            x: shapeControl.internalLBx
-            y: shapeControl.internalLBy
+            x: root.shapeControl.intLBx
+            y: root.shapeControl.intLBy
         }
         PathLine {
-            x: shapeControl.internalLTx
-            y: shapeControl.internalLTy
+            x: root.shapeControl.intLTx
+            y: root.shapeControl.intLTy
         }
         PathLine {
-            x: shapeControl.internalTLx
-            y: shapeControl.internalTLy
+            x: root.shapeControl.intTLx
+            y: root.shapeControl.intTLy
         }
     }
 
@@ -102,40 +102,40 @@ Shape {
         strokeColor: "transparent"
         joinStyle: ShapePath.BevelJoin
 
-        startX: shapeControl.internalTLx
-        startY: shapeControl.internalTLy
+        startX: root.shapeControl.intTLx
+        startY: root.shapeControl.intTLy
 
         PathLine {
-            x: shapeControl.internalTRx
-            y: shapeControl.internalTRy
+            x: root.shapeControl.intTRx
+            y: root.shapeControl.intTRy
         }
         PathLine {
-            x: shapeControl.internalRTx
-            y: shapeControl.internalRTy
+            x: root.shapeControl.intRTx
+            y: root.shapeControl.intRTy
         }
         PathLine {
-            x: shapeControl.internalRBx
-            y: shapeControl.internalRBy
+            x: root.shapeControl.intRBx
+            y: root.shapeControl.intRBy
         }
         PathLine {
-            x: shapeControl.internalBRx
-            y: shapeControl.internalBRy
+            x: root.shapeControl.intBRx
+            y: root.shapeControl.intBRy
         }
         PathLine {
-            x: shapeControl.internalBLx
-            y: shapeControl.internalBLy
+            x: root.shapeControl.intBLx
+            y: root.shapeControl.intBLy
         }
         PathLine {
-            x: shapeControl.internalLBx
-            y: shapeControl.internalLBy
+            x: root.shapeControl.intLBx
+            y: root.shapeControl.intLBy
         }
         PathLine {
-            x: shapeControl.internalLTx
-            y: shapeControl.internalLTy
+            x: root.shapeControl.intLTx
+            y: root.shapeControl.intLTy
         }
         PathLine {
-            x: shapeControl.internalTLx
-            y: shapeControl.internalTLy
+            x: root.shapeControl.intTLx
+            y: root.shapeControl.intTLy
         }
     } //fill shape
 }

@@ -1,182 +1,46 @@
 #include "qool_octagonshapehelper.h"
 
 #include "qoolcommon/debug.hpp"
+#include "qoolcommon/math.hpp"
 
 #include <cmath>
 
 QOOL_NS_BEGIN
 
 OctagonShapeHelper::OctagonShapeHelper(QObject* parent)
-  : AbstractShapeHelper { parent } {
-  m_settings.setValue(new OctagonSettings(this));
+  : AbstractShapeHelper { parent }
+  , m_settings { new OctagonSettings(this) } {
+  // m_settings.setValue(new OctagonSettings(this));
 
-  // 合并点坐标
-#define CONNECT_POINT_XY(_N_)                                          \
-  m_external##_N_.setBinding([&] {                                     \
-    return QPointF(                                                    \
-      m_external##_N_##x.value(), m_external##_N_##y.value());         \
-  });                                                                  \
-  m_internal##_N_.setBinding([&] {                                     \
-    return QPointF(                                                    \
-      m_internal##_N_##x.value(), m_internal##_N_##y.value());         \
+  __setup_safe_values();
+  __setup_ext_points();
+  __setup_int_points();
+  __connect_points();
+
+  m_intPoints.setBinding([&] {
+    return QList<QPointF> { m_intTL.value(), m_intTR.value(),
+      m_intRT.value(), m_intRB.value(), m_intBR.value(),
+      m_intBL.value(), m_intLB.value(), m_intLT.value() };
   });
 
-  CONNECT_POINT_XY(TL)
-  CONNECT_POINT_XY(TR)
-  CONNECT_POINT_XY(BL)
-  CONNECT_POINT_XY(BR)
-  CONNECT_POINT_XY(LT)
-  CONNECT_POINT_XY(LB)
-  CONNECT_POINT_XY(RT)
-  CONNECT_POINT_XY(RB)
-
-#undef CONNECT_POINT_XY
-
-  // 绑定安全参考值
-  m_safeBorderWidth.setBinding([&] {
-    return qMax(
-      0.0, bindable_settings().value()->bindable_borderWidth().value());
+  m_extPoints.setBinding([&] {
+    return QList<QPointF> { m_extTL.value(), m_extTR.value(),
+      m_extRT.value(), m_extRB.value(), m_extBR.value(),
+      m_extBL.value(), m_extLB.value(), m_extLT.value() };
   });
 
-  m_shortEdgeLength.setBinding([&] {
-    return qMin(bindable_width().value(), bindable_height().value());
+  m_intPolygon.setBinding([&] {
+    auto points = m_intPoints.value();
+    auto start_point = points.first();
+    points.append(start_point);
+    return QPolygonF(points);
   });
 
-  m_safeTL.setBinding([&] {
-    const qreal x =
-      bindable_settings().value()->bindable_cutSizeTL().value();
-    return qBound(0.0, x, m_shortEdgeLength.value());
-  });
-
-  m_safeTR.setBinding([&] {
-    const qreal x =
-      bindable_settings().value()->bindable_cutSizeTR().value();
-    const qreal max = qMin(m_shortEdgeLength.value(),
-      bindable_width().value() - m_safeTL.value());
-    return qBound(0.0, x, max);
-  });
-  m_safeBL.setBinding([&] {
-    const qreal x =
-      bindable_settings().value()->bindable_cutSizeBL().value();
-    const qreal max = qMin(m_shortEdgeLength.value(),
-      bindable_height().value() - m_safeTL.value());
-    return qBound(0.0, x, max);
-  });
-  m_safeBR.setBinding([&] {
-    const qreal x =
-      bindable_settings().value()->bindable_cutSizeBR().value();
-    const qreal max = std::max({ m_shortEdgeLength.value(),
-      bindable_width().value() - m_safeBL.value(),
-      bindable_height().value() - m_safeTR.value() });
-    return qBound(0.0, x, max);
-  });
-
-  // 计算外部点的坐标
-  m_externalTLx.setBinding([&] { return m_safeTL.value(); });
-  m_externalTLy.setValue(0);
-  m_externalTRx.setBinding(
-    [&] { return bindable_width().value() - m_safeTR.value(); });
-  m_externalTRy.setValue(0);
-
-  m_externalRTx.setBinding([&] { return bindable_width().value(); });
-  m_externalRTy.setBinding([&] { return m_safeTR.value(); });
-  m_externalRBx.setBinding([&] { return bindable_width().value(); });
-  m_externalRBy.setBinding(
-    [&] { return bindable_height().value() - m_safeBR.value(); });
-
-  m_externalBLx.setBinding([&] { return m_safeBL.value(); });
-  m_externalBLy.setBinding([&] { return bindable_height().value(); });
-  m_externalBRx.setBinding(
-    [&] { return bindable_width().value() - m_safeBR.value(); });
-  m_externalBRy.setBinding([&] { return bindable_height().value(); });
-
-  m_externalLTx.setValue(0);
-  m_externalLTy.setBinding([&] { return m_safeTL.value(); });
-  m_externalLBx.setValue(0);
-  m_externalLBy.setBinding(
-    [&] { return bindable_height().value() - m_safeBL.value(); });
-
-  // 计算内部点的位置
-
-  m_internalDistance.setBinding([&] {
-    // 根据三角函数计算微缩距离
-    const qreal border = m_safeBorderWidth.value();
-    if (border <= 0)
-      return 0.0;
-    static const qreal PI { std::acos(-1) };
-    static const qreal _tan = std::tan(22.5 * PI / 180.0);
-    qreal result = border * _tan;
-    return qMax(result, 1.0);
-  });
-
-#define BDR m_safeBorderWidth.value()
-#define DST m_internalDistance.value()
-#define TOP BDR
-#define BTM bindable_height().value() - BDR
-#define LFT BDR
-#define RIT bindable_width().value() - BDR
-
-  m_internalTLx.setBinding(
-    [&] { return qMax(LFT, m_externalTLx.value() + DST); });
-  m_internalTLy.setBinding(
-    [&] { return qMax(TOP, m_externalTLy.value() + BDR); });
-
-  m_internalTRx.setBinding(
-    [&] { return qMin(RIT, m_externalTRx.value() - DST); });
-  m_internalTRy.setBinding(
-    [&] { return qMax(TOP, m_externalTRy.value() + BDR); });
-
-  m_internalRTx.setBinding(
-    [&] { return qMin(RIT, m_externalRTx.value() - BDR); });
-  m_internalRTy.setBinding(
-    [&] { return qMax(TOP, m_externalRTy.value() + DST); });
-
-  m_internalRBx.setBinding(
-    [&] { return qMin(RIT, m_externalRBx.value() - BDR); });
-  m_internalRBy.setBinding(
-    [&] { return qMin(BTM, m_externalRBy.value() - DST); });
-
-  m_internalBRx.setBinding(
-    [&] { return qMin(RIT, m_externalBRx.value() - DST); });
-  m_internalBRy.setBinding(
-    [&] { return qMin(BTM, m_externalBRy.value() - BDR); });
-
-  m_internalBLx.setBinding(
-    [&] { return qMax(LFT, m_externalBLx.value() + DST); });
-  m_internalBLy.setBinding(
-    [&] { return qMin(BTM, m_externalBLy.value() - BDR); });
-
-  m_internalLBx.setBinding(
-    [&] { return qMax(LFT, m_externalLBx.value() + BDR); });
-  m_internalLBy.setBinding(
-    [&] { return qMin(BTM, m_externalLBy.value() - DST); });
-
-  m_internalLTx.setBinding(
-    [&] { return qMax(LFT, m_externalLTx.value() + BDR); });
-  m_internalLTy.setBinding(
-    [&] { return qMax(TOP, m_externalLTy.value() + DST); });
-
-#undef TOP
-#undef LFT
-#undef BTM
-#undef RIT
-#undef BDR
-#undef DST
-
-  // 绑定多边形变量
-  m_internalPolygon.setBinding([&] {
-    QList<QPointF> pts;
-    pts << m_internalTL << m_internalTR << m_internalRT << m_internalRB
-        << m_internalBR << m_internalBL << m_internalLB << m_internalLT
-        << m_internalTL;
-    return QPolygonF(pts);
-  });
-  m_externalPolygon.setBinding([&] {
-    QList<QPointF> pts;
-    pts << m_externalTL << m_externalTR << m_externalRT << m_externalRB
-        << m_externalBR << m_externalBL << m_externalLB << m_externalLT
-        << m_externalTL;
-    return QPolygonF(pts);
+  m_extPolygon.setBinding([&] {
+    auto points = m_extPoints.value();
+    auto start_point = points.first();
+    points.append(start_point);
+    return QPolygonF(points);
   });
 }
 
@@ -192,15 +56,20 @@ void OctagonShapeHelper::dumpInfo() const {
       .arg(p.y(), 3, 'g', -1, u' ');
   };
 
-  const auto format_points = [&](const QList<QPointF>& points) {
-    QStringList ss;
-    std::transform(points.begin(), points.end(), std::back_inserter(ss),
-      format_point);
-    return ss.join(' ');
-  };
+  xDebugQ << xDBGYellow << "CutSizes" << xDBGCyan << safeTL()
+          << safeTR() << safeBL() << safeBR() << xDBGReset;
+  xDebugQ << xDBGYellow << "BorderWidth" << xDBGCyan
+          << m_safeBorderWidth.value() << xDBGYellow
+          << "BorderShrinkSize" << xDBGCyan
+          << m_borderShrinkSize.value() << xDBGReset;
+  ;
 
-  xDebugQ << "外部路径点：" << format_points(externalPoints());
-  xDebugQ << "内部路径点：" << format_points(internalPoints());
+#define DEBUG_P(A)                                                     \
+  xDebugQ << xDBGYellow << #A << xDBGCyan                              \
+          << format_point(m_ext##A.value())                            \
+          << format_point(m_int##A.value()) << xDBGReset;
+  QOOL_FOREACH_8(DEBUG_P, TL, TR, RT, RB, BR, BL, LB, LT);
+#undef DEBUG_P
 }
 
 bool OctagonShapeHelper::contains(const QPointF& point) const {
@@ -220,16 +89,210 @@ bool OctagonShapeHelper::contains(const QPointF& point) const {
   return true;
 }
 
-QList<QPointF> OctagonShapeHelper::externalPoints() const {
-  return { m_externalTL.value(), m_externalTR.value(),
-    m_externalRT.value(), m_externalRB.value(), m_externalBR.value(),
-    m_externalBL.value(), m_externalLB.value(), m_externalLT.value() };
+void OctagonShapeHelper::__setup_safe_values() {
+  m_safeBorderWidth.setBinding([&] {
+    return qMax(
+      0.0, bindable_settings().value()->bindable_borderWidth().value());
+  });
+
+#define SHORT_EDGE bindable_shortEdge().value()
+  m_safeTL.setBinding([&] {
+    const qreal x =
+      bindable_settings().value()->bindable_cutSizeTL().value();
+    return math::auto_bound(0.0, x, SHORT_EDGE);
+  });
+
+  m_safeTR.setBinding([&] {
+    const qreal x =
+      bindable_settings().value()->bindable_cutSizeTR().value();
+    const qreal max =
+      qMin(SHORT_EDGE, bindable_width().value() - m_safeTL.value());
+    return math::auto_bound(0.0, x, max);
+  });
+  m_safeBL.setBinding([&] {
+    const qreal x =
+      bindable_settings().value()->bindable_cutSizeBL().value();
+    const qreal max =
+      qMin(SHORT_EDGE, bindable_height().value() - m_safeTL.value());
+    return math::auto_bound(0.0, x, max);
+  });
+  m_safeBR.setBinding([&] {
+    const qreal x =
+      bindable_settings().value()->bindable_cutSizeBR().value();
+    const qreal max = std::max(
+      { SHORT_EDGE, bindable_width().value() - m_safeBL.value(),
+        bindable_height().value() - m_safeTR.value() });
+    return math::auto_bound(0.0, x, max);
+  });
+#undef SHORT_EDGE
+
+  m_borderShrinkSize.setBinding([&] {
+    const qreal border = m_safeBorderWidth.value();
+    if (border <= 0)
+      return 0.0;
+    static const qreal _tan = std::tan(22.5 * M_PI / 180.0);
+    return qMax(_tan * border, 1.0);
+  });
+}
+void OctagonShapeHelper::__connect_points() {
+#define CONNECT_P(_N_)                                                 \
+  m_##_N_.setBinding(                                                  \
+    [&] { return QPointF(m_##_N_##x.value(), m_##_N_##y.value()); });
+  QOOL_FOREACH_8(
+    CONNECT_P, intTL, intTR, intLT, intLB, intRT, intRB, intBL, intBR)
+  QOOL_FOREACH_8(
+    CONNECT_P, extTL, extTR, extLT, extLB, extRT, extRB, extBL, extBR)
+#undef CONNECT_P
 }
 
-QList<QPointF> OctagonShapeHelper::internalPoints() const {
-  return { m_internalTL.value(), m_internalTR.value(),
-    m_internalRT.value(), m_internalRB.value(), m_internalBR.value(),
-    m_internalBL.value(), m_internalLB.value(), m_internalLT.value() };
+void OctagonShapeHelper::__setup_ext_points() {
+#define W bindable_width().value()
+#define H bindable_height().value()
+  m_extTLx.setBinding([&] { return m_safeTL.value(); });
+  m_extTLy.setValue(0);
+  m_extTRx.setBinding([&] { return W - m_safeTR.value(); });
+  m_extTRy.setValue(0);
+
+  m_extBLx.setBinding([&] { return m_safeBL.value(); });
+  m_extBLy.setBinding([&] { return H; });
+  m_extBRx.setBinding([&] { return W - m_safeBR.value(); });
+  m_extBRy.setBinding([&] { return H; });
+
+  m_extLTx.setValue(0);
+  m_extLTy.setBinding([&] { return m_safeTL.value(); });
+  m_extLBx.setValue(0);
+  m_extLBy.setBinding([&] { return H - m_safeBL.value(); });
+
+  m_extRTx.setBinding([&] { return W; });
+  m_extRTy.setBinding([&] { return m_safeTR.value(); });
+  m_extRBx.setBinding([&] { return W; });
+  m_extRBy.setBinding([&] { return H - m_safeBR.value(); });
+#undef W
+#undef H
+}
+
+void OctagonShapeHelper::__setup_int_points() {
+#define W bindable_width().value()
+#define W2 bindable_halfWidth().value()
+#define H bindable_height().value()
+#define H2 bindable_halfHeight().value()
+#define Border m_safeBorderWidth.value()
+#define Shrink m_borderShrinkSize.value()
+#define Left Border
+#define Top Border
+#define Right (W - Border)
+#define Bottom (H - Border)
+
+  m_intTLx.setBinding([&] {
+    if (Border == 0)
+      return m_extTLx.value();
+    const qreal v = m_extTLx.value() + Shrink;
+    return math::auto_bound(Left, v, W2);
+  });
+  m_intTLy.setBinding([&] {
+    if (Border == 0)
+      return m_extTLy.value();
+    const qreal v = m_extTLy.value() + Border;
+    return math::auto_bound(Top, v, H2);
+  });
+  m_intTRx.setBinding([&] {
+    if (Border == 0)
+      return m_extTRx.value();
+    const qreal v = m_extTRx.value() - Shrink;
+    return math::auto_bound(W2, v, Right);
+  });
+  m_intTRy.setBinding([&] {
+    if (Border == 0)
+      return m_extTRy.value();
+    const qreal v = m_extTRy.value() + Border;
+    return math::auto_bound(Top, v, H2);
+  });
+
+  m_intBLx.setBinding([&] {
+    if (Border == 0)
+      return m_extBLx.value();
+    const auto v = m_extBLx.value() + Shrink;
+    return math::auto_bound(Left, v, W2);
+  });
+  m_intBLy.setBinding([&] {
+    if (Border == 0)
+      return m_extBLy.value();
+    const auto v = m_extBLy.value() - Border;
+    return math::auto_bound(H2, v, Bottom);
+  });
+  m_intBRx.setBinding([&] {
+    if (Border == 0)
+      return m_extBRx.value();
+    const auto v = m_extBRx.value() - Shrink;
+    return math::auto_bound(W2, v, Right);
+  });
+  m_intBRy.setBinding([&] {
+    if (Border == 0)
+      return m_extBRy.value();
+    const auto v = m_extBRy.value() - Border;
+    return math::auto_bound(H2, v, Bottom);
+  });
+
+  m_intLTx.setBinding([&] {
+    if (Border == 0)
+      return m_extLTx.value();
+    const auto v = m_extLTx.value() + Border;
+    return math::auto_bound(Left, v, W2);
+  });
+  m_intLTy.setBinding([&] {
+    if (Border == 0)
+      return m_extLTy.value();
+    const auto v = m_extLTy.value() + Shrink;
+    return math::auto_bound(Top, v, H2);
+  });
+  m_intLBx.setBinding([&] {
+    if (Border == 0)
+      return m_extLBx.value();
+    const auto v = m_extLBx.value() + Border;
+    return math::auto_bound(Left, v, W2);
+  });
+  m_intLBy.setBinding([&] {
+    if (Border == 0)
+      return m_extLBy.value();
+    const auto v = m_extLBy.value() - Shrink;
+    return math::auto_bound(H2, v, Bottom);
+  });
+
+  m_intRTx.setBinding([&] {
+    if (Border == 0)
+      return m_extRTx.value();
+    const auto v = m_extRTx.value() - Border;
+    return math::auto_bound(W2, v, Right);
+  });
+  m_intRTy.setBinding([&] {
+    if (Border == 0)
+      return m_extRTy.value();
+    const auto v = m_extRTy.value() + Shrink;
+    return math::auto_bound(Top, v, H2);
+  });
+  m_intRBx.setBinding([&] {
+    if (Border == 0)
+      return m_extRBx.value();
+    const auto v = m_extRBx.value() - Border;
+    return math::auto_bound(W2, v, Right);
+  });
+  m_intRBy.setBinding([&] {
+    if (Border == 0)
+      return m_extRBy.value();
+    const auto v = m_extRBy.value() - Shrink;
+    return math::auto_bound(H2, v, Bottom);
+  });
+
+#undef Bottom
+#undef Right
+#undef Top
+#undef Left
+#undef Shrink
+#undef Border
+#undef H2
+#undef W2
+#undef H
+#undef W
 }
 
 QOOL_NS_END
