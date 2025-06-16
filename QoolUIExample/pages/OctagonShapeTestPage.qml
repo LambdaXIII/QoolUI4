@@ -25,6 +25,10 @@ SplitView {
                 cutSizeTR: control.cutSizeTR
                 cutSizeBR: control.cutSizeBR
             }
+
+            PointIndicator {
+                position: shape.shapeControl.extTL
+            }
         }
         z: -1
     }
