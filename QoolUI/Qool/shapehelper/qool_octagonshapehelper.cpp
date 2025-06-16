@@ -12,7 +12,7 @@ OctagonShapeHelper::OctagonShapeHelper(QObject* parent)
   , m_settings { new OctagonSettings(this) } {
   // m_settings.setValue(new OctagonSettings(this));
 
-  __setup_safe_values();
+  __setup_reference_values();
   __setup_ext_points();
   __setup_int_points();
   __connect_points();
@@ -89,7 +89,7 @@ bool OctagonShapeHelper::contains(const QPointF& point) const {
   return true;
 }
 
-void OctagonShapeHelper::__setup_safe_values() {
+void OctagonShapeHelper::__setup_reference_values() {
   m_safeBorderWidth.setBinding([&] {
     return qMax(
       0.0, bindable_settings().value()->bindable_borderWidth().value());
@@ -119,7 +119,7 @@ void OctagonShapeHelper::__setup_safe_values() {
   m_safeBR.setBinding([&] {
     const qreal x =
       bindable_settings().value()->bindable_cutSizeBR().value();
-    const qreal max = std::max(
+    const qreal max = std::min(
       { SHORT_EDGE, bindable_width().value() - m_safeBL.value(),
         bindable_height().value() - m_safeTR.value() });
     return math::auto_bound(0.0, x, max);

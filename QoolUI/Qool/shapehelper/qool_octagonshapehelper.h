@@ -62,7 +62,7 @@ protected:
   QOOL_BINDABLE_MEMBER(OctagonShapeHelper, QList<QPointF>, extPoints)
 
 private:
-  void __setup_safe_values();
+  void __setup_reference_values();
   void __connect_points();
   void __setup_ext_points();
   void __setup_int_points();
