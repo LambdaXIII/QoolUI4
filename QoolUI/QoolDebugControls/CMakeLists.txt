@@ -7,6 +7,7 @@ qt_add_qml_module(QoolDebugControls
 
     QML_FILES PointIndicator.qml
     QML_FILES NumberSlider.qml
+    QML_FILES ColorSelector.qml
 
 )
 

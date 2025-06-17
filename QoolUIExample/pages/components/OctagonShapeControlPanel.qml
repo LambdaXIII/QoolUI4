@@ -21,6 +21,10 @@ Control {
             to: 300
         }
 
+        ColorSelector {
+            name: qsTr("左上切角颜色")
+        }
+
         SimpleSliderControl {
             id: widthControl
             title: qsTr("宽度")
