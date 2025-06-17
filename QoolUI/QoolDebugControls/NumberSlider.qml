@@ -93,6 +93,7 @@ Control {
         Rectangle {
             color: palette.base
             anchors.fill: parent
+            radius: 4
         }
         Rectangle {
             border.width: 0
@@ -100,16 +101,19 @@ Control {
             height: parent.height
             width: parent.width * root.percent
             opacity: mArea.dragging ? 0.9 : 0.5
+            radius: 4
         }
         Rectangle {
             border.width: 2
             border.color: palette.text
             color: "transparent"
+            radius: 4
         }
     }
 
     MouseArea {
         id: mArea
+        containmentMask: root.background
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         anchors.fill: contentItem
         cursorShape: Qt.CrossCursor
@@ -132,6 +136,7 @@ Control {
                 return
             root.value = pCtrl.value_from_mouseX(mouseX)
         }
+
         onEnabledChanged: dragging = false
     }
 }
