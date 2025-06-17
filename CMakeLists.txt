@@ -13,7 +13,7 @@ find_package(Qt6 6.2 COMPONENTS Core Quick REQUIRED)
 qt_standard_project_setup(REQUIRES 6.5)
 
 if(QT_KNOWN_POLICY_QTP0004)
-qt_policy(SET QTP0004 NEW)
+  qt_policy(SET QTP0004 NEW)
 endif()
 
 set(QT_QML_GENERATE_QMLLS_INI ON)
@@ -26,7 +26,7 @@ add_library(GENERAL_HELP INTERFACE EXCLUDE_FROM_ALL
 )
 
 if(NOT DEFINED QOOLUI_QML_PROJECT_SETUP_LOADED)
-    include(qool_qml_project_setup.cmake)
+  include(qool_qml_project_setup.cmake)
 endif()
 
 load_qoolui_standard_options()
@@ -41,6 +41,5 @@ set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "deployment ou
 
 
 
-add_subdirectory(QoolUI/QoolCommon)
-add_subdirectory(QoolUI/Qool)
+add_subdirectory(QoolUI)
 add_subdirectory(QoolUIExample)

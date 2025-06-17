@@ -1,11 +1,19 @@
-set(QOOL_NS "qoolui")
+
 
 file(GLOB QOOL_INTERNAL_QML_FILES "${CMAKE_CURRENT_SOURCE_DIR}/_private/*.qml")
 set_source_files_properties(
     ${QOOL_INTERNAL_QML_FILES}
     PROPERTIES
-        QT_QML_INTERNAL_TYPE TRUE
+    QT_QML_INTERNAL_TYPE TRUE
 )
+
+
+set_source_files_properties(
+    Qool.qml
+    PROPERTIES QT_QML_SINGLETON_TYPE TRUE
+)
+
+
 
 # qt_add_library(Qool STATIC)
 qt_add_qml_module(Qool
@@ -14,6 +22,8 @@ qt_add_qml_module(Qool
     # OUTPUT_DIRECTORY QOOLUI/Qool
     VERSION 4.0
     NAMESPACE ${QOOL_NS}
+
+    QML_FILES Qool.qml
 
     QML_FILES _private/QoolWindowCloseButtonFace.qml
 
@@ -51,3 +61,6 @@ target_include_directories(Qool
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapehelper/gadgets"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/datatypes"
 )
+
+
+# add_subdirectory(HandyControls)

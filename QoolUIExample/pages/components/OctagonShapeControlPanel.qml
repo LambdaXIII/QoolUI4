@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
+import Qool.DebugControls
 
 Control {
     id: root
@@ -14,6 +15,12 @@ Control {
     readonly property real cutSizeBR: brCutSizeControl.slider.value
 
     contentItem: ColumnLayout {
+        NumberSlider {
+            name: qsTr("左上切角尺寸")
+            from: 0
+            to: 300
+        }
+
         SimpleSliderControl {
             id: widthControl
             title: qsTr("宽度")
