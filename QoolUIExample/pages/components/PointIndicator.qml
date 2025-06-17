@@ -4,45 +4,64 @@ import QtQuick.Controls.Basic
 Item {
     id: root
     property point position: Qt.point(0, 0)
-    property color color: "red"
-    property color textColor: "black"
+    property color color: "#2b2b2b"
     property string name
     property real textSize: 12
 
+    enum TextPos {
+        Left,
+        Right,
+        Top,
+        Bottom
+    }
+    property int textPos: PointIndicator.Top
+
+    width: 10
+    height: 10
+    x: position.x - width / 2
+    y: position.y - height / 2
+
     QtObject {
-        id: privateCtrl
+        id: pCtrl
         function check_number(num) {
-            let a = Math.round(num * 100);
-            return a / 100;
+            let a = Math.round(num * 100)
+            return a / 100
         }
 
-        readonly property string shortText: root.name
-        readonly property string posText: "(" + check_number(root.position.x) + ", " + check_number(root.position.y) + ")"
+        readonly property string posText: root.name + "(" + check_number(
+                                              root.position.x) + ", " + check_number(
+                                              root.position.y) + ")"
     }
 
     Rectangle {
         id: indicator
-        width: 4
-        height: 4
-        radius: 2
+        width: 8
+        height: 8
+        radius: 4
+        color: "transparent"
+        border.width: 1
+        border.color: root.color
+        anchors.centerIn: parent
+    }
+
+    Text {
+        id: tt
+        text: pCtrl.posText
         color: root.color
-        border.width: 0
-        x: -2
-        y: -2
-    }
+        x: {
+            if (root.textPos === PointIndicator.Left)
+                return 0 - width
+            if (root.textPos === PointIndicator.Right)
+                return root.width
+            return (root.width - width) / 2
+        }
 
-    onPositionChanged: {
-        root.x = root.position.x;
-        root.y = root.position.y;
-    }
-
-    Item {
-        id: mouseArea
-        width: 10
-        height: 10
-        x: -5
-        y: -5
-        ToolTip.delay: 0
-        ToolTip.text: privateCtrl.shortText + privateCtrl.posText
-    }
+        y: {
+            if (root.textPos === PointIndicator.Top)
+                return 0 - height
+            if (root.textPos === PointIndicator.Bottom)
+                return root.height
+            return (root.height - height) / 2
+        }
+    } //Text
 }
