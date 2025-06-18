@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Layouts
 import QtQuick.Controls
 import Qool
 import "components"
@@ -29,16 +28,7 @@ SplitView {
                 borderColor: control.borderColor
             }
 
-            PointIndicator {
-                name: "extTL"
-                textPosition: Qool.TopLeft
-                point: shape.shapeControl.extTL
-            }
-            PointIndicator {
-                name: "extTR"
-                textPosition: Qool.TopRight
-                point: shape.shapeControl.extTR
-            }
+            OctagonShapeHud {}
         }
         z: -1
     }
