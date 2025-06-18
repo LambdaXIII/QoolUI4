@@ -25,6 +25,8 @@ SplitView {
                 cutSizeBL: control.cutSizeBL
                 cutSizeTR: control.cutSizeTR
                 cutSizeBR: control.cutSizeBR
+                fillColor: control.fillColor
+                borderColor: control.borderColor
             }
 
             PointIndicator {
@@ -45,7 +47,6 @@ SplitView {
         id: control
         SplitView.fillHeight: true
         SplitView.preferredWidth: implicitWidth
+        onWannaDumpInfo: shape.settings.dumpInfo()
     }
-
-    Component.onCompleted: console.log(Qool.Right)
 }

@@ -6,103 +6,109 @@ import Qool.DebugControls
 Control {
     id: root
 
-    readonly property real shapeWidth: widthControl.slider.value
-    readonly property real shapeHeight: heightControl.slider.value
-    readonly property real borderWidth: borderWidthControl.slider.value
-    readonly property real cutSizeTL: tlCutSizeControl.slider.value
-    readonly property real cutSizeTR: trCutSizeControl.slider.value
-    readonly property real cutSizeBL: blCutSizeControl.slider.value
-    readonly property real cutSizeBR: brCutSizeControl.slider.value
+    readonly property real shapeWidth: widthSlider.value
+    readonly property real shapeHeight: heightSlider.value
+    readonly property real borderWidth: borderWidthSlider.value
+    readonly property real cutSizeTL: tlSlider.value
+    readonly property real cutSizeTR: trSlider.value
+    readonly property real cutSizeBL: blSlider.value
+    readonly property real cutSizeBR: brSlider.value
+    readonly property color fillColor: fillColorButton.value
+    readonly property color borderColor: borderColorButton.value
+
+    signal wannaDumpInfo
 
     contentItem: ColumnLayout {
         NumberSlider {
-            name: qsTr("左上切角尺寸")
+            id: widthSlider
+            name: qsTr("图形宽度")
+            defaultValue: 400
+            from: 25
+            to: 800
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop
+        }
+        NumberSlider {
+            id: heightSlider
+            name: qsTr("图形高度")
+            defaultValue: 250
+            from: 25
+            to: 800
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop
+        }
+        NumberSlider {
+            id: borderWidthSlider
+            name: qsTr("描边宽度")
+            defaultValue: 6
+            from: 0
+            to: 200
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop
+        }
+
+        NumberSlider {
+            id: tlSlider
+            name: qsTr("左上切角距离")
+            defaultValue: 20
             from: 0
             to: 300
-        }
-
-        ColorSelector {
-            name: qsTr("左上切角颜色")
-        }
-
-        SimpleSliderControl {
-            id: widthControl
-            title: qsTr("宽度")
-            slider {
-                from: 20
-                to: 800
-                value: 400
-            }
             Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop
         }
-        SimpleSliderControl {
-            id: heightControl
-            title: qsTr("高度")
-            slider {
-                from: 20
-                to: 800
-                value: 200
-            }
+        NumberSlider {
+            id: trSlider
+            name: qsTr("右上切角距离")
+            defaultValue: 0
+            from: 0
+            to: 300
             Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop
         }
-        SimpleSliderControl {
-            id: borderWidthControl
-            title: qsTr("边缘宽度")
-            slider {
-                from: 0
-                to: 100
-                value: 5
-            }
+        NumberSlider {
+            id: blSlider
+            name: qsTr("左下切角距离")
+            defaultValue: 0
+            from: 0
+            to: 300
             Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop
         }
-        SimpleSliderControl {
-            id: tlCutSizeControl
-            title: qsTr("左上切角")
-            slider {
-                from: 0
-                to: 1000
-                value: 20
-            }
+        NumberSlider {
+            id: brSlider
+            name: qsTr("右下切角距离")
+            defaultValue: 0
+            from: 0
+            to: 300
             Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop
         }
-        SimpleSliderControl {
-            id: trCutSizeControl
-            title: qsTr("右上切角")
-            slider {
-                from: 0
-                to: 1000
-                value: 0
-            }
+        RowLayout {
             Layout.fillWidth: true
+            ColorButton {
+                id: fillColorButton
+                defaultValue: palette.accent
+                name: qsTr("图形颜色")
+            }
+            ColorButton {
+                id: borderColorButton
+                defaultValue: palette.shadow
+                name: qsTr("描边颜色")
+            }
         }
-        SimpleSliderControl {
-            id: blCutSizeControl
-            title: qsTr("左下切角")
-            slider {
-                from: 0
-                to: 1000
-                value: 0
-            }
-            Layout.fillWidth: true
+        Item {
+            Layout.fillHeight: true
         }
-        SimpleSliderControl {
-            id: brCutSizeControl
-            title: qsTr("右下切角")
-            slider {
-                from: 0
-                to: 1000
-                value: 0
-            }
+        ActionButton {
             Layout.fillWidth: true
+            text: qsTr("Dump信息至控制台")
+            onClicked: root.wannaDumpInfo()
         }
     } //contentITem
     padding: 5
 
     background: Rectangle {
-        color: "cyan"
+        color: palette.window
         opacity: 0.5
-        border.width: 2
-        border.color: "black"
-        radius: 5
     }
 }
