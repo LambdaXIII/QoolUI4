@@ -21,7 +21,7 @@ Item {
 
     PointIndicator {
         name: "extTL"
-        textPosition: Qool.Top
+        infoPosition: Qool.TopCenter
         parent: root.shape ?? root
         point: root.controller.extTL
         color: pCtrl.extPointColor
@@ -29,7 +29,7 @@ Item {
 
     PointIndicator {
         name: "extTR"
-        textPosition: Qool.Top
+        infoPosition: Qool.TopCenter
         parent: root.shape ?? root
         point: root.controller.extTR
         color: pCtrl.extPointColor
@@ -37,7 +37,7 @@ Item {
 
     PointIndicator {
         name: "extBL"
-        textPosition: Qool.Bottom
+        infoPosition: Qool.BottomCenter
         parent: root.shape ?? root
         point: root.controller.extBL
         color: pCtrl.extPointColor
@@ -45,7 +45,7 @@ Item {
 
     PointIndicator {
         name: "extBR"
-        textPosition: Qool.Bottom
+        infoPosition: Qool.BottomCenter
         parent: root.shape ?? root
         point: root.controller.extBR
         color: pCtrl.extPointColor
@@ -53,7 +53,7 @@ Item {
 
     PointIndicator {
         name: "extLT"
-        textPosition: Qool.Left
+        infoPosition: Qool.LeftCenter
         parent: root.shape ?? root
         point: root.controller.extLT
         color: pCtrl.extPointColor
@@ -61,7 +61,7 @@ Item {
 
     PointIndicator {
         name: "extLB"
-        textPosition: Qool.Left
+        infoPosition: Qool.LeftCenter
         parent: root.shape ?? root
         point: root.controller.extLB
         color: pCtrl.extPointColor
@@ -69,7 +69,7 @@ Item {
 
     PointIndicator {
         name: "extRT"
-        textPosition: Qool.Right
+        infoPosition: Qool.RightCenter
         parent: root.shape ?? root
         point: root.controller.extRT
         color: pCtrl.extPointColor
@@ -77,7 +77,7 @@ Item {
 
     PointIndicator {
         name: "extRB"
-        textPosition: Qool.Right
+        infoPosition: Qool.RightCenter
         parent: root.shape ?? root
         point: root.controller.extRB
         color: pCtrl.extPointColor
@@ -85,7 +85,7 @@ Item {
 
     PointIndicator {
         name: "intTL"
-        textPosition: Qool.BottomRight
+        infoPosition: Qool.BottomRight
         parent: root.shape ?? root
         point: root.controller.intTL
         color: pCtrl.intPointColor
@@ -93,7 +93,7 @@ Item {
 
     PointIndicator {
         name: "intTR"
-        textPosition: Qool.BottomLeft
+        infoPosition: Qool.BottomLeft
         parent: root.shape ?? root
         point: root.controller.intTR
         color: pCtrl.intPointColor
@@ -101,7 +101,7 @@ Item {
 
     PointIndicator {
         name: "intBL"
-        textPosition: Qool.TopRight
+        infoPosition: Qool.TopRight
         parent: root.shape ?? root
         point: root.controller.intBL
         color: pCtrl.intPointColor
@@ -109,7 +109,7 @@ Item {
 
     PointIndicator {
         name: "intBR"
-        textPosition: Qool.TopLeft
+        infoPosition: Qool.TopLeft
         parent: root.shape ?? root
         point: root.controller.intBR
         color: pCtrl.intPointColor
@@ -117,7 +117,7 @@ Item {
 
     PointIndicator {
         name: "intLT"
-        textPosition: Qool.Right
+        infoPosition: Qool.RightBottom
         parent: root.shape ?? root
         point: root.controller.intLT
         color: pCtrl.intPointColor
@@ -125,7 +125,7 @@ Item {
 
     PointIndicator {
         name: "intLB"
-        textPosition: Qool.Right
+        infoPosition: Qool.RightTop
         parent: root.shape ?? root
         point: root.controller.intLB
         color: pCtrl.intPointColor
@@ -133,7 +133,7 @@ Item {
 
     PointIndicator {
         name: "intRT"
-        textPosition: Qool.Left
+        infoPosition: Qool.LeftBottom
         parent: root.shape ?? root
         point: root.controller.intRT
         color: pCtrl.intPointColor
@@ -141,7 +141,7 @@ Item {
 
     PointIndicator {
         name: "intRB"
-        textPosition: Qool.Left
+        infoPosition: Qool.LeftTop
         parent: root.shape ?? root
         point: root.controller.intRB
         color: pCtrl.intPointColor

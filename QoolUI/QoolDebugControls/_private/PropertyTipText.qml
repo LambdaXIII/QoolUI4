@@ -15,10 +15,12 @@ Item {
     implicitWidth: contentLayout.implicitWidth
     implicitHeight: contentLayout.implicitHeight
 
-    ColumnLayout {
+    GridLayout {
         id: contentLayout
         anchors.fill: parent
-        spacing: 0
+        columnSpacing: 0
+        rowSpacing: 0
+        columns: 2
         Text {
             id: titleText
             text: root.title
@@ -26,6 +28,7 @@ Item {
             font.pixelSize: 8
             wrapMode: Text.NoWrap
             color: root.titleColor
+            Layout.alignment: Qt.AlignTop
         }
         Text {
             id: valueText
@@ -36,6 +39,8 @@ Item {
             wrapMode: Text.NoWrap
             color: root.valueColor
             Layout.preferredWidth: implicitWidth
+            Layout.alignment: Qt.AlignTop
+            Layout.preferredHeight: implicitHeight
         }
         Text {
             id: commetText
@@ -44,6 +49,8 @@ Item {
             font.pixelSize: 8
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             Layout.fillWidth: true
+            Layout.rowSpan: 2
+            Layout.preferredHeight: implicitHeight
         }
     }
 }

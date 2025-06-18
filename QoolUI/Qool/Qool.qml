@@ -4,17 +4,31 @@ import QtQuick
 
 QtObject {
 
-    enum AnchorPoints {
+    enum AnchorPositions {
         TopLeft,
-        Top,
+        TopCenter,
         TopRight,
-        Left,
-        Center,
-        Right,
+        LeftTop,
+        LeftCenter,
+        LeftBottom,
         BottomLeft,
-        Bottom,
-        BottomRight
+        BottomCenter,
+        BottomRight,
+        RightTop,
+        RightCenter,
+        RightBottom,
+        Center
     }
+
+    readonly property list<int> anchorPositionsOnLeftEdge: [Qool.LeftTop, Qool.LeftCenter, Qool.LeftBottom]
+    readonly property list<int> anchorPositionsOnRightEdge: [Qool.RightTop, Qool.RightCenter, Qool.RightBottom]
+    readonly property list<int> anchorPositionsOnTopEdge: [Qool.TopLeft, Qool.TopCenter, Qool.TopRight]
+    readonly property list<int> anchorPositionsOnBottomEdge: [Qool.BottomLeft, Qool.BottomCenter, Qool.BottomRight]
+
+    readonly property list<int> anchorPositionsOnLeftSide: [Qool.LeftTop, Qool.LeftCenter, Qool.LeftBottom, Qool.TopLeft, Qool.BottomLeft]
+    readonly property list<int> anchorPositionsOnRightSide: [Qool.RightTop, Qool.RightCenter, Qool.RightBottom, Qool.TopRight, Qool.BottomRight]
+    readonly property list<int> anchorPositionsOnTopSide: [Qool.TopLeft, Qool.TopCenter, Qool.TopRight, Qool.LeftTop, Qool.RightTop]
+    readonly property list<int> anchorPositionsOnBottomSide: [Qool.BottomLeft, Qool.BottomCenter, Qool.BottomRight, Qool.LeftBottom, Qool.RightBottom]
 
     function format_float(x, precision = 2, keep_zero = false) {
         // 处理精度为负数的情况

@@ -8,13 +8,13 @@ Item {
     property point point
     property string name
 
-    property int textPosition: Qool.Right
-    property real textSize: 12
+    property int infoPosition: Qool.RightTop
     property color color: "darkgreen"
     property real markerSize: 12
     property bool showMarker: true
     property bool showInfo: true
     property bool showName: true
+    property real infoPadding: 4
 
     width: Math.max(10, markerSize + 2)
     height: width
@@ -31,28 +31,41 @@ Item {
 
     PopInfo {
         id: infoPop
-        visible: root.showInfo
+        visible: root.showInfo && root.showName
         contentItem: Row {
             PropertyTipText {
+                displayValue: root.name
+                valueColor: palette.toolTipText
+                visible: root.showName
+            }
+            PropertyTipText {
                 title: "x"
-                titleColor: "red"
+                titleColor: "orangered"
                 displayValue: Qool.format_float(root.point.x, 3)
+                visible: root.showInfo
             }
             PropertyTipText {
                 title: "y"
-                titleColor: "green"
+                titleColor: "palegreen"
                 displayValue: Qool.format_float(root.point.y, 3)
+                visible: root.showInfo
             }
         }
-    }
 
-    PopInfo {
-        id: namePop
-        visible: root.showName
-        contentItem: Text {
-            text: root.name
-            font.pixelSize: 10
-            color: palette.accent
+        x: {
+            if (Qool.anchorPositionsOnLeftSide.includes(root.infoPosition))
+                return 0 - root.infoPadding - infoPop.width
+            if (Qool.anchorPositionsOnRightSide.includes(root.infoPosition))
+                return root.width + root.infoPadding
+            return (root.width - infoPop.width) / 2
+        }
+
+        y: {
+            if (Qool.anchorPositionsOnTopSide.includes(root.infoPosition))
+                return 0 - root.infoPadding - infoPop.height
+            if (Qool.anchorPositionsOnBottomSide.includes(root.infoPosition))
+                return root.height + root.infoPadding
+            return (root.height - infoPop.height) / 2
         }
     }
 }
