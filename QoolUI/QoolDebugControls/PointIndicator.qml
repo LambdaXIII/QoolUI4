@@ -41,31 +41,31 @@ Item {
             PropertyTipText {
                 title: "x"
                 titleColor: "orangered"
-                displayValue: Qool.format_float(root.point.x, 3)
+                displayValue: Qool.format_float(root.point.x, 1, true)
                 visible: root.showInfo
             }
             PropertyTipText {
                 title: "y"
                 titleColor: "palegreen"
-                displayValue: Qool.format_float(root.point.y, 3)
+                displayValue: Qool.format_float(root.point.y, 1, true)
                 visible: root.showInfo
             }
         }
 
         x: {
-            if (Qool.anchorPositionsOnLeftSide.includes(root.infoPosition))
-                return 0 - root.infoPadding - infoPop.width
-            if (Qool.anchorPositionsOnRightSide.includes(root.infoPosition))
-                return root.width + root.infoPadding
-            return (root.width - infoPop.width) / 2
+            if (Qool.positionsOnLeftSide.includes(root.infoPosition))
+                return 0 - root.infoPadding - infoPop.width;
+            if (Qool.positionsOnRightSide.includes(root.infoPosition))
+                return root.width + root.infoPadding;
+            return (root.width - infoPop.width) / 2;
         }
 
         y: {
-            if (Qool.anchorPositionsOnTopSide.includes(root.infoPosition))
-                return 0 - root.infoPadding - infoPop.height
-            if (Qool.anchorPositionsOnBottomSide.includes(root.infoPosition))
-                return root.height + root.infoPadding
-            return (root.height - infoPop.height) / 2
+            if (Qool.positionsOnTopSide.includes(root.infoPosition))
+                return 0 - root.infoPadding - infoPop.height;
+            if (Qool.positionsOnBottomSide.includes(root.infoPosition))
+                return root.height + root.infoPadding;
+            return (root.height - infoPop.height) / 2;
         }
     }
 }
