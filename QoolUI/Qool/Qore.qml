@@ -34,26 +34,58 @@ SmartObject {
         readonly property list<int> hCenter: [Qore.LeftCenter, Qore.RightCenter, Qore.Center]
         readonly property list<int> vCenter: [Qore.TopCenter, Qore.BottomCenter, Qore.Center]
 
-        function xPosFromRect(rect: rect, position: int): real {
+        function xPosInRect(item, position: int): real {
             if (leftSide.includes(position))
-                return rect.x;
+                return item.x;
             if (rightSide.includes(position))
-                return rect.x + rect.width;
+                return item.x + item.width;
             if (hCenter.includes(position))
-                return rect.x + rect.width / 2;
+                return item.x + item.width / 2;
             return 0.0;
         }
 
-        function yPosFromRect(rect: rect, position: int): real {
+        function yPosInRect(item, position: int): real {
             if (topSide.includes(position))
-                return rect.y;
+                return item.y;
             if (bottomSide.includes(position))
-                return rect.y + rect.height;
+                return item.y + item.height;
             if (vCenter.includes(position))
-                return rect.y + rect.height / 2;
+                return item.y + item.height / 2;
             return 0.0;
         }
-    }
+
+        function posInRect(item, position: int): point {
+            const xpos = xPosInRect(item);
+            const ypos = yPosInRect(item);
+            return Qt.point(xpos, ypos);
+        }
+
+        function xOffsetToPos(item, position: int): real {
+            if (leftSide.includes(position))
+                return 0;
+            if (rightSide.includes(position))
+                return item.width * -1;
+            if (hCenter.includes(position))
+                return item.width / -2;
+            return 0;
+        }
+
+        function yOffsetToPos(item, position: int): real {
+            if (topSide.includes(position))
+                return 0;
+            if (bottomSide.includes(position))
+                return item.height * -1;
+            if (vCenter.includes(position))
+                return item.height / -2;
+            return 0;
+        }
+
+        function offsetToPos(item, position: int): vector2d {
+            const xoffset = xOffsetToPos(item, position);
+            const yoffset = yOffsetToPos(item, position);
+            return Qt.vector2d(xoffset, yoffset);
+        }
+    } //_positions
 
     function floatString(x, precision = 2, keep_zero = false) {
         // 处理精度为负数的情况

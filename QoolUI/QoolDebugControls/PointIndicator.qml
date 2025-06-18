@@ -8,13 +8,16 @@ Item {
     property point point
     property string name
 
-    property int infoPosition: Qore.RightTop
     property color color: "darkgreen"
     property real markerSize: 12
     property bool showMarker: true
     property bool showInfo: true
     property bool showName: true
     property real infoPadding: 4
+
+    property int infoAnchorFrom: Qore.BottomLeft
+    property int infoAnchorTo: Qore.TopLeft
+    property int infoPosition: Qore.Center
 
     width: Math.max(10, markerSize + 2)
     height: width
@@ -51,21 +54,28 @@ Item {
                 visible: root.showInfo
             }
         }
+        x: dummyInfoPop.x
+        y: dummyInfoPop.y
+    }
 
-        x: {
-            if (Qore.positions.leftSide.includes(root.infoPosition))
-                return 0 - root.infoPadding - infoPop.width;
-            if (Qore.positions.rightSide.includes(root.infoPosition))
-                return root.width + root.infoPadding;
-            return (root.width - infoPop.width) / 2;
-        }
+    Item {
+        id: dummyInfoPop
+        visible: false
+        width: infoPop.implicitWidth
+        height: infoPop.implicitHeight
+    }
 
-        y: {
-            if (Qore.positions.topSide.includes(root.infoPosition))
-                return 0 - root.infoPadding - infoPop.height;
-            if (Qore.positions.bottomSide.includes(root.infoPosition))
-                return root.height + root.infoPadding;
-            return (root.height - infoPop.height) / 2;
-        }
+    ItemRelativePositioner {
+        id: linker
+        item: dummyInfoPop
+        relativeFrom: root
+        horizontalSpacing: 4
+        verticalSpacing: 4
+        fromAnchorPosition: root.infoAnchorFrom
+        toAnchorPosition: root.infoAnchorTo
+    }
+
+    Component.onCompleted: {
+        linker.dumpInfo()
     }
 }
