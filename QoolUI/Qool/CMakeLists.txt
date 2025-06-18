@@ -23,6 +23,7 @@ qt_add_qml_module(Qool
     RESOURCES ${QOOL_ASSETS}
 
     QML_FILES Qool.qml
+    QML_FILES PixelFont.qml
     QML_FILES _private/QoolWindowCloseButtonFace.qml
 
     SOURCES shapehelper/qool_octagonsettings.h shapehelper/qool_octagonsettings.cpp

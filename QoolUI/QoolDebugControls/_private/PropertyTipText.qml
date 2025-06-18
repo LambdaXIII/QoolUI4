@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Qool
 
 Item {
     id: root
@@ -25,15 +26,17 @@ Item {
             id: titleText
             text: root.title
             visible: root.title != ""
-            font.pixelSize: 8
+            font.family: PixelFont.family
+            font.pixelSize: 16
             wrapMode: Text.NoWrap
             color: root.titleColor
             Layout.alignment: Qt.AlignTop
+            antialiasing: false
         }
         Text {
             id: valueText
             text: root.displayValue == "" ? "N/A" : root.displayValue
-            font.pixelSize: 10
+            font: PixelFont.normal
             leftPadding: 4
             rightPadding: 4
             wrapMode: Text.NoWrap
@@ -41,12 +44,13 @@ Item {
             Layout.preferredWidth: implicitWidth
             Layout.alignment: Qt.AlignTop
             Layout.preferredHeight: implicitHeight
+            antialiasing: false
         }
         Text {
             id: commetText
             text: root.commet
             visible: root.commet != ""
-            font.pixelSize: 8
+            font.pixelSize: 10
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             Layout.fillWidth: true
             Layout.rowSpan: 2
