@@ -8,7 +8,7 @@ Item {
     property point point
     property string name
 
-    property int infoPosition: Qool.RightTop
+    property int infoPosition: Qore.RightTop
     property color color: "darkgreen"
     property real markerSize: 12
     property bool showMarker: true
@@ -41,29 +41,29 @@ Item {
             PropertyTipText {
                 title: "x"
                 titleColor: "orangered"
-                displayValue: Qool.format_float(root.point.x, 1, true)
+                displayValue: Qore.floatString(root.point.x, 1, true)
                 visible: root.showInfo
             }
             PropertyTipText {
                 title: "y"
                 titleColor: "palegreen"
-                displayValue: Qool.format_float(root.point.y, 1, true)
+                displayValue: Qore.floatString(root.point.y, 1, true)
                 visible: root.showInfo
             }
         }
 
         x: {
-            if (Qool.positionsOnLeftSide.includes(root.infoPosition))
+            if (Qore.positionsOnLeftSide.includes(root.infoPosition))
                 return 0 - root.infoPadding - infoPop.width;
-            if (Qool.positionsOnRightSide.includes(root.infoPosition))
+            if (Qore.positionsOnRightSide.includes(root.infoPosition))
                 return root.width + root.infoPadding;
             return (root.width - infoPop.width) / 2;
         }
 
         y: {
-            if (Qool.positionsOnTopSide.includes(root.infoPosition))
+            if (Qore.positionsOnTopSide.includes(root.infoPosition))
                 return 0 - root.infoPadding - infoPop.height;
-            if (Qool.positionsOnBottomSide.includes(root.infoPosition))
+            if (Qore.positionsOnBottomSide.includes(root.infoPosition))
                 return root.height + root.infoPadding;
             return (root.height - infoPop.height) / 2;
         }

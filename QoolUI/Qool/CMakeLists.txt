@@ -5,7 +5,7 @@ set_source_files_properties(
     QT_QML_INTERNAL_TYPE TRUE
 )
 set_source_files_properties(
-    Qool.qml
+    Qore.qml
     PixelFont.qml
     PROPERTIES QT_QML_SINGLETON_TYPE TRUE
 )
@@ -22,7 +22,7 @@ qt_add_qml_module(Qool
 
     RESOURCES ${QOOL_ASSETS}
 
-    QML_FILES Qool.qml
+    QML_FILES Qore.qml
     QML_FILES PixelFont.qml
 
     QML_FILES _private/QoolWindowCloseButtonFace.qml
