@@ -27,6 +27,8 @@ qt_add_qml_module(Qool
 
     QML_FILES _private/QoolWindowCloseButtonFace.qml
 
+    SOURCES qool_smartobj.h qool_smartobj.cpp
+
     SOURCES shapehelper/qool_octagonsettings.h shapehelper/qool_octagonsettings.cpp
     SOURCES shapehelper/qool_abstractshapehelper.h shapehelper/qool_abstractshapehelper.cpp
     SOURCES shapehelper/qool_octagonshapehelper.h shapehelper/qool_octagonshapehelper.cpp

@@ -1,8 +1,9 @@
 pragma Singleton
 
 import QtQuick
+import Qool
 
-QtObject {
+SmartObject {
     enum Positions {
         TopLeft,
         TopCenter,
@@ -19,14 +20,40 @@ QtObject {
         Center
     }
 
-    readonly property list<int> positionsOnLeftSide: [Qore.TopLeft, Qore.LeftTop, Qore.LeftCenter, Qore.LeftBottom, Qore.BottomLeft]
-    readonly property list<int> positionsOnRightSide: [Qore.TopRight, Qore.RightTop, Qore.RightCenter, Qore.RightBottom, Qore.BottomRight]
-    readonly property list<int> positionsOnTopSide: [Qore.TopLeft, Qore.TopCenter, Qore.TopRight, Qore.LeftTop, Qore.RightTop]
-    readonly property list<int> positionsOnBottomSide: [Qore.BottomLeft, Qore.BottomCenter, Qore.BottomRight, Qore.LeftBottom, Qore.RightBottom]
-    readonly property list<int> positionsOnLeftEdge: [Qore.LeftTop, Qore.LeftCenter, Qore.LeftBottom]
-    readonly property list<int> positionsOnRightEdge: [Qore.RightTop, Qore.RightCenter, Qore.RightBottom]
-    readonly property list<int> positionsOnTopEdge: [Qore.TopLeft, Qore.TopCenter, Qore.TopRight]
-    readonly property list<int> positionsOnBottomEdge: [Qore.BottomLeft, Qore.BottomCenter, Qore.BottomRight]
+    readonly property alias positions: _positions
+    SmartObject {
+        id: _positions
+        readonly property list<int> leftSide: [Qore.TopLeft, Qore.LeftTop, Qore.LeftCenter, Qore.LeftBottom, Qore.BottomLeft]
+        readonly property list<int> rightSide: [Qore.TopRight, Qore.RightTop, Qore.RightCenter, Qore.RightBottom, Qore.BottomRight]
+        readonly property list<int> topSide: [Qore.TopLeft, Qore.TopCenter, Qore.TopRight, Qore.LeftTop, Qore.RightTop]
+        readonly property list<int> bottomSide: [Qore.BottomLeft, Qore.BottomCenter, Qore.BottomRight, Qore.LeftBottom, Qore.RightBottom]
+        readonly property list<int> leftEdge: [Qore.LeftTop, Qore.LeftCenter, Qore.LeftBottom]
+        readonly property list<int> rightEdge: [Qore.RightTop, Qore.RightCenter, Qore.RightBottom]
+        readonly property list<int> topEdge: [Qore.TopLeft, Qore.TopCenter, Qore.TopRight]
+        readonly property list<int> bototmEdge: [Qore.BottomLeft, Qore.BottomCenter, Qore.BottomRight]
+        readonly property list<int> hCenter: [Qore.LeftCenter, Qore.RightCenter, Qore.Center]
+        readonly property list<int> vCenter: [Qore.TopCenter, Qore.BottomCenter, Qore.Center]
+
+        function xPosFromRect(rect: rect, position: int): real {
+            if (leftSide.includes(position))
+                return rect.x;
+            if (rightSide.includes(position))
+                return rect.x + rect.width;
+            if (hCenter.includes(position))
+                return rect.x + rect.width / 2;
+            return 0.0;
+        }
+
+        function yPosFromRect(rect: rect, position: int): real {
+            if (topSide.includes(position))
+                return rect.y;
+            if (bottomSide.includes(position))
+                return rect.y + rect.height;
+            if (vCenter.includes(position))
+                return rect.y + rect.height / 2;
+            return 0.0;
+        }
+    }
 
     function floatString(x, precision = 2, keep_zero = false) {
         // 处理精度为负数的情况

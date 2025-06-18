@@ -53,17 +53,17 @@ Item {
         }
 
         x: {
-            if (Qore.positionsOnLeftSide.includes(root.infoPosition))
+            if (Qore.positions.leftSide.includes(root.infoPosition))
                 return 0 - root.infoPadding - infoPop.width;
-            if (Qore.positionsOnRightSide.includes(root.infoPosition))
+            if (Qore.positions.rightSide.includes(root.infoPosition))
                 return root.width + root.infoPadding;
             return (root.width - infoPop.width) / 2;
         }
 
         y: {
-            if (Qore.positionsOnTopSide.includes(root.infoPosition))
+            if (Qore.positions.topSide.includes(root.infoPosition))
                 return 0 - root.infoPadding - infoPop.height;
-            if (Qore.positionsOnBottomSide.includes(root.infoPosition))
+            if (Qore.positions.bottomSide.includes(root.infoPosition))
                 return root.height + root.infoPadding;
             return (root.height - infoPop.height) / 2;
         }

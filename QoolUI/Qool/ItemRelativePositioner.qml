@@ -7,8 +7,8 @@ Item {
     property Item item: parent as Item
     property Item relativeTo: null
 
-    property int anchorPosition: Qool.Center
-    property int targetAnchorPosition: Qool.Center
+    property int anchorPosition: Qore.Center
+    property int targetAnchorPosition: Qore.Center
 
     property int xOffset: 0
     property int yOffset: 0
