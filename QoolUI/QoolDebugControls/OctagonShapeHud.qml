@@ -6,8 +6,7 @@ Item {
 
     property OctagonShape shape: parent as OctagonShape
 
-    readonly property OctagonShapeHelper controller: shape?.shapeControl
-                                                     ?? internalController
+    readonly property OctagonShapeHelper controller: shape?.shapeControl ?? internalController
 
     OctagonShapeHelper {
         id: internalController
@@ -21,7 +20,7 @@ Item {
 
     PointIndicator {
         name: "extTL"
-        infoPosition: Qool.TopCenter
+        infoPosition: Qore.TopCenter
         parent: root.shape ?? root
         point: root.controller.extTL
         color: pCtrl.extPointColor
@@ -29,7 +28,7 @@ Item {
 
     PointIndicator {
         name: "extTR"
-        infoPosition: Qool.TopCenter
+        infoPosition: Qore.TopCenter
         parent: root.shape ?? root
         point: root.controller.extTR
         color: pCtrl.extPointColor
@@ -37,7 +36,7 @@ Item {
 
     PointIndicator {
         name: "extBL"
-        infoPosition: Qool.BottomCenter
+        infoPosition: Qore.BottomCenter
         parent: root.shape ?? root
         point: root.controller.extBL
         color: pCtrl.extPointColor
@@ -45,7 +44,7 @@ Item {
 
     PointIndicator {
         name: "extBR"
-        infoPosition: Qool.BottomCenter
+        infoPosition: Qore.BottomCenter
         parent: root.shape ?? root
         point: root.controller.extBR
         color: pCtrl.extPointColor
@@ -53,7 +52,7 @@ Item {
 
     PointIndicator {
         name: "extLT"
-        infoPosition: Qool.LeftCenter
+        infoPosition: Qore.LeftCenter
         parent: root.shape ?? root
         point: root.controller.extLT
         color: pCtrl.extPointColor
@@ -61,7 +60,7 @@ Item {
 
     PointIndicator {
         name: "extLB"
-        infoPosition: Qool.LeftCenter
+        infoPosition: Qore.LeftCenter
         parent: root.shape ?? root
         point: root.controller.extLB
         color: pCtrl.extPointColor
@@ -69,7 +68,7 @@ Item {
 
     PointIndicator {
         name: "extRT"
-        infoPosition: Qool.RightCenter
+        infoPosition: Qore.RightCenter
         parent: root.shape ?? root
         point: root.controller.extRT
         color: pCtrl.extPointColor
@@ -77,7 +76,7 @@ Item {
 
     PointIndicator {
         name: "extRB"
-        infoPosition: Qool.RightCenter
+        infoPosition: Qore.RightCenter
         parent: root.shape ?? root
         point: root.controller.extRB
         color: pCtrl.extPointColor
@@ -85,7 +84,7 @@ Item {
 
     PointIndicator {
         name: "intTL"
-        infoPosition: Qool.BottomRight
+        infoPosition: Qore.BottomRight
         parent: root.shape ?? root
         point: root.controller.intTL
         color: pCtrl.intPointColor
@@ -93,7 +92,7 @@ Item {
 
     PointIndicator {
         name: "intTR"
-        infoPosition: Qool.BottomLeft
+        infoPosition: Qore.BottomLeft
         parent: root.shape ?? root
         point: root.controller.intTR
         color: pCtrl.intPointColor
@@ -101,7 +100,7 @@ Item {
 
     PointIndicator {
         name: "intBL"
-        infoPosition: Qool.TopRight
+        infoPosition: Qore.TopRight
         parent: root.shape ?? root
         point: root.controller.intBL
         color: pCtrl.intPointColor
@@ -109,7 +108,7 @@ Item {
 
     PointIndicator {
         name: "intBR"
-        infoPosition: Qool.TopLeft
+        infoPosition: Qore.TopLeft
         parent: root.shape ?? root
         point: root.controller.intBR
         color: pCtrl.intPointColor
@@ -117,7 +116,7 @@ Item {
 
     PointIndicator {
         name: "intLT"
-        infoPosition: Qool.RightBottom
+        infoPosition: Qore.RightBottom
         parent: root.shape ?? root
         point: root.controller.intLT
         color: pCtrl.intPointColor
@@ -125,7 +124,7 @@ Item {
 
     PointIndicator {
         name: "intLB"
-        infoPosition: Qool.RightTop
+        infoPosition: Qore.RightTop
         parent: root.shape ?? root
         point: root.controller.intLB
         color: pCtrl.intPointColor
@@ -133,7 +132,7 @@ Item {
 
     PointIndicator {
         name: "intRT"
-        infoPosition: Qool.LeftBottom
+        infoPosition: Qore.LeftBottom
         parent: root.shape ?? root
         point: root.controller.intRT
         color: pCtrl.intPointColor
@@ -141,7 +140,7 @@ Item {
 
     PointIndicator {
         name: "intRB"
-        infoPosition: Qool.LeftTop
+        infoPosition: Qore.LeftTop
         parent: root.shape ?? root
         point: root.controller.intRB
         color: pCtrl.intPointColor
