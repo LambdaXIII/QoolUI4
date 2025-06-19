@@ -6,7 +6,8 @@ Item {
 
     property OctagonShape shape: parent as OctagonShape
 
-    readonly property OctagonShapeHelper controller: shape?.shapeControl ?? internalController
+    readonly property OctagonShapeHelper controller: shape?.shapeControl
+                                                     ?? internalController
 
     OctagonShapeHelper {
         id: internalController
@@ -20,7 +21,8 @@ Item {
 
     PointIndicator {
         name: "extTL"
-        infoPosition: Qore.TopCenter
+        infoAnchorFrom: Qore.TopCenter
+        infoAnchorTo: Qore.BottomCenter
         parent: root.shape ?? root
         point: root.controller.extTL
         color: pCtrl.extPointColor
@@ -28,7 +30,8 @@ Item {
 
     PointIndicator {
         name: "extTR"
-        infoPosition: Qore.TopCenter
+        infoAnchorFrom: Qore.TopCenter
+        infoAnchorTo: Qore.BottomCenter
         parent: root.shape ?? root
         point: root.controller.extTR
         color: pCtrl.extPointColor
@@ -36,7 +39,8 @@ Item {
 
     PointIndicator {
         name: "extBL"
-        infoPosition: Qore.BottomCenter
+        infoAnchorFrom: Qore.BottomCenter
+        infoAnchorTo: Qore.TopCenter
         parent: root.shape ?? root
         point: root.controller.extBL
         color: pCtrl.extPointColor
@@ -44,7 +48,8 @@ Item {
 
     PointIndicator {
         name: "extBR"
-        infoPosition: Qore.BottomCenter
+        infoAnchorFrom: Qore.BottomCenter
+        infoAnchorTo: Qore.TopCenter
         parent: root.shape ?? root
         point: root.controller.extBR
         color: pCtrl.extPointColor
@@ -52,7 +57,8 @@ Item {
 
     PointIndicator {
         name: "extLT"
-        infoPosition: Qore.LeftCenter
+        infoAnchorFrom: Qore.LeftCenter
+        infoAnchorTo: Qore.RightCenter
         parent: root.shape ?? root
         point: root.controller.extLT
         color: pCtrl.extPointColor
@@ -60,7 +66,8 @@ Item {
 
     PointIndicator {
         name: "extLB"
-        infoPosition: Qore.LeftCenter
+        infoAnchorFrom: Qore.LeftCenter
+        infoAnchorTo: Qore.RightCenter
         parent: root.shape ?? root
         point: root.controller.extLB
         color: pCtrl.extPointColor
@@ -68,7 +75,8 @@ Item {
 
     PointIndicator {
         name: "extRT"
-        infoPosition: Qore.RightCenter
+        infoAnchorFrom: Qore.RightCenter
+        infoAnchorTo: Qore.LeftCenter
         parent: root.shape ?? root
         point: root.controller.extRT
         color: pCtrl.extPointColor
@@ -76,7 +84,8 @@ Item {
 
     PointIndicator {
         name: "extRB"
-        infoPosition: Qore.RightCenter
+        infoAnchorFrom: Qore.RightCenter
+        infoAnchorTo: Qore.LeftCenter
         parent: root.shape ?? root
         point: root.controller.extRB
         color: pCtrl.extPointColor
@@ -84,7 +93,8 @@ Item {
 
     PointIndicator {
         name: "intTL"
-        infoPosition: Qore.BottomRight
+        infoAnchorFrom: Qore.BottomLeft
+        infoAnchorTo: Qore.TopLeft
         parent: root.shape ?? root
         point: root.controller.intTL
         color: pCtrl.intPointColor
@@ -92,7 +102,8 @@ Item {
 
     PointIndicator {
         name: "intTR"
-        infoPosition: Qore.BottomLeft
+        infoAnchorFrom: Qore.BottomRight
+        infoAnchorTo: Qore.TopRight
         parent: root.shape ?? root
         point: root.controller.intTR
         color: pCtrl.intPointColor
@@ -100,7 +111,8 @@ Item {
 
     PointIndicator {
         name: "intBL"
-        infoPosition: Qore.TopRight
+        infoAnchorFrom: Qore.TopLeft
+        infoAnchorTo: Qore.BottomLeft
         parent: root.shape ?? root
         point: root.controller.intBL
         color: pCtrl.intPointColor
@@ -108,7 +120,8 @@ Item {
 
     PointIndicator {
         name: "intBR"
-        infoPosition: Qore.TopLeft
+        infoAnchorFrom: Qore.RightTop
+        infoAnchorTo: Qore.RightBottom
         parent: root.shape ?? root
         point: root.controller.intBR
         color: pCtrl.intPointColor
@@ -116,7 +129,8 @@ Item {
 
     PointIndicator {
         name: "intLT"
-        infoPosition: Qore.RightBottom
+        infoAnchorFrom: Qore.RightBottom
+        infoAnchorTo: Qore.LeftTop
         parent: root.shape ?? root
         point: root.controller.intLT
         color: pCtrl.intPointColor
@@ -124,7 +138,8 @@ Item {
 
     PointIndicator {
         name: "intLB"
-        infoPosition: Qore.RightTop
+        infoAnchorFrom: Qore.RightTop
+        infoAnchorTo: Qore.LeftBottom
         parent: root.shape ?? root
         point: root.controller.intLB
         color: pCtrl.intPointColor
@@ -132,7 +147,8 @@ Item {
 
     PointIndicator {
         name: "intRT"
-        infoPosition: Qore.LeftBottom
+        infoAnchorFrom: Qore.LeftBottom
+        infoAnchorTo: Qore.RightTop
         parent: root.shape ?? root
         point: root.controller.intRT
         color: pCtrl.intPointColor
@@ -140,7 +156,8 @@ Item {
 
     PointIndicator {
         name: "intRB"
-        infoPosition: Qore.LeftTop
+        infoAnchorFrom: Qore.LeftTop
+        infoAnchorTo: Qore.RightBottom
         parent: root.shape ?? root
         point: root.controller.intRB
         color: pCtrl.intPointColor

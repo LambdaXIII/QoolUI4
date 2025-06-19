@@ -34,8 +34,8 @@ void SmartObject::setParent(QObject* parent) {
   }
 }
 
-QQuickItem* SmartObject::parentItem() const {
-  return m_parentItem;
+QVariant SmartObject::parentItem() const {
+  return QVariant::fromValue(m_parentItem);
 }
 
 void SmartObject::dumpProperties() const {

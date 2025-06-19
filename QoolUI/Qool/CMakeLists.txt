@@ -41,8 +41,7 @@ qt_add_qml_module(Qool
     SOURCES shapehelper/qool_octagoncontainmentmasker.h shapehelper/qool_octagoncontainmentmasker.cpp
     QML_FILES OctagonRoundedShape.qml
 
-    QML_FILES ItemRelativePositioner.qml
-    QML_FILES PositionLinker.qml
+    QML_FILES PositionLocker.qml
 )
 
 set_target_properties(Qool PROPERTIES

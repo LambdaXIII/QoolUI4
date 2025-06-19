@@ -17,7 +17,6 @@ Item {
 
     property int infoAnchorFrom: Qore.RightCenter
     property int infoAnchorTo: Qore.LeftCenter
-    property int infoPosition: Qore.Center
 
     width: Math.max(10, markerSize + 2)
     height: width
@@ -54,25 +53,21 @@ Item {
                 visible: root.showInfo
             }
         }
-        x: root.mapFromGlobal(posLinker.globalTargetPos).x
-        y: root.mapFromGlobal(posLinker.globalTargetPos).y
+        x: infoPlacer.x
+        y: infoPlacer.y
     }
 
     Item {
-        id: dummyInfoPop
+        id: infoPlacer
         width: infoPop.implicitWidth
         height: infoPop.implicitHeight
     }
 
-    PositionLinker {
-        id: posLinker
-        target: dummyInfoPop
-        linkTo: root
+    PositionLocker {
+        target: infoPlacer
+        targetAnchorPosition: root.infoAnchorTo
+        lockToAnchorPosition: root.infoAnchorFrom
         horizontalSpacing: 4
         verticalSpacing: 4
-        targetAnchorPosition: root.infoAnchorTo
-        linkToAnchorPosition: root.infoAnchorFrom
-        autoLink: false
-        Component.onCompleted: dumpInfo()
     }
 }
