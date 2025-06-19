@@ -1,5 +1,7 @@
 #include "qool_smartobj.h"
 
+#include "qoolcommon/debug.hpp"
+
 QOOL_NS_BEGIN
 
 SmartObject::SmartObject(QObject* parent)
@@ -34,6 +36,20 @@ void SmartObject::setParent(QObject* parent) {
 
 QQuickItem* SmartObject::parentItem() const {
   return m_parentItem;
+}
+
+void SmartObject::dumpProperties() const {
+  if (! objectName().isEmpty())
+    xDebugQ << "Properties in" << objectName();
+  auto metaObject = this->metaObject();
+  for (int i = metaObject->propertyOffset();
+    i < metaObject->propertyCount();
+    ++i) {
+    auto property = metaObject->property(i);
+    xDebugQ << xDBGBlue << i << ":" << xDBGYellow << property.name()
+            << xDBGGrey << "=" << xDBGGreen << property.read(this)
+            << xDBGReset;
+  }
 }
 
 QOOL_NS_END

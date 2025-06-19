@@ -34,6 +34,8 @@ public:
   Q_SIGNAL void parentChanged();
   Q_SIGNAL void parentItemChanged();
 
+  Q_INVOKABLE void dumpProperties() const;
+
 private:
   QObjectList m_items;
   QQuickItem* m_parentItem { nullptr };

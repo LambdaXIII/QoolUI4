@@ -15,8 +15,8 @@ Item {
     property bool showName: true
     property real infoPadding: 4
 
-    property int infoAnchorFrom: Qore.BottomLeft
-    property int infoAnchorTo: Qore.TopLeft
+    property int infoAnchorFrom: Qore.RightCenter
+    property int infoAnchorTo: Qore.LeftCenter
     property int infoPosition: Qore.Center
 
     width: Math.max(10, markerSize + 2)
@@ -54,28 +54,25 @@ Item {
                 visible: root.showInfo
             }
         }
-        x: dummyInfoPop.x
-        y: dummyInfoPop.y
+        x: root.mapFromGlobal(posLinker.globalTargetPos).x
+        y: root.mapFromGlobal(posLinker.globalTargetPos).y
     }
 
     Item {
         id: dummyInfoPop
-        visible: false
         width: infoPop.implicitWidth
         height: infoPop.implicitHeight
     }
 
-    ItemRelativePositioner {
-        id: linker
-        item: dummyInfoPop
-        relativeFrom: root
+    PositionLinker {
+        id: posLinker
+        target: dummyInfoPop
+        linkTo: root
         horizontalSpacing: 4
         verticalSpacing: 4
-        fromAnchorPosition: root.infoAnchorFrom
-        toAnchorPosition: root.infoAnchorTo
-    }
-
-    Component.onCompleted: {
-        linker.dumpInfo()
+        targetAnchorPosition: root.infoAnchorTo
+        linkToAnchorPosition: root.infoAnchorFrom
+        autoLink: false
+        Component.onCompleted: dumpInfo()
     }
 }

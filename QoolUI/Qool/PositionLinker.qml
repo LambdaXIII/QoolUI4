@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls
 import Qool
 
 SmartObject {
@@ -28,39 +27,6 @@ SmartObject {
             id: dummyToItem
         }
 
-        readonly property rect fromRect: {
-            const w = root.linkTo.width;
-            const h = root.linkTo.y;
-            const r = Overlay.overlay.mapFromItem(root.linkTo, 0, 0, w, h);
-            return r;
-        }
-        readonly property point fromPosX: {
-            const r = pCtrl.fromRect;
-            return Qore.positions.xPosInRect(r, root.linkToAnchorPosition);
-        }
-        readonly property point fromPosY: {
-            const r = pCtrl.fromRect;
-            return Qore.positions.yPosInRect(r, root.linkToAnchorPosition);
-        }
-
-        readonly property rect toRect: {
-            const w = root.target.width;
-            const h = root.target.height;
-            const r = Overlay.overlay.mapFromItem(root.target, 0, 0, w, h);
-            return r;
-        }
-        readonly property real toPosX: {
-            const r = pCtrl.toRect;
-            return Qore.positions.xPosInRect(r, root.targetAnchorPosition);
-        }
-        readonly property real toPosY: {
-            const r = pCtrl.toRect;
-            return Qore.positions.yPosInRect(r, root.targetAnchorPosition);
-        }
-
-        readonly property real toOffsetX: Qore.positions.xOffsetToPos(root.target, root.targetAnchorPosition)
-        readonly property real toOffsetY: Qore.positions.yOffsetToPos(root.target, root.targetAnchorPosition)
-
         function takeSign(x) {
             if (x > 0)
                 return 1;
@@ -69,28 +35,42 @@ SmartObject {
             return 0;
         }
 
-        readonly property real xSpacing: root.horizontalSpacing * takeSign(toOffsetX)
-        readonly property real ySpacing: root.verticalSpacing * takeSign(toOffsetY)
+        readonly property point fromPos: {
+            const pos = Qore.positions.posInRect(root.linkTo, root.linkToAnchorPosition);
+            return root.linkTo.mapToGlobal(pos);
+        }
 
-        readonly property real globalTargetX: fromPosX + toPosX + toOffsetX + xSpacing + root.xOffset
-        readonly property real globalTargetY: fromPosY + toPosY + toOffsetY + ySpacing + root.yOffset
+        readonly property vector2d targetOffset: {
+            const vec = Qore.positions.offsetToPos(root.target, root.targetAnchorPosition);
+            return vec;
+        }
+
+        readonly property vector2d spacingOffset: {
+            const x = root.horizontalSpacing * takeSign(targetOffset.x);
+            const y = root.verticalSpacing * takeSign(targetOffset.y);
+            return Qt.vector2d(x, y);
+        }
     }//pCtrl
 
-    readonly property point targetPos: Overlay.overlay.mapToItem(root.target, pCtrl.globalTargetX, pCtrl.globalTargetY)
-
-    readonly property real targetX: targetPos.x
-    readonly property real targetY: targetPos.y
+    readonly property real globalTargetX: pCtrl.fromPos.x + pCtrl.targetOffset.x + pCtrl.spacingOffset.x + root.xOffset
+    readonly property real globalTargetY: pCtrl.fromPos.y + pCtrl.targetOffset.y + pCtrl.spacingOffset.y + root.yOffset
+    readonly property point globalTargetPos: Qt.point(globalTargetX, globalTargetY)
 
     Binding {
-        when: root.autoLink && root.enabled
+        when: root.autoLink && root.enabled && root.target.parent
         target: root.target
         property: "x"
-        value: root.targetX
+        value: root.target.parent.mapFromGlobal(root.globalTargetPos).x
     }
     Binding {
-        when: root.autoLink && root.enabled
+        when: root.autoLink && root.enabled && root.target.parent
         target: root.target
         property: "y"
-        value: root.targetY
+        value: root.target.parent.mapFromGlobal(root.globalTargetPos).y
+    }
+
+    function dumpInfo() {
+        pCtrl.dumpProperties();
+        dumpProperties();
     }
 }
