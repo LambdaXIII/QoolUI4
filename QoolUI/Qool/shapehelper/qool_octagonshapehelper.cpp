@@ -90,11 +90,6 @@ bool OctagonShapeHelper::contains(const QPointF& point) const {
 }
 
 void OctagonShapeHelper::__setup_reference_values() {
-  m_safeBorderWidth.setBinding([&] {
-    return qMax(
-      0.0, bindable_settings().value()->bindable_borderWidth().value());
-  });
-
 #define SHORT_EDGE bindable_shortEdge().value()
   m_safeTL.setBinding([&] {
     const qreal x =
@@ -126,6 +121,11 @@ void OctagonShapeHelper::__setup_reference_values() {
   });
 #undef SHORT_EDGE
 
+  m_safeBorderWidth.setBinding([&] {
+    return qMax(
+      0.0, bindable_settings().value()->bindable_borderWidth().value());
+  });
+
   m_borderShrinkSize.setBinding([&] {
     const qreal border = m_safeBorderWidth.value();
     if (border <= 0)
@@ -133,7 +133,9 @@ void OctagonShapeHelper::__setup_reference_values() {
     static const qreal _tan = std::tan(22.5 * M_PI / 180.0);
     return qMax(_tan * border, 1.0);
   });
-}
+
+} //__setup_reference_values
+
 void OctagonShapeHelper::__connect_points() {
 #define CONNECT_P(_N_)                                                 \
   m_##_N_.setBinding(                                                  \
@@ -173,9 +175,7 @@ void OctagonShapeHelper::__setup_ext_points() {
 
 void OctagonShapeHelper::__setup_int_points() {
 #define W bindable_width().value()
-#define W2 bindable_halfWidth().value()
 #define H bindable_height().value()
-#define H2 bindable_halfHeight().value()
 #define Border m_safeBorderWidth.value()
 #define Shrink m_borderShrinkSize.value()
 #define Left Border
@@ -187,100 +187,100 @@ void OctagonShapeHelper::__setup_int_points() {
     if (Border == 0)
       return m_extTLx.value();
     const qreal v = m_extTLx.value() + Shrink;
-    return math::auto_bound(Left, v, W2);
+    return math::auto_bound(Left, v, Right);
   });
   m_intTLy.setBinding([&] {
     if (Border == 0)
       return m_extTLy.value();
     const qreal v = m_extTLy.value() + Border;
-    return math::auto_bound(Top, v, H2);
+    return math::auto_bound(Top, v, Bottom);
   });
   m_intTRx.setBinding([&] {
     if (Border == 0)
       return m_extTRx.value();
     const qreal v = m_extTRx.value() - Shrink;
-    return math::auto_bound(W2, v, Right);
+    return math::auto_bound(Left, v, Right);
   });
   m_intTRy.setBinding([&] {
     if (Border == 0)
       return m_extTRy.value();
     const qreal v = m_extTRy.value() + Border;
-    return math::auto_bound(Top, v, H2);
+    return math::auto_bound(Top, v, Bottom);
   });
 
   m_intBLx.setBinding([&] {
     if (Border == 0)
       return m_extBLx.value();
     const auto v = m_extBLx.value() + Shrink;
-    return math::auto_bound(Left, v, W2);
+    return math::auto_bound(Left, v, Right);
   });
   m_intBLy.setBinding([&] {
     if (Border == 0)
       return m_extBLy.value();
     const auto v = m_extBLy.value() - Border;
-    return math::auto_bound(H2, v, Bottom);
+    return math::auto_bound(Top, v, Bottom);
   });
   m_intBRx.setBinding([&] {
     if (Border == 0)
       return m_extBRx.value();
     const auto v = m_extBRx.value() - Shrink;
-    return math::auto_bound(W2, v, Right);
+    return math::auto_bound(Left, v, Right);
   });
   m_intBRy.setBinding([&] {
     if (Border == 0)
       return m_extBRy.value();
     const auto v = m_extBRy.value() - Border;
-    return math::auto_bound(H2, v, Bottom);
+    return math::auto_bound(Top, v, Bottom);
   });
 
   m_intLTx.setBinding([&] {
     if (Border == 0)
       return m_extLTx.value();
     const auto v = m_extLTx.value() + Border;
-    return math::auto_bound(Left, v, W2);
+    return math::auto_bound(Left, v, Right);
   });
   m_intLTy.setBinding([&] {
     if (Border == 0)
       return m_extLTy.value();
     const auto v = m_extLTy.value() + Shrink;
-    return math::auto_bound(Top, v, H2);
+    return math::auto_bound(Top, v, Bottom);
   });
   m_intLBx.setBinding([&] {
     if (Border == 0)
       return m_extLBx.value();
     const auto v = m_extLBx.value() + Border;
-    return math::auto_bound(Left, v, W2);
+    return math::auto_bound(Left, v, Right);
   });
   m_intLBy.setBinding([&] {
     if (Border == 0)
       return m_extLBy.value();
     const auto v = m_extLBy.value() - Shrink;
-    return math::auto_bound(H2, v, Bottom);
+    return math::auto_bound(Top, v, Bottom);
   });
 
   m_intRTx.setBinding([&] {
     if (Border == 0)
       return m_extRTx.value();
     const auto v = m_extRTx.value() - Border;
-    return math::auto_bound(W2, v, Right);
+    return math::auto_bound(Left, v, Right);
   });
   m_intRTy.setBinding([&] {
     if (Border == 0)
       return m_extRTy.value();
     const auto v = m_extRTy.value() + Shrink;
-    return math::auto_bound(Top, v, H2);
+    return math::auto_bound(Top, v, Bottom);
   });
   m_intRBx.setBinding([&] {
     if (Border == 0)
       return m_extRBx.value();
     const auto v = m_extRBx.value() - Border;
-    return math::auto_bound(W2, v, Right);
+    return math::auto_bound(Left, v, Right);
   });
   m_intRBy.setBinding([&] {
     if (Border == 0)
       return m_extRBy.value();
     const auto v = m_extRBy.value() - Shrink;
-    return math::auto_bound(H2, v, Bottom);
+    return math::auto_bound(Top, v, Bottom);
   });
 
 #undef Bottom
@@ -289,8 +289,6 @@ void OctagonShapeHelper::__setup_int_points() {
 #undef Left
 #undef Shrink
 #undef Border
-#undef H2
-#undef W2
 #undef H
 #undef W
 }
