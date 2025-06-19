@@ -3,7 +3,8 @@
 QOOL_NS_BEGIN
 
 SmartObject::SmartObject(QObject* parent)
-  : QObject(parent) {
+  : QObject {} {
+  this->setParent(parent);
 }
 
 QQmlListProperty<QObject> SmartObject::smartItems() {
@@ -16,6 +17,23 @@ void SmartObject::_append_item(
   self->m_items.append(item);
   if (item->parent() == nullptr)
     item->setParent(self);
+}
+
+void SmartObject::setParent(QObject* parent) {
+  QObject* old_parent = this->parent();
+  if (parent == old_parent)
+    return;
+  QObject::setParent(parent);
+  emit parentChanged();
+  QQuickItem* pItem = qobject_cast<QQuickItem*>(parent);
+  if (pItem != m_parentItem) {
+    m_parentItem = pItem;
+    emit parentItemChanged();
+  }
+}
+
+QQuickItem* SmartObject::parentItem() const {
+  return m_parentItem;
 }
 
 QOOL_NS_END

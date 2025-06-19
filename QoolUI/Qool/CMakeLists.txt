@@ -42,6 +42,7 @@ qt_add_qml_module(Qool
     QML_FILES OctagonRoundedShape.qml
 
     QML_FILES ItemRelativePositioner.qml
+    QML_FILES PositionLinker.qml
 )
 
 set_target_properties(Qool PROPERTIES
