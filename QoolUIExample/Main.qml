@@ -5,9 +5,9 @@ import QtQuick.Shapes
 import Qool
 import "pages"
 
-Window {
-    width: 600
-    height: 400
+QoolWindow {
+    width: 1024
+    height: 720
     visible: true
     title: qsTr("Hello World")
 

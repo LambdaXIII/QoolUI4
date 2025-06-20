@@ -20,6 +20,7 @@ Shape {
         strokeWidth: 0
         strokeColor: "transparent"
         joinStyle: ShapePath.BevelJoin
+        pathHints: ShapePath.PahtLinear | ShapePath.PathNonOverlappingControlPointTriangles
 
         startX: root.shapeControl.extTLx
         startY: root.shapeControl.extTLy
@@ -101,6 +102,7 @@ Shape {
         strokeWidth: 0
         strokeColor: "transparent"
         joinStyle: ShapePath.BevelJoin
+        pathHints: ShapePath.PahtLinear | ShapePath.PathNonOverlappingControlPointTriangles | ShapePath.PathConvex
 
         startX: root.shapeControl.intTLx
         startY: root.shapeControl.intTLy

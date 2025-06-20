@@ -75,8 +75,8 @@ void OctagonShapeHelper::dumpInfo() const {
 bool OctagonShapeHelper::contains(const QPointF& point) const {
   const auto x = point.x();
   const auto y = point.y();
-  const QRectF boundingRect { 0, 0, m_width, m_height };
-  if (! boundingRect.contains(point))
+  const bool in_bound = AbstractShapeHelper::contains(point);
+  if (! in_bound)
     return false;
   if (x + y < m_safeTL)
     return false;

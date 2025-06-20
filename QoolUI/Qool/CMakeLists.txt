@@ -6,6 +6,7 @@ set_source_files_properties(
 )
 set_source_files_properties(
     Qore.qml
+    QoolConstants.qml
     PixelFont.qml
     PROPERTIES QT_QML_SINGLETON_TYPE TRUE
 )
@@ -23,9 +24,11 @@ qt_add_qml_module(Qool
     RESOURCES ${QOOL_ASSETS}
 
     QML_FILES Qore.qml
+    QML_FILES QoolConstants.qml
     QML_FILES PixelFont.qml
 
     QML_FILES _private/QoolWindowCloseButtonFace.qml
+    QML_FILES _private/QoolWindowBG.qml
 
     SOURCES qool_smartobj.h qool_smartobj.cpp
 
@@ -40,8 +43,10 @@ qt_add_qml_module(Qool
     SOURCES datatypes/qool_polar2d.h datatypes/qool_polar2d.cpp
     SOURCES shapehelper/qool_octagoncontainmentmasker.h shapehelper/qool_octagoncontainmentmasker.cpp
     QML_FILES OctagonRoundedShape.qml
-
+    QML_FILES QoolBox.qml
+    QML_FILES DragMoveArea.qml
     QML_FILES PositionLocker.qml
+    QML_FILES QoolWindow.qml
 )
 
 set_target_properties(Qool PROPERTIES

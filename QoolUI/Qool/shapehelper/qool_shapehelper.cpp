@@ -2,6 +2,7 @@
 
 #include "gadgets/qool_shapehelpergadget.h"
 #include "qoolcommon/debug.hpp"
+#include "qoolcommon/macro_foreach.hpp"
 
 QOOL_NS_BEGIN
 
