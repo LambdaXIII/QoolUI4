@@ -17,6 +17,9 @@ class OctagonSettings: public QObject {
   Q_OBJECT
   QML_ELEMENT
 
+  Q_PROPERTY(qreal cutSize READ cutSizeTL WRITE set_cutSizeTL NOTIFY
+      cutSizeTLChanged)
+
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
     OctagonSettings, qreal, cutSizeTL)
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
