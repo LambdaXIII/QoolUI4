@@ -21,7 +21,7 @@ qt_add_qml_module(QoolDebugControls
     QML_FILES _private/BGBox.qml
     QML_FILES _private/DBGControl.qml
     QML_FILES OctagonShapeHud.qml
-    QML_FILES
+    QML_FILES RectIndicator.qml
     QML_FILES _private/PopBox.qml
     QML_FILES _private/SlimPopup.qml
     QML_FILES _private/PropertyTipText.qml

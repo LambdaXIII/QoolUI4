@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import QtQuick.Shapes
 import Qool
+import Qool.DebugControls
 import "pages"
 
 QoolWindow {
