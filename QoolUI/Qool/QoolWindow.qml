@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Window
-import Qool
 import "_private"
 
 QoolWindowBasic {
