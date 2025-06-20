@@ -1,6 +1,6 @@
 if(NOT DEFINED QOOLUI_QML_PROJECT_SETUP_LOADED)
   set(QOOLUI_QML_PROJECT_SETUP_LOADED true)
-  message("QOOLUI_QML_PROJECT_SETUP LOADED")
+  message(STATUS "QOOLUI_QML_PROJECT_SETUP LOADED")
 endif()
 
 
@@ -9,7 +9,15 @@ function(append_qml_dir _V_)
   list(APPEND QML_DIRS ${_V_})
   list(REMOVE_DUPLICATES QML_DIRS)
   set(QML_IMPORT_PATH ${QML_DIRS} CACHE STRING "qt qml folder" FORCE)
+  message("Adding QML_IMPORT_PATH: ${_V_}")
 endfunction()
+
+function(dump_list LIST_VAR)
+  foreach(item ${${LIST_VAR}})
+    message(STATUS "${LIST_VAR}: ${item}")
+  endforeach()
+endfunction()
+
 
 
 macro(load_qoolui_standard_options)
@@ -17,9 +25,16 @@ macro(load_qoolui_standard_options)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
     set(QT_QML_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/qml)
     set(QOOLUI_PLUGIN_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/qoolplugins)
-    set(QOOLUI_STANDARD_OPTIONS_LOADED true)
     append_qml_dir(${QT_QML_OUTPUT_DIRECTORY})
-    message("QOOLUI STANDARD PROJECT OPTIONS LOADED")
+    set(QT_QML_GENERATE_QMLLS_INI ON)
+
+    if(QT_KNOWN_POLICY_QTP0004)
+      message(STATUS "QTP0004: Enabled")
+      qt_policy(SET QTP0004 NEW)
+    endif()
+
+    message(STATUS "QOOLUI STANDARD PROJECT OPTIONS LOADED")
+    set(QOOLUI_STANDARD_OPTIONS_LOADED true)
   endif()
 endmacro()
 

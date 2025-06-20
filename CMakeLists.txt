@@ -10,13 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 6.2 COMPONENTS Core Quick REQUIRED)
 
-qt_standard_project_setup(REQUIRES 6.5)
-
-if(QT_KNOWN_POLICY_QTP0004)
-  qt_policy(SET QTP0004 NEW)
-endif()
-
-set(QT_QML_GENERATE_QMLLS_INI ON)
+qt_standard_project_setup(REQUIRES 6.6)
 
 add_library(GENERAL_HELP INTERFACE EXCLUDE_FROM_ALL
   .clang-format
@@ -35,7 +29,7 @@ load_qoolui_standard_options()
 # set(QT_QML_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/qml)
 # set(QOOLUI_PLUGIN_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/qoolplugins)
 
-append_qml_dir("${CMAKE_CURRENT_SOURCE_DIR}/QoolUI")
+# append_qml_dir("${CMAKE_CURRENT_SOURCE_DIR}/QoolUI")
 
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "deployment output dir" FORCE)
 
@@ -43,3 +37,6 @@ set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "deployment ou
 
 add_subdirectory(QoolUI)
 add_subdirectory(QoolUIExample)
+
+
+dump_list(QML_IMPORT_PATH)
