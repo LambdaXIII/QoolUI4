@@ -91,27 +91,22 @@ DBGControl {
             z: 20
             onEditingFinished: pCtrl.end_edit()
         } //TextField
-    } //contentItem
 
-    background: Item {
-        Rectangle {
-            color: palette.button
-            anchors.fill: parent
-            radius: 4
-        }
         Rectangle {
             border.width: 0
-            color: mArea.dragging ? palette.accent : palette.dark
+            color: mArea.dragging ? palette.highlight : palette.mid
             height: parent.height
             width: parent.width * root.percent
             radius: 4
+            z: -10
         }
-        Rectangle {
-            border.width: 2
-            border.color: palette.shadow
-            color: "transparent"
-            radius: 4
-        }
+    } //contentItem
+
+    background: Rectangle {
+        color: palette.button
+        border.color: palette.buttonText
+        border.width: 1
+        radius: 4
     }
 
     MouseArea {
@@ -122,8 +117,10 @@ DBGControl {
         cursorShape: Qt.CrossCursor
         onDoubleClicked: root.reset()
         onClicked: e => {
-            if (dragging)
+            if (dragging) {
+                e.accepted = false;
                 return;
+            }
             if (e.button === Qt.LeftButton) {
                 root.value = pCtrl.value_from_mouseX(mouseX);
             }
@@ -132,7 +129,7 @@ DBGControl {
             }
         }
         property bool dragging: false
-        onPressAndHold: dragging = true
+        onPressed: dragging = true
         onReleased: dragging = false
         onMouseXChanged: {
             if (!dragging)
