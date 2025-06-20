@@ -18,19 +18,27 @@ function(dump_list LIST_VAR)
   endforeach()
 endfunction()
 
-
-
 macro(load_qoolui_standard_options)
   if(NOT DEFINED QOOLUI_STANDARD_OPTIONS_LOADED)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-    set(QT_QML_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/qml)
     set(QOOLUI_PLUGIN_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/qoolplugins)
-    append_qml_dir(${QT_QML_OUTPUT_DIRECTORY})
+    set(QT_QML_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/qml)
+    # append_qml_dir(${QT_QML_OUTPUT_DIRECTORY})
     set(QT_QML_GENERATE_QMLLS_INI ON)
+
+    if(QT_KNOWN_POLICY_QTP0001)
+      message(STATUS "QTP0001: Enabled")
+      qt_policy(SET QTP0001 NEW)
+    endif()
 
     if(QT_KNOWN_POLICY_QTP0004)
       message(STATUS "QTP0004: Enabled")
       qt_policy(SET QTP0004 NEW)
+    endif()
+
+    if(QT_KNOWN_POLICY_QTP0005)
+      message(STATUS "QTP0005: Enabled")
+      qt_policy(SET QTP0005 NEW)
     endif()
 
     message(STATUS "QOOLUI STANDARD PROJECT OPTIONS LOADED")

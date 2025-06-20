@@ -16,8 +16,7 @@ qoolui_scan_assets_to(QOOL_ASSETS)
 # qt_add_library(Qool STATIC)
 qt_add_qml_module(Qool
     URI Qool
-    RESOURCE_PREFIX /qoolui
-    # OUTPUT_DIRECTORY QOOLUI/Qool
+    # RESOURCE_PREFIX /qoolui
     VERSION 4.0
     NAMESPACE ${QOOL_NS}
 

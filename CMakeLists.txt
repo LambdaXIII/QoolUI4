@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 6.2 COMPONENTS Core Quick REQUIRED)
 
-qt_standard_project_setup(REQUIRES 6.6)
+qt_standard_project_setup(REQUIRES 6.8)
 
 add_library(GENERAL_HELP INTERFACE EXCLUDE_FROM_ALL
   .clang-format
