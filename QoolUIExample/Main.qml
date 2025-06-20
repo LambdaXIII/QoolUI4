@@ -12,7 +12,5 @@ QoolWindow {
     visible: true
     title: qsTr("Hello World")
 
-    OctagonShapeTestPage {
-        anchors.fill: parent
-    }
+    content: OctagonShapeTestPage {}
 }

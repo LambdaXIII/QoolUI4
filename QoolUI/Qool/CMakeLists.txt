@@ -29,6 +29,7 @@ qt_add_qml_module(Qool
 
     QML_FILES _private/QoolWindowCloseButton.qml
     QML_FILES _private/QoolWindowBG.qml
+    QML_FILES _private/QoolWindowTitleItem.qml
 
     SOURCES qool_smartobj.h qool_smartobj.cpp
 
@@ -48,6 +49,7 @@ qt_add_qml_module(Qool
     QML_FILES BasicColorBehavior.qml BasicNumberBehavior.qml
     QML_FILES PositionLocker.qml
     QML_FILES QoolWindowBasic.qml QoolWindow.qml
+    QML_FILES DummyItem.qml
 )
 
 set_target_properties(Qool PROPERTIES

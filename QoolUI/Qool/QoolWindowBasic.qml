@@ -7,7 +7,7 @@ Window {
 
     property bool animationEnabled: transientParent?.animationEnabled ?? QoolConstants.animationEnabled
     property alias background: bgShape
-    property alias settings: bgShape.settings
+    property alias backgroundSettings: bgShape.settings
 
     visible: true
     minimumWidth: 200
