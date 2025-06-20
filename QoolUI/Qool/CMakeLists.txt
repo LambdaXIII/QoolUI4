@@ -47,7 +47,7 @@ qt_add_qml_module(Qool
     QML_FILES DragMoveArea.qml
     QML_FILES BasicColorBehavior.qml BasicNumberBehavior.qml
     QML_FILES PositionLocker.qml
-    QML_FILES QoolWindow.qml
+    QML_FILES QoolWindowBasic.qml QoolWindow.qml
 )
 
 set_target_properties(Qool PROPERTIES
