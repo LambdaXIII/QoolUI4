@@ -21,11 +21,11 @@ Window {
 
     QoolWindowBG {
         id: bgShape
-        anchors.fill: parent
-        onWannaMove: (dx, dy) => {
-            root.x = root.x + dx;
-            root.y = root.y + dy;
-        }
+        // anchors.fill: parent
+        // onWannaMove: (dx, dy) => {
+        //     root.x = root.x + dx;
+        //     root.y = root.y + dy;
+        // }
     }
 
     Loader {

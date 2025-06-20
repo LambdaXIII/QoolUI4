@@ -9,7 +9,6 @@ MouseArea {
     readonly property bool hovered: pCtrl.hovered
 
     acceptedButtons: Qt.LeftButton
-    anchors.fill: parent
 
     signal wannaMove(real offsetX, real offsetY)
 
