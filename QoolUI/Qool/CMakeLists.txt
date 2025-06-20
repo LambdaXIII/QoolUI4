@@ -27,7 +27,7 @@ qt_add_qml_module(Qool
     QML_FILES QoolConstants.qml
     QML_FILES PixelFont.qml
 
-    QML_FILES _private/QoolWindowCloseButtonFace.qml
+    QML_FILES _private/QoolWindowCloseButton.qml
     QML_FILES _private/QoolWindowBG.qml
 
     SOURCES qool_smartobj.h qool_smartobj.cpp
@@ -45,6 +45,7 @@ qt_add_qml_module(Qool
     QML_FILES OctagonRoundedShape.qml
     QML_FILES QoolBox.qml
     QML_FILES DragMoveArea.qml
+    QML_FILES BasicColorBehavior.qml BasicNumberBehavior.qml
     QML_FILES PositionLocker.qml
     QML_FILES QoolWindow.qml
 )

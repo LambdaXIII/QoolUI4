@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
@@ -6,13 +8,10 @@ import "_private"
 Window {
     id: root
 
-    property bool animationEnabled: true
-    readonly property OctagonSettings backgroundSettings: OctagonSettings {
-        cutSizeTL: 60
-        borderWidth: 1
-        fillColor: palette.base
-        borderColor: palette.accent
-    }
+    property bool animationEnabled: transientParent?.animationEnabled ?? QoolConstants.animationEnabled
+    property alias background: bgShape
+    property alias settings: bgShape.settings
+    property bool showCloseButton: true
 
     visible: true
     minimumWidth: 200
@@ -23,17 +22,19 @@ Window {
     QoolWindowBG {
         id: bgShape
         anchors.fill: parent
-        settings: root.backgroundSettings
         onWannaMove: (dx, dy) => {
             root.x = root.x + dx;
             root.y = root.y + dy;
         }
     }
 
-    Button {
-        text: "X"
-        onClicked: {
-            root.close();
+    Loader {
+        id: closeButtonLoader
+        sourceComponent: QoolWindowCloseButton {
+            windowCutSize: root.settings.cutSize
+            onClicked: root.close()
+            visible: root.active
         }
+        active: root.showCloseButton
     }
 }

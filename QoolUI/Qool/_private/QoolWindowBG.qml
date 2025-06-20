@@ -8,16 +8,17 @@ QoolBox {
 
     signal wannaMove(dx: real, dy: real)
 
-    settings: {
-        cutSize: QoolConstants.windowCutSize;
-        borderColor: palette.accent;
-        fillColor: palette.window;
-        borderWidth: QoolConstants.windowBorderWidth;
+    settings {
+        cutSize: QoolConstants.windowCutSize
+        borderColor: palette.accent
+        fillColor: palette.window
+        borderWidth: QoolConstants.windowBorderWidth
     }
 
     DragMoveArea {
         id: mArea
         target: null
         onWannaMove: (dx, dy) => root.wannaMove(dx, dy)
+        containmentMask: root
     }
 }
