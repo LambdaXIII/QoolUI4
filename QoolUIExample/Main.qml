@@ -3,15 +3,14 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import QtQuick.Shapes
 import Qool
+import Qool.DebugControls
 import "pages"
 
-Window {
-    width: 600
-    height: 400
+QoolWindow {
+    width: 1024
+    height: 720
     visible: true
     title: qsTr("Hello World")
 
-    OctagonShapeTestPage {
-        anchors.fill: parent
-    }
+    content: OctagonShapeTestPage {}
 }

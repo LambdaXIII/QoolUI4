@@ -6,6 +6,7 @@ set_source_files_properties(
 )
 set_source_files_properties(
     Qore.qml
+    QoolConstants.qml
     PixelFont.qml
     PROPERTIES QT_QML_SINGLETON_TYPE TRUE
 )
@@ -15,17 +16,19 @@ qoolui_scan_assets_to(QOOL_ASSETS)
 # qt_add_library(Qool STATIC)
 qt_add_qml_module(Qool
     URI Qool
-    RESOURCE_PREFIX /qoolui
-    # OUTPUT_DIRECTORY QOOLUI/Qool
+    # RESOURCE_PREFIX /qoolui
     VERSION 4.0
     NAMESPACE ${QOOL_NS}
 
     RESOURCES ${QOOL_ASSETS}
 
     QML_FILES Qore.qml
+    QML_FILES QoolConstants.qml
     QML_FILES PixelFont.qml
 
-    QML_FILES _private/QoolWindowCloseButtonFace.qml
+    QML_FILES _private/QoolWindowCloseButton.qml
+    QML_FILES _private/QoolWindowBG.qml
+    QML_FILES _private/QoolWindowTitleItem.qml
 
     SOURCES qool_smartobj.h qool_smartobj.cpp
 
@@ -40,8 +43,12 @@ qt_add_qml_module(Qool
     SOURCES datatypes/qool_polar2d.h datatypes/qool_polar2d.cpp
     SOURCES shapehelper/qool_octagoncontainmentmasker.h shapehelper/qool_octagoncontainmentmasker.cpp
     QML_FILES OctagonRoundedShape.qml
-
+    QML_FILES QoolBox.qml
+    QML_FILES DragMoveArea.qml
+    QML_FILES BasicColorBehavior.qml BasicNumberBehavior.qml
     QML_FILES PositionLocker.qml
+    QML_FILES QoolWindowBasic.qml QoolWindow.qml
+    QML_FILES DummyItem.qml
 )
 
 set_target_properties(Qool PROPERTIES

@@ -6,7 +6,7 @@ int main(int argc, char* argv[]) {
 
   QQmlApplicationEngine engine;
   // engine.addImportPath(QStringLiteral("."));
-  engine.addImportPath(QStringLiteral("qml"));
+  // engine.addImportPath(QStringLiteral("qml"));
   engine.addPluginPath(QStringLiteral("qoolplugins"));
 
   QObject::connect(

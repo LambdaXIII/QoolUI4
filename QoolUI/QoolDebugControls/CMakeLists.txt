@@ -8,11 +8,12 @@
 
 qt_add_qml_module(QoolDebugControls
     URI Qool.DebugControls
-    RESOURCE_PREFIX /qoolui
+    # RESOURCE_PREFIX /qoolui
     NAMESPACE ${QOOL_NS}
 
-    IMPORTS QtQuick.Dialogs
-    IMPORTS Qool
+    OPTIONAL_IMPORTS QtQuick.Dialogs
+    OPTIONAL_IMPORTS Qool
+    # DEPENDENCIES TARGET Qool
 
     QML_FILES PointIndicator.qml
     QML_FILES NumberSlider.qml
@@ -21,11 +22,12 @@ qt_add_qml_module(QoolDebugControls
     QML_FILES _private/BGBox.qml
     QML_FILES _private/DBGControl.qml
     QML_FILES OctagonShapeHud.qml
-    QML_FILES
+    QML_FILES RectIndicator.qml
     QML_FILES _private/PopBox.qml
     QML_FILES _private/SlimPopup.qml
     QML_FILES _private/PropertyTipText.qml
     QML_FILES _private/PopInfo.qml
+    QML_FILES QoolWindowHub.qml
 
 )
 

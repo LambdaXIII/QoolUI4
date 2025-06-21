@@ -32,6 +32,9 @@ class AbstractShapeHelper: public QObject {
 
 public:
   explicit AbstractShapeHelper(QObject* parent = nullptr);
+  virtual ~AbstractShapeHelper() = default;
+
+  virtual Q_INVOKABLE bool contains(const QPointF& point) const;
   virtual Q_INVOKABLE void dumpInfo() const;
 
 private:

@@ -28,6 +28,13 @@ AbstractShapeHelper::AbstractShapeHelper(QObject* parent)
   set_target(pTarget);
 }
 
+bool AbstractShapeHelper::contains(const QPointF& point) const {
+  const bool out_of_bounds =
+    point.x() < 0.0 || point.x() > m_width.value() || point.y() < 0.0
+    || point.y() > m_height.value();
+  return ! out_of_bounds;
+}
+
 void AbstractShapeHelper::dumpInfo() const {
   xDebugQ << "当前形状目标：" << target();
   xDebugQ << "当前形状尺寸" << width() << "x" << height();
