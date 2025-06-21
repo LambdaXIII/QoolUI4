@@ -9,7 +9,9 @@ Item {
     property bool showSize: true
     property color color: palette.highlight
     property bool solid: false
-    property real borderWidth: 2
+    property real borderWidth: 1
+
+    anchors.fill: parent
 
     SlimPopup {
         id: pop
@@ -83,6 +85,6 @@ Item {
                     displayValue: root.y + root.height
                 }
             }
-        }//box
-    }//pop
+        } //box
+    } //pop
 }
