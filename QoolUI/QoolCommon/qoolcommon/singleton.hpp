@@ -9,7 +9,7 @@ private:                                                               \
 public:                                                                \
   static _CLS_* instance();
 
-#define XIII_SIMPLE_SINGLETON_STL_IMPL(_CLS_)                          \
+#define QOOL_SIMPLE_SINGLETON_STL_IMPL(_CLS_)                          \
   _CLS_* _CLS_::m_instance { nullptr };                                \
   _CLS_* _CLS_::instance() {                                           \
     static std::mutex mutex;                                           \
@@ -21,7 +21,7 @@ public:                                                                \
     return m_instance;                                                 \
   }
 
-#define XIII_SIMPLE_SINGLETON_QT_IMPL(_CLS_)                           \
+#define QOOL_SIMPLE_SINGLETON_QT_IMPL(_CLS_)                           \
   _CLS_* _CLS_::m_instance { nullptr };                                \
   _CLS_* _CLS_::instance() {                                           \
     static QMutex mutex;                                               \
@@ -33,7 +33,7 @@ public:                                                                \
     return m_instance;                                                 \
   }
 
-#define XIII_SIMPLE_SINGLETON_QML_CREATE(_CLS_)                        \
+#define QOOL_SIMPLE_SINGLETON_QML_CREATE(_CLS_)                        \
 public:                                                                \
   static _CLS_* create(QQmlEngine*, QJSEngine*) {                      \
     return _CLS_::instance();                                          \
