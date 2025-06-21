@@ -11,8 +11,8 @@ qt_add_qml_module(QoolDebugControls
     # RESOURCE_PREFIX /qoolui
     NAMESPACE ${QOOL_NS}
 
-    OPTIONAL_IMPORTS QtQuick.Dialogs
-    OPTIONAL_IMPORTS Qool
+    IMPORTS QtQuick.Dialogs
+    IMPORTS Qool
     # DEPENDENCIES TARGET Qool
 
     QML_FILES PointIndicator.qml
