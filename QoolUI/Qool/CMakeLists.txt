@@ -14,6 +14,8 @@ set_source_files_properties(
 qoolui_scan_assets_to(QOOL_ASSETS)
 
 # qt_add_library(Qool STATIC)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
 qt_add_qml_module(Qool
     URI Qool
     # RESOURCE_PREFIX /qoolui
@@ -49,6 +51,7 @@ qt_add_qml_module(Qool
     QML_FILES PositionLocker.qml
     QML_FILES QoolWindowBasic.qml QoolWindow.qml
     QML_FILES DummyItem.qml
+    SOURCES qool_stylemanager.h qool_stylemanager.cpp
 )
 
 set_target_properties(Qool PROPERTIES
@@ -65,6 +68,7 @@ target_link_libraries(Qool
     PRIVATE Qt6::Quick
     PRIVATE QoolCommon
 )
+target_link_libraries(Qool PRIVATE Qt6::Core)
 
 target_include_directories(Qool
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}

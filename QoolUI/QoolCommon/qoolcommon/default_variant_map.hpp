@@ -39,11 +39,12 @@ public:
     return m_defaults.contains(key) || m_currents.contains(key);
   }
 
-  QVariant value(const QString& key) const {
+  QVariant value(
+    const QString& key, const QVariant& defaultValue = {}) const {
     QReadLocker locker(&m_lock);
     if (m_currents.contains(key))
       return m_currents.value(key);
-    return m_defaults.value(key);
+    return m_defaults.value(key, defaultValue);
   }
 
   void set_value(const QString& key, const QVariant& v) {
@@ -57,7 +58,10 @@ public:
   }
 
   template <typename T>
-  inline T value(const QString& key) const {
+  inline T value(
+    const QString& key, _QL_PARAM_TYPE_(T) defaultValue = {}) const {
+    if (! contains(key))
+      return defaultValue;
     return value(key).value<T>();
   }
 
