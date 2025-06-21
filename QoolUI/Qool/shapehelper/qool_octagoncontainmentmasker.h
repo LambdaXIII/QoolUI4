@@ -3,7 +3,7 @@
 
 #include "qool_octagonshapehelper.h"
 #include "qoolcommon/property_macros_for_qobject.hpp"
-#include "qoolcommon/qoolns.hpp"
+#include "qoolns.hpp"
 
 #include <QObject>
 #include <QQmlEngine>

@@ -5,7 +5,7 @@
 #include "qool_octagonsettings.h"
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/macro_foreach.hpp"
-#include "qoolcommon/qoolns.hpp"
+#include "qoolns.hpp"
 
 #include <QObject>
 #include <QPointF>

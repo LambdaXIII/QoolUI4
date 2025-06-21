@@ -2,7 +2,7 @@
 #define QOOL_SMARTOBJ_H
 
 #include "qoolcommon/property_macros_for_qobject.hpp"
-#include "qoolcommon/qoolns.hpp"
+#include "qoolns.hpp"
 
 #include <QObject>
 #include <QQmlEngine>

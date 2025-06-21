@@ -1,7 +1,7 @@
 #ifndef MATH_UTILS_HPP
 #define MATH_UTILS_HPP
 
-#include "../qoolns.hpp"
+#include "qoolns.hpp"
 
 QOOL_NS_BEGIN
 

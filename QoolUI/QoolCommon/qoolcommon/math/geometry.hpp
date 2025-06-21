@@ -1,8 +1,8 @@
 #ifndef MATH_GEOMETRY_HPP
 #define MATH_GEOMETRY_HPP
 
-#include "../qoolns.hpp"
 #include "numbers.hpp"
+#include "qoolns.hpp"
 #include "utils.hpp"
 
 #include <cmath>
