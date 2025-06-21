@@ -117,7 +117,7 @@ struct PluginLoader {
   using InstanceMap = QMultiHash<QString, Interface*>;
 
   static InstanceMap loadInstances() {
-    XIII_NS::PluginScanner scanner(QOOL_PLUGIN_DIR);
+    QOOL_NS::PluginScanner scanner(QOOL_PLUGIN_DIR);
     scanner.addExtraPath(QCoreApplication::applicationDirPath());
     auto plugins = scanner.plugins();
     if (plugins.isEmpty())
@@ -136,7 +136,7 @@ struct PluginLoader {
         continue;
       }
       QString plugin_name =
-        XIII_NS::pluginMetadata(*loader, "name", "");
+        QOOL_NS::pluginMetadata(*loader, "name", "");
       result.insert(plugin_name, ins_interface);
     }
 

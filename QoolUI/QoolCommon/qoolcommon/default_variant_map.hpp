@@ -157,15 +157,11 @@ public:
 
   QStringList keys() const {
     QReadLocker locker(&m_lock);
-    std::set<QString> keys {};
-    std::transform(m_defaults.cbegin(),
-      m_defaults.cend(),
-      std::front_insert_iterator(keys),
-      [](const QVariantMap::iterator x) { return x.key(); });
-    std::transform(m_currents.cbegin(),
-      m_currents.cend(),
-      std::front_insert_iterator(keys),
-      [](const QVariantMap::iterator x) { return x.key(); });
+    QSet<QString> keys;
+    for (const auto& k : m_defaults.keys())
+      keys << k;
+    for (const auto& k : m_currents.keys())
+      keys << k;
     return { keys.cbegin(), keys.cend() };
   }
 

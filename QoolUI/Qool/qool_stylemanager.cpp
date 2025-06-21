@@ -17,7 +17,8 @@ StyleManager::StyleManager()
   connect(this, SIGNAL(internalValueChanged(QString, QVariant)), this,
     SLOT(whenInternalValueChanged(QString, QVariant)),
     Qt::AutoConnection);
-  m_currentTheme.addNotifier(&StyleManager::whenCurrrentThemeChanged);
+  connect(this, SIGNAL(currentThemeChanged()), this,
+    SLOT(whenCurrentThemeChanged()));
   auto_install_theme_loaders();
   set_currentTheme(m_themes.firstKey());
 }
@@ -33,17 +34,6 @@ void StyleManager::set(const QString& key, const QVariant& value) {
 QVariant StyleManager::get(
   const QString& key, const QVariant& defaultValue) const {
   return m_currentValues.value(key, defaultValue);
-}
-
-static qreal visualBrightness(const QColor& color) {
-  const auto c = color.toRgb();
-  static QCache<QColor, qreal> cache(100);
-  if (! cache.contains(c)) {
-    qreal* result = new qreal;
-    *result = c.redF() * 0.299 + c.greenF() * 0.587 + c.blueF() * 0.114;
-    cache.insert(c, result);
-  }
-  return *cache.object(c);
 }
 
 void StyleManager::auto_install_theme_loaders() {
@@ -72,17 +62,21 @@ void StyleManager::install_themes(const ThemeMap& themes) {
   emit themeKeysChanged();
 }
 
-static QColor contrastingColor(
+qreal StyleManager::visualBrightness(const QColor& color) {
+  const auto c = color.toRgb();
+  return c.redF() * 0.299 + c.greenF() * 0.587 + c.blueF() * 0.114;
+}
+
+QColor StyleManager::contrastingColor(
   const QColor& color, const QColor& dark, const QColor& light) {
   constexpr qreal thresholdDark = 0.4;
   constexpr qreal thresholdLight = 0.6;
   const qreal brightness = visualBrightness(color);
   const qreal brightnessDark = visualBrightness(dark);
   const qreal brightnessLight = visualBrightness(light);
-  if (brightnessDark <= brightnessLight) {
+  if (brightnessDark <= brightnessLight)
     return brightness >= thresholdDark ? dark : light;
-    return brightness >= thresholdLight ? light : dark;
-  }
+  return brightness >= thresholdLight ? light : dark;
 }
 
 QStringList StyleManager::themeKeys() const {

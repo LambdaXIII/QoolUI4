@@ -9,6 +9,7 @@
 #include "qoolcommon/singleton.hpp"
 #include "qoolns.hpp"
 
+#include <QColor>
 #include <QObject>
 #include <QQmlEngine>
 #include <QReadWriteLock>
@@ -37,8 +38,8 @@ public:
   // static functions
   Q_INVOKABLE static qreal visualBrightness(const QColor& c);
   Q_INVOKABLE static QColor contrastingColor(const QColor& color,
-    const QColor& darkColor = Qt::black,
-    const QColor& lightColor = Qt::white);
+    const QColor& darkColor = { "black" },
+    const QColor& lightColor = { "white" });
 
   Q_SIGNAL void valueChanged(QString key, QVariant value);
 

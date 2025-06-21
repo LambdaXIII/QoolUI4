@@ -13,9 +13,10 @@ QOOL_NS_BEGIN
 struct ThemeLoader {
   virtual ~ThemeLoader() = default;
   virtual QMap<QString, QVariantMap> themes() = 0;
-} QOOL_NS_END
+};
+QOOL_NS_END
 
 #define QOOL_THEMELOADER_IID "com.qoolui.themeloader.interface"
-  Q_DECLARE_INTERFACE(QOOL_NS::ThemeLoader, QOOL_THEMELOADER_IID)
+Q_DECLARE_INTERFACE(QOOL_NS::ThemeLoader, QOOL_THEMELOADER_IID)
 
 #endif // QOOL_INTERFACE_THEMELOADER_H
