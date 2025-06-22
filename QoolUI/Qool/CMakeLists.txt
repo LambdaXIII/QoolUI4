@@ -11,18 +11,13 @@ set_source_files_properties(
     PROPERTIES QT_QML_SINGLETON_TYPE TRUE
 )
 
-qoolui_scan_assets_to(QOOL_ASSETS)
 
-# qt_add_library(Qool STATIC)
-find_package(Qt6 REQUIRED COMPONENTS Core)
+
 
 qt_add_qml_module(Qool
     URI Qool
-    # RESOURCE_PREFIX /qoolui
-    VERSION 4.0
+    VERSION ${QOOLUI_VERSION_MAJOR}.${QOOLUI_VERSION_MINOR}
     NAMESPACE ${QOOL_NS}
-
-    RESOURCES ${QOOL_ASSETS}
 
     QML_FILES Qore.qml
     QML_FILES QoolConstants.qml
@@ -53,6 +48,15 @@ qt_add_qml_module(Qool
     QML_FILES DummyItem.qml
     SOURCES qool_stylemanager.h qool_stylemanager.cpp
 )
+
+qoolui_scan_assets_to(QOOL_ASSETS)
+qt_add_resources(Qool "qoolui_assets"
+    PREFIX "/qoolui"
+    FILES ${QOOL_ASSETS}
+)
+
+
+
 
 set_target_properties(Qool PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER org.qoolui

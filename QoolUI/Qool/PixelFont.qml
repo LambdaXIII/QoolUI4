@@ -4,7 +4,7 @@ import QtQuick
 
 FontLoader {
     id: root
-    source: "assets/MozartNBP.ttf"
+    source: "qrc:/qoolui/assets/MozartNBP.ttf"
     readonly property string family: font.family
 
     property font normal
