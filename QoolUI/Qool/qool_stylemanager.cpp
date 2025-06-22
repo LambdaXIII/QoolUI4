@@ -1,6 +1,6 @@
 #include "qool_stylemanager.h"
 
-#include "interfaces/qool_interface_themeloader.h"
+#include "qool_interface_themeloader.h"
 #include "qoolcommon/debug.hpp"
 #include "qoolcommon/plugin_loader.hpp"
 

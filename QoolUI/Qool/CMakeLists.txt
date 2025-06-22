@@ -65,10 +65,10 @@ set_target_properties(Qool PROPERTIES
 target_compile_definitions(Qool
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(Qool
+    PRIVATE Qt6::Core
     PRIVATE Qt6::Quick
     PRIVATE QoolCommon
 )
-target_link_libraries(Qool PRIVATE Qt6::Core)
 
 target_include_directories(Qool
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}

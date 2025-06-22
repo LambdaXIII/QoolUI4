@@ -1,14 +1,16 @@
-set(QOOL_NS "qoolui")
-set(QOOL_PLUGIN_DIR "qoolplugins")
 
-set(QOOLUI_VERSION_MAJOR 4)
-set(QOOLUI_VERSION_MINOR 0)
-set(QOOLUI_VERSION_PATCH 0)
+configure_file(includes/qoolns.hpp.config includes/qoolns.hpp)
+configure_file(includes/qoolversion.hpp.config includes/qoolversion.hpp)
 
-set(QOOLUI_VERSION_FULL ${QOOLUI_VERSION_MAJOR}.${QOOLUI_VERSION_MINOR}.${QOOLUI_VERSION_PATCH})
-set(QOOLUI_VERSION_QML ${QOOLUI_VERSION_MAJOR}.${QOOLUI_VERSION_MINOR})
+file(GLOB QOOL_INTERFACE_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/*.h)
+file(COPY ${QOOL_INTERFACE_HEADERS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/includes)
+
+# include_directories(${CMAKE_CURRENT_BINARY_DIR}/includes)
+
+add_library(QoolIncludes INTERFACE)
+target_include_directories(QoolIncludes
+    INTERFACE ${CMAKE_CURRENT_BINARY_DIR}/includes)
 
 add_subdirectory(QoolCommon)
-
 add_subdirectory(Qool)
 add_subdirectory(QoolDebugControls)
