@@ -1,3 +1,5 @@
 {
-    "name": "QoolUIPlugin::DefaultThemeLoader"
+    "name": "QoolUIPlugin::DefaultThemeLoader",
+    "author": "qoolui",
+    "priority": 0
 }

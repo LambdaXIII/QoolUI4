@@ -88,13 +88,12 @@ public:
   }
 }; // pluginscanner
 
-inline QString pluginMetadata(QPluginLoader& loader, QAnyStringView key,
-  const QString& defaultValue = "") {
+inline QJsonValue pluginMetadata(
+  QPluginLoader& loader, QAnyStringView key) {
   return loader.metaData()
     .value("MetaData")
     .toObject()
-    .value(key.toString())
-    .toString(defaultValue);
+    .value(key.toString());
 }
 
 class PriorityFixer {
@@ -136,7 +135,9 @@ struct PluginLoader {
         continue;
       }
       QString plugin_name =
-        QOOL_NS::pluginMetadata(*loader, "name", "");
+        QOOL_NS::pluginMetadata(*loader, "name").toString();
+      if (plugin_name.isEmpty())
+        plugin_name = QFileInfo(pluginPath).baseName();
       result.insert(plugin_name, ins_interface);
     }
 
