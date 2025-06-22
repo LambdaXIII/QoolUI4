@@ -1,0 +1,51 @@
+<qooltheme value="midnight">
+    <!--Tone Colors-->
+    <color property="accent" value="#FFB65C"/>
+    <!-- BG Colors-->
+    <color property="light" value="#F8F8F2"/>
+    <color property="midlight" copy="light" darker="1.2"/>
+    <color property="dark" value="#282A36"/>
+    <color property="mid" copy="dark" darker="1.2"/>
+    <color property="shadow" copy="dark" darker="1.5"/>
+    <!-- Highlights-->
+    <color property="highlight" copy="accent" lighter="1.2" />
+    <color property="highlightedText" copy="dark" />
+    <color property="link" value="#6AEDFF"/>
+    <color property="linkVisited" value="#C48EFF" />
+    <!--UI Control Colors-->
+    <color property="text" name = "#F8F8F8"/>
+    <color property="base" value="#43475C"/>
+    <color property="alternateBase" copy="base" lighter="1.1"/>
+    <color property="window" copy="dark" />
+    <color property="windowText" copy="text"/>
+    <color property="button" copy="base"/>
+    <color property="buttonText" copy="text"/>
+    <color property="placeHolderText" copy="text" darker="1.5"/>
+    <color property="toolTipBase" name = "#EEFC7A"/>
+    <color property="toolTipText" copy="dark"/>
+    <!--Misc Colors-->
+    <color property="positive" name = "#00FF68"/>
+    <color property="negative" value="#FF414D"/>
+    <color property="warning" value="#FF6DC9"/>
+    <!--Real numbers-->
+    <real property="windowCutSize" value="35"/>
+    <real property="controlCutSize" value="10"/>
+    <real property="menuCutSize" copy="controlCutSize"/>
+    <real property="dialogCutSize" copy="controlCutSize"/>
+    <real property="buttonCutSize" value="5"/>
+    <real property="transitionDuration" value="200"/>
+    <real property="movementDuration" value="400"/>
+    <!--int numbers-->
+    <int property="textSize" value="14" />
+    <int property="toolTipTextSize" copy="textSize" plus="-4"/>
+    <int property="controlTextSize" copy="textSize" plus="-2"/>
+    <int property="controlTitleTextSize" copy="controlTextSize" plus="-2" />
+    <int property="importantTextSize" copy="textSize" times="2"/>
+    <int property="decorateTextSize" copy="toolTipTextSize"/>
+
+    <list property="papaWords">
+        <string>Pa</string>
+        <string>PaPa</string>
+        <string>Pa!!!</string>
+    </list>
+</qooltheme>

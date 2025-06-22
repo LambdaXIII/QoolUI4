@@ -2,6 +2,8 @@
 
 #include "qoolcommon/debug.hpp"
 
+#include <QDirIterator>
+
 QOOL_NS_BEGIN
 
 DefaultThemeLoader::DefaultThemeLoader()
@@ -12,7 +14,16 @@ DefaultThemeLoader::DefaultThemeLoader()
 
 QMap<QString, QVariantMap> DefaultThemeLoader::themes() const {
   QMap<QString, QVariantMap> themes;
-  themes.insert("default", QVariantMap {});
+
+  int count = 0;
+
+  QDirIterator iter(":/qoolui/themes");
+  while (iter.hasNext()) {
+    const QString current = iter.next();
+    xDebugQ << tr("正在加载主题：%1").arg(current);
+  }
+
+  xDebugQ << tr("成功载入了%1个主题").arg(count);
   return themes;
 }
 

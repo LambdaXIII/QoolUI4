@@ -1,13 +1,23 @@
 
 
+
 qt_add_plugin(qool_themeloader_default
     CLASS_NAME "${QOOL_NS}::DefaultThemeLoader"
+)
+
+qt_add_resources(qool_themeloader_default "qool_themes"
+    PREFIX "/qoolui/themes"
+    FILES
+    midnight.xml
 )
 
 target_sources(qool_themeloader_default PRIVATE
     qool_themeloader_default.h
     qool_themeloader_default.cpp
     qool_themeloader_default.json
+
+    qool_xml_theme_loader.h
+    qool_xml_theme_loader.cpp
 )
 
 set_target_properties(qool_themeloader_default PROPERTIES
@@ -20,6 +30,6 @@ target_include_directories(qool_themeloader_default PRIVATE
 )
 
 target_link_libraries(qool_themeloader_default
-    PRIVATE Qt6::Core
+    PRIVATE Qt6::Core Qt6::Gui
     PRIVATE QoolCommon
 )
