@@ -114,8 +114,8 @@ void StyleManager::whenInternalValueChanged(
 #define CHECK_KEY(_K_)                                                 \
   if (name == #_K_)                                                    \
     emit _K_##Changed();
-  QOOL_FOREACH_10(CHECK_KEY, window, windowText, Base, AlternateBase,
-    ToolTipBase, ToolTipText, PlaceholderText, Text, Button, ButtonText)
+  QOOL_FOREACH_10(CHECK_KEY, window, windowText, base, alternateBase,
+    toolTipBase, toolTipText, placeholderText, text, button, buttonText)
   QOOL_FOREACH_5(CHECK_KEY, light, midlight, dark, mid, shadow)
   QOOL_FOREACH_3(CHECK_KEY, highlight, accent, highlightedText)
   QOOL_FOREACH_2(CHECK_KEY, link, linkVisited)
@@ -134,8 +134,8 @@ void StyleManager::whenCurrrentThemeChanged() {
 
 #define NOTIFY(N) emit N##Changed();
 
-  QOOL_FOREACH_10(NOTIFY, window, windowText, Base, AlternateBase,
-    ToolTipBase, ToolTipText, PlaceholderText, Text, Button, ButtonText)
+  QOOL_FOREACH_10(NOTIFY, window, windowText, base, alternateBase,
+    toolTipBase, toolTipText, placeholderText, text, button, buttonText)
   QOOL_FOREACH_5(NOTIFY, light, midlight, dark, mid, shadow)
   QOOL_FOREACH_3(NOTIFY, highlight, accent, highlightedText)
   QOOL_FOREACH_2(NOTIFY, link, linkVisited)
@@ -170,8 +170,8 @@ void StyleManager::whenCurrrentThemeChanged() {
   }
 
 #define IMPL_COLOR(N) IMPL_V(QColor, N)
-QOOL_FOREACH_10(IMPL_COLOR, window, windowText, Base, AlternateBase,
-  ToolTipBase, ToolTipText, PlaceholderText, Text, Button, ButtonText)
+QOOL_FOREACH_10(IMPL_COLOR, window, windowText, base, alternateBase,
+  toolTipBase, toolTipText, placeholderText, text, button, buttonText)
 QOOL_FOREACH_5(IMPL_COLOR, light, midlight, dark, mid, shadow)
 QOOL_FOREACH_3(IMPL_COLOR, highlight, accent, highlightedText)
 QOOL_FOREACH_2(IMPL_COLOR, link, linkVisited)

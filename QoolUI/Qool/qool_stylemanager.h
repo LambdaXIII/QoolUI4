@@ -59,8 +59,8 @@ protected:
 #define DECL_COLOR(_N_)                                                \
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QColor, _N_)
 
-  QOOL_FOREACH_10(DECL_COLOR, window, windowText, Base, AlternateBase,
-    ToolTipBase, ToolTipText, PlaceholderText, Text, Button, ButtonText)
+  QOOL_FOREACH_10(DECL_COLOR, window, windowText, base, alternateBase,
+    toolTipBase, toolTipText, placeholderText, text, button, buttonText)
   QOOL_FOREACH_5(DECL_COLOR, light, midlight, dark, mid, shadow)
   QOOL_FOREACH_3(DECL_COLOR, highlight, accent, highlightedText)
   QOOL_FOREACH_2(DECL_COLOR, link, linkVisited)
