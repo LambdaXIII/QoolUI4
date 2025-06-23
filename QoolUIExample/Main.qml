@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import Qool
 import Qool.DebugControls
 import "pages"
@@ -11,10 +12,4 @@ QoolWindow {
     title: qsTr("Hello World")
 
     content: OctagonShapeTestPage {}
-
-    RectIndicator {
-        name: "content"
-        color:"red"
-        parent: root.content
-    }
 }

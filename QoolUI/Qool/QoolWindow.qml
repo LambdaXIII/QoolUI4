@@ -9,7 +9,9 @@ QoolWindowBasic {
 
     property bool showCloseButton: true
 
-    readonly property QtObject dummyItems: QtObject {
+    readonly property alias dummyItems: dummyItemsGroup
+    QtObject {
+        id: dummyItemsGroup
         property alias titleItem: dummyTitleItem
         property alias toolBar: dummyToolBar
         property alias header: dummyHeader
