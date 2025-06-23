@@ -11,9 +11,5 @@ QoolWindow {
     visible: true
     title: qsTr("Hello World")
 
-    content: OctagonShapeTestPage {}
-
-    Component.onCompleted: {
-        console.log(Style.currentTheme);
-    }
+    content: PaletteSheet {}
 }
