@@ -8,4 +8,5 @@ Popup {
     visible: true
     popupType: Popup.Item
     closePolicy: Popup.NoAutoClose
+    modal: false
 }

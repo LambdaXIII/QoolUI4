@@ -1,12 +1,11 @@
 import QtQuick
-import QtQuick.Layouts
 import QtQuick.Controls
-import QtQuick.Shapes
 import Qool
 import Qool.DebugControls
 import "pages"
 
 QoolWindow {
+    id: root
     width: 1024
     height: 720
     visible: true

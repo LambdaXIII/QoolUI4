@@ -3,12 +3,21 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Window
 import "_private"
-import Qool.DebugControls
 
 QoolWindowBasic {
     id: root
 
     property bool showCloseButton: true
+
+    readonly property alias dummyItems: dummyItemsGroup
+    QtObject {
+        id: dummyItemsGroup
+        property alias titleItem: dummyTitleItem
+        property alias toolBar: dummyToolBar
+        property alias header: dummyHeader
+        property alias content: dummyContent
+        property alias footer: dummyFooter
+    }
 
     Loader {
         id: closeButtonLoader
@@ -37,6 +46,7 @@ QoolWindowBasic {
 
     DummyItem {
         id: dummyTitleItem
+        objectName: "dummyTitle"
         width: root.titleItem.implicitWidth
         height: {
             const prefered_height = root.titleItem.implicitHeight;
@@ -57,6 +67,7 @@ QoolWindowBasic {
 
     DummyItem {
         id: dummyToolBar
+        objectName: "dummyToolBar"
         x: root.backgroundSettings.cutSize + root.elementSpacing
         y: root.edgeSpacing
         width: root.width - dummyToolBar.x - root.elementSpacing - dummyTitleItem.x
@@ -77,6 +88,7 @@ QoolWindowBasic {
 
     DummyItem {
         id: dummyHeader
+        objectName: "dummyHeader"
         x: root.leftPadding + root.edgeSpacing
         y: dummyToolBar.y + dummyToolBar.height + Math.max(root.elementSpacing, root.edgeSpacing)
         width: root.width - root.leftPadding - root.edgeSpacing * 2 - root.rightPadding
@@ -93,6 +105,7 @@ QoolWindowBasic {
 
     DummyItem {
         id: dummyFooter
+        objectName: "dummyFooter"
         x: root.leftPadding + root.edgeSpacing + root.backgroundSettings.cutSizeBL
         y: root.height - root.edgeSpacing - height
         width: root.width - root.leftPadding - root.edgeSpacing * 2 - root.rightPadding - root.backgroundSettings.cutSizeBL - root.backgroundSettings.cutSizeBR
@@ -112,6 +125,7 @@ QoolWindowBasic {
 
     DummyItem {
         id: dummyContent
+        objectName: "dummyContent"
         x: root.leftPadding + root.edgeSpacing
         y: dummyHeader.y + dummyHeader.height + root.elementSpacing
         width: root.width - root.leftPadding - root.edgeSpacing * 2 - root.rightPadding
