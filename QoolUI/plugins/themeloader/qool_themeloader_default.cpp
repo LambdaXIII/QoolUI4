@@ -1,5 +1,6 @@
 #include "qool_themeloader_default.h"
 
+#include "qool_xml_theme_loader.h"
 #include "qoolcommon/debug.hpp"
 
 #include <QDirIterator>
@@ -21,6 +22,9 @@ QMap<QString, QVariantMap> DefaultThemeLoader::themes() const {
   while (iter.hasNext()) {
     const QString current = iter.next();
     xDebugQ << tr("正在加载主题：%1").arg(current);
+    QVariantMap theme = XMLThemeLoader::load(current);
+    QString name = XMLThemeLoader::getThemeName(current);
+    themes.insert(name, theme);
   }
 
   xDebugQ << tr("成功载入了%1个主题").arg(count);

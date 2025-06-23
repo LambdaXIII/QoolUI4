@@ -21,14 +21,10 @@ class StyleManager: public QObject {
   QML_NAMED_ELEMENT(Style)
   QML_SINGLETON
   QOOL_SIMPLE_SINGLETON_DECL(StyleManager)
-
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_DECL(QStringList, themeKeys)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE_DECL(
-    StyleManager, QString, currentTheme)
+  QOOL_SIMPLE_SINGLETON_QML_CREATE(StyleManager)
 
 public:
   using ThemeMap = QMap<QString, QVariantMap>;
-  QOOL_SIMPLE_SINGLETON_QML_CREATE(StyleManager)
   ~StyleManager() = default;
 
   Q_INVOKABLE void set(const QString& key, const QVariant& value);
@@ -52,6 +48,10 @@ protected:
   Q_SIGNAL void internalValueChanged(QString key, QVariant value);
   Q_SLOT void whenInternalValueChanged(QString key, QVariant value);
   Q_SLOT void whenCurrrentThemeChanged();
+
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_DECL(QStringList, themeKeys)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE_DECL(
+    StyleManager, QString, currentTheme)
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(bool, animationEnabled, true)
   // QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QVariantList, papaWords)

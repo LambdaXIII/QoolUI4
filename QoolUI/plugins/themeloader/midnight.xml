@@ -1,4 +1,4 @@
-<qooltheme value="midnight">
+<qooltheme name="midnight">
     <!--Tone Colors-->
     <color property="accent" value="#FFB65C"/>
     <!-- BG Colors-->
@@ -48,4 +48,6 @@
         <string>PaPa</string>
         <string>Pa!!!</string>
     </list>
+
+    <bool property="animationEnabled" value="YES" />
 </qooltheme>
