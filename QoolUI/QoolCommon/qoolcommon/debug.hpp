@@ -77,13 +77,13 @@ inline QDebug operator<<(
 #define xFatalQ xFatal << xDBGToken(staticMetaObject.className())
 
 struct __XDBGVARIANT__ {
-  const QVariant& variant;
+  QVariant variant;
   inline QString valueString() const {
     if (variant.isNull())
       return "NULL";
-    if (variant.canConvert<QString>())
-      return variant.toString();
-    return QString("<%1>").arg(variant.typeName());
+    if (! variant.canConvert<QString>())
+      return QString("<%1>").arg(variant.typeName());
+    return variant.toString();
   }
   inline QString typeName() const {
     auto result = QString::fromLatin1(variant.typeName());
@@ -150,7 +150,7 @@ inline QDebug operator<<(
 #define xDBGMap(__map__) __XDBGMAP__(__map__)
 
 struct __XDBGMETAPROPERTYLIST__ {
-  QObject* object;
+  const QObject* object;
   const int offset, count;
   inline QMap<int, QMetaProperty> properties() const {
     auto obj = object->metaObject();
@@ -159,7 +159,7 @@ struct __XDBGMETAPROPERTYLIST__ {
       result.insert(i, obj->property(i));
     return result;
   }
-  __XDBGMETAPROPERTYLIST__(QObject* object)
+  __XDBGMETAPROPERTYLIST__(const QObject* object)
     : object(object)
     , offset(object->metaObject()->propertyOffset())
     , count(object->metaObject()->propertyCount()) {}
@@ -168,7 +168,8 @@ inline QDebug operator<<(
   QDebug debug, const __XDBGMETAPROPERTYLIST__& x) noexcept {
   debug.noquote().nospace()
     << xDBGBlue << "[QProperty:" << xDBGYellow << x.offset << xDBGReset
-    << " -> " << xDBGYellow << x.count << xDBGBlue << "]" << xDBGReset;
+    << " -> " << xDBGYellow << x.count - 1 << xDBGBlue << "]"
+    << xDBGReset;
   const auto props = x.properties();
   for (auto iter = props.constBegin(); iter != props.constEnd();
     ++iter) {
@@ -179,7 +180,7 @@ inline QDebug operator<<(
     const __XDBGVARIANT__ vairnat(iter.value().read(x.object));
     const QString type_s = vairnat.typeName().leftJustified(14, ' ');
     const QString value_s = vairnat.valueString();
-    QString line = QString("  \n" xDBGBlue "[%0]%1" xDBGYellow
+    QString line = QString("  \n" xDBGBlue "%0 %1" xDBGYellow
                            "%2" xDBGBlue " : " xDBGGreen "%3" xDBGReset)
                      .arg(index_s, type_s, name_s, value_s);
     debug << line;
