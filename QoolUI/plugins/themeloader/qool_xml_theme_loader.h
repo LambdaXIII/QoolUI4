@@ -7,10 +7,18 @@
 #include <QVariantMap>
 
 QOOL_NS_BEGIN
+class XMLThemeLoaderImpl;
+class XMLThemeLoader {
+public:
+  explicit XMLThemeLoader(const QString& xmlPath);
+  ~XMLThemeLoader();
 
-struct XMLThemeLoader {
-  static QVariantMap load(const QString& path);
-  static QString getThemeName(const QString& path);
+  QString name() const;
+  const QVariantMap& theme() const;
+  const QVariantMap& metadata() const;
+
+protected:
+  XMLThemeLoaderImpl* m_pImpl;
 };
 
 QOOL_NS_END

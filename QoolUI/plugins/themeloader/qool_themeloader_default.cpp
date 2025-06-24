@@ -22,8 +22,9 @@ QMap<QString, QVariantMap> DefaultThemeLoader::themes() const {
   while (iter.hasNext()) {
     const QString current = iter.next();
     xDebugQ << tr("正在加载主题：%1").arg(current);
-    QVariantMap theme = XMLThemeLoader::load(current);
-    QString name = XMLThemeLoader::getThemeName(current);
+    XMLThemeLoader loader(current);
+    QVariantMap theme = loader.theme();
+    QString name = loader.name();
     themes.insert(name, theme);
   }
 

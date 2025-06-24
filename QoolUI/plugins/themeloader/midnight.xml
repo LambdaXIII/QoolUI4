@@ -37,10 +37,10 @@
     <real property="movementDuration" value="400"/>
     <!--int numbers-->
     <int property="textSize" value="14" />
-    <int property="toolTipTextSize" copy="textSize" plus="-4"/>
-    <int property="controlTextSize" copy="textSize" plus="-2"/>
-    <int property="controlTitleTextSize" copy="controlTextSize" plus="-2" />
-    <int property="importantTextSize" copy="textSize" times="2"/>
+    <int property="toolTipTextSize" copy="textSize" add="-4"/>
+    <int property="controlTextSize" copy="textSize" add="-2"/>
+    <int property="controlTitleTextSize" copy="controlTextSize" add="-2" />
+    <int property="importantTextSize" copy="textSize" multiply="2"/>
     <int property="decorateTextSize" copy="toolTipTextSize"/>
 
     <list property="papaWords">

@@ -12,4 +12,8 @@ QoolWindow {
     title: qsTr("Hello World")
 
     content: PaletteSheet {}
+
+    Component.onCompleted: {
+        console.log(Style.animationEnabled);
+    }
 }
