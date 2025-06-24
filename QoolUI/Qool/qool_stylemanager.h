@@ -26,6 +26,9 @@ class StyleManager: public QObject {
 public:
   using ThemeMap = QMap<QString, QVariantMap>;
   ~StyleManager() = default;
+  Q_INVOKABLE void dumpInfo() const;
+
+  Q_INVOKABLE void resetCurrentTheme();
 
   Q_INVOKABLE void set(const QString& key, const QVariant& value);
   Q_INVOKABLE QVariant get(
@@ -38,8 +41,6 @@ public:
     const QColor& lightColor = { "white" });
 
   Q_SIGNAL void valueChanged(QString key, QVariant value);
-
-  Q_INVOKABLE void dumpInfo() const;
 
 protected:
   void auto_install_theme_loaders();

@@ -16,6 +16,14 @@ void StyleManager::dumpInfo() const {
   xDebugQ << xDBGQPropertyList;
 }
 
+void StyleManager::resetCurrentTheme() {
+  // Reset current theme to the first valid one.
+  if (! m_themes.isEmpty())
+    set_currentTheme(m_themes.firstKey());
+  else
+    xWarningQ << tr("当前主题为空，请检查主题加载器是否正常");
+}
+
 StyleManager::StyleManager()
   : QObject { nullptr } {
   connect(this, SIGNAL(internalValueChanged(QString, QVariant)), this,
@@ -24,7 +32,7 @@ StyleManager::StyleManager()
   connect(this, SIGNAL(currentThemeChanged()), this,
     SLOT(whenCurrentThemeChanged()));
   auto_install_theme_loaders();
-  set_currentTheme(m_themes.firstKey());
+  resetCurrentTheme();
 }
 
 void StyleManager::set(const QString& key, const QVariant& value) {
