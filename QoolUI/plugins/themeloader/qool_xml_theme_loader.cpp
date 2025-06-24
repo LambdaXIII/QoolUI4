@@ -54,8 +54,9 @@ void XMLThemeLoaderImpl::loadTheme(const QString& path) {
 
   QFile file(path);
   if (! file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    xDebug << xDBGToken("XMLThemeLoader")
-           << "Failed to open theme file: " << path;
+    xWarning << xDBGToken("XMLThemeLoader")
+             << "Failed to open theme file:" << xDBGRed << path
+             << xDBGReset;
     return;
   }
   xml.setDevice(&file);

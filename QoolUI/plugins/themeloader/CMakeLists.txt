@@ -1,5 +1,5 @@
 
-
+# find_package(Qt6 REQUIRED COMPONENTS Concurrent)
 
 qt_add_plugin(qool_themeloader_default
     CLASS_NAME "${QOOL_NS}::DefaultThemeLoader"
@@ -30,6 +30,6 @@ target_include_directories(qool_themeloader_default PRIVATE
 )
 
 target_link_libraries(qool_themeloader_default
-    PRIVATE Qt6::Core Qt6::Gui
+    PRIVATE Qt6::Core Qt6::Gui Qt6::Concurrent
     PRIVATE QoolCommon
 )

@@ -3,7 +3,8 @@
 #include "qool_xml_theme_loader.h"
 #include "qoolcommon/debug.hpp"
 
-#include <QDirIterator>
+#include <QDir>
+#include <QtConcurrent>
 
 QOOL_NS_BEGIN
 
@@ -16,19 +17,25 @@ DefaultThemeLoader::DefaultThemeLoader()
 QMap<QString, QVariantMap> DefaultThemeLoader::themes() const {
   QMap<QString, QVariantMap> themes;
 
-  int count = 0;
+  static const QString THEMES_DIR { ":/qoolui/themes" };
 
-  QDirIterator iter(":/qoolui/themes");
-  while (iter.hasNext()) {
-    const QString current = iter.next();
-    xDebugQ << tr("正在加载主题：%1").arg(current);
-    XMLThemeLoader loader(current);
-    QVariantMap theme = loader.theme();
-    QString name = loader.name();
-    themes.insert(name, theme);
-  }
+  QDir dir(THEMES_DIR);
+  const QStringList xmls =
+    dir.entryList(QStringList() << "*.xml", QDir::Files);
 
-  xDebugQ << tr("成功载入了%1个主题").arg(count);
+  QList<QSharedPointer<XMLThemeLoader>> loaders =
+    QtConcurrent::blockingMapped(xmls, [](const QString& xml) {
+      QString fullpath = QString("%1/%2").arg(THEMES_DIR).arg(xml);
+      QSharedPointer<XMLThemeLoader> loader(
+        new XMLThemeLoader(fullpath));
+      return loader;
+    });
+
+  for (const auto& loader : std::as_const(loaders))
+    themes.insert(loader->name(), loader->theme());
+
+  xDebugQ << tr("成功载入了%1个主题").arg(loaders.length());
+
   return themes;
 }
 
