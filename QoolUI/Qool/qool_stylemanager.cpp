@@ -12,6 +12,10 @@ QOOL_NS_BEGIN
 
 QOOL_SIMPLE_SINGLETON_QT_IMPL(StyleManager)
 
+void StyleManager::dumpInfo() const {
+  xDebugQ << xDBGQPropertyList;
+}
+
 StyleManager::StyleManager()
   : QObject { nullptr } {
   connect(this, SIGNAL(internalValueChanged(QString, QVariant)), this,

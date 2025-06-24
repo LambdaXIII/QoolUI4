@@ -290,12 +290,6 @@ void XMLThemeLoaderImpl::sortPropertiesByDepth(
     } // for
   } // while
 
-  xDebug << xDBGToken("XMLThemeLoader") << "Parse property depths:";
-  for (auto iter = depths.constBegin(); iter != depths.constEnd();
-    ++iter) {
-    xDebug << iter.key() << ":" << iter.value();
-  }
-
   std::stable_sort(properties.begin(), properties.end(),
     [&](const XmlProperty& a, const XmlProperty& b) {
       const int da = depths.value(a.name, 9999999);

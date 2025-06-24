@@ -14,6 +14,6 @@ QoolWindow {
     content: PaletteSheet {}
 
     Component.onCompleted: {
-        console.log(Style.animationEnabled);
+        Style.dumpInfo();
     }
 }

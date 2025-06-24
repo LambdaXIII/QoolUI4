@@ -28,20 +28,20 @@
     <color property="negative" value="#FF414D"/>
     <color property="warning" value="#FF6DC9"/>
     <!--Real numbers-->
-    <real property="windowCutSize" value="35"/>
-    <real property="controlCutSize" value="10"/>
-    <real property="menuCutSize" copy="controlCutSize"/>
-    <real property="dialogCutSize" copy="controlCutSize"/>
-    <real property="buttonCutSize" value="5"/>
-    <real property="transitionDuration" value="200"/>
-    <real property="movementDuration" value="400"/>
+    <number property="windowCutSize" value="35"/>
+    <number property="controlCutSize" value="10"/>
+    <number property="menuCutSize" copy="controlCutSize"/>
+    <number property="dialogCutSize" copy="controlCutSize"/>
+    <number property="buttonCutSize" value="5"/>
+    <number property="transitionDuration" value="200"/>
+    <number property="movementDuration" value="400"/>
     <!--int numbers-->
-    <int property="textSize" value="14" />
-    <int property="toolTipTextSize" copy="textSize" add="-4"/>
-    <int property="controlTextSize" copy="textSize" add="-2"/>
-    <int property="controlTitleTextSize" copy="controlTextSize" add="-2" />
-    <int property="importantTextSize" copy="textSize" multiply="2"/>
-    <int property="decorateTextSize" copy="toolTipTextSize"/>
+    <number property="textSize" value="14" />
+    <number property="toolTipTextSize" copy="textSize" add="-4"/>
+    <number property="controlTextSize" copy="textSize" add="-2"/>
+    <number property="controlTitleTextSize" copy="controlTextSize" add="-2" />
+    <number property="importantTextSize" copy="textSize" multiply="2"/>
+    <number property="decorateTextSize" copy="toolTipTextSize"/>
 
     <list property="papaWords">
         <string>Pa</string>

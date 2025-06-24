@@ -39,6 +39,8 @@ public:
 
   Q_SIGNAL void valueChanged(QString key, QVariant value);
 
+  Q_INVOKABLE void dumpInfo() const;
+
 protected:
   void auto_install_theme_loaders();
   void install_themes(const ThemeMap& themes);
