@@ -48,6 +48,8 @@ qt_add_qml_module(Qool
     QML_FILES DummyItem.qml
     SOURCES qool_stylemanager.h qool_stylemanager.cpp
     QML_FILES QoolPalette.qml
+    SOURCES style/qool_styledb.h style/qool_styledb.cpp
+    SOURCES style/qool_theme_package.h style/qool_theme_package.cpp
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)
@@ -80,6 +82,7 @@ target_include_directories(Qool
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapehelper"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapehelper/gadgets"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/datatypes"
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/style"
 )
 
 
