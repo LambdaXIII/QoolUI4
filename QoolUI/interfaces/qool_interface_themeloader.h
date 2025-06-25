@@ -11,8 +11,12 @@
 
 QOOL_NS_BEGIN
 struct ThemeLoader {
+  struct Package {
+    QString name;
+    QVariantMap active, inactive, disabled, metadata;
+  };
   virtual ~ThemeLoader() = default;
-  virtual QMap<QString, QVariantMap> themes() const = 0;
+  virtual QList<Package> themes() const = 0;
 };
 QOOL_NS_END
 
