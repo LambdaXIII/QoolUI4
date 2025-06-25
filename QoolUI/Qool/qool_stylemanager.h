@@ -69,6 +69,7 @@ protected:
   QOOL_FOREACH_3(DECL_COLOR, highlight, accent, highlightedText)
   QOOL_FOREACH_2(DECL_COLOR, link, linkVisited)
   QOOL_FOREACH_3(DECL_COLOR, positive, negative, warning)
+  QOOL_FOREACH_2(DECL_COLOR, disabled, disabledText)
 #undef DECL_COLOR
 
 #define DECL_REAL(_N_)                                                 \

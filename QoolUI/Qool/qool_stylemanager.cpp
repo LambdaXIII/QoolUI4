@@ -148,6 +148,7 @@ void StyleManager::whenInternalValueChanged(
   QOOL_FOREACH_2(CHECK_KEY, transitionDuration, movementDuration)
   QOOL_FOREACH_5(CHECK_KEY, titleTextSize, toolTipTextSize,
     controlTextSize, importantTextSize, decorateTextSize)
+  QOOL_FOREACH_2(CHECK_KEY, disabled, disabledText)
 #undef CHECK_KEY
   emit valueChanged(name, value);
 } // whenInternalValueChanged
@@ -168,6 +169,7 @@ void StyleManager::whenCurrentThemeChanged() {
   QOOL_FOREACH_2(NOTIFY, transitionDuration, movementDuration)
   QOOL_FOREACH_5(NOTIFY, titleTextSize, toolTipTextSize,
     controlTextSize, importantTextSize, decorateTextSize)
+  QOOL_FOREACH_2(NOTIFY, disabled, disabledText)
 
 #undef NOTIFY
 
@@ -199,6 +201,8 @@ QOOL_FOREACH_5(IMPL_COLOR, light, midlight, dark, mid, shadow)
 QOOL_FOREACH_3(IMPL_COLOR, highlight, accent, highlightedText)
 QOOL_FOREACH_2(IMPL_COLOR, link, linkVisited)
 QOOL_FOREACH_3(IMPL_COLOR, positive, negative, warning)
+QOOL_FOREACH_2(IMPL_COLOR, disabled, disabledText)
+
 #undef IMPL_COLOR
 
 #define IMPL_REAL(N) IMPL_V(qreal, N)

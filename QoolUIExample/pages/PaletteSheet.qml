@@ -1,9 +1,10 @@
 import QtQuick
 import QtQuick.Layouts
+import Qool
 
 Item {
     id: root
-
+    // enabled: false
     property list<string> colors: ["accent", "alternateBase", "base", "button", "buttonText", "dark", "highlight", "highlightedText", "light", "mid", "midlight", "placeholderText", "shadow", "text", "window", "windowText"]
 
     GridLayout {

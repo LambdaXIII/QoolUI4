@@ -48,4 +48,6 @@
         <string>Pa!!!</string>
     </list>
     <bool property="animationEnabled" value="YES" />
+    <color property="disabled" copy="base" darker="1.2"/>
+    <color property="disabledText" copy="text" darker="1.5"/>
 </qooltheme>

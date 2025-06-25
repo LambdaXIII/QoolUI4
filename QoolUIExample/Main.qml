@@ -13,9 +13,5 @@ QoolWindow {
 
     content: PaletteSheet {}
 
-    Component.onCompleted: {
-        let colors = Style.allColors();
-        for (const key in colors)
-            console.log(key, colors[key]);
-    }
+    palette: QoolPalette {}
 }

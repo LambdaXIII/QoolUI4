@@ -47,6 +47,7 @@ qt_add_qml_module(Qool
     QML_FILES QoolWindowBasic.qml QoolWindow.qml
     QML_FILES DummyItem.qml
     SOURCES qool_stylemanager.h qool_stylemanager.cpp
+    QML_FILES QoolPalette.qml
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)
