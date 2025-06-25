@@ -14,6 +14,8 @@ QoolWindow {
     content: PaletteSheet {}
 
     Component.onCompleted: {
-        Style.dumpInfo();
+        let colors = Style.allColors();
+        for (const key in colors)
+            console.log(key, colors[key]);
     }
 }

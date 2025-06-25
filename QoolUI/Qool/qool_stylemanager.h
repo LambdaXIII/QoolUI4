@@ -29,6 +29,7 @@ public:
   Q_INVOKABLE void dumpInfo() const;
 
   Q_INVOKABLE void resetCurrentTheme();
+  Q_INVOKABLE QVariantMap allColors() const;
 
   Q_INVOKABLE void set(const QString& key, const QVariant& value);
   Q_INVOKABLE QVariant get(
@@ -50,7 +51,7 @@ protected:
   mutable QReadWriteLock m_themesLock;
   Q_SIGNAL void internalValueChanged(QString key, QVariant value);
   Q_SLOT void whenInternalValueChanged(QString key, QVariant value);
-  Q_SLOT void whenCurrrentThemeChanged();
+  Q_SLOT void whenCurrentThemeChanged();
 
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_DECL(QStringList, themeKeys)
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE_DECL(

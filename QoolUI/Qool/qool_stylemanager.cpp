@@ -7,6 +7,7 @@
 #include <QCache>
 #include <QColor>
 #include <QMutex>
+#include <QVariantMap>
 
 QOOL_NS_BEGIN
 
@@ -22,6 +23,16 @@ void StyleManager::resetCurrentTheme() {
     set_currentTheme(m_themes.firstKey());
   else
     xWarningQ << tr("当前主题为空，请检查主题加载器是否正常");
+}
+QVariantMap StyleManager::allColors() const {
+  const auto keys = m_currentValues.keys();
+  QVariantMap result;
+  for (const auto& key : keys) {
+    const auto value = m_currentValues.value(key);
+    if (value.type() == QVariant::Color)
+      result.insert(key, value);
+  }
+  return result;
 }
 
 StyleManager::StyleManager()
@@ -141,7 +152,7 @@ void StyleManager::whenInternalValueChanged(
   emit valueChanged(name, value);
 } // whenInternalValueChanged
 
-void StyleManager::whenCurrrentThemeChanged() {
+void StyleManager::whenCurrentThemeChanged() {
   Qt::beginPropertyUpdateGroup();
 
 #define NOTIFY(N) emit N##Changed();
