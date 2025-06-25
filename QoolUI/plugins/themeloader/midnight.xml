@@ -41,7 +41,7 @@
     <number property="controlTextSize" copy="textSize" add="-2"/>
     <number property="controlTitleTextSize" copy="controlTextSize" add="-2" />
     <number property="importantTextSize" copy="textSize" multiply="2"/>
-    <number property="decorateTextSize" copy="toolTipTextSize"/>
+    <number property="decorativeTextSize" copy="toolTipTextSize"/>
     <list property="papaWords">
         <string>Pa</string>
         <string>PaPa</string>

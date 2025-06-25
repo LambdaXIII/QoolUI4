@@ -36,7 +36,7 @@ public:
   const QVariantMap& inactive() const;
   const QVariantMap& disabled() const;
 
-private:
+protected:
   struct Data: public QSharedData {
     QVariantMap active, inactive, disabled;
     Data()
