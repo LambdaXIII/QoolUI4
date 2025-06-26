@@ -17,6 +17,7 @@ target_sources(qool_themeloader_default PRIVATE
     qool_themeloader_default.json
 
     qool_xml_theme_loader.h
+    qool_xml_theme_loader_impl.h
     qool_xml_theme_loader.cpp
 )
 

@@ -13,5 +13,7 @@ QoolWindow {
 
     content: PaletteSheet {}
 
-    palette: QoolPalette {}
+    Component.onCompleted: {
+        console.log(StyleDB.count);
+    }
 }

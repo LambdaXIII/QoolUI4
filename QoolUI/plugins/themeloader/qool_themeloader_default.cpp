@@ -14,8 +14,8 @@ DefaultThemeLoader::DefaultThemeLoader()
   xDebugQ << tr("QoolUI内置主题加载器已启动");
 }
 
-QMap<QString, QVariantMap> DefaultThemeLoader::themes() const {
-  QMap<QString, QVariantMap> themes;
+QList<ThemeLoader::Package> DefaultThemeLoader::themes() const {
+  QList<Package> packages;
 
   static const QString THEMES_DIR { ":/qoolui/themes" };
 
@@ -31,12 +31,18 @@ QMap<QString, QVariantMap> DefaultThemeLoader::themes() const {
       return loader;
     });
 
-  for (const auto& loader : std::as_const(loaders))
-    themes.insert(loader->name(), loader->theme());
+  for (const auto& loader : std::as_const(loaders)) {
+    Package p;
+    p.name = loader->name();
+    p.active = loader->active();
+    p.inactive = loader->inactive();
+    p.disabled = loader->disabled();
+    packages.append(p);
+  }
 
   xDebugQ << tr("成功载入了%1个主题").arg(loaders.length());
 
-  return themes;
+  return packages;
 }
 
 QOOL_NS_END

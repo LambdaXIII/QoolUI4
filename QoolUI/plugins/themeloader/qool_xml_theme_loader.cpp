@@ -1,360 +1,306 @@
 #include "qool_xml_theme_loader.h"
 
+#include "qool_xml_theme_loader_impl.h"
 #include "qoolcommon/debug.hpp"
 
-#include <QCache>
 #include <QColor>
-#include <QFile>
 #include <QFileInfo>
-#include <QScopedPointer>
-#include <QXmlStreamReader>
-#include <optional>
 
 QOOL_NS_BEGIN
 
-struct XMLThemeLoaderImpl {
-  struct XmlProperty {
-    QString name, type;
-    QVariant value;
-    std::optional<QString> copy;
-    std::optional<qreal> darker, lighter, multiply, add;
-    std::optional<QString> append, prepend;
-    QList<XmlProperty> values;
-  };
-
-  struct Theme {
-    QVariantMap metadata, properties;
-  };
-
-  QScopedPointer<Theme> current_theme { new Theme };
-  QXmlStreamReader xml;
-  QString xmlPath;
-
-  void loadTheme(const QString& path);
-  static QVariantMap parseMetadata(QXmlStreamReader& xml);
-
-  static XmlProperty parseColor(QXmlStreamReader& xml);
-  static XmlProperty parseNumber(QXmlStreamReader& xml);
-  static XmlProperty parseString(QXmlStreamReader& xml);
-  static XmlProperty parseBool(QXmlStreamReader& xml);
-  static XmlProperty parseList(QXmlStreamReader& xml);
-  static XmlProperty parseAlias(QXmlStreamReader& xml);
-  static XmlProperty parseProperty(QXmlStreamReader& xml);
-
-  static void sortPropertiesByDepth(QList<XmlProperty>& properties);
-  static QVariant processValue(
-    const XmlProperty& property, QVariant refValue);
-  static QVariantMap resolveProperties(
-    const QList<XmlProperty>& properties);
-}; // Impl
-
-void XMLThemeLoaderImpl::loadTheme(const QString& path) {
-  xmlPath = path;
-  current_theme.reset(new Theme);
-
-  QFile file(path);
-  if (! file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    xWarning << xDBGToken("XMLThemeLoader")
-             << "Failed to open theme file:" << xDBGRed << path
-             << xDBGReset;
-    return;
-  }
-  xml.setDevice(&file);
-  QList<XmlProperty> properties;
-
-  while (! xml.atEnd() && ! xml.hasError()) {
-    xml.readNext();
-    if (! xml.isStartElement())
-      continue;
-    const auto tag = xml.name();
-    if (tag == "qooltheme")
-      current_theme->metadata = parseMetadata(xml);
-    else
-      properties << parseProperty(xml);
-  }
-
-  current_theme->properties = resolveProperties(properties);
-  xDebug << xDBGToken("XMLThemeLoader") << "Theme loaded:" << path;
-  xDebug << xDBGToken("XMLThemeLoader")
-         << "Metadata:" << xDBGMap(current_theme->metadata);
-  xDebug << xDBGToken("XMLThemeLoader")
-         << "Properties:" << xDBGMap(current_theme->properties);
-}
-
-QVariantMap XMLThemeLoaderImpl::parseMetadata(QXmlStreamReader& xml) {
-  QVariantMap result;
-  const auto& attrs = xml.attributes();
-  for (int i = 0; i < attrs.size(); ++i) {
-    const auto& attr = attrs.at(i);
-    result.insert(attr.name().toString(), attr.value().toString());
-  }
-  return result;
-}
-
-XMLThemeLoaderImpl::XmlProperty XMLThemeLoaderImpl::parseColor(
-  QXmlStreamReader& xml) {
-  XmlProperty result;
-  result.type = "color";
-  if (xml.attributes().hasAttribute("property"))
-    result.name = xml.attributes().value("property").toString();
-  if (xml.attributes().hasAttribute("copy"))
-    result.copy = xml.attributes().value("copy").toString();
-  if (xml.attributes().hasAttribute("darker"))
-    result.darker = xml.attributes().value("darker").toDouble();
-  if (xml.attributes().hasAttribute("lighter"))
-    result.lighter = xml.attributes().value("lighter").toDouble();
-
-  const auto value_t = xml.attributes().hasAttribute("value") ?
-                         xml.attributes().value("value").toString() :
-                         xml.readElementText();
-  if (! value_t.isEmpty())
-    result.value = QColor(value_t);
-  return result;
-}
-
-XMLThemeLoaderImpl::XmlProperty XMLThemeLoaderImpl::parseNumber(
-  QXmlStreamReader& xml) {
-  XmlProperty result;
-  result.type = "number";
-  if (xml.attributes().hasAttribute("property"))
-    result.name = xml.attributes().value("property").toString();
-  if (xml.attributes().hasAttribute("copy"))
-    result.copy = xml.attributes().value("copy").toString();
-  if (xml.attributes().hasAttribute("multiply"))
-    result.multiply = xml.attributes().value("multiply").toDouble();
-  if (xml.attributes().hasAttribute("add"))
-    result.add = xml.attributes().value("add").toDouble();
-  const auto value_t = xml.attributes().hasAttribute("value") ?
-                         xml.attributes().value("value").toString() :
-                         xml.readElementText();
-  if (! value_t.isEmpty())
-    result.value = value_t.toDouble();
-  return result;
-}
-
-XMLThemeLoaderImpl::XmlProperty XMLThemeLoaderImpl::parseString(
-  QXmlStreamReader& xml) {
-  XmlProperty result;
-  result.type = "string";
-  if (xml.attributes().hasAttribute("property"))
-    result.name = xml.attributes().value("property").toString();
-  if (xml.attributes().hasAttribute("copy"))
-    result.copy = xml.attributes().value("copy").toString();
-  if (xml.attributes().hasAttribute("append"))
-    result.append = xml.attributes().value("append").toString();
-  if (xml.attributes().hasAttribute("prepend"))
-    result.prepend = xml.attributes().value("prepend").toString();
-
-  const auto value_t = xml.attributes().hasAttribute("value") ?
-                         xml.attributes().value("value").toString() :
-                         xml.readElementText();
-  if (! value_t.isEmpty())
-    result.value = value_t;
-  return result;
-}
-
-XMLThemeLoaderImpl::XmlProperty XMLThemeLoaderImpl::parseAlias(
-  QXmlStreamReader& xml) {
-  XmlProperty result;
-  result.type = "alias";
-  if (xml.attributes().hasAttribute("property"))
-    result.name = xml.attributes().value("property").toString();
-  if (xml.attributes().hasAttribute("copy"))
-    result.copy = xml.attributes().value("copy").toString();
-  return result;
-}
-
-XMLThemeLoaderImpl::XmlProperty XMLThemeLoaderImpl::parseList(
-  QXmlStreamReader& xml) {
-  XmlProperty result;
-  result.type = "list";
-  if (xml.attributes().hasAttribute("property"))
-    result.name = xml.attributes().value("property").toString();
-  if (xml.attributes().hasAttribute("copy"))
-    result.copy = xml.attributes().value("copy").toString();
-  if (xml.attributes().hasAttribute("append"))
-    result.append = xml.attributes().value("append").toString();
-  if (xml.attributes().hasAttribute("prepend"))
-    result.prepend = xml.attributes().value("prepend").toString();
-
-  while (xml.readNextStartElement()) {
-    result.values << parseProperty(xml);
-  }
-
-  return result;
-}
-
-XMLThemeLoaderImpl::XmlProperty XMLThemeLoaderImpl::parseBool(
-  QXmlStreamReader& xml) {
-  XmlProperty result;
-  result.type = "bool";
-  if (xml.attributes().hasAttribute("property"))
-    result.name = xml.attributes().value("property").toString();
-  if (xml.attributes().hasAttribute("copy"))
-    result.copy = xml.attributes().value("copy").toString();
-
-  const QString value_t =
-    xml.attributes().hasAttribute("value") ?
-      xml.attributes().value("value").toString().toLower() :
-      xml.readElementText().toLower();
-  static const QStringList yes_values { "true", "yes", "on" };
-  result.value = yes_values.contains(value_t);
-  return result;
-}
-
-XMLThemeLoaderImpl::XmlProperty XMLThemeLoaderImpl::parseProperty(
-  QXmlStreamReader& xml) {
-  const auto tag = xml.name();
-  if (tag == "bool")
-    return parseBool(xml);
-  else if (tag == "color")
-    return parseColor(xml);
-  else if (tag == "number")
-    return parseNumber(xml);
-  else if (tag == "string")
-    return parseString(xml);
-  else if (tag == "list")
-    return parseList(xml);
-  return {};
-}
-
-QVariantMap XMLThemeLoaderImpl::resolveProperties(
-  const QList<XmlProperty>& properties) {
-  QVariantMap result;
-
-  // PreProcess properties
-  QList<XmlProperty> alias_properties, list_properties,
-    normal_properties;
-  for (const auto& property : properties) {
-    if (property.type == "alias")
-      alias_properties << property;
-    else if (property.type == "list")
-      list_properties << property;
-    else
-      normal_properties << property;
-  }
-
-  sortPropertiesByDepth(normal_properties);
-  for (const auto& p : std::as_const(normal_properties)) {
-    QVariant baseValue = p.value;
-    if (p.copy.has_value())
-      baseValue = result[p.copy.value()];
-    result.insert(p.name, processValue(p, baseValue));
-  }
-
-  for (const auto& p : std::as_const(list_properties)) {
-    QVariantList list;
-    for (const auto& pv : std::as_const(p.values)) {
-      QVariant baseValue = pv.value;
-      if (pv.copy.has_value())
-        baseValue = result[pv.copy.value()];
-      list.append(processValue(pv, baseValue));
-    }
-    result.insert(p.name, list);
-  }
-
-  for (const auto& p : std::as_const(alias_properties)) {
-    if (p.copy.has_value())
-      result.insert(p.name, result[p.copy.value()]);
-  }
-
-  if (result.contains(""))
-    xWarning
-      << xDBGToken("XMLThemeLoader")
-      << "Empty property names found in theme, might be a mistake.";
-
-  return result;
-}
-
-void XMLThemeLoaderImpl::sortPropertiesByDepth(
-  QList<XMLThemeLoaderImpl::XmlProperty>& properties) {
-  QMap<QString, int> depths {};
-  QMap<QString, XmlProperty> indexes;
-  for (const auto& p : std::as_const(properties))
-    indexes.insert(p.name, p);
-
-  QStringList names = indexes.keys();
-  int cycles = 0;
-  while (cycles < 20 && ! names.isEmpty()) {
-    for (int i = 0; i < names.length(); ++i) {
-      const auto name = names.takeFirst();
-      const auto& property = indexes[name];
-      if (property.copy.has_value()) {
-        auto ref_name = property.copy.value();
-        if (depths.contains(ref_name))
-          depths.insert(name, depths[ref_name] + 1);
-        else
-          names.append(name);
-      } else {
-        depths.insert(name, 0);
-      }
-    } // for
-  } // while
-
-  std::stable_sort(properties.begin(), properties.end(),
-    [&](const XmlProperty& a, const XmlProperty& b) {
-      const int da = depths.value(a.name, 9999999);
-      const int db = depths.value(b.name, 9999999);
-      return da < db;
-    });
-}
-
-QVariant XMLThemeLoaderImpl::processValue(
-  const XMLThemeLoaderImpl::XmlProperty& property, QVariant refValue) {
-  if (property.type == "color") {
-    QColor v = refValue.value<QColor>();
-    if (property.darker.has_value())
-      v = v.darker(property.darker.value() * 100);
-    if (property.lighter.has_value())
-      v = v.lighter(property.lighter.value() * 100);
-    return QVariant::fromValue(v);
-  }
-
-  if (property.type == "number") {
-    qreal number = refValue.toDouble();
-    if (property.add.has_value())
-      number += property.add.value();
-    if (property.multiply.has_value())
-      number *= property.multiply.value();
-    return QVariant::fromValue(number);
-  }
-
-  if (property.type == "string") {
-    QString str = refValue.toString();
-    if (property.append.has_value())
-      str += property.append.value();
-    if (property.prepend.has_value())
-      str.prepend(property.prepend.value());
-    return QVariant::fromValue(str);
-  }
-
-  return refValue;
-}
-
-XMLThemeLoader::XMLThemeLoader(const QString& xmlPath)
-  : m_pImpl { new XMLThemeLoaderImpl } {
-  m_pImpl->loadTheme(xmlPath);
+XMLThemeLoader::XMLThemeLoader(const QString& filename)
+  : m_pImpl(new XMLThemeLoaderImpl) {
+  m_pImpl->load(filename);
 }
 
 XMLThemeLoader::~XMLThemeLoader() {
-  if (m_pImpl)
-    delete m_pImpl;
+  delete m_pImpl;
   m_pImpl = nullptr;
 }
 
 QString XMLThemeLoader::name() const {
-  const auto& m = m_pImpl->current_theme->metadata;
-  if (m.contains("name"))
-    return m.value("name").toString();
-  return QFileInfo(m_pImpl->xmlPath).baseName();
-}
-
-const QVariantMap& XMLThemeLoader::theme() const {
-  return m_pImpl->current_theme->properties;
+  if (m_pImpl->metadata.contains("name")) {
+    const auto nameV = m_pImpl->metadata.value("name");
+    if (nameV.type() == QVariant::String)
+      return nameV.toString();
+  }
+  return QFileInfo(m_pImpl->filename).baseName();
 }
 
 const QVariantMap& XMLThemeLoader::metadata() const {
-  return m_pImpl->current_theme->metadata;
+  return m_pImpl->metadata;
+}
+
+const QVariantMap& XMLThemeLoader::active() const {
+  return m_pImpl->active;
+}
+
+const QVariantMap& XMLThemeLoader::inactive() const {
+  return m_pImpl->inactive;
+}
+
+const QVariantMap& XMLThemeLoader::disabled() const {
+  return m_pImpl->disabled;
+}
+
+void XMLThemeLoaderImpl::load(const QString& path) {
+  QFile file(path);
+  filename = path;
+  if (! file.open(QIODevice::ReadOnly)) {
+    xWarning << "Failed to open file:" << path;
+    return;
+  }
+
+  QXmlStreamReader xml(&file);
+  while (! xml.atEnd() and ! xml.hasError()) {
+    bool res = xml.readNextStartElement();
+    if (! res)
+      continue;
+    if (xml.name() == "qooltheme")
+      load_metadata(xml);
+    else if (xml.name() == "active")
+      load_active(xml);
+    else if (xml.name() == "inactive")
+      load_inactive(xml);
+    else if (xml.name() == "disabled")
+      load_disabled(xml);
+  }
+  if (xml.hasError()) {
+    xWarning << "Error parsing file:" << path << ":"
+             << xml.errorString();
+  }
+}
+
+void XMLThemeLoaderImpl::load_metadata(QXmlStreamReader& xml) {
+  Q_ASSERT(xml.name() == "qooltheme");
+  const auto& attr = xml.attributes();
+  for (const auto& a : attr) {
+    metadata.insert(a.name().toString(), a.value().toString());
+  }
+}
+
+void XMLThemeLoaderImpl::load_active(QXmlStreamReader& xml) {
+  Q_ASSERT(xml.name() == "active");
+  QList<PropertyNode> nodes;
+  while (xml.name() != "active") {
+    if (! xml.readNextStartElement())
+      continue;
+    const auto node = load_property_node(xml);
+    nodes.append(node);
+  }
+  active.insert(resolve_property_nodes(nodes));
+}
+
+void XMLThemeLoaderImpl::load_inactive(QXmlStreamReader& xml) {
+  Q_ASSERT(xml.name() == "inactive");
+  QList<PropertyNode> nodes;
+  while (xml.name() != "inactive") {
+    if (! xml.readNextStartElement())
+      continue;
+    const auto node = load_property_node(xml);
+    nodes.append(node);
+  }
+  inactive.insert(resolve_property_nodes(nodes, active));
+}
+
+void XMLThemeLoaderImpl::load_disabled(QXmlStreamReader& xml) {
+  Q_ASSERT(xml.name() == "disabled");
+  QList<PropertyNode> nodes;
+  while (xml.name() != "disabled") {
+    if (! xml.readNextStartElement())
+      continue;
+    const auto node = load_property_node(xml);
+    nodes.append(node);
+  }
+  disabled.insert(resolve_property_nodes(nodes, active));
+}
+
+XMLThemeLoaderImpl::PropertyNode XMLThemeLoaderImpl::load_property_node(
+  QXmlStreamReader& xml) {
+  PropertyNode result;
+
+  const auto tag = xml.name();
+  const auto attrs = xml.attributes();
+
+  result.type = tag.toString();
+
+  if (attrs.hasAttribute("copy"))
+    result.copy = attrs.value("copy").toString();
+  if (attrs.hasAttribute("add"))
+    result.add = attrs.value("add").toDouble();
+  if (attrs.hasAttribute("multiply"))
+    result.multiply = attrs.value("multiply").toDouble();
+  if (attrs.hasAttribute("darker"))
+    result.darker = attrs.value("darker").toDouble();
+  if (attrs.hasAttribute("lighter"))
+    result.lighter = attrs.value("lighter").toDouble();
+  if (attrs.hasAttribute("prepend"))
+    result.prepend = attrs.value("prepend").toString();
+  if (attrs.hasAttribute("append"))
+    result.append = attrs.value("append").toString();
+
+  if (attrs.hasAttribute("property"))
+    result.name = attrs.value("property").toString();
+
+  const QStringView raw_value = attrs.hasAttribute("value") ?
+                                  attrs.value("value") :
+                                  xml.readElementText();
+
+  if (tag == "color")
+    result.value = QColor(raw_value.toString());
+  if (tag == "number")
+    result.value = raw_value.toDouble();
+  if (tag == "string")
+    result.value = raw_value.toString();
+
+  static const QSet<QString> bool_tags { "true", "on", "yes" };
+  if (tag == "bool")
+    result.value = bool_tags.contains(raw_value.toString().toLower());
+
+  if (tag == "list") {
+    while (xml.name() != "list") {
+      if (xml.readNextStartElement())
+        result.values.append(load_property_node(xml));
+    }
+  }
+  return result;
+}
+
+QVariantMap XMLThemeLoaderImpl::resolve_property_nodes(
+  const QList<PropertyNode>& nodes, const QVariantMap& dependencies) {
+  QVariantMap result;
+
+  static const auto has_ref_value = [&](const QString& key) {
+    return result.contains(key) || dependencies.contains(key);
+  };
+  static const auto get_ref_value = [&](const QString& key) {
+    if (result.contains(key))
+      return result.value(key);
+    return dependencies.value(key);
+  };
+
+  QList<PropertyNode> list_nodes;
+  QMap<QString, PropertyNode> complex_nodes;
+  for (auto& node : nodes) {
+    if (node.type == "list")
+      list_nodes.append(node);
+    else if (node.copy.has_value())
+      complex_nodes.insert(node.name, node);
+    else
+      result.insert(node.name, node.value);
+  }
+
+  auto names = sorted_property_nodes(complex_nodes);
+  while (! complex_nodes.isEmpty()) {
+    for (int i = 0; i < names.length(); i++) {
+      const auto name = names.takeFirst();
+      const auto& node = complex_nodes.value(name);
+      const auto copy = node.copy.value();
+      if (! has_ref_value(copy)) {
+        names.append(name);
+        continue;
+      }
+      const QVariant ref_value = get_ref_value(copy);
+      const QVariant value = process_value(node, ref_value);
+      result.insert(name, value);
+    } // for
+  } // while
+  if (! names.isEmpty()) {
+    xWarning << "Circular reference detected:" << names;
+  }
+
+  for (const auto& node : std::as_const(list_nodes)) {
+    QVariantList values;
+    std::transform(node.values.constBegin(), node.values.constEnd(),
+      std::back_inserter(values), [&](const PropertyNode& p) {
+        QVariant v = p.value;
+        if (p.copy.has_value()) {
+          auto copy = p.copy.value();
+          if (has_ref_value(copy))
+            v = get_ref_value(copy);
+        }
+        v = process_value(p, v);
+        return v;
+      });
+    values.removeIf([](const QVariant& v) { return v.isNull(); });
+    result.insert(node.name, values);
+  } // for list_nodes
+
+  return result;
+}
+
+QVariant XMLThemeLoaderImpl::process_value(
+  const PropertyNode& node, const QVariant& ref_value) {
+  QVariant source = node.value;
+  if (! ref_value.isNull())
+    source = ref_value;
+
+  if (node.type == "color") {
+    QColor v = source.value<QColor>();
+    if (node.darker.has_value())
+      v = v.darker(node.darker.value() * 100);
+    if (node.lighter.has_value())
+      v = v.lighter(node.lighter.value() * 100);
+    return QVariant::fromValue(v);
+  }
+
+  if (node.type == "number") {
+    qreal v = source.value<qreal>();
+    if (node.multiply.has_value())
+      v *= node.multiply.value();
+    if (node.add.has_value())
+      v += node.add.value();
+    return QVariant::fromValue(v);
+  }
+
+  if (node.type == "string") {
+    auto v = source.toString();
+    if (node.append.has_value())
+      v.append(node.append.value());
+    if (node.prepend.has_value())
+      v.prepend(node.prepend.value());
+    return QVariant::fromValue(v);
+  }
+
+  return source;
+}
+
+QStringList XMLThemeLoaderImpl::sorted_property_nodes(
+  const QMap<QString, XMLThemeLoaderImpl::PropertyNode>& nodes) {
+  QMap<QString, int> depths;
+  int cycle = 0;
+  QStringList keys = nodes.keys();
+  while (cycle < 20 && ! keys.isEmpty()) {
+    for (int i = 0; i < keys.length(); i++) {
+      const QString k = keys.takeFirst();
+      const PropertyNode& node = nodes[k];
+      if (node.copy.has_value()) {
+        const auto copy = node.copy.value();
+        if (depths.contains(copy))
+          depths[k] = depths[copy] + 1;
+        else
+          keys.append(k);
+      } else {
+        depths[k] = 0;
+      }
+    } // for
+  } // while
+  if (! keys.isEmpty()) {
+    qWarning() << "Cyclic dependency detected:" << keys
+               << "will try to solve them later.";
+  }
+
+  static const auto sort_function = [&](const QString& k1,
+                                      const QString& k2) {
+    static const int max_depth = 999999999;
+    const auto n1 = depths.value(k1, max_depth);
+    const auto n2 = depths.value(k2, max_depth);
+    return n1 < n2;
+  };
+
+  keys = nodes.keys();
+  std::stable_sort(keys.begin(), keys.end(), sort_function);
+  return keys;
 }
 
 QOOL_NS_END

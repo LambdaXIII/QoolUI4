@@ -14,7 +14,9 @@ public:
   ~XMLThemeLoader();
 
   QString name() const;
-  const QVariantMap& theme() const;
+  const QVariantMap& active() const;
+  const QVariantMap& inactive() const;
+  const QVariantMap& disabled() const;
   const QVariantMap& metadata() const;
 
 protected:

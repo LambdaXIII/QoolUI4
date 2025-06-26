@@ -16,7 +16,7 @@ class DefaultThemeLoader
 public:
   DefaultThemeLoader();
   ~DefaultThemeLoader() = default;
-  QMap<QString, QVariantMap> themes() const override;
+  QList<Package> themes() const override;
 };
 
 QOOL_NS_END

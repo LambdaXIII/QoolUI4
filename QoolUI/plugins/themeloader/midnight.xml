@@ -1,53 +1,66 @@
-<qooltheme name="midnight">    <!--Tone Colors-->
-    <color property="accent" value="#FFB65C"/>
-    <!-- BG Colors-->
-    <color property="light" value="#F8F8F2"/>
-    <color property="midlight" copy="light" darker="1.2"/>
-    <color property="dark" value="#282A36"/>
-    <color property="mid" copy="dark" darker="1.2"/>
-    <color property="shadow" copy="dark" darker="1.5"/>
-    <!-- Highlights-->
-    <color property="highlight" copy="accent" lighter="1.2" />
-    <color property="highlightedText" copy="dark" />
-    <color property="link" value="#6AEDFF"/>
-    <color property="linkVisited" value="#C48EFF" />
-    <!--UI Control Colors-->
-    <color property="text" value= "#F8F8F8"/>
-    <color property="base" value="#43475C"/>
-    <color property="alternateBase" copy="base" lighter="1.1"/>
-    <color property="window" copy="dark" />
-    <color property="windowText" copy="text"/>
-    <color property="button" copy="base"/>
-    <color property="buttonText" copy="text"/>
-    <color property="placeHolderText" copy="text" darker="1.5"/>
-    <color property="toolTipBase" value= "#EEFC7A"/>
-    <color property="toolTipText" copy="dark"/>
-    <!--Misc Colors-->
-    <color property="positive" value= "#00FF68"/>
-    <color property="negative" value="#FF414D"/>
-    <color property="warning" value="#FF6DC9"/>
-    <color property="inActive" copy="base" lighter="1.1"/>
-    <!--Real numbers-->
-    <number property="windowCutSize" value="35"/>
-    <number property="controlCutSize" value="10"/>
-    <number property="menuCutSize" copy="controlCutSize"/>
-    <number property="dialogCutSize" copy="controlCutSize"/>
-    <number property="buttonCutSize" value="5"/>
-    <number property="transitionDuration" value="200"/>
-    <number property="movementDuration" value="400"/>
-    <!--int numbers-->
-    <number property="textSize" value="14" />
-    <number property="toolTipTextSize" copy="textSize" add="-4"/>
-    <number property="controlTextSize" copy="textSize" add="-2"/>
-    <number property="controlTitleTextSize" copy="controlTextSize" add="-2" />
-    <number property="importantTextSize" copy="textSize" multiply="2"/>
-    <number property="decorativeTextSize" copy="toolTipTextSize"/>
-    <list property="papaWords">
-        <string>Pa</string>
-        <string>PaPa</string>
-        <string>Pa!!!</string>
-    </list>
-    <bool property="animationEnabled" value="YES" />
-    <color property="disabled" copy="base" darker="1.2"/>
-    <color property="disabledText" copy="text" darker="1.5"/>
+<qooltheme name="midnight" author="qoolui" description="A Qool dark theme">
+    <active>
+        <!--Active group is a must-have-->
+        <!--Tone Colors-->
+        <color property="accent" value="#FFB65C"/>
+        <!-- BG Colors-->
+        <color property="light" value="#F8F8F2"/>
+        <color property="midlight" copy="light" darker="1.2"/>
+        <color property="dark" value="#282A36"/>
+        <color property="mid" copy="dark" darker="1.2"/>
+        <color property="shadow" copy="dark" darker="1.5"/>
+        <!-- Highlights-->
+        <color property="highlight" copy="accent" lighter="1.2" />
+        <color property="highlightedText" copy="dark" />
+        <color property="link" value="#6AEDFF"/>
+        <color property="linkVisited" value="#C48EFF" />
+        <!--UI Control Colors-->
+        <color property="text" value= "#F8F8F8"/>
+        <color property="base" value="#43475C"/>
+        <color property="alternateBase" copy="base" lighter="1.1"/>
+        <color property="window" copy="dark" />
+        <color property="windowText" copy="text"/>
+        <color property="button" copy="base"/>
+        <color property="buttonText" copy="text"/>
+        <color property="placeHolderText" copy="text" darker="1.5"/>
+        <color property="toolTipBase" value= "#EEFC7A"/>
+        <color property="toolTipText" copy="dark"/>
+        <!--Misc Colors-->
+        <color property="positive" value= "#00FF68"/>
+        <color property="negative" value="#FF414D"/>
+        <color property="warning" value="#FF6DC9"/>
+        <color property="inActive" copy="base" lighter="1.1"/>
+        <!--Real numbers-->
+        <number property="windowCutSize" value="35"/>
+        <number property="controlCutSize" value="10"/>
+        <number property="menuCutSize" copy="controlCutSize"/>
+        <number property="dialogCutSize" copy="controlCutSize"/>
+        <number property="buttonCutSize" value="5"/>
+        <!--cutsizes-->
+        <number property="transitionDuration" value="200"/>
+        <number property="movementDuration" value="400"/>
+        <!--int numbers-->
+        <number property="textSize" value="14" />
+        <number property="toolTipTextSize" copy="textSize" add="-4"/>
+        <number property="controlTextSize" copy="textSize" add="-2"/>
+        <number property="controlTitleTextSize" copy="controlTextSize" add="-2" />
+        <number property="importantTextSize" copy="textSize" multiply="2"/>
+        <number property="decorativeTextSize" copy="toolTipTextSize"/>
+        <list property="papaWords">
+            <string>Pa</string>
+            <string>PaPa</string>
+            <string>Pa!!!</string>
+        </list>
+        <bool property="animationEnabled" value="YES" />
+    </active>
+    <inactive >
+        <!--Can contain different vlues only-->
+        <color property="accent" copy="mid" lighter="1.2"/>
+    </inactive>
+    <group name="disabled">
+        <!--Can contain different vlues only-->
+        <color property="text" copy="mid" lighter="1.2"/>
+        <color property="windowText" copy="mid" lighter="1.2"/>
+        <color property="buttonText" copy="mid" lighter="1.2"/>
+    </group>
 </qooltheme>
