@@ -55,8 +55,7 @@ QVariant ThemePackage::value(
   const QString& key, const QVariant& defaultValue) const {
   if (m_pData->active.contains(key))
     return m_pData->active.value(key);
-  if (m_pData->metadata.contains(key))
-    return m_pData->metadata.value(key, defaultValue);
+  return m_pData->metadata.value(key, defaultValue);
 }
 
 QVariant ThemePackage::data(

@@ -1,5 +1,6 @@
 #include "qool_styledb.h"
 
+#include "qool_default_theme.h"
 #include "qool_interface_themeloader.h"
 #include "qoolcommon/debug.hpp"
 #include "qoolcommon/plugin_loader.hpp"
@@ -19,6 +20,8 @@ StyleDB::StyleDB()
     SIGNAL(themeInstalled(QString)),
     this,
     SIGNAL(themesChanged()));
+
+  installTheme(DefaultTheme::copy());
 }
 
 ThemePackage StyleDB::theme(const QString& name) const {
@@ -85,7 +88,7 @@ void StyleDB::auto_install_themes() {
     for (const auto& t : themes) {
       ThemePackage theme(
         t.name, t.active, t.inactive, t.disabled, t.metadata);
-      installTheme(t.name, theme);
+      installTheme(theme);
     } // for themes
   } // for plugins
 
@@ -93,15 +96,15 @@ void StyleDB::auto_install_themes() {
     << tr("插件扫描完毕，已自动安装%1个主题").arg(m_themes.count());
 }
 
-void StyleDB::installTheme(
-  const QString& name, const ThemePackage& theme) {
+void StyleDB::installTheme(const ThemePackage& theme) {
   const int last_row = m_themes.count();
   beginInsertRows(QModelIndex(), last_row, last_row);
-  m_packages.insert(name, theme);
-  m_themes.append(name);
+  m_packages.insert(theme.name(), theme);
+  m_themes.append(theme.name());
   endInsertRows();
-  xDebugQ << "Theme installed:" << xDBGGreen << name << xDBGReset;
-  emit themeInstalled(name);
+  xDebugQ << "Theme installed:" << xDBGGreen << theme.name()
+          << xDBGReset;
+  emit themeInstalled(theme.name());
 }
 
 QStringList StyleDB::themes() const {

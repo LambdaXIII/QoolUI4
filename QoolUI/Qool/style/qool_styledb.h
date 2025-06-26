@@ -40,7 +40,7 @@ private:
   QStringList m_themes;
   QMutex m_mutex;
   void auto_install_themes();
-  void installTheme(const QString& name, const ThemePackage& package);
+  void installTheme(const ThemePackage& package);
 
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_DECL(QStringList, themes)
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_DECL(int, count)

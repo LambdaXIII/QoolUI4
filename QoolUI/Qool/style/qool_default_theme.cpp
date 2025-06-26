@@ -7,7 +7,10 @@
 QOOL_NS_BEGIN
 
 QOOL_SIMPLE_SINGLETON_QT_IMPL(DefaultTheme)
-DefaultTheme::DefaultTheme() {
+
+DefaultTheme::DefaultTheme()
+  : ThemePackage() {
+  m_pData->name = "system";
   const auto palette = qApp->palette();
 #define SET_COLOR(NAME, ROLE)                                          \
   m_pData->active[#NAME] =                                             \
@@ -65,6 +68,10 @@ DefaultTheme::DefaultTheme() {
     QVariant(QStringList { "Pa!", "Pa!!!" });
 
   m_pData->active["animationEnabled"] = true;
+}
+
+ThemePackage DefaultTheme::copy() {
+  return *(instance());
 }
 
 QOOL_NS_END

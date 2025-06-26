@@ -10,6 +10,7 @@ class DefaultTheme: public ThemePackage {
   QOOL_SIMPLE_SINGLETON_DECL(DefaultTheme)
 
 public:
+  static ThemePackage copy();
 };
 
 QOOL_NS_END
