@@ -12,6 +12,7 @@ target_link_libraries(QoolCommon
     INTERFACE Qt6::Core
     INTERFACE QoolIncludes
 )
+
 target_compile_features(QoolCommon INTERFACE cxx_std_17)
 
 

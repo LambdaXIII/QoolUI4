@@ -2,6 +2,7 @@
 
 #include "qool_xml_theme_loader.h"
 #include "qoolcommon/debug.hpp"
+#include "qoolcommon/simple_path_expander.hpp"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -10,13 +11,15 @@
 
 QOOL_NS_BEGIN
 
+static const QString THEMES_DIR { ":/qoolui/themes" };
+
 DefaultThemeLoader::DefaultThemeLoader()
   : QObject { nullptr }
   , ThemeLoader() {
-  xDebugQ << tr("QoolUI内置主题加载器已启动");
+  xInfoQ << "QoolUI default theme loader plugin initialized with "
+            "default theme folder path:"
+         << xDBGGreen << THEMES_DIR << xDBGReset;
 }
-
-static const QString THEMES_DIR { ":/qoolui/themes" };
 
 QStringList scan_for_xml_files() {
   QStringList locations;
@@ -34,33 +37,13 @@ QStringList scan_for_xml_files() {
                  QStandardPaths::AppConfigLocation);
   static const QStringList sub_dirs { "theme", "themes", "qooltheme",
     "qoolthemes" };
-  QStringList search_paths;
-  for (const QString& location : locations) {
-    search_paths << location;
-    for (const QString& sub_dir : sub_dirs)
-      search_paths << location + "/" + sub_dir;
-  }
-  search_paths << THEMES_DIR;
 
-  QStringList xml_files;
-  for (const QString& path : search_paths) {
-    QDir dir(path);
-    if (! dir.exists() || ! dir.isReadable())
-      continue;
-    auto files =
-      dir.entryInfoList(QStringList() << "*.xml", QDir::Files);
-    for (const QFileInfo& file : files)
-      xml_files << file.absoluteFilePath();
-  }
+  SimplePathExpander expander;
+  expander.locations = locations;
+  expander.subDirectories = sub_dirs;
+  expander.extraLocations << THEMES_DIR;
 
-  std::stable_sort(xml_files.begin(), xml_files.end());
-  auto result = std::unique(xml_files.begin(), xml_files.end());
-  xml_files.erase(result, xml_files.end());
-  xml_files.shrink_to_fit();
-
-  for (const QString& xml_file : xml_files)
-    xInfo << "Found xml theme file:" << xDBGGreen << xml_file
-          << xDBGReset;
+  auto xml_files = expander.entryList({ "*.xml" });
   return xml_files;
 }
 
