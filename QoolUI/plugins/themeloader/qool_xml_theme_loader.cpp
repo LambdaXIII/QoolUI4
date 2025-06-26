@@ -75,25 +75,32 @@ void XMLThemeLoaderImpl::load_metadata(QXmlStreamReader& xml) {
   Q_ASSERT(xml.name() == "qooltheme");
   const auto& attr = xml.attributes();
   for (const auto& a : attr) {
-    metadata.insert(a.name().toString(), a.value().toString());
+    const auto aname = a.name();
+    const auto avalue = a.value();
+    // xInfo << xDBGToken("XMLThemeLoader") << aname << ":" << avalue;
+    metadata.insert(aname.toString(), avalue.toString());
   }
 }
 
 void XMLThemeLoaderImpl::load_active(QXmlStreamReader& xml) {
   Q_ASSERT(xml.name() == "active");
   QList<PropertyNode> nodes;
+  xml.readNextStartElement();
   while (xml.name() != "active") {
     if (! xml.readNextStartElement())
       continue;
     const auto node = load_property_node(xml);
     nodes.append(node);
   }
-  active.insert(resolve_property_nodes(nodes));
+  auto result = resolve_property_nodes(nodes);
+  xInfo << "Active Properties:" << xDBGMap(result);
+  active.insert(result);
 }
 
 void XMLThemeLoaderImpl::load_inactive(QXmlStreamReader& xml) {
   Q_ASSERT(xml.name() == "inactive");
   QList<PropertyNode> nodes;
+  xml.readNextStartElement();
   while (xml.name() != "inactive") {
     if (! xml.readNextStartElement())
       continue;
@@ -106,6 +113,7 @@ void XMLThemeLoaderImpl::load_inactive(QXmlStreamReader& xml) {
 void XMLThemeLoaderImpl::load_disabled(QXmlStreamReader& xml) {
   Q_ASSERT(xml.name() == "disabled");
   QList<PropertyNode> nodes;
+  xml.readNextStartElement();
   while (xml.name() != "disabled") {
     if (! xml.readNextStartElement())
       continue;
@@ -163,6 +171,8 @@ XMLThemeLoaderImpl::PropertyNode XMLThemeLoaderImpl::load_property_node(
         result.values.append(load_property_node(xml));
     }
   }
+
+  // xDebug << xDBGToken("XMLThemeLoader") << tag << ":" << raw_value;
   return result;
 }
 
