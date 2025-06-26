@@ -128,6 +128,16 @@ public:
     m_defaults.insert(other);
   }
 
+  void setCurrents(const QVariantMap& other) {
+    QWriteLocker locker(&m_lock);
+    m_currents = other;
+  }
+
+  void setDefaults(const QVariantMap& other) {
+    QWriteLocker locker(&m_lock);
+    m_defaults = other;
+  }
+
   void reset() {
     QWriteLocker locker(&m_lock);
     m_currents.clear();
@@ -164,6 +174,15 @@ public:
       keys << k;
     return { keys.cbegin(), keys.cend() };
   }
+
+  QVariantMap collapse() const {
+    QReadLocker locker(&m_lock);
+    auto result = m_defaults;
+    result.insert(m_currents);
+    return result;
+  }
+
+  operator QVariantMap() const { return collapse(); }
 
 }; // DefaultVariantMap
 
