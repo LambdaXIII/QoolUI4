@@ -22,6 +22,7 @@ StyleDB::StyleDB()
     SIGNAL(themesChanged()));
 
   installTheme(DefaultTheme::copy());
+  auto_install_themes();
 }
 
 ThemePackage StyleDB::theme(const QString& name) const {
@@ -85,6 +86,9 @@ void StyleDB::auto_install_themes() {
   for (auto iter = plugins.constBegin(); iter != plugins.constEnd();
     ++iter) {
     const auto themes = iter.value()->themes();
+    xDebugQ << "Plugin" << xDBGGreen << iter.key() << xDBGReset
+            << "provides" << xDBGYellow << themes.length() << xDBGReset
+            << "theme(s).";
     for (const auto& t : themes) {
       ThemePackage theme(
         t.name, t.active, t.inactive, t.disabled, t.metadata);
@@ -92,8 +96,8 @@ void StyleDB::auto_install_themes() {
     } // for themes
   } // for plugins
 
-  xInfoQ
-    << tr("插件扫描完毕，已自动安装%1个主题").arg(m_themes.count());
+  xInfoQ << "Pluigins loaded." << xDBGYellow << m_themes.count()
+         << xDBGReset << "theme(s) installed.";
 }
 
 void StyleDB::installTheme(const ThemePackage& theme) {
