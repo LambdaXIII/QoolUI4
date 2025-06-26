@@ -3,22 +3,24 @@
 
 #include "qoolns.hpp"
 
+#include <QDomElement>
 #include <QString>
 #include <QVariant>
-#include <QXmlStreamReader>
 #include <optional>
 
 QOOL_NS_BEGIN
 
 struct XMLThemeLoaderImpl {
-  struct PropertyNode {
+  struct XProperty {
     QString name, type;
     QVariant value;
-    QList<PropertyNode> values;
+    QList<XProperty> values;
     std::optional<QString> copy;
     std::optional<qreal> add, multiply, darker, lighter;
     std::optional<QString> prepend, append;
   };
+  using XPropertyList = QList<XProperty>;
+  using XPropertyMap = QMap<QString, XProperty>;
 
   QString filename;
   QVariantMap metadata, active, inactive, disabled;
@@ -26,22 +28,15 @@ struct XMLThemeLoaderImpl {
   void load(const QString& filename);
 
 private:
-  void load_metadata(QXmlStreamReader& xml);
-  void load_active(QXmlStreamReader& xml);
-  void load_inactive(QXmlStreamReader& xml);
-  void load_disabled(QXmlStreamReader& xml);
+  static QVariantMap load_metadata(const QDomElement& e);
+  static QVariantMap load_value_group(
+    const QDomElement& e, const QVariantMap& refValues);
 
-  static PropertyNode load_property_node(QXmlStreamReader& xml);
-  static PropertyNode parse_list(QXmlStreamReader& xml);
-  static PropertyNode parse_element(QXmlStreamReader& xml);
-
-  static QVariantMap resolve_property_nodes(
-    const QList<PropertyNode>& nodes,
-    const QVariantMap& dependencies = {});
-  static QStringList sorted_property_nodes(
-    const QMap<QString, PropertyNode>& nodes);
-  static QVariant process_value(
-    const PropertyNode& node, const QVariant& refValue = {});
+  static XProperty parse_property(const QDomElement& e);
+  static QVariantMap solve_values(
+    const XPropertyList& properties, const QVariantMap& refValues);
+  static QVariant process_value(const XProperty& property,
+    const std::optional<QVariant>& refValue = std::nullopt);
 }; // Impl
 
 QOOL_NS_END

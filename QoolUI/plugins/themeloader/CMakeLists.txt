@@ -1,5 +1,5 @@
 
-# find_package(Qt6 REQUIRED COMPONENTS Concurrent)
+find_package(Qt6 REQUIRED COMPONENTS Xml)
 
 qt_add_plugin(qool_themeloader_default
     CLASS_NAME "${QOOL_NS}::DefaultThemeLoader"
@@ -17,8 +17,9 @@ target_sources(qool_themeloader_default PRIVATE
     qool_themeloader_default.json
 
     qool_xml_theme_loader.h
-    qool_xml_theme_loader_impl.h
     qool_xml_theme_loader.cpp
+    qool_xml_theme_loader_impl.h
+    qool_xml_theme_loader_impl.cpp
 )
 
 set_target_properties(qool_themeloader_default PROPERTIES
@@ -31,6 +32,6 @@ target_include_directories(qool_themeloader_default PRIVATE
 )
 
 target_link_libraries(qool_themeloader_default
-    PRIVATE Qt6::Core Qt6::Gui Qt6::Concurrent
+    PRIVATE Qt6::Core Qt6::Gui Qt6::Concurrent Qt6::Xml
     PRIVATE QoolCommon
 )
