@@ -53,14 +53,14 @@
         </list>
         <bool property="animationEnabled" value="YES" />
     </active>
-    <inactive >
+    <inactive>
         <!--Can contain different vlues only-->
         <color property="accent" copy="mid" lighter="1.2"/>
     </inactive>
-    <group name="disabled">
+    <disabled>
         <!--Can contain different vlues only-->
         <color property="text" copy="mid" lighter="1.2"/>
         <color property="windowText" copy="mid" lighter="1.2"/>
         <color property="buttonText" copy="mid" lighter="1.2"/>
-    </group>
+    </disabled>
 </qooltheme>

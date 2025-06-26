@@ -30,7 +30,11 @@ private:
   void load_active(QXmlStreamReader& xml);
   void load_inactive(QXmlStreamReader& xml);
   void load_disabled(QXmlStreamReader& xml);
+
   static PropertyNode load_property_node(QXmlStreamReader& xml);
+  static PropertyNode parse_list(QXmlStreamReader& xml);
+  static PropertyNode parse_element(QXmlStreamReader& xml);
+
   static QVariantMap resolve_property_nodes(
     const QList<PropertyNode>& nodes,
     const QVariantMap& dependencies = {});

@@ -21,7 +21,7 @@ XMLThemeLoader::~XMLThemeLoader() {
 QString XMLThemeLoader::name() const {
   if (m_pImpl->metadata.contains("name")) {
     const auto nameV = m_pImpl->metadata.value("name");
-    if (nameV.type() == QVariant::String)
+    if (nameV.typeId() == QMetaType::QString)
       return nameV.toString();
   }
   return QFileInfo(m_pImpl->filename).baseName();
@@ -75,16 +75,16 @@ void XMLThemeLoaderImpl::load_metadata(QXmlStreamReader& xml) {
   Q_ASSERT(xml.name() == "qooltheme");
   const auto& attr = xml.attributes();
   for (const auto& a : attr) {
-    const auto aname = a.name();
-    const auto avalue = a.value();
-    // xInfo << xDBGToken("XMLThemeLoader") << aname << ":" << avalue;
-    metadata.insert(aname.toString(), avalue.toString());
+    metadata.insert(a.name().toString(), a.value().toString());
   }
+  xInfo << xDBGToken("XMLThemeLoader") << "metadata updated"
+        << xDBGMap(metadata);
 }
 
 void XMLThemeLoaderImpl::load_active(QXmlStreamReader& xml) {
   Q_ASSERT(xml.name() == "active");
   QList<PropertyNode> nodes;
+  xInfo << xDBGToken("XMLThemeLoader") << "loading active group...";
   xml.readNextStartElement();
   while (xml.name() != "active") {
     if (! xml.readNextStartElement())
@@ -92,8 +92,9 @@ void XMLThemeLoaderImpl::load_active(QXmlStreamReader& xml) {
     const auto node = load_property_node(xml);
     nodes.append(node);
   }
+  xInfo << xDBGToken("XMLThemeLoader") << "Active group has"
+        << xDBGYellow << nodes.size() << xDBGReset << "nodes.";
   auto result = resolve_property_nodes(nodes);
-  xInfo << "Active Properties:" << xDBGMap(result);
   active.insert(result);
 }
 
@@ -107,7 +108,10 @@ void XMLThemeLoaderImpl::load_inactive(QXmlStreamReader& xml) {
     const auto node = load_property_node(xml);
     nodes.append(node);
   }
-  inactive.insert(resolve_property_nodes(nodes, active));
+  xInfo << xDBGToken("XMLThemeLoader") << "Inactive group has"
+        << xDBGYellow << nodes.size() << xDBGReset << "nodes.";
+  auto result = resolve_property_nodes(nodes, active);
+  inactive.insert(result);
 }
 
 void XMLThemeLoaderImpl::load_disabled(QXmlStreamReader& xml) {
@@ -120,10 +124,20 @@ void XMLThemeLoaderImpl::load_disabled(QXmlStreamReader& xml) {
     const auto node = load_property_node(xml);
     nodes.append(node);
   }
-  disabled.insert(resolve_property_nodes(nodes, active));
+  xInfo << xDBGToken("XMLThemeLoader") << "Disabled group has"
+        << xDBGYellow << nodes.size() << xDBGReset << "nodes.";
+  auto result = resolve_property_nodes(nodes, active);
+  disabled.insert(result);
 }
 
 XMLThemeLoaderImpl::PropertyNode XMLThemeLoaderImpl::load_property_node(
+  QXmlStreamReader& xml) {
+  if (xml.name() == "list")
+    return parse_list(xml);
+  return parse_element(xml);
+}
+
+XMLThemeLoaderImpl::PropertyNode XMLThemeLoaderImpl::parse_element(
   QXmlStreamReader& xml) {
   PropertyNode result;
 
@@ -165,14 +179,21 @@ XMLThemeLoaderImpl::PropertyNode XMLThemeLoaderImpl::load_property_node(
   if (tag == "bool")
     result.value = bool_tags.contains(raw_value.toString().toLower());
 
-  if (tag == "list") {
-    while (xml.name() != "list") {
-      if (xml.readNextStartElement())
-        result.values.append(load_property_node(xml));
-    }
-  }
+  return result;
+}
 
-  // xDebug << xDBGToken("XMLThemeLoader") << tag << ":" << raw_value;
+XMLThemeLoaderImpl::PropertyNode XMLThemeLoaderImpl::parse_list(
+  QXmlStreamReader& xml) {
+  PropertyNode result;
+  result.name = xml.attributes().value("name").toString();
+  result.type = "list";
+  xml.readNextStartElement();
+  while (xml.name() != "list") {
+    if (! xml.readNextStartElement())
+      continue;
+    auto node = parse_element(xml);
+    result.values.append(node);
+  }
   return result;
 }
 
@@ -180,10 +201,10 @@ QVariantMap XMLThemeLoaderImpl::resolve_property_nodes(
   const QList<PropertyNode>& nodes, const QVariantMap& dependencies) {
   QVariantMap result;
 
-  static const auto has_ref_value = [&](const QString& key) {
+  const auto has_ref_value = [&](const QString& key) {
     return result.contains(key) || dependencies.contains(key);
   };
-  static const auto get_ref_value = [&](const QString& key) {
+  const auto get_ref_value = [&](const QString& key) {
     if (result.contains(key))
       return result.value(key);
     return dependencies.value(key);
@@ -201,7 +222,8 @@ QVariantMap XMLThemeLoaderImpl::resolve_property_nodes(
   }
 
   auto names = sorted_property_nodes(complex_nodes);
-  while (! complex_nodes.isEmpty()) {
+  int cycle = 0;
+  while (cycle < 20 && ! names.isEmpty()) {
     for (int i = 0; i < names.length(); i++) {
       const auto name = names.takeFirst();
       const auto& node = complex_nodes.value(name);
@@ -214,6 +236,7 @@ QVariantMap XMLThemeLoaderImpl::resolve_property_nodes(
       const QVariant value = process_value(node, ref_value);
       result.insert(name, value);
     } // for
+    cycle++;
   } // while
   if (! names.isEmpty()) {
     xWarning << "Circular reference detected:" << names;
@@ -278,37 +301,46 @@ QVariant XMLThemeLoaderImpl::process_value(
 QStringList XMLThemeLoaderImpl::sorted_property_nodes(
   const QMap<QString, XMLThemeLoaderImpl::PropertyNode>& nodes) {
   QMap<QString, int> depths;
+
+  QStringList source_keys = nodes.keys();
   int cycle = 0;
-  QStringList keys = nodes.keys();
-  while (cycle < 20 && ! keys.isEmpty()) {
-    for (int i = 0; i < keys.length(); i++) {
-      const QString k = keys.takeFirst();
-      const PropertyNode& node = nodes[k];
-      if (node.copy.has_value()) {
-        const auto copy = node.copy.value();
-        if (depths.contains(copy))
-          depths[k] = depths[copy] + 1;
-        else
-          keys.append(k);
-      } else {
-        depths[k] = 0;
+  while (cycle < 20) {
+    for (auto nodeiter = nodes.constBegin();
+      nodeiter != nodes.constEnd();
+      ++nodeiter) {
+      const QString k = nodeiter.key();
+      if (depths.contains(k)) {
+        source_keys.removeAll(k);
+        continue;
       }
-    } // for
+      auto node = nodes.value(k);
+      if (node.copy.has_value()) {
+        auto copy = node.copy.value();
+        if (depths.contains(copy)) {
+          source_keys.removeAll(copy);
+          depths.insert(k, depths.value(copy) + 1);
+        }
+      } else {
+        source_keys.removeAll(k);
+        depths.insert(k, 0);
+      }
+    }
+    cycle++;
   } // while
-  if (! keys.isEmpty()) {
-    qWarning() << "Cyclic dependency detected:" << keys
+  if (! source_keys.isEmpty()) {
+    qWarning() << "Cyclic dependency detected:" << xDBGRed
+               << source_keys << xDBGReset
                << "will try to solve them later.";
   }
 
-  static const auto sort_function = [&](const QString& k1,
-                                      const QString& k2) {
-    static const int max_depth = 999999999;
+  const auto sort_function = [&](const QString& k1, const QString& k2) {
+    constexpr int max_depth = 999999;
     const auto n1 = depths.value(k1, max_depth);
     const auto n2 = depths.value(k2, max_depth);
     return n1 < n2;
   };
 
-  keys = nodes.keys();
+  QStringList keys = nodes.keys();
   std::stable_sort(keys.begin(), keys.end(), sort_function);
   return keys;
 }
