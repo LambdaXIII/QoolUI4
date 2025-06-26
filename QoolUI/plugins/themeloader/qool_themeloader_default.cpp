@@ -32,6 +32,11 @@ QList<ThemeLoader::Package> DefaultThemeLoader::themes() const {
     });
 
   for (const auto& loader : std::as_const(loaders)) {
+    if (! loader->isValid()) {
+      xWarningQ << xDBGRed << loader->filename() << xDBGReset
+                << "might not be a valid theme file.";
+      continue;
+    }
     Package p;
     p.name = loader->name();
     p.active = loader->active();

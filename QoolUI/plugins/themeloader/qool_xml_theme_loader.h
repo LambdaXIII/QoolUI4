@@ -14,10 +14,13 @@ public:
   ~XMLThemeLoader();
 
   QString name() const;
+  QString filename() const;
   const QVariantMap& active() const;
   const QVariantMap& inactive() const;
   const QVariantMap& disabled() const;
   const QVariantMap& metadata() const;
+
+  bool isValid() const;
 
 protected:
   XMLThemeLoaderImpl* m_pImpl;

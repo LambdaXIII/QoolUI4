@@ -303,4 +303,18 @@ QStringList XMLThemeLoaderImpl::sorted_property_nodes(
   return keys;
 }
 
+bool XMLThemeLoader::isValid() const {
+  if (m_pImpl->active.isEmpty())
+    return false;
+  if (m_pImpl->inactive.isEmpty())
+    return false;
+  if (m_pImpl->disabled.isEmpty())
+    return false;
+  return true;
+}
+
+QString XMLThemeLoader::filename() const {
+  return m_pImpl->filename;
+}
+
 QOOL_NS_END
