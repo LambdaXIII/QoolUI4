@@ -13,6 +13,10 @@ QoolWindow {
 
     content: PaletteSheet {}
 
+    palette: QoolPalette {
+        theme: "midnight"
+    }
+
     Component.onCompleted: {
         console.log(StyleDB.count);
     }
