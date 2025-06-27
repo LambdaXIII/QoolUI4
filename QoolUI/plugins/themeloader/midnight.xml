@@ -55,7 +55,7 @@
     </active>
     <inactive>
         <!--Can contain different vlues only-->
-        <color property="accent" copy="mid" lighter="1.2"/>
+        <color property="accent" copy="buttonText"/>
     </inactive>
     <disabled>
         <!--Can contain different vlues only-->
