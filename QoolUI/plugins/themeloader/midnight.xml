@@ -40,6 +40,7 @@
         <number property="movementDuration" value="400"/>
         <!--int numbers-->
         <number property="textSize" value="14" />
+        <number property="titleTextSize" copy="textSize" add="2"/>
         <number property="toolTipTextSize" copy="textSize" add="-4"/>
         <number property="controlTextSize" copy="textSize" add="-2"/>
         <number property="controlTitleTextSize" copy="controlTextSize" add="-2" />
