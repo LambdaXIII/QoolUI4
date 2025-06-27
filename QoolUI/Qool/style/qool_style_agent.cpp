@@ -1,6 +1,7 @@
 #include "qool_style_agent.h"
 
 #include "qool_styledb.h"
+#include "qoolcommon/debug.hpp"
 
 #include <QColor>
 
@@ -11,8 +12,6 @@ StyleAgent::StyleAgent(QObject* parent)
   m_active = new StyleAgentGroup(this);
   m_inactive = new StyleAgentGroup(this);
   m_disabled = new StyleAgentGroup(this);
-
-  m_theme.setValue("system");
   m_themePackage.setBinding([&] {
     const QString name = m_theme.value();
     return StyleDB::instance()->theme(name);
@@ -22,6 +21,11 @@ StyleAgent::StyleAgent(QObject* parent)
     SLOT(updateValueGroups()));
 
   setupBindings();
+  set_theme("system");
+}
+
+void StyleAgent::dumpInfo() const {
+  xDebugQ << xDBGQPropertyList;
 }
 
 ThemePackage StyleAgent::themePackage() const {

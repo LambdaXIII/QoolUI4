@@ -13,7 +13,8 @@ QOOL_NS_BEGIN
 class ThemePackage {
   Q_GADGET
   QML_VALUE_TYPE(themepackage)
-  QML_ANONYMOUS
+  QML_STRUCTURED_VALUE
+  // QML_ANONYMOUS
   Q_PROPERTY(QVariantMap active READ active CONSTANT)
   Q_PROPERTY(QVariantMap inactive READ inactive CONSTANT)
   Q_PROPERTY(QVariantMap disabled READ disabled CONSTANT)
@@ -34,7 +35,8 @@ public:
     const QString& key, const QVariant& defaultValue = {}) const;
   QVariant disabledValue(
     const QString& key, const QVariant& defaultValue = {}) const;
-  QVariant value(
+  Q_INVOKABLE bool contains(const QString& key) const;
+  Q_INVOKABLE QVariant value(
     const QString& key, const QVariant& defaultValue = {}) const;
   QVariant data(
     const QString& key, const QVariant& odefaultValue = {}) const;

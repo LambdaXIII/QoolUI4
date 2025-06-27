@@ -26,10 +26,9 @@
         <color property="toolTipBase" value= "#EEFC7A"/>
         <color property="toolTipText" copy="dark"/>
         <!--Misc Colors-->
-        <color property="positive" value= "#00FF68"/>
+        <color property="positive" value="#00FF68"/>
         <color property="negative" value="#FF414D"/>
         <color property="warning" value="#FF6DC9"/>
-        <color property="inActive" copy="base" lighter="1.1"/>
         <!--Real numbers-->
         <number property="windowCutSize" value="35"/>
         <number property="controlCutSize" value="10"/>
@@ -41,6 +40,7 @@
         <number property="movementDuration" value="400"/>
         <!--int numbers-->
         <number property="textSize" value="14" />
+        <number property="titleTextSize" copy="textSize" add="2"/>
         <number property="toolTipTextSize" copy="textSize" add="-4"/>
         <number property="controlTextSize" copy="textSize" add="-2"/>
         <number property="controlTitleTextSize" copy="controlTextSize" add="-2" />
@@ -55,7 +55,7 @@
     </active>
     <inactive>
         <!--Can contain different vlues only-->
-        <color property="accent" copy="mid" lighter="1.2"/>
+        <color property="accent" copy="buttonText"/>
     </inactive>
     <disabled>
         <!--Can contain different vlues only-->

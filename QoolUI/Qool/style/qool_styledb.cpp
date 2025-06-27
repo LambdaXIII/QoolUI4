@@ -76,6 +76,18 @@ QVariant StyleDB::data(const QModelIndex& index, int role) const {
   return {};
 }
 
+QVariant StyleDB::anyValue(
+  const QString& key, const QVariant& defaultValue) const {
+  for (auto iter = m_packages.constBegin();
+    iter != m_packages.constEnd();
+    ++iter) {
+    if (iter.value().contains(key))
+      return iter.value().value(key);
+  }
+  return defaultValue;
+  ;
+}
+
 void StyleDB::auto_install_themes() {
   auto plugins = PluginLoader<ThemeLoader>::loadInstances();
   if (plugins.isEmpty()) {

@@ -1,5 +1,7 @@
 #include "qool_style_agent_group.h"
 
+#include "qool_styledb.h"
+
 #include <QColor>
 
 QOOL_NS_BEGIN
@@ -15,7 +17,9 @@ bool StyleAgentGroup::contains(const QString& name) const {
 
 QVariant StyleAgentGroup::value(
   const QString& name, const QVariant& defaultValue) const {
-  return m_values.value(name, defaultValue);
+  if (m_values.contains(name))
+    return m_values.value(name);
+  return StyleDB::instance()->anyValue(name, defaultValue);
 }
 
 void StyleAgentGroup::setValue(
@@ -84,7 +88,9 @@ void StyleAgentGroup::whenValuesChangedInternally(
 
 #define IMPL(TYPE, NAME)                                               \
   TYPE StyleAgentGroup::NAME() const {                                 \
-    return m_values.value<TYPE>(#NAME);                                \
+    if (m_values.contains(#NAME))                                      \
+      return m_values.value<TYPE>(#NAME);                              \
+    return StyleDB::instance()->anyValue(#NAME).value<TYPE>();         \
   }                                                                    \
   void StyleAgentGroup::set_##NAME(const TYPE& value) {                \
     const TYPE old = m_values.value<TYPE>(#NAME);                      \

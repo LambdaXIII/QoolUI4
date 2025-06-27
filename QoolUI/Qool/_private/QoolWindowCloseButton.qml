@@ -7,11 +7,11 @@ import Qool
 AbstractButton {
     id: root
 
-    property bool animationEnabled: parent?.animationEnable ?? QoolConstants.animationEnabled
+    property bool animationEnabled: parent?.animationEnabled ?? Qore.animationEnabled
     property real buttonSpacing: 8
     property real windowCutSize: QoolConstants.windowCutSize
     property color borderColor: root.palette.shadow
-    property color fillColor: root.down ? root.palette.highlight : QoolConstants.negativeColor
+    property color fillColor: root.down ? root.palette.highlight : Qore.style.negative
 
     hoverEnabled: true
 

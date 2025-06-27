@@ -20,6 +20,7 @@ class StyleAgent: public QObject {
 public:
   explicit StyleAgent(QObject* parent = nullptr);
   Q_INVOKABLE ThemePackage themePackage() const;
+  Q_INVOKABLE void dumpInfo() const;
 
   Q_SIGNAL void valueChanged(const QString& key, const QVariant& value);
 
