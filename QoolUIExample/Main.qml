@@ -18,6 +18,6 @@ QoolWindow {
     }
 
     Component.onCompleted: {
-        console.log(StyleDB.count);
+        Qore.style.dumpInfo();
     }
 }

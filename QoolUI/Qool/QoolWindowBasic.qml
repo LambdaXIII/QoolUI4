@@ -5,7 +5,7 @@ import "_private"
 Window {
     id: root
 
-    property bool animationEnabled: transientParent?.animationEnabled ?? QoolConstants.animationEnabled
+    property bool animationEnabled: transientParent?.animationEnabled ?? Qore.animationEnabled
     property alias background: bgShape
     property alias backgroundSettings: bgShape.settings
 

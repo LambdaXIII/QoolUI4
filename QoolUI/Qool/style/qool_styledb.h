@@ -35,6 +35,9 @@ public:
     const QModelIndex& parent = QModelIndex()) const override;
   QVariant data(const QModelIndex& index, int role) const override;
 
+  Q_INVOKABLE QVariant anyValue(
+    const QString& key, const QVariant& defaultValue = {}) const;
+
 private:
   QMap<QString, ThemePackage> m_packages;
   QStringList m_themes;

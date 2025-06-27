@@ -51,6 +51,11 @@ QVariant ThemePackage::disabledValue(
   return m_pData->active.value(key, defaultValue);
 }
 
+bool ThemePackage::contains(const QString& key) const {
+  return m_pData->metadata.contains(key)
+         || m_pData->active.contains(key);
+}
+
 QVariant ThemePackage::value(
   const QString& key, const QVariant& defaultValue) const {
   if (m_pData->active.contains(key))

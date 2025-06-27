@@ -26,10 +26,9 @@
         <color property="toolTipBase" value= "#EEFC7A"/>
         <color property="toolTipText" copy="dark"/>
         <!--Misc Colors-->
-        <color property="positive" value= "#00FF68"/>
+        <color property="positive" value="#00FF68"/>
         <color property="negative" value="#FF414D"/>
         <color property="warning" value="#FF6DC9"/>
-        <color property="inActive" copy="base" lighter="1.1"/>
         <!--Real numbers-->
         <number property="windowCutSize" value="35"/>
         <number property="controlCutSize" value="10"/>

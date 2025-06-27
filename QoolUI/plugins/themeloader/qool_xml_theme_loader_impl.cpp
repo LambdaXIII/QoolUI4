@@ -37,6 +37,7 @@ void XMLThemeLoaderImpl::load(const QString& filename) {
     const auto loaded_values =
       load_value_group(node.toElement(), refValues);
     this->active.insert(loaded_values);
+    // xDebug << xDBGMap(this->active);
   }
 
   const auto inactiveGroups = root.elementsByTagName("inactive");

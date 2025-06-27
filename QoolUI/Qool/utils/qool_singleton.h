@@ -4,7 +4,9 @@
 #include "qool_extension_positions.h"
 #include "qool_smartobj.h"
 #include "qool_style_agent.h"
+#include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/property_macros_for_qobject.hpp"
+#include "qoolcommon/property_macros_for_qobject_declonly.hpp"
 #include "qoolns.hpp"
 #include "qoolversion.hpp"
 QOOL_NS_BEGIN
@@ -18,6 +20,9 @@ class QoolSingleton: public SmartObject {
   QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(
     Extension_Positions*, positions, nullptr)
   QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleAgent*, style, nullptr)
+
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE_DECL(
+    QoolSingleton, bool, animationEnabled)
 
 public:
   explicit QoolSingleton(QObject* parent = nullptr);
