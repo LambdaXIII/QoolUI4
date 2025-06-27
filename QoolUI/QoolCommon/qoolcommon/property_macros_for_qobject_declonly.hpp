@@ -30,7 +30,6 @@ _QL_PRIVATE_SCOPE_:                                                    \
 #define QOOL_PROPERTY_CONSTANT_FOR_QOBJECT_DECL(_T_, _N_)              \
 public:                                                                \
   _QL_PROPERTY_GETTER_SIGNATURE_(_T_, _N_);                            \
-  _T_ _QL_MEMBER_NAME_(_N_) { _D_ };                                   \
   Q_PROPERTY(_T_ _N_ READ _N_ CONSTANT)
 
 #endif // PROPERTY_MACROS_FOR_QOBJECT_DECLONLY_HPP

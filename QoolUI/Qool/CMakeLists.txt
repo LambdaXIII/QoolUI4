@@ -28,6 +28,8 @@ qt_add_qml_module(Qool
     QML_FILES _private/QoolWindowTitleItem.qml
 
     SOURCES utils/qool_smartobj.h utils/qool_smartobj.cpp
+    SOURCES utils/qool_singleton.h utils/qool_singleton.cpp
+    SOURCES utils/qool_extension_positions.h utils/qool_extension_positions.cpp
 
     SOURCES shapehelper/qool_octagonsettings.h shapehelper/qool_octagonsettings.cpp
     SOURCES shapehelper/qool_abstractshapehelper.h shapehelper/qool_abstractshapehelper.cpp
