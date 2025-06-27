@@ -20,7 +20,7 @@ class SmartObject: public QObject {
   QML_LIST_PROPERTY_ASSIGN_BEHAVIOR_APPEND
 
   Q_PROPERTY(
-    QQmlListProperty<QObject> smartItems READ smartItems CONSTANT)
+    QQmlListProperty<QObject> smartItems READ smartItems CONSTANT FINAL)
   Q_PROPERTY(
     QVariant parentItem READ parentItem NOTIFY parentItemChanged)
   Q_PROPERTY(
