@@ -73,8 +73,6 @@ QList<ThemeLoader::Package> DefaultThemeLoader::themes() const {
     packages.append(p);
   }
 
-  xDebugQ << tr("成功载入了%1个主题").arg(loaders.length());
-
   return packages;
 }
 
