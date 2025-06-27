@@ -27,7 +27,7 @@ qt_add_qml_module(Qool
     QML_FILES _private/QoolWindowBG.qml
     QML_FILES _private/QoolWindowTitleItem.qml
 
-    SOURCES qool_smartobj.h qool_smartobj.cpp
+    SOURCES utils/qool_smartobj.h utils/qool_smartobj.cpp
 
     SOURCES shapehelper/qool_octagonsettings.h shapehelper/qool_octagonsettings.cpp
     SOURCES shapehelper/qool_abstractshapehelper.h shapehelper/qool_abstractshapehelper.cpp
@@ -86,6 +86,7 @@ target_include_directories(Qool
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapehelper/gadgets"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/datatypes"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/style"
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/utils"
 )
 
 
