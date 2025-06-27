@@ -11,5 +11,13 @@ QoolWindow {
     visible: true
     title: qsTr("Hello World")
 
-    content: OctagonShapeTestPage {}
+    content: PaletteSheet {}
+
+    palette: QoolPalette {
+        theme: "midnight"
+    }
+
+    Component.onCompleted: {
+        console.log(StyleDB.count);
+    }
 }

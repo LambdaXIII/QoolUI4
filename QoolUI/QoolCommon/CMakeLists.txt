@@ -5,6 +5,14 @@ add_library(QoolCommon INTERFACE
 )
 
 target_include_directories(QoolCommon
-    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries(QoolCommon
+    INTERFACE Qt6::Core
+    INTERFACE QoolIncludes
+)
 
 target_compile_features(QoolCommon INTERFACE cxx_std_17)
+
+

@@ -1,7 +1,7 @@
 #ifndef QOOL_POLAR2D_H
 #define QOOL_POLAR2D_H
 
-#include "qoolcommon/qoolns.hpp"
+#include "qoolns.hpp"
 
 #include <QObject>
 #include <QPoint>

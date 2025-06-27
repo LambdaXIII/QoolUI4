@@ -3,7 +3,7 @@
 
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/property_macros_for_qobject_declonly.hpp"
-#include "qoolcommon/qoolns.hpp"
+#include "qoolns.hpp"
 
 #include <QColor>
 #include <QObject>

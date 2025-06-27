@@ -8,7 +8,7 @@
 
 qt_add_qml_module(QoolDebugControls
     URI Qool.DebugControls
-    # RESOURCE_PREFIX /qoolui
+    VERSION ${QOOLUI_VERSION_MAJOR}.${QOOLUI_VERSION_MINOR}
     NAMESPACE ${QOOL_NS}
 
     IMPORTS QtQuick.Dialogs

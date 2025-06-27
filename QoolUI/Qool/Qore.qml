@@ -101,4 +101,6 @@ SmartObject {
         let decimal = splitted[1];
         return `${integer}.${decimal.padEnd(precision, '0')}`;
     }
+
+    readonly property Style style: Style {}
 }

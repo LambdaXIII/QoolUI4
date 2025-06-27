@@ -1,7 +1,7 @@
 #ifndef QOOL_VECTOR_H
 #define QOOL_VECTOR_H
 
-#include "qoolcommon/qoolns.hpp"
+#include "qoolns.hpp"
 
 #include <QObject>
 #include <QPointF>

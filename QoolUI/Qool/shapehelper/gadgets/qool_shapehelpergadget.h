@@ -3,7 +3,7 @@
 
 #include "qool_shapehelper.h"
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
-#include "qoolcommon/qoolns.hpp"
+#include "qoolns.hpp"
 
 #include <QObject>
 #include <QQmlEngine>

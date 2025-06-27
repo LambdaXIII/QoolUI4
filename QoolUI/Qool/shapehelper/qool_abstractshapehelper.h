@@ -2,7 +2,7 @@
 #define QOOL_ABSTRACTSHAPEHELPER_H
 
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
-#include "qoolcommon/qoolns.hpp"
+#include "qoolns.hpp"
 
 #include <QObject>
 #include <QQuickItem>

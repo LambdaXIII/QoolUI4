@@ -11,7 +11,7 @@ qt_add_qml_module(appQoolUIExample
     QML_FILES
     Main.qml
     QML_FILES pages/OctagonShapeTestPage.qml
-    QML_FILES
+    QML_FILES pages/PaletteSheet.qml
     QML_FILES pages/components/OctagonShapeControlPanel.qml
     QML_FILES
 )

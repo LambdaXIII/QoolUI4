@@ -11,16 +11,13 @@ set_source_files_properties(
     PROPERTIES QT_QML_SINGLETON_TYPE TRUE
 )
 
-qoolui_scan_assets_to(QOOL_ASSETS)
 
-# qt_add_library(Qool STATIC)
+
+
 qt_add_qml_module(Qool
     URI Qool
-    # RESOURCE_PREFIX /qoolui
-    VERSION 4.0
+    VERSION ${QOOLUI_VERSION_MAJOR}.${QOOLUI_VERSION_MINOR}
     NAMESPACE ${QOOL_NS}
-
-    RESOURCES ${QOOL_ASSETS}
 
     QML_FILES Qore.qml
     QML_FILES QoolConstants.qml
@@ -49,7 +46,23 @@ qt_add_qml_module(Qool
     QML_FILES PositionLocker.qml
     QML_FILES QoolWindowBasic.qml QoolWindow.qml
     QML_FILES DummyItem.qml
+
+    QML_FILES QoolPalette.qml
+    SOURCES style/qool_styledb.h style/qool_styledb.cpp
+    SOURCES style/qool_theme_package.h style/qool_theme_package.cpp
+    SOURCES style/qool_default_theme.h style/qool_default_theme.cpp
+    SOURCES style/qool_style_agent.h style/qool_style_agent.cpp
+    SOURCES style/qool_style_agent_group.h style/qool_style_agent_group.cpp
 )
+
+qoolui_scan_assets_to(QOOL_ASSETS)
+qt_add_resources(Qool "qoolui_assets"
+    PREFIX "/qoolui"
+    FILES ${QOOL_ASSETS}
+)
+
+
+
 
 set_target_properties(Qool PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER org.qoolui
@@ -62,6 +75,7 @@ set_target_properties(Qool PROPERTIES
 target_compile_definitions(Qool
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(Qool
+    PRIVATE Qt6::Core
     PRIVATE Qt6::Quick
     PRIVATE QoolCommon
 )
@@ -71,6 +85,7 @@ target_include_directories(Qool
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapehelper"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapehelper/gadgets"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/datatypes"
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/style"
 )
 
 
