@@ -1,3 +1,8 @@
+# set_source_files_properties(
+#     PageListModel.qml
+#     PROPERTIES
+#     QT_QML_INTERNAL_TYPE TRUE
+# )
 
 
 qt_add_executable(appQoolUIExample
@@ -14,6 +19,9 @@ qt_add_qml_module(appQoolUIExample
     QML_FILES pages/PaletteSheet.qml
     QML_FILES pages/components/OctagonShapeControlPanel.qml
     QML_FILES
+    RESOURCES toc.xml
+    QML_FILES PageListModel.qml
+    QML_FILES PageListView.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
