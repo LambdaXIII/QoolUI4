@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import Qool
-import Qool.DebugControls
+import Qool.Debug
 import "pages"
 
 QoolWindow {
