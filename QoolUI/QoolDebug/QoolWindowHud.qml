@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Window
 import Qool
 
-Item {
+SmartObject {
     id: root
 
     property QoolWindow window: Window.window
