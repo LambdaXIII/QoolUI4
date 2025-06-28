@@ -5,6 +5,7 @@
 #include "qoolcommon/debug.hpp"
 #include "qoolcommon/plugin_loader.hpp"
 
+#include <QColor>
 #include <QMutex>
 
 QOOL_NS_BEGIN
@@ -86,6 +87,22 @@ QVariant StyleDB::anyValue(
   }
   return defaultValue;
   ;
+}
+
+qreal StyleDB::visualBrightness(QColor color) {
+  color = color.toRgb();
+  return color.redF() * 0.299 + color.greenF() * 0.587
+         + color.blueF() * 0.114;
+}
+
+QColor StyleDB::recommendForeground(
+  const QColor& bgColor, const QColor& light, const QColor& dark) {
+  const qreal brightness = visualBrightness(bgColor);
+  const qreal b_dark = visualBrightness(dark);
+  const qreal b_light = visualBrightness(light);
+  if (b_dark <= b_light)
+    return brightness >= 0.6 ? dark : light;
+  return brightness >= 0.4 ? light : dark;
 }
 
 void StyleDB::auto_install_themes() {

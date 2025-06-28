@@ -19,6 +19,6 @@ target_include_directories(QoolIncludes
 
 add_subdirectory(QoolCommon)
 add_subdirectory(Qool)
-add_subdirectory(QoolDebugControls)
+add_subdirectory(QoolDebug)
 
 add_subdirectory(plugins)

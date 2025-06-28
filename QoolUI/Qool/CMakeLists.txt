@@ -16,7 +16,7 @@ set_source_files_properties(
 
 qt_add_qml_module(Qool
     URI Qool
-    VERSION ${QOOLUI_VERSION_MAJOR}.${QOOLUI_VERSION_MINOR}
+    VERSION ${QOOLUI_VERSION_QML}
     NAMESPACE ${QOOL_NS}
 
     QML_FILES Qore.qml
@@ -55,6 +55,7 @@ qt_add_qml_module(Qool
     SOURCES style/qool_default_theme.h style/qool_default_theme.cpp
     SOURCES style/qool_style_agent.h style/qool_style_agent.cpp
     SOURCES style/qool_style_agent_group.h style/qool_style_agent_group.cpp
+    SOURCES utils/qool_flags.h
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)

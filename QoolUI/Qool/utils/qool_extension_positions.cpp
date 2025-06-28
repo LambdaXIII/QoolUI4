@@ -8,7 +8,7 @@ Extension_Positions::Extension_Positions(QObject* parent)
   xInfoQ << "initialized.";
 }
 
-using POS = Extension_Positions::Positions;
+using POS = QoolFlags::Positions;
 
 #define IMPL_COLLECTION(NAME, ...)                                     \
   const QList<POS>& Extension_Positions::NAME() {                      \
@@ -39,7 +39,7 @@ IMPL_COLLECTION(vCenter, POS::TopCenter, POS::BottomCenter, POS::Center)
 #undef IMPL_COLLECTION
 
 qreal Extension_Positions::xPosFromWidth(
-  qreal width, Positions position) {
+  qreal width, QoolFlags::Positions position) {
   if (leftSide().contains(position))
     return 0;
   if (rightSide().contains(position))
@@ -50,7 +50,7 @@ qreal Extension_Positions::xPosFromWidth(
 }
 
 qreal Extension_Positions::yPosFromHeight(
-  qreal height, Positions position) {
+  qreal height, QoolFlags::Positions position) {
   if (topSide().contains(position))
     return 0;
   if (bottomSide().contains(position))
@@ -61,38 +61,38 @@ qreal Extension_Positions::yPosFromHeight(
 }
 
 QPointF Extension_Positions::posInRect(
-  QQuickItem* item, Positions position) {
+  QQuickItem* item, QoolFlags::Positions position) {
   const auto x = xPosFromWidth(item->width(), position);
   const auto y = yPosFromHeight(item->height(), position);
   return QPointF(x, y);
 }
 
 QPointF Extension_Positions::posInRect(
-  const QRectF& rect, Positions position) {
+  const QRectF& rect, QoolFlags::Positions position) {
   const auto x = xPosFromWidth(rect.width(), position);
   const auto y = yPosFromHeight(rect.height(), position);
   return QPointF(x, y);
 }
 
 qreal Extension_Positions::xOffsetToPos(
-  qreal width, Positions position) {
+  qreal width, QoolFlags::Positions position) {
   return xPosFromWidth(width, position) * -1;
 }
 
 qreal Extension_Positions::yOffsetToPos(
-  qreal height, Positions position) {
+  qreal height, QoolFlags::Positions position) {
   return yPosFromHeight(height, position) * -1;
 }
 
 QPointF Extension_Positions::offsetToPos(
-  QQuickItem* item, Positions position) {
+  QQuickItem* item, QoolFlags::Positions position) {
   const auto x = xOffsetToPos(item->width(), position);
   const auto y = yOffsetToPos(item->height(), position);
   return QPointF(x, y);
 }
 
 QPointF Extension_Positions::offsetToPos(
-  const QRectF& rect, Positions position) {
+  const QRectF& rect, QoolFlags::Positions position) {
   const auto x = xOffsetToPos(rect.width(), position);
   const auto y = yOffsetToPos(rect.height(), position);
   return QPointF(x, y);

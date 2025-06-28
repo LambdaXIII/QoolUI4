@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
-import Qool.DebugControls
+import Qool.Debug
 
 Control {
     id: root

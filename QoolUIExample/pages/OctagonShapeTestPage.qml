@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import Qool
 import "components"
-import Qool.DebugControls
+import Qool.Debug
 
 SplitView {
     id: root
@@ -31,6 +31,11 @@ SplitView {
             OctagonShapeHud {}
         }
         z: -1
+
+        RectIndicator {
+            anchors.fill: parent
+            color: "purple"
+        }
     }
 
     OctagonShapeControlPanel {
