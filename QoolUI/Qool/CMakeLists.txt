@@ -16,7 +16,7 @@ set_source_files_properties(
 
 qt_add_qml_module(Qool
     URI Qool
-    VERSION ${QOOLUI_VERSION_MAJOR}.${QOOLUI_VERSION_MINOR}
+    VERSION ${QOOLUI_VERSION_QML}
     NAMESPACE ${QOOL_NS}
 
     QML_FILES Qore.qml

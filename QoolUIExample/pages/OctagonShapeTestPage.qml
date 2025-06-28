@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import Qool
 import "components"
-import Qool.DebugControls
+import Qool.Debug
 
 SplitView {
     id: root
