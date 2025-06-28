@@ -1,8 +1,9 @@
 import QtQuick
+import QtQuick.Controls
 import Qool
 import "_private"
 
-Item {
+Floater {
     id: root
 
     property point point
@@ -20,54 +21,59 @@ Item {
 
     width: Math.max(10, markerSize + 2)
     height: width
-    x: point.x - width / 2
-    y: point.y - height / 2
+    x: point.x - markerSize / 2
+    y: point.y - markerSize / 2
 
-    PopBox {
-        id: marker
-        visible: root.showMarker
-        anchors.centerIn: parent
-        size: root.markerSize
-        color: root.color
-    }
-
-    PopInfo {
-        id: infoPop
-        visible: root.showInfo && root.showName
-        contentItem: Row {
-            PropertyTipText {
-                displayValue: root.name
-                valueColor: palette.toolTipText
-                visible: root.showName
-            }
-            PropertyTipText {
-                title: "x"
-                titleColor: "orangered"
-                displayValue: Qore.floatString(root.point.x, 1, true)
-                visible: root.showInfo
-            }
-            PropertyTipText {
-                title: "y"
-                titleColor: "palegreen"
-                displayValue: Qore.floatString(root.point.y, 1, true)
-                visible: root.showInfo
-            }
+    floatingItem: Item {
+        implicitWidth: root.markerSize
+        implicitHeight: root.markerSize
+        Rectangle {
+            id: marker
+            color: "transparent"
+            border.color: root.color
+            border.width: 1
+            width: root.markerSize
+            height: root.markerSize
+            visible: root.showMarker
         }
-        x: infoPlacer.x
-        y: infoPlacer.y
-    }
-
-    Item {
-        id: infoPlacer
-        width: infoPop.implicitWidth
-        height: infoPop.implicitHeight
-    }
-
-    PositionLocker {
-        target: infoPlacer
-        targetAnchorPosition: root.infoAnchorTo
-        lockToAnchorPosition: root.infoAnchorFrom
-        horizontalSpacing: 4
-        verticalSpacing: 4
-    }
+        Control {
+            id: infoControl
+            contentItem: Row {
+                PropertyTipText {
+                    displayValue: root.name
+                    valueColor: root.color
+                    visible: root.showName
+                }
+                PropertyTipText {
+                    title: "x"
+                    titleColor: "orangered"
+                    displayValue: Qore.floatString(root.point.x, 1, true)
+                    visible: root.showInfo
+                }
+                PropertyTipText {
+                    title: "y"
+                    titleColor: "palegreen"
+                    displayValue: Qore.floatString(root.point.y, 1, true)
+                    visible: root.showInfo
+                }
+            } //contentItem
+            background: Rectangle {
+                implicitHeight: 10
+                implicitWidth: 10
+                color: Qt.alpha(palette.mid, 0.8)
+                radius: 4
+                border.width: 1
+                border.color: Qt.alpha(root.color, 0.35)
+            }
+            padding: 2
+        } //infoControl
+        PositionLocker {
+            target: infoControl
+            lockTo: marker
+            targetAnchorPosition: root.infoAnchorTo
+            lockToAnchorPosition: root.infoAnchorFrom
+            horizontalSpacing: 4
+            verticalSpacing: 4
+        }
+    } //floatingItem
 }

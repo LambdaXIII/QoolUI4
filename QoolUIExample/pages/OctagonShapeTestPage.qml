@@ -31,6 +31,11 @@ SplitView {
             OctagonShapeHud {}
         }
         z: -1
+
+        RectIndicator {
+            anchors.fill: parent
+            color: "purple"
+        }
     }
 
     OctagonShapeControlPanel {

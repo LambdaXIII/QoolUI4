@@ -11,13 +11,11 @@ QoolWindow {
     visible: true
     title: qsTr("Hello World")
 
-    content: PaletteSheet {}
+    content: OctagonShapeTestPage {}
 
     palette: QoolPalette {
         theme: "midnight"
     }
 
-    Component.onCompleted: {
-        Qore.style.dumpInfo();
-    }
+    QoolWindowHud {}
 }

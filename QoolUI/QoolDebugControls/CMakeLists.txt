@@ -15,6 +15,7 @@ qt_add_qml_module(QoolDebugControls
     IMPORTS Qool
     # DEPENDENCIES TARGET Qool
 
+    QML_FILES Floater.qml
     QML_FILES PointIndicator.qml
     QML_FILES NumberSlider.qml
     QML_FILES ColorButton.qml
@@ -23,11 +24,12 @@ qt_add_qml_module(QoolDebugControls
     QML_FILES _private/DBGControl.qml
     QML_FILES OctagonShapeHud.qml
     QML_FILES RectIndicator.qml
-    QML_FILES _private/PopBox.qml
-    QML_FILES _private/SlimPopup.qml
+    QML_FILES
+    QML_FILES
     QML_FILES _private/PropertyTipText.qml
-    QML_FILES _private/PopInfo.qml
-    QML_FILES QoolWindowHub.qml
+    QML_FILES
+    QML_FILES
+    QML_FILES QoolWindowHud.qml
 
 )
 

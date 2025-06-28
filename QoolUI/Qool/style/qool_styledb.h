@@ -7,6 +7,7 @@
 #include "qoolns.hpp"
 
 #include <QAbstractListModel>
+#include <QColor>
 #include <QMutex>
 #include <QObject>
 #include <QQmlEngine>
@@ -37,6 +38,10 @@ public:
 
   Q_INVOKABLE QVariant anyValue(
     const QString& key, const QVariant& defaultValue = {}) const;
+  Q_INVOKABLE static qreal visualBrightness(QColor color);
+  Q_INVOKABLE static QColor recommendForeground(const QColor& bgColor,
+    const QColor& light = { "white" },
+    const QColor& dark = { "black" });
 
 private:
   QMap<QString, ThemePackage> m_packages;

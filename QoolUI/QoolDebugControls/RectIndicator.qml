@@ -2,95 +2,118 @@ import QtQuick
 import QtQuick.Controls
 import "_private"
 
-Item {
+Floater {
     id: root
 
     property string name
+    property bool showName: true
     property bool showPosition: true
     property bool showSize: true
     property color color: palette.highlight
     property bool solid: false
     property real borderWidth: 1
 
-    property Item target: parent
-
-    Binding {
-        when: root.target && Component.completed
-        box.x: Overlay.overlay.mapFromItem(root.target, 0, 0).x
-        box.y: Overlay.overlay.mapFromItem(root.target, 0, 0).y
-        box.width: root.target.width
-        box.height: root.target.height
-        box.parent: Overlay.overlay
+    Component {
+        id: bgBox
+        Rectangle {
+            implicitWidth: 10
+            implicitHeight: 10
+            color: root.color
+        }
     }
 
-    Rectangle {
-        id: box
-        color: root.solid ? root.color : "transparent"
-        border.width: root.borderWidth
-        border.color: root.color
-        Text {
-            text: root.name
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font.pixelSize: 24
-            color: root.color
-            anchors.centerIn: parent
-        }
+    QtObject {
+        id: pCtrl
+        readonly property color textColor: StyleDB.recommendForeground(
+                                               root.color, palette.button,
+                                               palette.buttonText)
+    }
 
-        Row {
-            id: positions
-            visible: root.showPosition
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.margins: root.borderWidth
-            PropertyTipText {
-                title: "x"
-                titleColor: root.color
-                displayValue: root.x
-            }
-            PropertyTipText {
-                title: "y"
-                titleColor: root.color
-                displayValue: root.y
-            }
-        }
+    floatingItem: Item {
+        implicitWidth: 10
+        implicitHeight: 10
+        Rectangle {
+            id: box
+            anchors.fill: parent
+            border.width: root.borderWidth
+            border.color: root.color
+            color: root.solid ? Qt.alpha(root.color, 0.5) : "transparent"
+        } //box
+        Control {
+            id: topLeftControl
+            visible: root.showName || root.showPosition
+            contentItem: Row {
+                PropertyTipText {
+                    visible: root.showName
+                    valueColor: pCtrl.textColor
+                    displayValue: root.name
+                }
+                PropertyTipText {
+                    title: "x"
+                    titleColor: Qore.style.negative
+                    displayValue: root.x
+                    valueColor: pCtrl.textColor
+                    visible: root.showPosition
+                }
+                PropertyTipText {
+                    title: "y"
+                    titleColor: Qore.style.positive
+                    displayValue: root.y
+                    valueColor: pCtrl.textColor
+                    visible: root.showPosition
+                }
+            } //contentItem
+            background: bgBox.createObject()
+        } //topLeftControl
 
-        PropertyTipText {
-            title: "width"
-            titleColor: root.color
-            displayValue: root.width
+        Control {
+            id: topRightControl
+            visible: root.showSize
             anchors.right: parent.right
             anchors.top: parent.top
-            anchors.margins: root.borderWidth
-            visible: root.showSize
+            contentItem: PropertyTipText {
+                title: "width"
+                titleColor: Qore.style.negative
+                displayValue: root.width
+                valueColor: pCtrl.textColor
+            }
+            background: bgBox.createObject()
         }
-        PropertyTipText {
-            title: "height"
-            titleColor: root.color
-            displayValue: root.height
+        Control {
+            id: bottomLeftControl
+            visible: root.showSize
             anchors.left: parent.left
             anchors.bottom: parent.bottom
-            anchors.margins: root.borderWidth
-            visible: root.showSize
+            contentItem: PropertyTipText {
+                title: "height"
+                titleColor: Qore.style.positive
+                displayValue: root.height
+                valueColor: pCtrl.textColor
+            }
+            background: bgBox.createObject()
         }
-
-        Row {
-            id: brPositions
+        Control {
+            id: bottomRightControl
             visible: root.showPosition
             anchors.right: parent.right
             anchors.bottom: parent.bottom
-            anchors.margins: root.borderWidth
-            PropertyTipText {
-                title: "x"
-                titleColor: root.color
-                displayValue: root.x + root.width
-            }
-            PropertyTipText {
-                title: "y"
-                titleColor: root.color
-                displayValue: root.y + root.height
-            }
-        }
-    } //box
-
+            contentItem: Row {
+                PropertyTipText {
+                    title: "x"
+                    titleColor: Qore.style.negative
+                    displayValue: root.x + root.width
+                    valueColor: pCtrl.textColor
+                    visible: root.showPosition
+                }
+                PropertyTipText {
+                    title: "y"
+                    titleColor: Qore.style.positive
+                    displayValue: root.y + root.height
+                    valueColor: pCtrl.textColor
+                    visible: root.showPosition
+                }
+            } //contentItem
+            background: bgBox.createObject()
+        } //topLeftControl
+    } //floatingItem
 }

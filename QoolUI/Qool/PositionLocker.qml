@@ -48,9 +48,9 @@ Item {
         }
 
         readonly property real targetSpacingX: root.horizontalSpacing * takeSign(
-                                                   targetMovementX)
+                                                   basePos.x + targetMovementX)
         readonly property real targetSpacingY: root.verticalSpacing * takeSign(
-                                                   targetMovementY)
+                                                   basePos.y + targetMovementY)
     } //pCtrl
 
     readonly property real targetX: pCtrl.basePos.x + pCtrl.targetMovementX
