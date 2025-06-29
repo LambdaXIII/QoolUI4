@@ -68,8 +68,9 @@ private:
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE_DECL(                    \
     StyleAgent, int, NAME)
 
-  QOOL_FOREACH_5(DECL_INT, titleTextSize, toolTipTextSize,
-    controlTextSize, importantTextSize, decorativeTextSize)
+  QOOL_FOREACH_6(DECL_INT, titleTextSize, toolTipTextSize,
+    controlTextSize, importantTextSize, decorativeTextSize,
+    controlTitleTextSize)
 #undef DECL_INT
 };
 

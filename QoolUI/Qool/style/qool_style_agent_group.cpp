@@ -77,8 +77,9 @@ void StyleAgentGroup::whenValuesChangedInternally(
     QOOL_FOREACH_5(CHECK_KEY, windowCutSize, controlCutSize,
       menuCutSize, dialogCutSize, buttonCutSize)
     QOOL_FOREACH_2(CHECK_KEY, transitionDuration, movementDuration)
-    QOOL_FOREACH_5(CHECK_KEY, titleTextSize, toolTipTextSize,
-      controlTextSize, importantTextSize, decorativeTextSize)
+    QOOL_FOREACH_6(CHECK_KEY, titleTextSize, toolTipTextSize,
+      controlTextSize, importantTextSize, decorativeTextSize,
+      controlTitleTextSize)
 
 #undef CHECK_KEY
 
@@ -104,6 +105,7 @@ void StyleAgentGroup::whenValuesChangedInternally(
     return QBindable<TYPE>(this, #NAME);                               \
   }
 
+IMPL(bool, animationEnabled)
 IMPL(QStringList, papaWords)
 
 #define IMPL_COLOR(NAME) IMPL(QColor, NAME)
@@ -122,8 +124,9 @@ QOOL_FOREACH_2(IMPL_REAL, transitionDuration, movementDuration)
 #undef IMPL_REAL
 
 #define IMPL_INT(NAME) IMPL(int, NAME)
-QOOL_FOREACH_5(IMPL_INT, titleTextSize, toolTipTextSize,
-  controlTextSize, importantTextSize, decorativeTextSize)
+QOOL_FOREACH_6(IMPL_INT, titleTextSize, toolTipTextSize,
+  controlTextSize, importantTextSize, decorativeTextSize,
+  controlTitleTextSize)
 #undef IMPL_INT
 
 #undef IMPL

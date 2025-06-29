@@ -13,6 +13,7 @@ SmartObject {
     readonly property real windowElementSpacing: 5
     readonly property real windowEdgeSpacing: 5
 
+    readonly property real controlBorderWidth: 1
     // readonly property int transitionDuration: 200
     // readonly property int movementDuration: 400
 

@@ -57,8 +57,8 @@ void StyleAgent::setupBindings() {
   QOOL_FOREACH_5(SETUP, windowCutSize, controlCutSize, menuCutSize,
     dialogCutSize, buttonCutSize)
   QOOL_FOREACH_2(SETUP, transitionDuration, movementDuration)
-  QOOL_FOREACH_5(SETUP, titleTextSize, toolTipTextSize, controlTextSize,
-    importantTextSize, decorativeTextSize)
+  QOOL_FOREACH_6(SETUP, titleTextSize, toolTipTextSize, controlTextSize,
+    importantTextSize, decorativeTextSize, controlTitleTextSize)
 #undef SETUP
 }
 
@@ -89,8 +89,9 @@ QOOL_FOREACH_2(IMPL_REAL, transitionDuration, movementDuration)
 #undef IMPL_REAL
 
 #define IMPL_INT(NAME) IMPL(int, NAME)
-QOOL_FOREACH_5(IMPL_INT, titleTextSize, toolTipTextSize,
-  controlTextSize, importantTextSize, decorativeTextSize)
+QOOL_FOREACH_6(IMPL_INT, titleTextSize, toolTipTextSize,
+  controlTextSize, importantTextSize, decorativeTextSize,
+  controlTitleTextSize)
 #undef IMPL_INT
 
 #undef IMPL
