@@ -12,7 +12,7 @@
 #define QOOL_FOREACH_5(_M, a, b, c, d, e) _M(a) _M(b) _M(c) _M(d) _M(e)
 
 #define QOOL_FOREACH_6(_M, a, b, c, d, e, f)                           \
-  QOOL_FOREACH_3(a, b, c) QOOL_FOREACH_3(d, e, f)
+  QOOL_FOREACH_3(_M, a, b, c) QOOL_FOREACH_3(_M, d, e, f)
 
 #define QOOL_FOREACH_7(_M, _1, _2, _3, _4, _5, _6, _7)                 \
   QOOL_FOREACH_3(_M, _1, _2, _3)                                       \

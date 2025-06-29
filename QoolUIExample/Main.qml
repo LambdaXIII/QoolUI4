@@ -1,6 +1,8 @@
 import QtQuick
 import QtQuick.Controls
+
 import Qool
+import Qool.Controls.Components
 import Qool.Debug
 import "pages"
 
@@ -11,26 +13,26 @@ QoolWindow {
     visible: true
     title: qsTr("Hello World")
 
-    // palette: QoolPalette {
-    //     theme: "midnight"
-    // }
-    // QoolWindowHud {}
+    palette: QoolPalette {
+        theme: "midnight"
+    }
+    QoolWindowHud {
+        window: root
+    }
     content: SplitView {
         PageListView {
             SplitView.minimumWidth: 80
             SplitView.maximumWidth: 300
             SplitView.fillHeight: true
         }
-        Control {
+        BasicControlFrame {
+            title: qsTr("内容")
             SplitView.fillWidth: true
             SplitView.fillHeight: true
-            background: OctagonShape {
-                settings {
-                    cutSize: Qore.style.controlCutSize
-                    fillColor: palette.base
-                    borderColor: palette.accent
-                }
-            }
+
+            ControlLockedCover {}
         }
     } //content
+
+    // Component.onCompleted: Qore.style.dumpInfo()
 }
