@@ -24,7 +24,7 @@ class OctagonShapeHelper: public AbstractShapeHelper {
 public:
   explicit OctagonShapeHelper(QObject* parent = nullptr);
   Q_INVOKABLE void dumpInfo() const override;
-  Q_INVOKABLE bool contains(const QPointF& point) const;
+  Q_INVOKABLE bool contains(const QPointF& point) const override;
 
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
     OctagonShapeHelper, qreal, safeTR)

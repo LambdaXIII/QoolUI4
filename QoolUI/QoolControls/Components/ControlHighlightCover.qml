@@ -1,7 +1,7 @@
 import QtQuick
 import Qool
 
-OctagonShape {
+CutCornerBox {
     id: root
 
     property color highColor: palette.highlight
@@ -38,14 +38,18 @@ OctagonShape {
     }
 
     function updateHighlightWord() {
-        highlightWord.anchors.verticalCenterOffset = Math.random() * (root.height / 2) - root.height / 4;
-        highlightWord.anchors.horizontalCenterOffset = Math.random() * (root.width / 2) - root.width / 4;
-        highlightWord.rotation = -45 + Math.random() * 90;
-        highlightWord.scale = Math.random() + 1;
-        highlightWord.text = root.words[Math.floor(Math.random() * Style.papaWords.length)];
+        highlightWord.anchors.verticalCenterOffset = Math.random(
+                    ) * (root.height / 2) - root.height / 4
+        highlightWord.anchors.horizontalCenterOffset = Math.random(
+                    ) * (root.width / 2) - root.width / 4
+        highlightWord.rotation = -45 + Math.random() * 90
+        highlightWord.scale = Math.random() + 1
+        highlightWord.text = root.words[Math.floor(
+                                            Math.random(
+                                                ) * Style.papaWords.length)]
     }
 
     Component.onCompleted: updateHighlightWord()
     onVisibleChanged: if (!visible)
-        updateHighlightWord()
+                          updateHighlightWord()
 }

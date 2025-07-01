@@ -19,7 +19,7 @@ T.Control {
         fillColor: root.palette.dark
     }
 
-    background: OctagonShape {
+    background: CutCornerBox {
         settings: root.backgroundSettings
         implicitWidth: 10
         implicitHeight: 10
@@ -74,4 +74,6 @@ T.Control {
             when: root.showTitle && titleLoader.item
         }
     }
+
+    containmentMask: background
 }
