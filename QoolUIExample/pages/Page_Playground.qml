@@ -16,10 +16,15 @@ Item {
         anchors.centerIn: parent
         backgroundSettings.cutSize: 200
         contentSpacing: 10
-        contentItem: BasicButton {
-            text: "HELLO!"
-            flat: !hovered
-            showTitle: true
+        contentItem: OctagonRoundedShape {
+            id: shape
+            settings {
+                cutSizeTL: 20
+                cutSizeTR: 5
+                cutSizeBL: 15
+                cutSizeBR: 5
+            }
+            Component.onCompleted: shape.shapeControl.dumpInfo()
         }
     }
 }

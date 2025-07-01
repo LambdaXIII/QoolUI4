@@ -60,6 +60,9 @@ qt_add_qml_module(Qool
     QML_FILES
     QML_FILES OctagonInternalShapePath.qml
     QML_FILES OctagonExternalShapePath.qml
+    QML_FILES OctagonRoundedExternalShapePath.qml
+    QML_FILES OctagonRoundedInternalShapePath.qml
+    QML_FILES QoolRoundedBox.qml
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)

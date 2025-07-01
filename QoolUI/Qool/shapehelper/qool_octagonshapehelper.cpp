@@ -70,6 +70,9 @@ void OctagonShapeHelper::dumpInfo() const {
           << format_point(m_int##A.value()) << xDBGReset;
   QOOL_FOREACH_8(DEBUG_P, TL, TR, RT, RB, BR, BL, LB, LT);
 #undef DEBUG_P
+
+  xDebugQ << "safe values:" << "TL" << safeTL() << "TR" << safeTR()
+          << "BL" << safeBL() << "BR" << safeBR();
 }
 
 bool OctagonShapeHelper::contains(const QPointF& point) const {

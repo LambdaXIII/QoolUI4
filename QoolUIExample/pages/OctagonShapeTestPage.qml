@@ -13,7 +13,7 @@ SplitView {
         SplitView.fillWidth: true
         clip: true
 
-        OctagonShape {
+        OctagonRoundedShape {
             id: shape
             anchors.centerIn: parent
             width: control.shapeWidth
@@ -42,6 +42,6 @@ SplitView {
         id: control
         SplitView.fillHeight: true
         SplitView.preferredWidth: implicitWidth
-        onWannaDumpInfo: shape.settings.dumpInfo()
+        onWannaDumpInfo: shape.shapeControl.dumpInfo()
     }
 }

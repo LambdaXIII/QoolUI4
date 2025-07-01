@@ -56,7 +56,6 @@ void ShapeHelper::dumpInfo() const {
                  .arg(iter.value().x(), 3, 'g', -1, u' ')
                  .arg(iter.value().y(), 3, 'g', -1, u' ');
   }
-
   xDebugQ << results;
 }
 
