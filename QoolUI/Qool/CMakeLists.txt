@@ -58,6 +58,8 @@ qt_add_qml_module(Qool
     SOURCES utils/qool_flags.h
     SOURCES utils/qool_spacehelper.h utils/qool_spacehelper.cpp
     QML_FILES CutCornerBox.qml
+    QML_FILES OctagonInternalShapePath.qml
+    QML_FILES OctagonExternalShapePath.qml
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)

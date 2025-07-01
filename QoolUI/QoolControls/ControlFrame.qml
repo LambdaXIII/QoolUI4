@@ -8,5 +8,4 @@ BasicControlFrame {
                                     ?? Qore.animationEnabled
 
     ControlLockedCover {}
-    // ControlDisabledBorder {}
 }

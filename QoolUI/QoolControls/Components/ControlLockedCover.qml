@@ -1,9 +1,8 @@
 import QtQuick
-import QtQuick.Effects
 import QtQuick.Shapes
 import Qool
 
-Item {
+Shape {
     id: root
     property bool animationEnabled: parent?.animationEnabled
                                     ?? Qore.animationEnabled
@@ -29,42 +28,70 @@ Item {
     opacity: parent.enabled ? 0 : 1
     BasicNumberBehavior on opacity {}
 
-    ParallelVerticalBars {
-        id: bars
-
-        angle: 30
-        barWidth: 10
-        barSpacing: 10
-
-        width: root.width + barOffset * 3
-        height: root.height
-        strokeWidth: 0
-        x: 0 - barOffset
-
-        // color: Style.negativeColor
-        gradient: LinearGradient {
-            y1: 0
-            y2: root.height
-            GradientStop {
-                position: 0.2
-                color: "transparent"
-            }
-            GradientStop {
-                position: 0.9
-                color: Qt.alpha(root.color, 0.4)
-            }
-        }
+    property OctagonShapeHelper shapeControl: OctagonShapeHelper {
+        target: root
+        settings: parent?.backgroundSettings ?? internalSettings
     }
 
-    NumberAnimation {
-        id: scrollingAnime
-        duration: root.cycleDuration
-        target: bars
-        property: "x"
-        from: 0 - bars.barOffset * 2
-        to: 0 - bars.barOffset
-        running: true
-        loops: Animation.Infinite
-        paused: !(root.visible && root.animationEnabled)
+    OctagonSettings {
+        id: internalSettings
+    }
+
+    OctagonExternalShapePath {
+        shapeControl: root.shapeControl
+        strokeColor: "transparent"
+        strokeWidth: 0
+        fillColor: Qore.style.negative
+    }
+
+    OctagonInternalShapePath {
+        shapeControl: root.shapeControl
+        strokeColor: "transparent"
+        strokeWidth: 0
+        fillItem: barView
+    }
+
+    Item {
+        id: barView
+        anchors.fill: parent
+        layer.enabled: true
+        visible: false
+        ParallelVerticalBars {
+            id: bars
+
+            angle: 30
+            barWidth: 10
+            barSpacing: 10
+
+            width: parent.width + barOffset * 3
+            height: parent.height
+            strokeWidth: 0
+            x: 0 - barOffset
+
+            gradient: LinearGradient {
+                y1: 0
+                y2: parent.height
+                GradientStop {
+                    position: 0
+                    color: Qt.alpha(root.color, 0.05)
+                }
+                GradientStop {
+                    position: 1
+                    color: Qt.alpha(root.color, 0.5)
+                }
+            }
+        }
+
+        NumberAnimation {
+            id: scrollingAnime
+            duration: root.cycleDuration
+            target: bars
+            property: "x"
+            from: 0 - bars.barOffset * 2
+            to: 0 - bars.barOffset
+            running: true
+            loops: Animation.Infinite
+            paused: !(root.visible && root.animationEnabled)
+        }
     }
 }

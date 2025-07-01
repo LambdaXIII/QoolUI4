@@ -17,9 +17,7 @@ QoolWindow {
     palette: QoolPalette {
         theme: "midnight"
     }
-    // QoolWindowHud {
-    //     window: root
-    // }
+
     content: SplitView {
         PageListView {
             SplitView.minimumWidth: 80
@@ -30,13 +28,7 @@ QoolWindow {
             title: qsTr("内容")
             SplitView.fillWidth: true
             SplitView.fillHeight: true
-            BasicControlFrame {
-                enabled: false
-                width: 100
-                height: 100
-                x: 50
-                y: 50
-            }
+            contentItem: Page_Playground {}
         }
     } //content
 
