@@ -59,6 +59,7 @@
     </inactive>
     <disabled>
         <!--Can contain different vlues only-->
+        <color property="accent" copy="negative"/>
         <color property="text" copy="mid" lighter="1.2"/>
         <color property="windowText" copy="mid" lighter="1.2"/>
         <color property="buttonText" copy="mid" lighter="1.2"/>

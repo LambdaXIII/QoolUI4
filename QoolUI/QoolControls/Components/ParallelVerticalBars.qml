@@ -17,31 +17,30 @@ Shape {
 
     QtObject {
         id: core
-        readonly property real rad: angle * Math.PI / 180
+        readonly property real rad: root.angle * Math.PI / 180
         readonly property real tangent: Math.tan(rad)
 
-        readonly property int barCount: root.width / barOffset
-        readonly property int extraBarCount: Math.abs(
-                                                 tangent * root.height) / barOffset
+        readonly property int barCount: root.width / root.barOffset
+        readonly property int extraBarCount: Math.abs(tangent * root.height) / root.barOffset
 
         function barlygon(index = 0) {
-            let extra_w = tangent * root.height
-            let off = index * barOffset
-            let a = Qt.point(0 + off, 0)
-            let b = Qt.point(barWidth + off, 0)
-            let c = Qt.point(extra_w + off, root.height)
-            let d = Qt.point(barWidth + extra_w + off, root.height)
-            return [a, b, d, c]
+            let extra_w = tangent * root.height;
+            let off = index * root.barOffset;
+            let a = Qt.point(0 + off, 0);
+            let b = Qt.point(root.barWidth + off, 0);
+            let c = Qt.point(extra_w + off, root.height);
+            let d = Qt.point(root.barWidth + extra_w + off, root.height);
+            return [a, b, d, c];
         }
 
         function polylines() {
-            let result = Array()
-            let leftCount = rad > 0 ? extraBarCount : 0
-            let rightCount = rad < 0 ? extraBarCount : 0
+            let result = Array();
+            let leftCount = rad > 0 ? extraBarCount : 0;
+            let rightCount = rad < 0 ? extraBarCount : 0;
             for (var i = 0 - leftCount; i < barCount + rightCount; i++) {
-                result.push(barlygon(i))
+                result.push(barlygon(i));
             }
-            return result
+            return result;
         }
     }
 
@@ -57,5 +56,4 @@ Shape {
         strokeColor: "transparent"
         strokeWidth: 0
     }
-
 }

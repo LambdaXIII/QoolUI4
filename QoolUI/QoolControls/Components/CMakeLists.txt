@@ -10,6 +10,7 @@ qt_add_qml_module(QoolControlsComponents
     QML_FILES ParallelVerticalBars.qml
     QML_FILES ControlHighlightCover.qml
     QML_FILES ControlLockedCover.qml
+    QML_FILES ControlDisabledBorder.qml
 
 )
 

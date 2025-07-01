@@ -1,4 +1,12 @@
 import QtQuick
 import Qool.Controls.Components
 
-BasicControlFrame {}
+BasicControlFrame {
+    id: root
+
+    property bool animationEnabled: parent?.animationEnabled
+                                    ?? Qore.animationEnabled
+
+    ControlLockedCover {}
+    // ControlDisabledBorder {}
+}

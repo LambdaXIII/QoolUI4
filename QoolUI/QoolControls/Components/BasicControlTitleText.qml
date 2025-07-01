@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls
 import Qool
 
 Text {
@@ -7,5 +6,5 @@ Text {
     horizontalAlignment: Text.AlignRight
     verticalAlignment: Text.AlignTop
     color: palette.accent
-    padding:2
+    padding: 2
 }
