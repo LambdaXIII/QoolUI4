@@ -12,6 +12,7 @@ Shape {
         settings: root.settings
         target: root
     }
+    property alias fillItem: fillShape.fillItem
 
     OctagonExternalShapePath {
         id: borderShape

@@ -27,8 +27,6 @@ CutCornerBox {
         anchors.fill: parent
         visible: false
         layer.enabled: true
-        highColor: Qt.darker(root.highColor, 1.1)
-        lowColor: root.lowColor
     }
 
     Component.onCompleted: papa.refresh()

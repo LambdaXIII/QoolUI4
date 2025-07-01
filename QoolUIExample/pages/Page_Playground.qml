@@ -14,7 +14,10 @@ Item {
         height: 300
 
         anchors.centerIn: parent
-        enabled: false
         backgroundSettings.cutSize: 200
+
+        contentItem: Button {
+            text: "HELLO!"
+        }
     }
 }

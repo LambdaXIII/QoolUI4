@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Shapes
 import Qool
 
-Shape {
+CutCornerBox {
     id: root
     property bool animationEnabled: parent?.animationEnabled
                                     ?? Qore.animationEnabled
@@ -28,28 +28,8 @@ Shape {
     opacity: parent.enabled ? 0 : 1
     BasicNumberBehavior on opacity {}
 
-    property OctagonShapeHelper shapeControl: OctagonShapeHelper {
-        target: root
-        settings: parent?.backgroundSettings ?? internalSettings
-    }
-
-    OctagonSettings {
-        id: internalSettings
-    }
-
-    OctagonExternalShapePath {
-        shapeControl: root.shapeControl
-        strokeColor: "transparent"
-        strokeWidth: 0
-        fillColor: Qore.style.negative
-    }
-
-    OctagonInternalShapePath {
-        shapeControl: root.shapeControl
-        strokeColor: "transparent"
-        strokeWidth: 0
-        fillItem: barView
-    }
+    settings: parent.backgroundSettings
+    fillItem: barView
 
     Item {
         id: barView

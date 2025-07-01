@@ -21,8 +21,10 @@ T.AbstractButton {
         borderColor: root.borderColor
         fillColor: root.backgroundColor
     }
+    readonly property alias backgroundShapeControl: bgShape.shapeControl
 
     background: CutCornerBox {
+        id: bgShape
         settings: root.backgroundSettings
         implicitWidth: 10
         implicitHeight: 10

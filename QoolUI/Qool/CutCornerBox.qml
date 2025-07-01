@@ -14,6 +14,8 @@ Item {
 
     property alias cutSize: root.settings.cutSize
 
+    property alias fillItem: shape.fillItem
+
     OctagonShape {
         id: shape
         settings: root.settings
