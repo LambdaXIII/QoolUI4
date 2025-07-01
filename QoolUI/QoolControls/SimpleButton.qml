@@ -13,16 +13,21 @@ T.AbstractButton {
     property color textColor: palette.buttonText
     property color highlightColor: palette.highlight
     property color highlightedTextColor: palette.highlightedText
-    property real radius: Math.max(4, Math.floor(Qore.style.controlCutSize / 2))
+    property real radius: Math.max(2, Math.floor(Qore.style.controlCutSize / 2))
     property real borderWidth: QoolConstants.controlBorderWidth
     property color borderColor: palette.midlight
 
     font.pixelSize: Qore.style.controlTextSize
-    hoverEnabled: true
+    hoverEnabled: enabled
 
+    //TODO: Create a way to provide disable colors
     contentItem: BasicButtonText {
         text: root.action?.text ?? root.text
-        color: root.checked ? root.highlightedTextColor : root.textColor
+        color: {
+            if (!root.enabled)
+                return Qore.style.negative
+            return root.checked ? root.highlightedTextColor : root.textColor
+        }
         leftPadding: root.radius
         rightPadding: root.radius
         font: root.font
@@ -30,13 +35,27 @@ T.AbstractButton {
             enabled: root.animationEnabled
         }
     }
+    padding: root.borderWidth + Math.round(root.radius / 2)
+
+    implicitWidth: leftPadding + implicitContentWidth + rightPadding
+    implicitHeight: topPadding + implicitContentHeight + bottomPadding
 
     background: Rectangle {
+        implicitWidth: 5
+        implicitHeight: 5
         radius: root.radius
         border.width: root.borderWidth
-        border.color: (root.hovered
-                       || root.checked) ? root.highlightColor : root.borderColor
-        color: root.checked ? root.highlightColor : root.backgroundColor
+        border.color: {
+            if (!root.enabled)
+                return Qore.style.negative
+            return (root.hovered
+                    || root.checked) ? root.highlightColor : root.borderColor
+        }
+        color: {
+            if (!root.enabled)
+                return palette.window
+            return root.checked ? root.highlightColor : root.backgroundColor
+        }
     }
 
     Rectangle {

@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import Qool.Controls
 
 Control {
     id: root
@@ -10,7 +11,7 @@ Control {
 
     contentItem: ListView {
         model: PageListModel {}
-        delegate: Button {
+        delegate: SimpleButton {
             text: model.title
             ToolTip.text: model.note
             checkable: true
