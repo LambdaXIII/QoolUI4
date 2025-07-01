@@ -11,6 +11,7 @@ qt_add_qml_module(QoolControlsComponents
     QML_FILES ControlHighlightCover.qml
     QML_FILES ControlLockedCover.qml
     QML_FILES
+    QML_FILES BasicButtonFrame.qml
 
 )
 

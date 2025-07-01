@@ -1,17 +1,15 @@
 import QtQuick
 import QtQuick.Templates as T
-
 import Qool
 
-T.Control {
+T.AbstractButton {
     id: root
 
-    property bool showTitle: true
-    property string title: qsTr("Qool Control")
+    property bool showTitle: false
+    property string title: qsTr("Qool Button")
     property color backgroundColor: palette.dark
     property color borderColor: palette.accent
 
-    //titleComponent must have a text property
     property Component titleComponent: BasicControlTitleText {
         color: root.borderColor
     }

@@ -7,5 +7,8 @@ BasicControlFrame {
     property bool animationEnabled: parent?.animationEnabled
                                     ?? Qore.animationEnabled
 
-    ControlLockedCover {}
+    property color disabledColor: Qore.style.negative
+    ControlLockedCover {
+        color: disabledColor
+    }
 }
