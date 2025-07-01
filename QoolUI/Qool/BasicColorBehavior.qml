@@ -7,11 +7,12 @@ Behavior {
     property alias easing: ani.easing
     readonly property bool running: ani.running
 
-    enabled: targetProperty.object?.animationEnabled ?? QoolConstants.animationEnabled
+    enabled: targetProperty.object?.animationEnabled
+             ?? QoolConstants.animationEnabled
 
     ColorAnimation {
         id: ani
-        duration: QoolConstants.transitionDuration
+        duration: Qore.style.transitionDuration
         easing.type: Easing.InOutQuad
     }
 }

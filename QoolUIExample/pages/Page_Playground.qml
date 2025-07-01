@@ -16,7 +16,7 @@ Item {
         anchors.centerIn: parent
         backgroundSettings.cutSize: 200
         contentSpacing: 10
-        contentItem: Button {
+        contentItem: BasicButton {
             text: "HELLO!"
             flat: !hovered
             showTitle: true

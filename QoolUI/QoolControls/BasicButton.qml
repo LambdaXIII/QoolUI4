@@ -5,8 +5,9 @@ import Qool.Controls.Components
 BasicButtonFrame {
     id: root
 
-    property bool animationEnabled: parent?.animationEnabled
-                                    ?? Qore.animationEnabled
+    property bool animationEnabled: (parent?.animationEnabled
+                                     ?? Qore.animationEnabled)
+                                    && Component.completed
 
     property bool flat: false
     property bool highlighted: hovered
@@ -42,6 +43,7 @@ BasicButtonFrame {
     SmartObject {
         id: pCtrl
         property real frameOpacity: root.flat ? 0 : 1
+
         BasicNumberBehavior on frameOpacity {
             enabled: root.animationEnabled
         }
@@ -60,4 +62,10 @@ BasicButtonFrame {
             value: pCtrl.frameOpacity
         }
     }
+
+    // BasicColorBehavior on backgroundColor {}
+    // BasicColorBehavior on borderColor {}
+    // BasicColorBehavior on highlightColor {}
+    // BasicColorBehavior on highlightedTextColor {}
+    // BasicColorBehavior on disabledColor {}
 }
