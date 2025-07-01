@@ -56,6 +56,13 @@ qt_add_qml_module(Qool
     SOURCES style/qool_style_agent.h style/qool_style_agent.cpp
     SOURCES style/qool_style_agent_group.h style/qool_style_agent_group.cpp
     SOURCES utils/qool_flags.h
+    SOURCES utils/qool_spacehelper.h utils/qool_spacehelper.cpp
+    QML_FILES
+    QML_FILES OctagonInternalShapePath.qml
+    QML_FILES OctagonExternalShapePath.qml
+    QML_FILES OctagonRoundedExternalShapePath.qml
+    QML_FILES OctagonRoundedInternalShapePath.qml
+    QML_FILES QoolRoundedBox.qml
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)

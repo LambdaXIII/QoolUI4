@@ -33,15 +33,14 @@ public:
   Q_SIGNAL void valueChanged(QString key);
 
   QBindable<QStringList> bindable_papaWords();
+  QBindable<bool> bindable_animationEnabled();
 
 private:
   DefaultVariantMap m_values;
   Q_SIGNAL void valuesChangedInternally(QStringList keys);
   Q_SLOT void whenValuesChangedInternally(const QStringList& keys);
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
-    StyleAgentGroup, bool, animationEnabled)
-
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(bool, animationEnabled)
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QStringList, papaWords)
 
 #define DECL_COLOR(NAME)                                               \
@@ -72,8 +71,9 @@ public:                                                                \
 public:                                                                \
   QBindable<int> bindable_##NAME();
 
-  QOOL_FOREACH_5(DECL_INT, titleTextSize, toolTipTextSize,
-    controlTextSize, importantTextSize, decorativeTextSize)
+  QOOL_FOREACH_6(DECL_INT, titleTextSize, toolTipTextSize,
+    controlTextSize, importantTextSize, decorativeTextSize,
+    controlTitleTextSize)
 #undef DECL_INT
 };
 

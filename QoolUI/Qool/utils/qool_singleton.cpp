@@ -6,6 +6,7 @@ QoolSingleton::QoolSingleton(QObject* parent)
   : SmartObject(parent)
   , m_positions { new Extension_Positions(this) }
   , m_style { new StyleAgent(this) } {
+  // m_style->set_animationEnabled(true);
   m_animationEnabled.setBinding(
     [&] { return style()->bindable_animationEnabled().value(); });
 }

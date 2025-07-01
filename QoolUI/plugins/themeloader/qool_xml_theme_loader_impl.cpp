@@ -252,7 +252,7 @@ QVariant XMLThemeLoaderImpl::process_value(
   if (property.type == "bool") {
     QString t = value.toString().toLower();
     bool result = yes_tags.contains(t);
-    return QVariant::fromValue(result);
+    return QVariant::fromValue<bool>(result);
   }
 
   return value;

@@ -16,7 +16,7 @@ Item {
 
     property alias fillItem: shape.fillItem
 
-    OctagonShape {
+    OctagonRoundedShape {
         id: shape
         settings: root.settings
         width: root.width

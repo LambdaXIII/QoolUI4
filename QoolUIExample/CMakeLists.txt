@@ -22,6 +22,7 @@ qt_add_qml_module(appQoolUIExample
     RESOURCES toc.xml
     QML_FILES PageListModel.qml
     QML_FILES PageListView.qml
+    QML_FILES pages/Page_Playground.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

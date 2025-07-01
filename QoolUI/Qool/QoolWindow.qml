@@ -44,14 +44,16 @@ QoolWindowBasic {
     property real elementSpacing: QoolConstants.windowElementSpacing
     property real edgeSpacing: QoolConstants.windowEdgeSpacing
 
+    title: qsTr("Hello, Qool World!")
+
     DummyItem {
         id: dummyTitleItem
         objectName: "dummyTitle"
         width: root.titleItem.implicitWidth
         height: {
-            const prefered_height = root.titleItem.implicitHeight;
-            const min_height = root.backgroundSettings.cutSize - y;
-            return Math.max(prefered_height, min_height);
+            const prefered_height = root.titleItem.implicitHeight
+            const min_height = root.backgroundSettings.cutSize - y
+            return Math.max(prefered_height, min_height)
         }
         x: root.width - root.edgeSpacing - width
         y: root.edgeSpacing
@@ -63,7 +65,7 @@ QoolWindowBasic {
             root.titleItem.height: dummyTitleItem.height
             root.titleItem.parent: root.contentItem
         }
-    }//dummyTitleItem
+    } //dummyTitleItem
 
     DummyItem {
         id: dummyToolBar
@@ -72,9 +74,10 @@ QoolWindowBasic {
         y: root.edgeSpacing
         width: root.width - dummyToolBar.x - root.elementSpacing - dummyTitleItem.x
         height: {
-            const prefered_height = dummyTitleItem.height;
-            const preffered_min_height = root.backgroundSettings.cutSize - dummyToolBar.y;
-            return Math.max(root.toolBar.implicitHeight, Math.min(prefered_height, preffered_min_height));
+            const prefered_height = dummyTitleItem.height
+            const preffered_min_height = root.backgroundSettings.cutSize - dummyToolBar.y
+            return Math.max(root.toolBar.implicitHeight,
+                            Math.min(prefered_height, preffered_min_height))
         }
         Binding {
             when: root.toolBar
@@ -84,13 +87,14 @@ QoolWindowBasic {
             root.toolBar.height: dummyToolBar.height
             root.toolBar.parent: root.contentItem
         }
-    }//dummyToolBar
+    } //dummyToolBar
 
     DummyItem {
         id: dummyHeader
         objectName: "dummyHeader"
         x: root.leftPadding + root.edgeSpacing
-        y: dummyToolBar.y + dummyToolBar.height + Math.max(root.elementSpacing, root.edgeSpacing)
+        y: dummyToolBar.y + dummyToolBar.height + Math.max(root.elementSpacing,
+                                                           root.edgeSpacing)
         width: root.width - root.leftPadding - root.edgeSpacing * 2 - root.rightPadding
         height: root.header?.height ?? 0
         Binding {
@@ -101,17 +105,20 @@ QoolWindowBasic {
             //leave the height control to itself
             root.header.parent: root.contentItem
         }
-    }//dummyHeader
+    } //dummyHeader
 
     DummyItem {
         id: dummyFooter
         objectName: "dummyFooter"
         x: root.leftPadding + root.edgeSpacing + root.backgroundSettings.cutSizeBL
         y: root.height - root.edgeSpacing - height
-        width: root.width - root.leftPadding - root.edgeSpacing * 2 - root.rightPadding - root.backgroundSettings.cutSizeBL - root.backgroundSettings.cutSizeBR
+        width: root.width - root.leftPadding - root.edgeSpacing * 2 - root.rightPadding
+               - root.backgroundSettings.cutSizeBL - root.backgroundSettings.cutSizeBR
         height: {
-            const preferred_height = root.footer?.implicitHeight ?? 0;
-            return Math.max(preferred_height, root.backgroundSettings.cutSizeBL, root.backgroundSettings.cutSizeBR);
+            const preferred_height = root.footer?.implicitHeight ?? 0
+            return Math.max(preferred_height,
+                            root.backgroundSettings.cutSizeBL,
+                            root.backgroundSettings.cutSizeBR)
         }
         Binding {
             when: root.footer
@@ -121,7 +128,7 @@ QoolWindowBasic {
             root.footer.height: dummyFooter.height
             root.footer.parent: root.contentItem
         }
-    }//dummyFooter
+    } //dummyFooter
 
     DummyItem {
         id: dummyContent

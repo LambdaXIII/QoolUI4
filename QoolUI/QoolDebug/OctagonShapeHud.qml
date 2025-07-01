@@ -4,7 +4,7 @@ import Qool
 Item {
     id: root
 
-    property OctagonShape shape: parent as OctagonShape
+    property var shape: parent
 
     readonly property OctagonShapeHelper controller: shape?.shapeControl
                                                      ?? internalController

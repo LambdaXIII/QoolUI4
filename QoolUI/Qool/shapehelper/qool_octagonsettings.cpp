@@ -16,13 +16,7 @@ OctagonSettings::OctagonSettings(QObject* parent)
 }
 
 void OctagonSettings::dumpInfo() const {
-  for (int i = 0; i < metaObject()->propertyCount(); i++) {
-    const auto& prop = metaObject()->property(i);
-    xDebugQ << QString(xDBGRed "%1" xDBGGreen "[" xDBGYellow
-                               "%2" xDBGGreen "]" xDBGReset)
-                 .arg(prop.name(), prop.typeName())
-            << '=' << prop.read(this);
-  }
+  xDebugQ << "Properties:" << xDBGQPropertyList;
 }
 
 QString OctagonSettings::cutSizes() const {
