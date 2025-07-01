@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Shapes
 import Qool
 
-QoolBox {
+Item {
     id: root
     property bool animationEnabled: parent?.animationEnabled
                                     ?? Qore.animationEnabled
@@ -14,6 +14,11 @@ QoolBox {
 
     property color color: Qore.style.negative
 
+    property bool rounded: false
+    property OctagonSettings settings: parent?.backgroundSettings
+                                       ?? internalSettings
+
+    z: 90
     anchors {
         fill: parent
         topMargin: parent.topInset
@@ -22,19 +27,42 @@ QoolBox {
         rightMargin: parent.rightInset
     }
 
-    z: 90
-    clip: true
-
     opacity: parent.enabled ? 0 : 1
     BasicNumberBehavior on opacity {}
 
-    settings {
-        cutSizes: parent.backgroundSettings.cutSizes
-        borderWidth: parent.backgroundSettings.borderWidth
-        borderColor: root.color
+    OctagonSettings {
+        id: internalSettings
     }
 
-    fillItem: barView
+    Component {
+        id: baseBox
+        QoolBox {
+            settings {
+                cutSizes: root.settings.cutSizes
+                borderWidth: root.settings.borderWidth
+                borderColor: root.color
+            }
+            fillItem: barView
+        }
+    }
+
+    Component {
+        id: roundedBox
+        QoolRoundedBox {
+            settings {
+                cutSizes: root.settings.cutSizes
+                borderWidth: root.settings.borderWidth
+                borderColor: root.color
+            }
+            fillItem: barView
+        }
+    }
+
+    Loader {
+        id: loader
+        sourceComponent: root.rounded ? roundedBox : baseBox
+        anchors.fill: parent
+    }
 
     Item {
         id: barView

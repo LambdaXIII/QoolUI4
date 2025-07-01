@@ -33,6 +33,8 @@ BasicButtonFrame {
     }
 
     ControlHighlightCover {
+        highColor: root.highlightColor
+        lowColor: root.highlightedTextColor
         opacity: root.highlighted ? 1 : 0
     }
 
