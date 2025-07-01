@@ -1,7 +1,7 @@
 import QtQuick
 import Qool
 
-CutCornerBox {
+QoolBox {
     id: root
 
     property color highColor: palette.highlight

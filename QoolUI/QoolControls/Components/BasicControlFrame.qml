@@ -25,7 +25,7 @@ T.Control {
     }
     readonly property alias backgroundShapeControl: bgShape.shapeControl
 
-    background: CutCornerBox {
+    background: QoolBox {
         id: bgShape
         settings: root.backgroundSettings
         implicitWidth: 10

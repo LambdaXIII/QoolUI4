@@ -5,23 +5,23 @@ Item {
     id: root
 
     property OctagonSettings settings: OctagonSettings {
-        cutSizeTL: 30
-        borderWidth: 5
-        borderColor: palette.shadow
-        fillColor: palette.base
+        cutSize: Qore.style.controlCutSize
+        borderWidth: QoolConstants.controlBorderWidth
+        borderColor: root.palette.accent
+        fillColor: root.palette.dark
     }
+    property alias shapeControl: shape.shapeControl
 
-    readonly property OctagonShapeHelper shapeControl: OctagonShapeHelper {
-        settings: root.settings
-        target: root
-    }
+    property alias cutSize: root.settings.cutSize
 
-    containmentMask: shapeControl
+    property alias fillItem: shape.fillItem
+
     OctagonShape {
         id: shape
-        shapeControl: root.shapeControl
-        settings: shapeControl.settings
+        settings: root.settings
         width: root.width
         height: root.height
     }
+
+    containmentMask: shape.shapeControl
 }

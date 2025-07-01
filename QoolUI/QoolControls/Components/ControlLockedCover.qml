@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Shapes
 import Qool
 
-CutCornerBox {
+QoolBox {
     id: root
     property bool animationEnabled: parent?.animationEnabled
                                     ?? Qore.animationEnabled

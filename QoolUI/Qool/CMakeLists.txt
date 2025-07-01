@@ -57,7 +57,7 @@ qt_add_qml_module(Qool
     SOURCES style/qool_style_agent_group.h style/qool_style_agent_group.cpp
     SOURCES utils/qool_flags.h
     SOURCES utils/qool_spacehelper.h utils/qool_spacehelper.cpp
-    QML_FILES CutCornerBox.qml
+    QML_FILES
     QML_FILES OctagonInternalShapePath.qml
     QML_FILES OctagonExternalShapePath.qml
 )
