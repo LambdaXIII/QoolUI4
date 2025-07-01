@@ -28,7 +28,12 @@ QoolBox {
     opacity: parent.enabled ? 0 : 1
     BasicNumberBehavior on opacity {}
 
-    settings: parent.backgroundSettings
+    settings {
+        cutSizes: parent.backgroundSettings.cutSizes
+        borderWidth: parent.backgroundSettings.borderWidth
+        borderColor: root.color
+    }
+
     fillItem: barView
 
     Item {

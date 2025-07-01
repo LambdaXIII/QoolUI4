@@ -10,9 +10,13 @@ QoolBox {
 
     clip: true
 
-    settings: parent.backgroundSettings
+    settings {
+        cutSizes: parent.backgroundSettings.cutSizes
+        borderWidth: parent.backgroundSettings.borderWidth
+        borderColor: root.highColor
+    }
 
-    z: 95
+    z: 90
     anchors {
         fill: parent
         topMargin: parent.topInset

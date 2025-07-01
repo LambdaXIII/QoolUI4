@@ -9,7 +9,7 @@ qt_add_qml_module(QoolControls
 
     IMPORTS Qool
     QML_FILES ControlFrame.qml
-    QML_FILES Button.qml
+    QML_FILES BasicButton.qml
 
 
 

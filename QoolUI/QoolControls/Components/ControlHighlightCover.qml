@@ -10,9 +10,13 @@ QoolBox {
 
     clip: true
 
-    settings: parent.backgroundSettings
+    settings {
+        cutSizes: parent.backgroundSettings.cutSizes
+        borderWidth: parent.backgroundSettings.borderWidth
+        borderColor: root.highColor
+    }
 
-    z: 95
+    z: 85
     anchors {
         fill: parent
         topMargin: parent.topInset
@@ -20,18 +24,26 @@ QoolBox {
         leftMargin: parent.leftInset
         rightMargin: parent.rightInset
     }
+    fillItem: lightBeam
 
-    fillItem: papa
-    PaPaWall {
-        id: papa
+    Rectangle {
+        id: lightBeam
         anchors.fill: parent
-        visible: false
         layer.enabled: true
-        highColor: Qt.darker(root.highColor, 1.1)
-        lowColor: root.lowColor
+        gradient: Gradient {
+            orientation: Gradient.Vertical
+            stops: [
+                GradientStop {
+                    position: 0.1
+                    color: "transparent"
+                },
+                GradientStop {
+                    position: 1
+                    color: Qt.alpha(root.highColor, 0.1)
+                }
+            ]
+        }
     }
 
-    Component.onCompleted: papa.refresh()
-    onVisibleChanged: if (!visible)
-                          papa.refresh()
+    BasicNumberBehavior on opacity {}
 }

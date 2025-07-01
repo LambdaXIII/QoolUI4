@@ -7,13 +7,13 @@ T.AbstractButton {
 
     property bool showTitle: false
     property string title: qsTr("Qool Button")
-    property color backgroundColor: palette.dark
-    property color borderColor: palette.accent
+    property color backgroundColor: palette.button
+    property color borderColor: palette.midlight
 
     property Component titleComponent: BasicControlTitleText {
         color: root.borderColor
     }
-    readonly property Item titleItem: titleLoader.item
+    readonly property alias titleLoader: titleLoader
 
     property OctagonSettings backgroundSettings: OctagonSettings {
         cutSize: Qore.style.controlCutSize

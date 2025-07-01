@@ -8,14 +8,14 @@ T.Control {
 
     property bool showTitle: true
     property string title: qsTr("Qool Control")
-    property color backgroundColor: palette.dark
-    property color borderColor: palette.accent
+    property color backgroundColor: palette.base
+    property color borderColor: palette.midlight
 
     //titleComponent must have a text property
     property Component titleComponent: BasicControlTitleText {
         color: root.borderColor
     }
-    readonly property Item titleItem: titleLoader.item
+    readonly property alias titleLoader: titleLoader
 
     property OctagonSettings backgroundSettings: OctagonSettings {
         cutSize: Qore.style.controlCutSize
