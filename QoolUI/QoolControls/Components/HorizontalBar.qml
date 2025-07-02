@@ -3,11 +3,9 @@ import QtQuick.Templates as T
 import Qool
 
 Item {
-
     id: root
 
     property color color: palette.base
-    property color alternateColor: palette.alternateBase
 
     property Component foreground: internalFG
     property Item background: Item {}
@@ -15,8 +13,8 @@ Item {
     property real percentage: 1
     property int alignment: Qt.AlignHCenter
 
-    implicitWidth: 100
-    implicitHeight: 10
+    implicitWidth: Math.max(100, fgLoader.implicitWidth)
+    implicitHeight: Math.max(10, fgLoader.implicitHeight)
 
     Component {
         id: internalFG
@@ -24,35 +22,24 @@ Item {
             border.width: 0
             color: root.color
             layer.enabled: true
-            ParallelVerticalBars {
-                width: parent.width
-                height: parent.height
-                barWidth: 4
-                barSpacing: 20
-                color: root.alternateColor
-            }
+            radius: Math.min(4, height / 2)
         }
-    }
-
-    NumberRanger {
-        id: ranger
-        top: 1.0
-        bottom: 0.0
     }
 
     Item {
         id: fgClipper
-        width: ranger.validate(root.percentage) * root.width
+        width: root.percentage * root.width
         height: root.height
         clip: true
         readonly property point contentPos: mapFromItem(root, 0, 0)
 
         Loader {
+            id: fgLoader
             sourceComponent: root.foreground
             width: root.width
             height: root.height
-            x: contentPos.x
-            y: contentPos.y
+            x: fgClipper.contentPos.x
+            y: fgClipper.contentPos.y
         }
     }
 
@@ -72,7 +59,7 @@ Item {
 
     Binding {
         when: root.background
-        background.width: root.width
-        background.height: root.height
+        root.background.width: root.width
+        root.background.height: root.height
     }
 }

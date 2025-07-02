@@ -11,7 +11,7 @@ Control {
 
     contentItem: ListView {
         model: PageListModel {}
-        delegate: SimpleButton {
+        delegate: ClickableText {
             text: model.title
             ToolTip.text: model.note
             checkable: true

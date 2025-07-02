@@ -11,6 +11,7 @@ qt_add_qml_module(QoolControls
     QML_FILES ControlFrame.qml
     QML_FILES BasicButton.qml
     QML_FILES SimpleButton.qml
+    QML_FILES ClickableText.qml
 
 
 
