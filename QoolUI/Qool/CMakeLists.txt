@@ -14,6 +14,8 @@ set_source_files_properties(
 
 
 
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
 qt_add_qml_module(Qool
     URI Qool
     VERSION ${QOOLUI_VERSION_QML}
@@ -63,6 +65,8 @@ qt_add_qml_module(Qool
     QML_FILES OctagonRoundedExternalShapePath.qml
     QML_FILES OctagonRoundedInternalShapePath.qml
     QML_FILES QoolRoundedBox.qml
+    QML_FILES
+    SOURCES utils/qool_numberranger.h utils/qool_numberranger.cpp
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)
@@ -89,6 +93,7 @@ target_link_libraries(Qool
     PRIVATE Qt6::Quick
     PRIVATE QoolCommon
 )
+target_link_libraries(Qool PRIVATE Qt6::Core)
 
 target_include_directories(Qool
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
