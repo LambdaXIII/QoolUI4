@@ -15,6 +15,7 @@ qt_add_qml_module(QoolControlsComponents
     QML_FILES BasicButtonText.qml
     QML_FILES PaPaWall.qml
     QML_FILES ControlPressedCover.qml
+    QML_FILES HorizontalBar.qml
 
 )
 
