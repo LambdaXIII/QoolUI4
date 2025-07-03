@@ -15,6 +15,9 @@ set_source_files_properties(
 
 
 find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_add_qml_module(Qool
     URI Qool
@@ -67,6 +70,10 @@ qt_add_qml_module(Qool
     QML_FILES QoolRoundedBox.qml
     QML_FILES
     SOURCES utils/qool_numberranger.h utils/qool_numberranger.cpp
+    SOURCES style/qool_theme_values_support.h
+    SOURCES style/qool_stylevaluegroup.h style/qool_stylevaluegroup.cpp
+    SOURCES style/qool_style.h style/qool_style.cpp
+    SOURCES style/qool_theme.h style/qool_theme.cpp
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)
@@ -93,7 +100,11 @@ target_link_libraries(Qool
     PRIVATE Qt6::Quick
     PRIVATE QoolCommon
 )
-target_link_libraries(Qool PRIVATE Qt6::Core)
+target_link_libraries(Qool
+    PRIVATE
+    Qt6::Core
+    Qt6::QuickControls2
+)
 
 target_include_directories(Qool
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}

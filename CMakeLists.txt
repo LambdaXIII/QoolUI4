@@ -12,7 +12,7 @@ project(QoolUI VERSION ${QOOLUI_VERSION_FULL} LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.8 COMPONENTS Core Quick Concurrent REQUIRED)
+find_package(Qt6 6.8 COMPONENTS Core Quick QuickControls2 Concurrent REQUIRED)
 
 if(NOT DEFINED QOOLUI_QML_PROJECT_SETUP_LOADED)
   include(qool_qml_project_setup.cmake)

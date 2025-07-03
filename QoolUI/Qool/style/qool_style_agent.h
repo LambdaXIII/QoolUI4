@@ -16,7 +16,7 @@ QOOL_NS_BEGIN
 
 class StyleAgent: public QObject {
   Q_OBJECT
-  QML_NAMED_ELEMENT(Style)
+  QML_ELEMENT
 public:
   explicit StyleAgent(QObject* parent = nullptr);
   Q_INVOKABLE ThemePackage themePackage() const;
