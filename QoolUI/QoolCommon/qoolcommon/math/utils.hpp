@@ -1,7 +1,11 @@
 #ifndef MATH_UTILS_HPP
 #define MATH_UTILS_HPP
 
+#include "numbers.hpp"
 #include "qoolns.hpp"
+
+#include <algorithm>
+#include <cmath>
 
 QOOL_NS_BEGIN
 
@@ -26,6 +30,18 @@ inline N auto_bound(N left, N x, N right) {
   const auto min = std::min(left, right);
   const auto max = std::max(left, right);
   return std::min(std::max(x, min), max);
+}
+
+template <typename N, typename P>
+inline N set_precision(N number, P precision) {
+  const double p = static_cast<double>(std::abs(precision));
+  if (is_zero(p))
+    return std::round(number);
+
+  const long double factor = std::pow(10.0, p);
+  const auto rounded =
+    std::round(static_cast<long double>(number) * factor) / factor;
+  return static_cast<N>(rounded);
 }
 
 } // namespace math

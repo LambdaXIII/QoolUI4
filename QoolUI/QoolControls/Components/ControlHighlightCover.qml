@@ -1,20 +1,19 @@
 import QtQuick
 import Qool
 
-QoolBox {
+Item {
     id: root
+    property bool animationEnabled: parent?.animationEnabled
+                                    ?? Qore.animationEnabled
 
     property color highColor: palette.highlight
     property color lowColor: palette.highlightedText
     property var words: Qore.style.papaWords
 
-    clip: true
+    property bool rounded: false
 
-    settings {
-        cutSizes: parent.backgroundSettings.cutSizes
-        borderWidth: parent.backgroundSettings.borderWidth
-        borderColor: root.highColor
-    }
+    property OctagonSettings settings: parent?.backgroundSettings
+                                       ?? internalSettings
 
     z: 85
     anchors {
@@ -24,7 +23,40 @@ QoolBox {
         leftMargin: parent.leftInset
         rightMargin: parent.rightInset
     }
-    fillItem: lightBeam
+
+    OctagonSettings {
+        id: internalSettings
+    }
+
+    Component {
+        id: baseBox
+        QoolBox {
+            settings {
+                cutSizes: root.settings.cutSizes
+                borderWidth: root.settings.borderWidth
+                borderColor: root.highColor
+            }
+            fillItem: lightBeam
+        }
+    }
+
+    Component {
+        id: roundedBox
+        QoolRoundedBox {
+            settings {
+                cutSizes: root.settings.cutSizes
+                borderWidth: root.settings.borderWidth
+                borderColor: root.highColor
+            }
+            fillItem: lightBeam
+        }
+    }
+
+    Loader {
+        id: loader
+        sourceComponent: root.rounded ? roundedBox : baseBox
+        anchors.fill: parent
+    }
 
     Rectangle {
         id: lightBeam
@@ -45,5 +77,7 @@ QoolBox {
         }
     }
 
-    BasicNumberBehavior on opacity {}
+    BasicNumberBehavior on opacity {
+        enabled: root.animationEnabled
+    }
 }

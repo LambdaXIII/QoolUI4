@@ -1,20 +1,17 @@
 import QtQuick
 import Qool
 
-QoolBox {
+Item {
     id: root
 
     property color highColor: palette.highlight
     property color lowColor: palette.highlightedText
     property var words: Qore.style.papaWords
 
-    clip: true
+    property bool rounded: false
 
-    settings {
-        cutSizes: parent.backgroundSettings.cutSizes
-        borderWidth: parent.backgroundSettings.borderWidth
-        borderColor: root.highColor
-    }
+    property OctagonSettings settings: parent?.backgroundSettings
+                                       ?? internalSettings
 
     z: 90
     anchors {
@@ -25,12 +22,47 @@ QoolBox {
         rightMargin: parent.rightInset
     }
 
-    fillItem: papa
+    OctagonSettings {
+        id: internalSettings
+    }
+
+    Component {
+        id: baseBox
+        QoolBox {
+            settings {
+                cutSizes: root.settings.cutSizes
+                borderWidth: root.settings.borderWidth
+                borderColor: root.lowColor
+            }
+            fillItem: papa
+        }
+    }
+
+    Component {
+        id: roundedBox
+        QoolRoundedBox {
+            settings {
+                cutSizes: root.settings.cutSizes
+                borderWidth: root.settings.borderWidth
+                borderColor: root.lowColor
+            }
+            fillItem: papa
+        }
+    }
+
+    Loader {
+        id: loader
+        sourceComponent: root.rounded ? roundedBox : baseBox
+        anchors.fill: parent
+    }
+
     PaPaWall {
         id: papa
         anchors.fill: parent
         visible: false
         layer.enabled: true
+        highColor: root.highColor
+        lowColor: root.lowColor
     }
 
     Component.onCompleted: papa.refresh()
