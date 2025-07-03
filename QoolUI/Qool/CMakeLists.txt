@@ -18,6 +18,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_add_qml_module(Qool
     URI Qool
@@ -55,11 +56,7 @@ qt_add_qml_module(Qool
     QML_FILES DummyItem.qml
 
     QML_FILES QoolPalette.qml
-    SOURCES style/qool_styledb.h style/qool_styledb.cpp
-    SOURCES style/qool_theme_package.h style/qool_theme_package.cpp
-    SOURCES style/qool_default_theme.h style/qool_default_theme.cpp
-    SOURCES style/qool_style_agent.h style/qool_style_agent.cpp
-    SOURCES style/qool_style_agent_group.h style/qool_style_agent_group.cpp
+
     SOURCES utils/qool_flags.h
     SOURCES utils/qool_spacehelper.h utils/qool_spacehelper.cpp
     QML_FILES
@@ -70,10 +67,10 @@ qt_add_qml_module(Qool
     QML_FILES QoolRoundedBox.qml
     QML_FILES
     SOURCES utils/qool_numberranger.h utils/qool_numberranger.cpp
-    SOURCES style/qool_theme_values_support.h
-    SOURCES style/qool_stylevaluegroup.h style/qool_stylevaluegroup.cpp
+
     SOURCES style/qool_style.h style/qool_style.cpp
     SOURCES style/qool_theme.h style/qool_theme.cpp
+    SOURCES style/qool_themevaluegroupagent.h style/qool_themevaluegroupagent.cpp
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)
@@ -105,6 +102,7 @@ target_link_libraries(Qool
     Qt6::Core
     Qt6::QuickControls2
 )
+target_link_libraries(Qool PRIVATE Qt6::Core)
 
 target_include_directories(Qool
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}

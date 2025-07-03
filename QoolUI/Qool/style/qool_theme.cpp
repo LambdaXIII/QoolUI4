@@ -4,255 +4,238 @@
 
 QOOL_NS_BEGIN
 
-class QoolThemeData: public QSharedData {
-public:
-};
+#define LOCK_DATA QMutexLocker locker(m_mutex);
 
-QoolTheme::QoolTheme()
-  : m_lock { new QReadWriteLock } {
-  m_data[ValueGroups::Active] = QVariantMap();
-  m_data[ValueGroups::Inactive] = QVariantMap();
-  m_data[ValueGroups::Disabled] = QVariantMap();
-  m_data[ValueGroups::CustomGroup] = QVariantMap();
+const std::array<Theme::Groups, 5> GROUPS { Theme::Groups::Constants,
+  Theme::Groups::Active, Theme::Groups::Inactive,
+  Theme::Groups::Disabled, Theme::Groups::Custom };
+
+/* 为指定的group设置查找优先级 */
+QList<Theme::Groups> ORDERED_GROUPS_FOR(Theme::Groups group) {
+  QList<Theme::Groups> result { Theme::Groups::Disabled,
+    Theme::Groups::Inactive, Theme::Groups::Active };
+  if (result.contains(group)) {
+    result.removeAll(group);
+    result.prepend(group);
+  }
+  result.prepend(Theme::Groups::Custom);
+  result.append(Theme::Groups::Constants);
+  return std::move(result);
 }
 
-QoolTheme::QoolTheme(const QString& name, const QVariantMap& active,
-  const QVariantMap& inactive, const QVariantMap& disabled)
-  : QoolTheme() {
-  m_data[ValueGroups::Active] = active;
-  m_data[ValueGroups::Inactive] = inactive;
-  m_data[ValueGroups::Disabled] = disabled;
-  m_data[ValueGroups::CustomGroup] = QVariantMap();
+Theme::Theme()
+  : m_mutex { new QMutex } {
+  for (const auto& x : GROUPS) {
+    m_data[x] = QVariantMap();
+  }
+}
+
+Theme::Theme(const QString& name, const QVariantMap& constants,
+  const QVariantMap& active, const QVariantMap& inactive,
+  const QVariantMap& disabled, const QVariantMap& custom)
+  : Theme() {
+  m_data[Groups::Constants].insert(constants);
+  m_data[Groups::Active].insert(active);
+  m_data[Groups::Inactive].insert(inactive);
+  m_data[Groups::Disabled].insert(disabled);
+  m_data[Groups::Custom].insert(custom);
   setName(name);
 }
 
-QoolTheme::QoolTheme(const QVariantMap& metadatas,
+Theme::Theme(const QVariantMap& metadatas, const QVariantMap& constants,
   const QVariantMap& active, const QVariantMap& inactive,
-  const QVariantMap& disabled)
-  : QoolTheme() {
-  m_data[ValueGroups::Active] = active;
-  m_data[ValueGroups::Inactive] = inactive;
-  m_data[ValueGroups::Disabled] = disabled;
-  m_data[ValueGroups::CustomGroup] = QVariantMap();
+  const QVariantMap& disabled, const QVariantMap& custom) {
   m_metadata = metadatas;
+  m_data[Groups::Constants].insert(constants);
+  m_data[Groups::Active].insert(active);
+  m_data[Groups::Inactive].insert(inactive);
+  m_data[Groups::Disabled].insert(disabled);
+  m_data[Groups::Custom].insert(custom);
 }
 
-QoolTheme::QoolTheme(const QoolTheme& rhs)
-  : m_lock { new QReadWriteLock }
-  , m_data { rhs.m_data }
-  , m_metadata { rhs.m_metadata } {
+Theme::Theme(const Theme& other)
+  : m_mutex { new QMutex }
+  , m_metadata { other.m_metadata }
+  , m_data { other.m_data } {
 }
 
-QoolTheme::QoolTheme(QoolTheme&& rhs)
-  : m_lock { new QReadWriteLock }
-  , m_data { std::move(rhs.m_data) }
-  , m_metadata { std::move(rhs.m_metadata) } {
+Theme::Theme(Theme&& other)
+  : m_mutex { new QMutex }
+  , m_metadata { std::move(other.m_metadata) }
+  , m_data { std::move(other.m_data) } {
 }
 
-QoolTheme& QoolTheme::operator=(const QoolTheme& rhs) {
-  if (this != &rhs) {
-    QWriteLocker locker(m_lock);
-    m_data = rhs.m_data;
-    m_metadata = rhs.m_metadata;
-  }
+Theme& Theme::operator=(const Theme& other) {
+  LOCK_DATA
+  m_metadata = other.m_metadata;
+  m_data = other.m_data;
   return *this;
 }
 
-QoolTheme& QoolTheme::operator=(QoolTheme&& rhs) {
-  if (this != &rhs) {
-    QWriteLocker locker(m_lock);
-    m_data = std::move(rhs.m_data);
-    m_metadata = std::move(rhs.m_metadata);
-  }
+Theme& Theme::operator=(Theme&& other) {
+  LOCK_DATA
+  m_metadata = std::move(other.m_metadata);
+  m_data = std::move(other.m_data);
   return *this;
 }
 
-QoolTheme::~QoolTheme() {
-  m_lock->unlock();
-  delete m_lock;
+Theme::~Theme() {
+  m_mutex->unlock();
+  delete m_mutex;
+  m_mutex = nullptr;
 }
 
-QString QoolTheme::name() const {
+QString Theme::name() const {
   return m_metadata.value("name").toString();
 }
 
-bool QoolTheme::setName(const QString& value) {
-  QReadLocker reader(m_lock);
-  const auto old = m_metadata.value("name");
-  if (value == old.toString())
+bool Theme::setName(const QString& value) {
+  if (value.isEmpty())
     return false;
-  reader.unlock();
-  QWriteLocker writer(m_lock);
+  if (m_metadata.value("name").toString() == value)
+    return false;
+  LOCK_DATA
   m_metadata.insert("name", value);
   return true;
 }
 
-QStringList QoolTheme::keys() const {
-  QSet<QString> keys;
-  QReadLocker locker(m_lock);
-  for (auto groupIter = m_data.constBegin();
-    groupIter != m_data.constEnd();
-    ++groupIter) {
-    auto& group = groupIter.value();
-    for (auto iter = group.constBegin(); iter != group.constEnd();
-      ++iter)
-      keys << iter.key();
-  }
-  return { keys.constBegin(), keys.constEnd() };
+QStringList Theme::keys() const {
+  QSet<QString> all_keys;
+  std::for_each(GROUPS.cbegin(), GROUPS.cend(), [&](Groups x) {
+    const auto ks = this->m_data[x].keys();
+    for (const auto& k : ks)
+      all_keys << k;
+  });
+  return { all_keys.constBegin(), all_keys.constEnd() };
 }
 
-QVariant QoolTheme::value(ValueGroups group, QAnyStringView key,
-  const QVariant& defvalue) const {
-  QReadLocker locker(m_lock);
-
+QVariant Theme::value(
+  Groups group, const QString& key, const QVariant& defvalue) const {
   if (! m_data.contains(group))
     return defvalue;
 
-  const QString k = key.toString();
+  const auto _groups = ORDERED_GROUPS_FOR(group);
 
-  const auto& data_group = m_data[group];
-  if (data_group.contains(k))
-    return data_group.value(k);
-
-  if (group != ValueGroups::Active) {
-    QList<ValueGroups> _groups { ValueGroups::CustomGroup,
-      ValueGroups::Disabled, ValueGroups::Inactive,
-      ValueGroups::Active };
-    _groups.removeAll(group);
-
-    for (const auto& vg : std::as_const(_groups)) {
-      const auto& g = m_data[vg];
-      if (g.contains(k))
-        return g.value(k);
-    }
+  for (const auto& g : _groups) {
+    if (m_data[g].isEmpty())
+      continue;
+    if (m_data[g].contains(key))
+      return m_data[g][key];
   }
 
   return defvalue;
 }
 
-bool QoolTheme::setVallue(
-  ValueGroups group, QAnyStringView key, const QVariant& value) {
-  QReadLocker rLocker(m_lock);
-
+bool Theme::setVallue(
+  Groups group, const QString& key, const QVariant& value) {
   if (! m_data.contains(group))
     return false;
 
-  const QString k = key.toString();
+  LOCK_DATA
 
-  auto& g = m_data[group];
-  const auto& old_value = g.value(k);
+  auto& map = m_data[group];
 
-  if (old_value == value)
+  if (map.value(key) == value)
     return false;
 
-  rLocker.unlock();
-  QWriteLocker wLocker(m_lock);
-
   if (value.isNull())
-    g.remove(k);
+    map.remove(key);
   else
-    g.insert(k, value);
+    map.insert(key, value);
 
   return true;
 }
 
-QVariant QoolTheme::metadata(
-  QAnyStringView key, const QVariant& defvalue) const {
-  QReadLocker locker(m_lock);
-  return m_metadata.value(key.toString(), defvalue);
-}
-
-bool QoolTheme::set_metadata(
-  QAnyStringView key, const QVariant& value) {
-  const QString k = key.toString();
-  QReadLocker rLocker(m_lock);
-  const auto& old_value = m_metadata.value(k);
-  if (old_value == value)
+bool Theme::setCustomValue(const QString& key, const QVariant& value) {
+  if (m_data[Groups::Custom].value(key) == value)
     return false;
-
-  rLocker.unlock();
-  QWriteLocker wLocker(m_lock);
-
+  LOCK_DATA
   if (value.isNull())
-    m_metadata.remove(k);
+    m_data[Groups::Custom].remove(key);
   else
-    m_metadata.insert(k, value);
+    m_data[Groups::Custom].insert(key, value);
   return true;
 }
 
-bool QoolTheme::contains(ValueGroups group, QAnyStringView key) const {
-  QReadLocker locker(m_lock);
-  if (! m_data.contains(group))
-    return false;
-  const QString k = key.toString();
-  return m_data[group].contains(k);
+QVariant Theme::metadata(
+  const QString& key, const QVariant& defvalue) const {
+  return m_metadata.value(key, defvalue);
 }
 
-bool QoolTheme::contains(QAnyStringView key) const {
-  static const QList<ValueGroups> _groups { ValueGroups::CustomGroup,
-    ValueGroups::Disabled, ValueGroups::Inactive, ValueGroups::Active };
+bool Theme::set_metadata(const QString& key, const QVariant& value) {
+  if (m_metadata.value(key) == value)
+    return false;
+  LOCK_DATA
+  if (value.isNull())
+    m_metadata.remove(key);
+  else
+    m_metadata.insert(key, value);
+  return true;
+}
 
-  QReadLocker locker(m_lock);
-  const QString k = key.toString();
-  for (const auto g : _groups) {
-    if (m_data[g].contains(k))
+bool Theme::contains(Groups group, const QString& key) const {
+  if (! m_data.contains(group))
+    return false;
+  return m_data[group].contains(key);
+}
+
+bool Theme::contains(const QString& key) const {
+  for (const auto& x : GROUPS) {
+    if (m_data[x].contains(key))
       return true;
   }
-
   return false;
 }
 
-bool QoolTheme::containsMetadata(QAnyStringView key) const {
-  QReadLocker locker(m_lock);
-  return m_metadata.contains(key.toString());
+bool Theme::containsMetadata(const QString& key) const {
+  return m_metadata.contains(key);
 }
 
-QVariantMap QoolTheme::collapse(ValueGroups group) const {
-  const QStringList keys = this->keys();
-  QList<ValueGroups> _groups {
-    ValueGroups::Active,
-    ValueGroups::Inactive,
-    ValueGroups::Disabled,
-  };
-  if (_groups.contains(group)) {
-    _groups.removeAll(group);
-    _groups.append(group);
-  }
-  _groups.append(ValueGroups::CustomGroup);
-
-  QReadLocker locker(m_lock);
-
-  QVariantMap result;
-
-  for (const auto& group_name : std::as_const(_groups)) {
-    for (const auto& key : keys)
-      result.insert(key, m_data[group_name].value(key));
-  }
-
-  return result;
+void Theme::insert(Groups group, const QVariantMap& datas) {
+  LOCK_DATA
+  m_data[group].insert(datas);
 }
 
-bool QoolTheme::isEmpty() const {
-  QReadLocker locker(m_lock);
-  for (auto iter = m_data.constBegin(); iter != m_data.constEnd();
-    ++iter) {
-    if (! iter.value().isEmpty())
+void Theme::insert(const Theme& other) {
+  LOCK_DATA
+  m_metadata.insert(other.m_metadata);
+  for (const auto& x : GROUPS) {
+    m_data[x].insert(other.m_data[x]);
+  }
+}
+
+void Theme::insertMetadatas(const QVariantMap& datas) {
+  LOCK_DATA
+  m_metadata.insert(datas);
+}
+
+bool Theme::isEmpty() const {
+  for (const auto& x : GROUPS) {
+    if (! m_data[x].isEmpty())
       return false;
   }
   return true;
 }
 
-bool QoolTheme::operator==(const QoolTheme& other) const {
-  QReadLocker locker(m_lock);
-  if (m_metadata != other.m_metadata)
-    return false;
-  if (m_data != other.m_data)
-    return false;
-  return true;
+bool Theme::operator==(const Theme& other) const {
+  return m_metadata == other.m_metadata && m_data == other.m_data;
 }
 
-bool QoolTheme::operator!=(const QoolTheme& other) const {
+bool Theme::operator!=(const Theme& other) const {
   return ! operator==(other);
 }
+
+QVariantMap Theme::flatMap(Groups group) const {
+  QVariantMap result;
+
+  const auto _groups = ORDERED_GROUPS_FOR(group);
+
+  std::for_each(_groups.crbegin(), _groups.crend(),
+    [&](Groups group) { result.insert(m_data[group]); });
+
+  return result;
+}
+
+#undef LOCK_DATA
 
 QOOL_NS_END

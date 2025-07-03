@@ -2,6 +2,7 @@
 #define QOOL_STYLE_H
 
 #include "qool_stylevaluegroup.h"
+#include "qool_theme.h"
 #include "qool_theme_values_support.h"
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/property_macros_for_qobject.hpp"
@@ -26,18 +27,27 @@ public:
   explicit Style(QObject* parent = nullptr);
   ~Style() = default;
 
-  static Style* qmlAttachedPropertyes(QObject* object);
-
   QVariant value(QPalette::ColorGroup, QAnyStringView key) const;
   QVariant value(QAnyStringView key) const;
   void setValue(
     QPalette::ColorGroup, QAnyStringView key, const QVariant& value);
   void setValue(QAnyStringView key, const QVariant& value);
 
+  Q_SIGNAL void valueChanged(QString);
+
+protected:
+  static Style* qmlAttachedPropertyes(QObject* object);
+  void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
+    QQuickAttachedPropertyPropagator* oldParent) override;
+
   void inherit(Style* other);
 
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
-    Style, QPalette::ColorGroup, currentGroup)
+  QProperty<Theme::Groups> m_currentValueGroup { Theme::Active };
+
+  void reload_from_theme();
+  void when_value_changed(const QStringList& keys = {});
+
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(Style, QString, theme)
 };
 
 QOOL_NS_END
