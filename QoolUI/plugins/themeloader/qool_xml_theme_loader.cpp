@@ -43,6 +43,14 @@ const QVariantMap& XMLThemeLoader::disabled() const {
   return m_pImpl->disabled;
 }
 
+const QVariantMap& XMLThemeLoader::constants() const {
+  return m_pImpl->constants;
+}
+
+const QVariantMap& XMLThemeLoader::custom() const {
+  return m_pImpl->custom;
+}
+
 bool XMLThemeLoader::isValid() const {
   if (m_pImpl->active.isEmpty())
     return false;

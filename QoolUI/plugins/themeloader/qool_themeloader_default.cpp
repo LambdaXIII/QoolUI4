@@ -70,6 +70,8 @@ QList<ThemeLoader::Package> DefaultThemeLoader::themes() const {
     p.active = loader->active();
     p.inactive = loader->inactive();
     p.disabled = loader->disabled();
+    p.constants = loader->constants();
+    p.custom = loader->custom();
     packages.append(p);
   }
 
