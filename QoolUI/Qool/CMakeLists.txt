@@ -71,6 +71,7 @@ qt_add_qml_module(Qool
     SOURCES style/qool_style.h style/qool_style.cpp
     SOURCES style/qool_theme.h style/qool_theme.cpp
     SOURCES style/qool_themevaluegroupagent.h style/qool_themevaluegroupagent.cpp
+    SOURCES style/qool_theme_database.h style/qool_theme_database.cpp
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)

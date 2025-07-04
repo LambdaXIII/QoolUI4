@@ -126,6 +126,11 @@ QVariant Theme::value(
   return defvalue;
 }
 
+QVariant Theme::value(
+  const QString& key, const QVariant& defvalue) const {
+  return value(Active, key, defvalue);
+}
+
 bool Theme::setVallue(
   Groups group, const QString& key, const QVariant& value) {
   if (! m_data.contains(group))

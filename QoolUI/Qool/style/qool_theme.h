@@ -48,6 +48,8 @@ public:
 
   Q_INVOKABLE QVariant value(Groups group, const QString& key,
     const QVariant& defvalue = {}) const;
+  Q_INVOKABLE QVariant value(
+    const QString& key, const QVariant& defvalue = {}) const;
   Q_INVOKABLE bool setVallue(
     Groups group, const QString& key, const QVariant& value);
   Q_INVOKABLE bool setCustomValue(
