@@ -45,6 +45,12 @@ void ThemeValueGroupAgent::reset() {
   when_value_changed(changed_keys);
 }
 
+void ThemeValueGroupAgent::inherit(ThemeValueGroupAgent* other) {
+  const auto keys = m_data.defaultKeys();
+  m_data = other->m_data;
+  when_value_changed(keys);
+}
+
 void ThemeValueGroupAgent::when_value_changed(const QStringList& keys) {
   const QSet<QString> _keys { keys.constBegin(), keys.constEnd() };
   Qt::beginPropertyUpdateGroup();

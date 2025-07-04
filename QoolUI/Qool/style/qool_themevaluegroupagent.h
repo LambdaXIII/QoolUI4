@@ -31,6 +31,8 @@ public:
 
   Q_SIGNAL void valueChanged(QString);
 
+  void inherit(ThemeValueGroupAgent* other);
+
 protected:
   DefaultVariantMap m_data;
   void when_value_changed(const QStringList& keys = {});
