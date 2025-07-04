@@ -1,9 +1,8 @@
 #ifndef QOOL_STYLE_H
 #define QOOL_STYLE_H
 
-#include "qool_stylevaluegroup.h"
 #include "qool_theme.h"
-#include "qool_theme_values_support.h"
+#include "qool_themevaluegroupagent.h"
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/property_macros_for_qobject.hpp"
 #include "qoolns.hpp"

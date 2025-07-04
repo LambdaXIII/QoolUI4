@@ -15,11 +15,12 @@
             <string>啪啪啪</string>
         </list>
 
-        <number property="menuCutSize" copy="controlCutSize"/>
-        <number property="buttonCutSize" value="5"/>
-
+        <number property="instantDuration" value="100"/>
         <number property="transitionDuration" value="200"/>
         <number property="movementDuration" value="400"/>
+
+        <number property="menuCutSize" copy="controlCutSize"/>
+        <number property="buttonCutSize" value="5"/>
 
         <number property="textSize" value="14" />
         <number property="titleTextSize" copy="textSize" add="2"/>
@@ -36,8 +37,10 @@
         <number property="windowElementSpacing" value="5"/>
         <number property="windowEdgeSpacing" value="5"/>
         <number property="windowTitleTextSize" value="14"/>
+        <number properyt="windowBorderWidth" value="1"/>
 
         <number property="dialogCutSize" copy="controlCutSize"/>
+        <number property="dialogBorderWidth" copy="controlBorderWidth"/>
 
         <!--Misc Colors-->
         <color property="positive" value="#00FF68"/>
