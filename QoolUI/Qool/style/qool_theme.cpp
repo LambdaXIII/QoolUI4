@@ -6,9 +6,11 @@ QOOL_NS_BEGIN
 
 #define LOCK_DATA QMutexLocker locker(m_mutex);
 
-const std::array<Theme::Groups, 5> GROUPS { Theme::Groups::Constants,
-  Theme::Groups::Active, Theme::Groups::Inactive,
-  Theme::Groups::Disabled, Theme::Groups::Custom };
+const std::array<Theme::Groups, 5> Theme::GROUPS {
+  Theme::Groups::Constants, Theme::Groups::Active,
+  Theme::Groups::Inactive, Theme::Groups::Disabled,
+  Theme::Groups::Custom
+};
 
 /* 为指定的group设置查找优先级 */
 QList<Theme::Groups> ORDERED_GROUPS_FOR(Theme::Groups group) {

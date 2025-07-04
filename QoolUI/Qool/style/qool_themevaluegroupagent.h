@@ -7,6 +7,7 @@
 #include "qoolcommon/property_macros_for_qobject.hpp"
 #include "qoolns.hpp"
 
+#include <QColor>
 #include <QObject>
 #include <QQmlEngine>
 #include <QReadWriteLock>

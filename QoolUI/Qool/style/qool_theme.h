@@ -24,6 +24,7 @@ public:
     Custom = QPalette::Disabled + 1
   };
   Q_ENUM(Groups)
+  static const std::array<Groups, 5> GROUPS;
 
   Theme();
   Theme(const QString& name, const QVariantMap& constants,
