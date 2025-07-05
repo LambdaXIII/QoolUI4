@@ -37,7 +37,10 @@ QoolWindow {
     Timer {
         id: timer
         interval: 3000
-        onTriggered: root.Style.dumpInfo()
+        onTriggered: {
+            console.log(ThemeDatabase.themes)
+            root.Style.dumpInfo()
+        }
     }
 
     Component.onCompleted: timer.start()

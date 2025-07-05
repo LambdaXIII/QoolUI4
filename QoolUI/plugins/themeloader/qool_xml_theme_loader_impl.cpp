@@ -5,11 +5,14 @@
 #include <QColor>
 #include <QDomDocument>
 #include <QFile>
+#include <QFileInfo>
 #include <QScopedPointer>
 QOOL_NS_BEGIN
 
 void XMLThemeLoaderImpl::load(const QString& filename) {
   this->filename = filename;
+  this->metadata.insert("name", QFileInfo(this->filename).baseName());
+
   QFile file(filename);
   if (! file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     xWarning << xDBGToken("XMLThemeLoader")

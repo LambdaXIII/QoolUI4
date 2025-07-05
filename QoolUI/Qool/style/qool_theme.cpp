@@ -1,5 +1,7 @@
 #include "qool_theme.h"
 
+#include "qoolcommon/debug.hpp"
+
 #include <utility>
 
 QOOL_NS_BEGIN
@@ -62,25 +64,25 @@ Theme::Theme(const Theme& other)
   , m_data { other.m_data } {
 }
 
-Theme::Theme(Theme&& other)
-  : m_mutex { new QMutex }
-  , m_metadata { std::move(other.m_metadata) }
-  , m_data { std::move(other.m_data) } {
-}
+// Theme::Theme(Theme&& other)
+//   : m_mutex { new QMutex }
+//   , m_metadata { std::move(other.m_metadata) }
+//   , m_data { std::move(other.m_data) } {
+// }
 
-Theme& Theme::operator=(const Theme& other) {
-  LOCK_DATA
-  m_metadata = other.m_metadata;
-  m_data = other.m_data;
-  return *this;
-}
+// Theme& Theme::operator=(const Theme& other) {
+//   LOCK_DATA
+//   m_metadata = other.m_metadata;
+//   m_data = other.m_data;
+//   return *this;
+// }
 
-Theme& Theme::operator=(Theme&& other) {
-  LOCK_DATA
-  m_metadata = std::move(other.m_metadata);
-  m_data = std::move(other.m_data);
-  return *this;
-}
+// Theme& Theme::operator=(Theme&& other) {
+//   LOCK_DATA
+//   m_metadata = std::move(other.m_metadata);
+//   m_data = std::move(other.m_data);
+//   return *this;
+// }
 
 Theme::~Theme() {
   if (m_mutex) {
@@ -245,6 +247,13 @@ QVariantMap Theme::flatMap(Groups group) const {
     [&](Groups group) { result.insert(m_data[group]); });
 
   return result;
+}
+
+void Theme::dumpInfo() const {
+  xDebugQ << "METADATA" << xDBGMap(m_metadata);
+  for (const auto& group : GROUPS) {
+    xDebugQ << "GROUP" << group << xDBGMap(m_data[group]);
+  }
 }
 
 #undef LOCK_DATA

@@ -24,7 +24,7 @@ class ThemeDatabase: public QAbstractListModel {
 public:
   ~ThemeDatabase();
   Q_INVOKABLE Theme theme(const QString& name) const;
-  Q_INVOKABLE void installTheme(const Theme& theme);
+  Q_INVOKABLE void installTheme(Theme theme);
   Q_SIGNAL void themeInstalled(const QString& name);
 
   enum Roles {

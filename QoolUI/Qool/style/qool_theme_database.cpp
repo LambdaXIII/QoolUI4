@@ -17,15 +17,14 @@ ThemeDatabase::ThemeDatabase()
 }
 
 ThemeDatabase::~ThemeDatabase() {
-  m_mutex->unlock();
-  delete m_mutex;
-  m_mutex = nullptr;
+  if (m_mutex)
+    delete m_mutex;
 }
 
 Theme ThemeDatabase::theme(const QString& name) const {
   const auto key =
-    m_themeNames.contains(name) ? name : m_themeNames.first();
-  return m_themes.value(key);
+    m_themeNames.contains(name) ? name : m_themeNames.constFirst();
+  return m_themes[key];
 }
 
 QHash<int, QByteArray> ThemeDatabase::roleNames() const {
@@ -147,7 +146,7 @@ void ThemeDatabase::auto_install_themes() {
          << xDBGReset << "theme(s) installed.";
 }
 
-void ThemeDatabase::installTheme(const Theme& theme) {
+void ThemeDatabase::installTheme(Theme theme) {
   QMutexLocker locker(m_mutex);
   const int lastRow = m_themeNames.length();
   const QString name = theme.name();

@@ -35,10 +35,10 @@ public:
     const QVariantMap& disabled, const QVariantMap& custom = {});
 
   Theme(const Theme&);
-  Theme(Theme&&);
+  // Theme(Theme&&);
 
-  Theme& operator=(const Theme&);
-  Theme& operator=(Theme&&);
+  // Theme& operator=(const Theme&);
+  // Theme& operator=(Theme&&);
 
   ~Theme();
 
@@ -75,6 +75,8 @@ public:
   bool operator!=(const Theme& other) const;
 
   Q_INVOKABLE QVariantMap flatMap(Groups group) const;
+
+  Q_INVOKABLE void dumpInfo() const;
 
 protected:
   QHash<int, QVariantMap> m_data;

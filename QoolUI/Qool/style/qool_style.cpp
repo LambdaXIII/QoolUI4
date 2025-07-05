@@ -18,6 +18,8 @@ Style::Style(QObject* parent)
 
   connect(this, &Style::internalValuesChanged, this,
     &Style::dispatchValueSignals);
+
+  set_theme("system");
 }
 
 Style::~Style() {
@@ -50,10 +52,6 @@ void Style::setValue(
   bool result = internalSetValue(group, key, value);
   if (result)
     m_valueCustomed = true;
-}
-
-void Style::dumpInfo() const {
-  xDebugQ << xDBGQPropertyList;
 }
 
 void Style::dispatchValueSignals(
@@ -237,5 +235,13 @@ QOOL_FOREACH_2(__REAL, windowElementSpacing, windowEdgeSpacing)
 IMPL(QStringList, papaWords)
 
 #undef IMPL
+
+void Style::dumpInfo() const {
+  QVariantMap info { { "Theme", theme() },
+    { "CurrentGroup", m_currentGroup } };
+  xDebugQ << "BASIC_INFO" << xDBGMap(info);
+  xDebugQ << "PROPERTIES" << xDBGQPropertyList;
+  m_currentTheme.dumpInfo();
+}
 
 QOOL_NS_END

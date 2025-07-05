@@ -19,12 +19,7 @@ XMLThemeLoader::~XMLThemeLoader() {
 }
 
 QString XMLThemeLoader::name() const {
-  if (m_pImpl->metadata.contains("name")) {
-    const auto nameV = m_pImpl->metadata.value("name");
-    if (nameV.typeId() == QMetaType::QString)
-      return nameV.toString();
-  }
-  return QFileInfo(m_pImpl->filename).baseName();
+  return m_pImpl->metadata.value("name").toString();
 }
 
 const QVariantMap& XMLThemeLoader::metadata() const {
