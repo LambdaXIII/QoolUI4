@@ -1,5 +1,7 @@
 #include "qool_style.h"
 
+#include "qool_theme_database.h"
+
 #include <QQuickWindow>
 
 QOOL_NS_BEGIN
@@ -23,6 +25,8 @@ Style::Style(QObject* parent)
     this,
     SLOT(update_windowActived()));
 
+  m_theme.setBinding([&] { return m_currentTheme.value().name(); });
+
   m_currentGroup.setBinding([&] {
     if (! m_parentEnabled.value())
       return Theme::Disabled;
@@ -30,6 +34,10 @@ Style::Style(QObject* parent)
       return Theme::Inactive;
     return Theme::Active;
   });
+}
+
+Style* Style::qmlAttachedProperties(QObject* object) {
+  return new Style(object);
 }
 
 QVariant Style::value(
@@ -110,6 +118,14 @@ void Style::setup_properties() {
   SETUP(papaWords)
 #undef SETUP
 } // setup_properties
+
+QString Style::theme() const {
+  return m_theme.value();
+}
+
+void Style::set_theme(const QString& name) {
+  m_currentTheme = ThemeDatabase::instance()->theme(name);
+}
 
 #define IMPL_AGENT(a, b)                                               \
   ThemeValueGroupAgent* Style::a() const {                             \

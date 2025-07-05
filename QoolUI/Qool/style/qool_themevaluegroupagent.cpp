@@ -2,6 +2,9 @@
 
 #include "qool_theme_database.h"
 
+#include <QBindable>
+#include <QColor>
+
 QOOL_NS_BEGIN
 
 ThemeValueGroupAgent::ThemeValueGroupAgent(QObject* parent)

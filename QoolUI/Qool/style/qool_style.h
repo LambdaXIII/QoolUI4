@@ -25,7 +25,7 @@ public:
   explicit Style(QObject* parent = nullptr);
   ~Style() = default;
 
-  static Style* qmlAttachedPropertyes(QObject* object);
+  static Style* qmlAttachedProperties(QObject* object);
 
   Q_INVOKABLE QVariant value(
     const QString& key, const QVariant& defvalue = {}) const;
