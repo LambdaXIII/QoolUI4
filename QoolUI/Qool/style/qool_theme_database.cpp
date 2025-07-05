@@ -131,7 +131,7 @@ void ThemeDatabase::auto_install_themes() {
 
   for (auto iter = plugins.constBegin(); iter != plugins.constEnd();
     ++iter) {
-    const auto themes = iter.value()->themes();
+    const QList<ThemeLoader::Package> themes = iter.value()->themes();
     xDebugQ << "Plugin" << xDBGGreen << iter.key() << xDBGReset
             << "provides" << xDBGYellow << themes.length() << xDBGReset
             << "theme(s).";
@@ -147,9 +147,17 @@ void ThemeDatabase::auto_install_themes() {
 }
 
 void ThemeDatabase::installTheme(Theme theme) {
+  const QString name = theme.name();
+
+  if (name.isEmpty() || m_themeNames.contains(name)) {
+    xDebugQ << "\"" << name << "\""
+            << "is not a qualified name, can not install it.";
+    return;
+  }
+
   QMutexLocker locker(m_mutex);
   const int lastRow = m_themeNames.length();
-  const QString name = theme.name();
+
   beginInsertRows({}, lastRow, lastRow);
   m_themes.insert(name, theme);
   m_themeNames.append(name);

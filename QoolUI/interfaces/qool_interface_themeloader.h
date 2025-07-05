@@ -12,7 +12,6 @@
 QOOL_NS_BEGIN
 struct ThemeLoader {
   struct Package {
-    QString name;
     QVariantMap metadata;
     QVariantMap constants, active, inactive, disabled, custom;
   };
