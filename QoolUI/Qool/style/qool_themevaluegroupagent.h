@@ -56,7 +56,13 @@ private:                                                               \
   Q_PROPERTY(T N READ N WRITE set_##N NOTIFY N##Changed)
 
 #define __COLOR(N) DECL(QColor, N)
+  QOOL_FOREACH_10(__COLOR, white, silver, grey, black, red, maroon,
+    yellow, olive, lime, green)
+  QOOL_FOREACH_10(__COLOR, aqua, cyan, teal, blue, navy, fuchsia,
+    purple, orange, brown, pink)
   QOOL_FOREACH_3(__COLOR, positive, negative, warning)
+  QOOL_FOREACH_3(
+    __COLOR, controlBackgroundColor, controlBorderColor, infoColor)
   QOOL_FOREACH_10(__COLOR, accent, light, midlight, dark, mid, shadow,
     highlight, highlightedText, link, linkVisited)
   QOOL_FOREACH_10(__COLOR, text, base, alternateBase, window,

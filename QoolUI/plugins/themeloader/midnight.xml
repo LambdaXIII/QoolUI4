@@ -42,15 +42,42 @@
         <number property="dialogCutSize" copy="controlCutSize"/>
         <number property="dialogBorderWidth" copy="controlBorderWidth"/>
 
-        <!--Misc Colors-->
-        <color property="positive" value="#00FF68"/>
-        <color property="negative" value="#FF414D"/>
-        <color property="warning" value="#FF6DC9"/>
+        <!-- Default Colors -->
+        <color property="white" value="#F5F5F5"/>
+        <color property="silver" value="#B9B9B9"/>
+        <color property="grey" value="#2D2D2D"/>
+        <color property="black" value="#141414"/>
+        <color property="red" value="#FF414D"/>
+        <color property="maroon" value="#6A2020"/>
+        <color property="yellow" value="#EEFC7A"/>
+        <color property="olive" value="#8D8A41"/>
+        <color property="lime" value="#00FF00"/>
+        <color property="green" value="#00FF68"/>
+
+        <color property="aqua" value="#06D4D4"/>
+        <color property="cyan" value="#6AEDFF"/>
+        <color property="teal" value="#31717A"/>
+        <color property="blue" value="#0099FF"/>
+        <color property="navy" value="#002843"/>
+        <color property="fuchsia" value="#FF57FF"/>
+        <color property="purple" value="#C48EFF"/>
+        <color property="orange" value="#FFB650"/>
+        <color property="brown" value="#A05E3B"/>
+        <color property="pink" value="#FF6DC9"/>
+
+        <!-- Main Styles -->
+        <color property="positive" copy="green"/>
+        <color property="negative" copy="red"/>
+        <color property="warning" copy="pink"/>
+
+        <color property="controlBackgroundColor" copy="grey"/>
+        <color property="controlBorderColor" copy="grey" lighter="1.2"/>
+        <color property="infoColor" copy="cyan"/>
     </constants>
     <active>
         <!--Active group is a must-have-->
         <!--Tone Colors-->
-        <color property="accent" value="#FFB65C"/>
+        <color property="accent" copy="orange"/>
         <!-- BG Colors-->
         <color property="light" value="#F8F8F2"/>
         <color property="midlight" copy="light" darker="1.2"/>

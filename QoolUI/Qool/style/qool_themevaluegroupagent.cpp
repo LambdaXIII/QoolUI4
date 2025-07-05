@@ -72,7 +72,13 @@ void ThemeValueGroupAgent::when_value_changed(const QStringList& keys) {
 #define CHECK(N)                                                       \
   if (key == #N)                                                       \
     emit N##Changed();
+    QOOL_FOREACH_10(CHECK, white, silver, grey, black, red, maroon,
+      yellow, olive, lime, green)
+    QOOL_FOREACH_10(CHECK, aqua, cyan, teal, blue, navy, fuchsia,
+      purple, orange, brown, pink)
     QOOL_FOREACH_3(CHECK, positive, negative, warning)
+    QOOL_FOREACH_3(
+      CHECK, controlBackgroundColor, controlBorderColor, infoColor)
     QOOL_FOREACH_10(CHECK, accent, light, midlight, dark, mid, shadow,
       highlight, highlightedText, link, linkVisited)
     QOOL_FOREACH_10(CHECK, text, base, alternateBase, window,
@@ -120,7 +126,13 @@ void ThemeValueGroupAgent::when_value_changed(const QStringList& keys) {
   }
 
 #define __COLOR(N) IMPL(QColor, N)
+QOOL_FOREACH_10(__COLOR, white, silver, grey, black, red, maroon,
+  yellow, olive, lime, green)
+QOOL_FOREACH_10(__COLOR, aqua, cyan, teal, blue, navy, fuchsia, purple,
+  orange, brown, pink)
 QOOL_FOREACH_3(__COLOR, positive, negative, warning)
+QOOL_FOREACH_3(
+  __COLOR, controlBackgroundColor, controlBorderColor, infoColor)
 QOOL_FOREACH_10(__COLOR, accent, light, midlight, dark, mid, shadow,
   highlight, highlightedText, link, linkVisited)
 QOOL_FOREACH_10(__COLOR, text, base, alternateBase, window, windowText,
