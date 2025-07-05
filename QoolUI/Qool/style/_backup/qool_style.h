@@ -32,39 +32,52 @@ public:
 
   static Style* qmlAttachedProperties(QObject* object);
 
+  Q_INVOKABLE QVariant value(
+    const QString& key, const QVariant& defvalue = {}) const;
+  Q_INVOKABLE void setValue(const QString& key, const QVariant& value);
+
+  Q_INVOKABLE QVariant value(Theme::Groups group, const QString& key,
+    const QVariant& defvalue = {}) const;
+  Q_INVOKABLE void setValue(
+    Theme::Groups group, const QString& key, const QVariant& value);
+
+  Q_SIGNAL void valueChanged(QString);
   Q_INVOKABLE void dumpInfo() const;
 
 protected:
   friend class StyleGroupAgent;
 
   QHash<Theme::Groups, StyleGroupAgent*> m_agents;
-  SmartObject* m_sidekick;
-  QVariantMap m_customedValues;
+
+  // Theme::Groups m_currentGroup { Theme::Active };
+  // Q_SLOT void update_currentGroup();
+
+  QProperty<Theme::Groups> m_currentGroup { Theme::Active };
+  QPropertyNotifier m_currentGroupNotifier;
+  void when_currentGroup_changed();
 
   Theme m_currentTheme;
+
+  SmartObject* m_sidekick;
+  bool m_valueCustomed;
+
+  Q_SLOT void dispatchValueSignals(QSet<QString> keys);
+
+  void when_values_changed(
+    QSet<Theme::Groups> groups = {}, QSet<QString> keys = {});
+  Q_SIGNAL void values_changed_internally(
+    QSet<Theme::Groups> groups, QSet<QString> keys);
+  Q_SLOT void when_parent_vales_changed_internally(
+    QSet<Theme::Groups> groups, QSet<QString> keys);
 
   void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
     QQuickAttachedPropertyPropagator* oldParent) override;
 
-  void inherit_theme(Style* p);
-  void inherit_customedValues(Style* p);
-  void propagate_theme();
-  Q_SLOT void when_theme_changed();
-  Q_SLOT void when_current_group_changed();
-  void notify_property_changes(QStringList keys = {});
-  Q_SIGNAL void customedValueChanged(QString key, QVariant value);
-  Q_SLOT void set_customedValue(QString key, QVariant value);
+  void inherit(Style* other);
 
-  Q_SIGNAL void groupCustomedValueChanged(
-    Theme::Groups group, QString key, QVariant value);
-  Q_SLOT void when_groupCustomedValueChanged(
-    Theme::Groups group, QString key, QVariant value);
+  Q_SLOT void propagateTheme();
 
   /********** PROPERTIES ***********/
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
-    Style, Theme::Groups, currentGroup)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
-    Style, StyleGroupAgent*, current)
 
   QOOL_PROPERTY_CONSTANT_DECL(StyleGroupAgent*, active)
   QOOL_PROPERTY_CONSTANT_DECL(StyleGroupAgent*, inactive)
@@ -73,6 +86,7 @@ protected:
   QOOL_PROPERTY_CONSTANT_DECL(StyleGroupAgent*, custom)
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QString, theme)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(bool, animationEnabled)
 
 #define DECL(T, N) QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(T, N)
 
@@ -108,7 +122,6 @@ protected:
 #undef __REAL
 
   DECL(QStringList, papaWords)
-  DECL(bool, animationEnabled)
 
 #undef DECL
 };

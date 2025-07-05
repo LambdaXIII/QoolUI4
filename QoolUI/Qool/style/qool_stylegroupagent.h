@@ -24,19 +24,15 @@ public:
   explicit StyleGroupAgent(
     Theme::Groups group, Style* parent = nullptr);
 
-  Q_INVOKABLE QVariant value(
-    const QString& key, const QVariant& defvalue = {}) const;
-  Q_INVOKABLE void setValue(const QString& key, const QVariant& value);
-
-  Q_SIGNAL void valueChanged(QString key);
+  QStringList inherit_customedValues(StyleGroupAgent* other);
 
 protected:
   friend class Style;
   Style* m_parentStyle;
-
-  void setParentValue(const QString& key, const QVariant& value);
-
-  Q_SLOT void dispatchValueSignals(QSet<QString> keys);
+  QVariantMap m_customedValue;
+  void set_customedValue(const QString& key, const QVariant& value);
+  Q_SIGNAL void customedValueChanged(
+    Theme::Groups group, QString key, QVariant value);
 
   /********** PROPERTIES ***********/
 

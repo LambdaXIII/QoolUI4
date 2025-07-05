@@ -1,7 +1,7 @@
 #include "qool_stylegroupagent.h"
 
 #include "qool_style.h"
-// #include "qoolcommon/debug.hpp"
+#include "qoolcommon/debug.hpp"
 
 QOOL_NS_BEGIN
 
@@ -9,73 +9,40 @@ StyleGroupAgent::StyleGroupAgent(Theme::Groups group, Style* parent)
   : QObject { parent }
   , m_group { group }
   , m_parentStyle { parent } {
+  connect(this, &StyleGroupAgent::customedValueChanged, parent,
+    &Style::groupCustomedValueChanged);
 }
 
-QVariant StyleGroupAgent::value(
-  const QString& key, const QVariant& defvalue) const {
-  return m_parentStyle->value(m_group, key, defvalue);
+QStringList StyleGroupAgent::inherit_customedValues(
+  StyleGroupAgent* other) {
+  QStringList keys;
+  keys << m_customedValue.keys() << other->m_customedValue.keys();
+  m_customedValue = other->m_customedValue;
+  return keys;
 }
 
-void StyleGroupAgent::setValue(
+void StyleGroupAgent::set_customedValue(
   const QString& key, const QVariant& value) {
-  setParentValue(key, value);
-}
-
-void StyleGroupAgent::setParentValue(
-  const QString& key, const QVariant& value) {
-  if (! m_parentStyle)
-    return;
-  m_parentStyle->setValue(m_group, key, value);
-}
-
-void StyleGroupAgent::dispatchValueSignals(QSet<QString> keys) {
-  if (keys.isEmpty()) {
-    const auto all_keys = m_parentStyle->m_currentTheme.keys(m_group);
-    keys = QSet<QString>(all_keys.constBegin(), all_keys.constEnd());
-  }
-
-  Qt::beginPropertyUpdateGroup();
-  for (const auto& key : std::as_const(keys)) {
-    emit valueChanged(key);
-
-#define CHECK(N)                                                       \
-  if (key == #N)                                                       \
-    emit N##Changed();
-    QOOL_FOREACH_10(CHECK, white, silver, grey, black, red, maroon,
-      yellow, olive, lime, green)
-    QOOL_FOREACH_10(CHECK, aqua, cyan, teal, blue, navy, fuchsia,
-      purple, orange, brown, pink)
-    QOOL_FOREACH_3(CHECK, positive, negative, warning)
-    QOOL_FOREACH_3(
-      CHECK, controlBackgroundColor, controlBorderColor, infoColor)
-    QOOL_FOREACH_10(CHECK, accent, light, midlight, dark, mid, shadow,
-      highlight, highlightedText, link, linkVisited)
-    QOOL_FOREACH_10(CHECK, text, base, alternateBase, window,
-      windowText, button, buttonText, placeholderText, toolTipBase,
-      toolTipText)
-    QOOL_FOREACH_8(CHECK, textSize, titleTextSize, toolTipTextSize,
-      importantTextSize, decorativeTextSize, controlTitleTextSize,
-      controlTextSize, windowTitleTextSize)
-    QOOL_FOREACH_3(
-      CHECK, instantDuration, transitionDuration, movementDuration)
-    QOOL_FOREACH_5(CHECK, menuCutSize, buttonCutSize, controlCutSize,
-      windowCutSize, dialogCutSize)
-    QOOL_FOREACH_3(
-      CHECK, controlBorderWidth, windowBorderWidth, dialogBorderWidth)
-    QOOL_FOREACH_2(CHECK, windowElementSpacing, windowEdgeSpacing)
-    // CHECK(animationEnabled)
-    CHECK(papaWords)
-#undef CHECK
-  }
-  Qt::endPropertyUpdateGroup();
+  m_customedValue.insert(key, value);
+  emit customedValueChanged(m_group, key, value);
 }
 
 #define IMPL(T, N)                                                     \
   T StyleGroupAgent::N() const {                                       \
-    return value(#N).value<T>();                                       \
+    if (m_customedValue.contains(#N))                                  \
+      return m_customedValue.value(#N).value<T>();                     \
+    if (! m_parentStyle)                                               \
+      return {};                                                       \
+    return m_parentStyle->m_currentTheme.value(m_group, #N)            \
+      .value<T>();                                                     \
   }                                                                    \
   void StyleGroupAgent::set_##N(const T& x) {                          \
-    setValue(#N, QVariant::fromValue<T>(x));                           \
+    const auto old = N();                                              \
+    if (old == x)                                                      \
+      return;                                                          \
+    set_customedValue(#N, QVariant::fromValue<T>(x));                  \
+    if (m_parentStyle && m_parentStyle->m_current.value() == this)     \
+      m_parentStyle->notify_property_changes({ #N });                  \
   }
 
 #define __COLOR(N) IMPL(QColor, N)
@@ -109,18 +76,8 @@ QOOL_FOREACH_2(__REAL, windowElementSpacing, windowEdgeSpacing)
 #undef __REAL
 
 IMPL(QStringList, papaWords)
+IMPL(bool, animationEnabled)
 
 #undef IMPL
-
-bool StyleGroupAgent::animationEnabled() const {
-  if (m_parentStyle)
-    return m_parentStyle->animationEnabled();
-  return true;
-}
-
-void StyleGroupAgent::set_animationEnabled(const bool& x) {
-  if (m_parentStyle)
-    m_parentStyle->set_animationEnabled(x);
-}
 
 QOOL_NS_END
