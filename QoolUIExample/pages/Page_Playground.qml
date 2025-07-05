@@ -6,6 +6,7 @@ import Qool.Controls
 
 Item {
     id: root
+    Style.accent: "red"
 
     ControlFrame {
         id: control
@@ -14,8 +15,9 @@ Item {
         height: 300
 
         anchors.centerIn: parent
-        backgroundSettings.cutSize: 200
         contentSpacing: 10
-        contentItem: SimpleButton {}
+        contentItem: Rectangle {
+            color: Style.accent
+        }
     }
 }

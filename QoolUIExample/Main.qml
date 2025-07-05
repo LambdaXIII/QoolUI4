@@ -30,4 +30,5 @@ QoolWindow {
             contentItem: Page_Playground {}
         }
     } //content
+
 }
