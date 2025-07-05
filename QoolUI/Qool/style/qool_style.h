@@ -1,10 +1,12 @@
 #ifndef QOOL_STYLE_H
 #define QOOL_STYLE_H
 
+#include "qool_smartobj.h"
 #include "qool_theme.h"
-#include "qool_themevaluegroupagent.h"
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
+#include "qoolcommon/macro_foreach.hpp"
 #include "qoolcommon/property_macros.hpp"
+#include "qoolcommon/property_macros_for_qobject_declonly.hpp"
 #include "qoolns.hpp"
 
 #include <QBindable>
@@ -14,8 +16,11 @@
 #include <QQuickAttachedPropertyPropagator>
 #include <QQuickItem>
 
+Q_MOC_INCLUDE("qool_stylegroupagent.h")
+
 QOOL_NS_BEGIN
 
+class StyleGroupAgent;
 class Style: public QQuickAttachedPropertyPropagator {
   Q_OBJECT
   QML_ELEMENT
@@ -23,7 +28,7 @@ class Style: public QQuickAttachedPropertyPropagator {
 
 public:
   explicit Style(QObject* parent = nullptr);
-  ~Style() = default;
+  ~Style();
 
   static Style* qmlAttachedProperties(QObject* object);
 
@@ -31,50 +36,49 @@ public:
     const QString& key, const QVariant& defvalue = {}) const;
   Q_INVOKABLE void setValue(const QString& key, const QVariant& value);
 
-  Q_SIGNAL void valueChanged(QString);
+  Q_INVOKABLE QVariant value(Theme::Groups group, const QString& key,
+    const QVariant& defvalue = {}) const;
+  Q_INVOKABLE void setValue(
+    Theme::Groups group, const QString& key, const QVariant& value);
 
+  Q_SIGNAL void valueChanged(QString);
   Q_INVOKABLE void dumpInfo() const;
 
 protected:
-  bool m_customed { false };
-  QHash<Theme::Groups, ThemeValueGroupAgent*> m_agents;
-  QOOL_BINDABLE_MEMBER(Style, Style*, attachedParent);
-  QOOL_BINDABLE_MEMBER(Style, QQuickItem*, parentItem);
-  QOOL_BINDABLE_MEMBER(Style, bool, windowActived);
-  Q_SLOT void update_windowActived();
+  friend class StyleGroupAgent;
 
-  QOOL_BINDABLE_MEMBER(Style, bool, parentEnabled);
-  Q_SLOT void update_parentEnabled();
+  QHash<Theme::Groups, StyleGroupAgent*> m_agents;
+  Theme::Groups m_currentGroup { Theme::Active };
+  Theme m_currentTheme;
+  SmartObject* m_sidekick;
+  bool m_valueCustomed;
+
+  Q_SIGNAL void internalValuesChanged(
+    Theme::Groups group, QSet<QString> keys);
+  Q_SLOT void dispatchValueSignals(
+    Theme::Groups group, QSet<QString> keys);
+  bool internalSetValue(
+    Theme::Groups group, const QString& key, const QVariant& value);
 
   void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
     QQuickAttachedPropertyPropagator* oldParent) override;
-  bool event(QEvent* e) override;
 
-  void set_parentItem(QObject* x);
-  void set_attachedParent(QObject* x);
-
-  void setup_properties();
-  Q_SLOT void reload_theme();
-
-  void propagateTheme();
   void inherit(Style* other);
+  Q_SLOT void inheritValues(Theme::Groups group, QSet<QString> keys);
+  void propagateTheme();
 
-  QOOL_BINDABLE_MEMBER(Style, Theme::Groups, currentGroup)
-  QOOL_BINDABLE_MEMBER(Style, Theme, currentTheme);
+  /********** PROPERTIES ***********/
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE_DECL(
-    Style, QString, theme)
-  QOOL_PROPERTY_CONSTANT_DECL(ThemeValueGroupAgent*, active)
-  QOOL_PROPERTY_CONSTANT_DECL(ThemeValueGroupAgent*, inactive)
-  QOOL_PROPERTY_CONSTANT_DECL(ThemeValueGroupAgent*, disabled)
-  QOOL_PROPERTY_CONSTANT_DECL(ThemeValueGroupAgent*, constants)
-  QOOL_PROPERTY_CONSTANT_DECL(ThemeValueGroupAgent*, custom)
+  QOOL_PROPERTY_CONSTANT_DECL(StyleGroupAgent*, active)
+  QOOL_PROPERTY_CONSTANT_DECL(StyleGroupAgent*, inactive)
+  QOOL_PROPERTY_CONSTANT_DECL(StyleGroupAgent*, disabled)
+  QOOL_PROPERTY_CONSTANT_DECL(StyleGroupAgent*, constants)
+  QOOL_PROPERTY_CONSTANT_DECL(StyleGroupAgent*, custom)
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
-    Style, bool, animationEnabled)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QString, theme)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(bool, animationEnabled)
 
-#define DECL(T, N)                                                     \
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(Style, T, N)
+#define DECL(T, N) QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(T, N)
 
 #define __COLOR(N) DECL(QColor, N)
   QOOL_FOREACH_10(__COLOR, white, silver, grey, black, red, maroon,

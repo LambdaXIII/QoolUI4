@@ -5,38 +5,84 @@
 QOOL_NS_BEGIN
 
 SmartObject::SmartObject(QObject* parent)
-  : QObject {} {
-  this->setParent(parent);
-}
-
-QQmlListProperty<QObject> SmartObject::smartItems() {
-  return { this, nullptr, _append_item, nullptr, nullptr, nullptr };
-}
-
-void SmartObject::_append_item(
-  QQmlListProperty<QObject>* list, QObject* item) {
-  SmartObject* self = qobject_cast<SmartObject*>(list->object);
-  self->m_items.append(item);
-  if (item->parent() == nullptr)
-    item->setParent(self);
-}
-
-void SmartObject::setParent(QObject* parent) {
-  QObject* old_parent = this->parent();
-  if (parent == old_parent)
-    return;
-  QObject::setParent(parent);
-  emit parentChanged();
-  QQuickItem* pItem = qobject_cast<QQuickItem*>(parent);
-  if (pItem != m_parentItem) {
-    m_parentItem = pItem;
-    emit parentItemChanged();
-  }
+  : QObject { parent } {
+  m_enabled.setValue(true);
+  connect(this, SIGNAL(parentChanged()), this, SLOT(update_parent()));
+  update_parent();
 }
 
 QVariant SmartObject::parentItem() const {
-  return QVariant::fromValue(m_parentItem);
+  if (m_parentQuickItem)
+    return QVariant::fromValue(m_parentQuickItem);
+  if (m_parentWindow)
+    return QVariant::fromValue(m_parentWindow);
+  return {};
 }
+
+QQuickItem* SmartObject::parentQuickItem() const {
+  return m_parentQuickItem;
+}
+
+QQuickWindow* SmartObject::parentWindow() const {
+  return m_parentWindow;
+}
+
+QQmlListProperty<QObject> SmartObject::smartItems() {
+  // return { this, nullptr, _append_item, nullptr, nullptr, nullptr };
+  return { this, &m_items };
+}
+
+void SmartObject::update_parent() {
+  disconnect(m_parentQuickItem);
+  disconnect(m_parentWindow);
+
+  m_parentQuickItem = qobject_cast<QQuickItem*>(parent());
+  if (m_parentQuickItem)
+    m_parentWindow = m_parentQuickItem->window();
+  else
+    m_parentWindow = qobject_cast<QQuickWindow*>(parent());
+
+  if (m_parentQuickItem) {
+    connect(m_parentQuickItem,
+      SIGNAL(enabledChanged()),
+      this,
+      SLOT(update_item_properties()));
+  }
+
+  if (m_parentWindow) {
+    connect(m_parentWindow,
+      SIGNAL(activeChanged()),
+      this,
+      SLOT(update_window_properties()));
+  }
+
+  update_item_properties();
+  update_window_properties();
+}
+
+void SmartObject::update_item_properties() {
+  if (! m_parentQuickItem) {
+    set_parentEnabled(true);
+    return;
+  }
+  set_parentEnabled(m_parentQuickItem->isEnabled());
+}
+
+void SmartObject::update_window_properties() {
+  if (! m_parentWindow) {
+    set_windowActived(true);
+    return;
+  }
+  set_windowActived(m_parentWindow->isActive());
+}
+
+// void SmartObject::_append_item(
+//   QQmlListProperty<QObject>* list, QObject* item) {
+//   SmartObject* self = qobject_cast<SmartObject*>(list->object);
+//   self->m_items.append(item);
+//   if (item->parent() == nullptr)
+//     item->setParent(self);
+// }
 
 void SmartObject::dumpProperties() const {
   if (! objectName().isEmpty())
@@ -50,6 +96,13 @@ void SmartObject::dumpProperties() const {
             << xDBGGrey << "=" << xDBGGreen << property.read(this)
             << xDBGReset;
   }
+}
+
+bool SmartObject::event(QEvent* e) {
+  if (e->type() == QEvent::ParentChange)
+    emit parentChanged();
+
+  return QObject::event(e);
 }
 
 QOOL_NS_END

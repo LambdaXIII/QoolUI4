@@ -19,6 +19,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_add_qml_module(Qool
     URI Qool
@@ -73,6 +74,7 @@ qt_add_qml_module(Qool
     SOURCES style/qool_themevaluegroupagent.h style/qool_themevaluegroupagent.cpp
     SOURCES style/qool_theme_database.h style/qool_theme_database.cpp
     SOURCES style/qool_system_theme.h style/qool_system_theme.cpp
+    SOURCES style/qool_stylegroupagent.h style/qool_stylegroupagent.cpp
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)
@@ -104,6 +106,7 @@ target_link_libraries(Qool
     Qt6::Core
     Qt6::QuickControls2
 )
+target_link_libraries(Qool PRIVATE Qt6::Core)
 target_link_libraries(Qool PRIVATE Qt6::Core)
 
 target_include_directories(Qool
