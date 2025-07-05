@@ -41,6 +41,16 @@ Style::Style(QObject* parent)
     return Theme::Active;
   });
 
+  m_animationEnabled.setBinding([&] {
+    if (m_attachedParent.value())
+      return m_attachedParent.value()
+        ->bindable_animationEnabled()
+        .value();
+    return m_agents[m_currentGroup.value()]
+      ->bindable_animationEnabled()
+      .value();
+  });
+
   set_theme("system");
 }
 

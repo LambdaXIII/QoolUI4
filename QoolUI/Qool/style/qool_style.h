@@ -68,6 +68,9 @@ protected:
   QOOL_PROPERTY_CONSTANT_DECL(ThemeValueGroupAgent*, constants)
   QOOL_PROPERTY_CONSTANT_DECL(ThemeValueGroupAgent*, custom)
 
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+    Style, bool, animationEnabled)
+
 #define DECL(T, N)                                                     \
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(Style, T, N)
 
@@ -102,7 +105,6 @@ protected:
   QOOL_FOREACH_2(__REAL, windowElementSpacing, windowEdgeSpacing)
 #undef __REAL
 
-  DECL(bool, animationEnabled)
   DECL(QStringList, papaWords)
 
 #undef DECL
