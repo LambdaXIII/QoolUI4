@@ -52,6 +52,9 @@ Style::Style(QObject* parent)
       .value();
   });
 
+  setup_properties();
+
+  set_parentItem(parent);
   set_theme("system");
 }
 
@@ -69,15 +72,25 @@ void Style::setValue(const QString& key, const QVariant& value) {
 }
 
 void Style::dumpInfo() const {
+  xDebugQ << "PARENT:" << m_parentItem.value()->objectName();
+  xDebugQ << "CURRENT_GROUP" << m_currentGroup.value();
   xDebugQ << xDBGQPropertyList;
 }
 
 void Style::update_windowActived() {
-  m_windowActived = m_parentItem->window()->isActive();
+  bool result = true;
+  if (m_parentItem.value() and m_parentItem.value()->window()) {
+    result = m_parentItem.value()->window()->isActive();
+  }
+  m_windowActived = result;
 }
 
 void Style::update_parentEnabled() {
-  m_parentEnabled = m_parentItem->isEnabled();
+  bool result = true;
+  if (m_parentItem.value()) {
+    result = m_parentItem.value()->isEnabled();
+  }
+  m_parentEnabled = result;
 }
 
 void Style::attachedParentChange(
@@ -103,12 +116,14 @@ void Style::set_parentItem(QObject* x) {
   auto old_parent = m_parentItem.value();
   disconnect(old_parent);
   QQuickItem* a = qobject_cast<QQuickItem*>(x);
-  connect(
-    a, SIGNAL(enabledChanged()), this, SLOT(update_parentEnabled()));
-  connect(a,
-    SIGNAL(windowChanged(QQuickWindow*)),
-    this,
-    SLOT(update_windowActived()));
+  if (a) {
+    connect(
+      a, SIGNAL(enabledChanged()), this, SLOT(update_parentEnabled()));
+    connect(a,
+      SIGNAL(windowChanged(QQuickWindow*)),
+      this,
+      SLOT(update_windowActived()));
+  }
   m_parentItem = a;
 }
 
@@ -123,7 +138,13 @@ void Style::setup_properties() {
   m_##N.setBinding([&] {                                               \
     return m_agents[m_currentGroup.value()]->bindable_##N().value();   \
   });
+  QOOL_FOREACH_10(SETUP, white, silver, grey, black, red, maroon,
+    yellow, olive, lime, green)
+  QOOL_FOREACH_10(SETUP, aqua, cyan, teal, blue, navy, fuchsia, purple,
+    orange, brown, pink)
   QOOL_FOREACH_3(SETUP, positive, negative, warning)
+  QOOL_FOREACH_3(
+    SETUP, controlBackgroundColor, controlBorderColor, infoColor)
   QOOL_FOREACH_10(SETUP, accent, light, midlight, dark, mid, shadow,
     highlight, highlightedText, link, linkVisited)
   QOOL_FOREACH_10(SETUP, text, base, alternateBase, window, windowText,

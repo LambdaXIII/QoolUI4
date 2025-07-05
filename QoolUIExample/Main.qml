@@ -9,6 +9,7 @@ import "pages"
 
 QoolWindow {
     id: root
+    objectName: "XXXX"
     width: 1024
     height: 720
     visible: true
@@ -33,5 +34,11 @@ QoolWindow {
     } //content
 
     // Component.onCompleted: Qore.style.dumpInfo()
-    Component.onCompleted: Style.dumpInfo()
+    Timer {
+        id: timer
+        interval: 3000
+        onTriggered: root.Style.dumpInfo()
+    }
+
+    Component.onCompleted: timer.start()
 }
