@@ -35,12 +35,12 @@ public:
     const QVariantMap& disabled, const QVariantMap& custom = {});
 
   Theme(const Theme&);
-  // Theme(Theme&&);
+  Theme(Theme&&);
 
-  // Theme& operator=(const Theme&);
-  // Theme& operator=(Theme&&);
+  Theme& operator=(const Theme&);
+  Theme& operator=(Theme&&);
 
-  ~Theme();
+  ~Theme() = default;
 
   QString name() const;
   bool setName(const QString& value);
@@ -81,7 +81,7 @@ public:
 protected:
   QHash<int, QVariantMap> m_data;
   QVariantMap m_metadata;
-  QMutex* m_mutex;
+  // QMutex m_mutex;
 
   Q_PROPERTY(QString name READ name WRITE setName)
   Q_PROPERTY(QStringList keys READ keys CONSTANT)

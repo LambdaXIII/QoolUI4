@@ -6,7 +6,8 @@
 
 QOOL_NS_BEGIN
 
-#define LOCK_DATA QMutexLocker locker(m_mutex);
+// #define LOCK_DATA QMutexLocker locker(&m_mutex);
+#define LOCK_DATA
 
 const std::array<Theme::Groups, 5> Theme::GROUPS {
   Theme::Groups::Constants, Theme::Groups::Active,
@@ -27,8 +28,7 @@ QList<Theme::Groups> ORDERED_GROUPS_FOR(Theme::Groups group) {
   return std::move(result);
 }
 
-Theme::Theme()
-  : m_mutex { new QMutex } {
+Theme::Theme() {
   for (const auto& x : GROUPS) {
     m_data[x] = QVariantMap();
   }
@@ -59,38 +59,27 @@ Theme::Theme(const QVariantMap& metadatas, const QVariantMap& constants,
 }
 
 Theme::Theme(const Theme& other)
-  : m_mutex { new QMutex }
-  , m_metadata { other.m_metadata }
+  : m_metadata { other.m_metadata }
   , m_data { other.m_data } {
 }
 
-// Theme::Theme(Theme&& other)
-//   : m_mutex { new QMutex }
-//   , m_metadata { std::move(other.m_metadata) }
-//   , m_data { std::move(other.m_data) } {
-// }
+Theme::Theme(Theme&& other)
+  : m_metadata { std::move(other.m_metadata) }
+  , m_data { std::move(other.m_data) } {
+}
 
-// Theme& Theme::operator=(const Theme& other) {
-//   LOCK_DATA
-//   m_metadata = other.m_metadata;
-//   m_data = other.m_data;
-//   return *this;
-// }
+Theme& Theme::operator=(const Theme& other) {
+  LOCK_DATA
+  m_metadata = other.m_metadata;
+  m_data = other.m_data;
+  return *this;
+}
 
-// Theme& Theme::operator=(Theme&& other) {
-//   LOCK_DATA
-//   m_metadata = std::move(other.m_metadata);
-//   m_data = std::move(other.m_data);
-//   return *this;
-// }
-
-Theme::~Theme() {
-  if (m_mutex) {
-    if (m_mutex->tryLock())
-      m_mutex->unlock();
-    delete m_mutex;
-    m_mutex = nullptr;
-  }
+Theme& Theme::operator=(Theme&& other) {
+  LOCK_DATA
+  m_metadata = std::move(other.m_metadata);
+  m_data = std::move(other.m_data);
+  return *this;
 }
 
 QString Theme::name() const {

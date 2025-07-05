@@ -15,9 +15,7 @@ QoolWindow {
     visible: true
     title: qsTr("Hello, Qool World!")
 
-    palette: QoolPalette {
-        theme: "midnight"
-    }
+    Style.theme: "midnight"
 
     content: SplitView {
         PageListView {
@@ -32,16 +30,4 @@ QoolWindow {
             contentItem: Page_Playground {}
         }
     } //content
-
-    // Component.onCompleted: Qore.style.dumpInfo()
-    Timer {
-        id: timer
-        interval: 3000
-        onTriggered: {
-            console.log(ThemeDatabase.themes)
-            root.Style.dumpInfo()
-        }
-    }
-
-    Component.onCompleted: timer.start()
 }

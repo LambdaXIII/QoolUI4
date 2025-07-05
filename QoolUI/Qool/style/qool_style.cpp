@@ -10,7 +10,6 @@ QOOL_NS_BEGIN
 
 Style::Style(QObject* parent)
   : QQuickAttachedPropertyPropagator(parent) {
-  initialize();
   for (const auto x : Theme::GROUPS) {
     m_agents[x] = new StyleGroupAgent(x, this);
   }
@@ -19,7 +18,10 @@ Style::Style(QObject* parent)
   connect(this, &Style::internalValuesChanged, this,
     &Style::dispatchValueSignals);
 
-  set_theme("system");
+  m_currentTheme = ThemeDatabase::instance()->theme("system");
+  m_valueCustomed = false;
+
+  initialize();
 }
 
 Style::~Style() {
@@ -173,6 +175,7 @@ QString Style::theme() const {
 void Style::set_theme(const QString& name) {
   if (m_currentTheme.name() == name || m_valueCustomed)
     return;
+  m_currentTheme = ThemeDatabase::instance()->theme(name);
   propagateTheme();
   emit themeChanged();
 }
@@ -238,10 +241,11 @@ IMPL(QStringList, papaWords)
 
 void Style::dumpInfo() const {
   QVariantMap info { { "Theme", theme() },
-    { "CurrentGroup", m_currentGroup } };
+    { "CurrentGroup", m_currentGroup },
+    { "CUSTOMED", m_valueCustomed } };
   xDebugQ << "BASIC_INFO" << xDBGMap(info);
   xDebugQ << "PROPERTIES" << xDBGQPropertyList;
-  m_currentTheme.dumpInfo();
+  // m_currentTheme.dumpInfo();
 }
 
 QOOL_NS_END
