@@ -19,12 +19,24 @@ QVariant SmartObject::parentItem() const {
   return {};
 }
 
+QBindable<QVariant> SmartObject::bindable_parentItem() {
+  return QBindable<QVariant>(this, "parentItem");
+}
+
 QQuickItem* SmartObject::parentQuickItem() const {
   return m_parentQuickItem;
 }
 
+QBindable<QQuickItem*> SmartObject::bindable_parentQuickItem() {
+  return QBindable<QQuickItem*> { this, "parentQuickItem" };
+}
+
 QQuickWindow* SmartObject::parentWindow() const {
   return m_parentWindow;
+}
+
+QBindable<QQuickWindow*> SmartObject::bindable_parentWindow() {
+  return QBindable<QQuickWindow*> { this, "parentWindow" };
 }
 
 QQmlListProperty<QObject> SmartObject::smartItems() {
@@ -62,18 +74,18 @@ void SmartObject::update_parent() {
 
 void SmartObject::update_item_properties() {
   if (! m_parentQuickItem) {
-    set_parentEnabled(true);
+    m_parentEnabled.setValue(true);
     return;
   }
-  set_parentEnabled(m_parentQuickItem->isEnabled());
+  m_parentEnabled.setValue(m_parentQuickItem->isEnabled());
 }
 
 void SmartObject::update_window_properties() {
   if (! m_parentWindow) {
-    set_windowActived(true);
+    m_windowActived.setValue(true);
     return;
   }
-  set_windowActived(m_parentWindow->isActive());
+  m_windowActived.setValue(m_parentWindow->isActive());
 }
 
 // void SmartObject::_append_item(

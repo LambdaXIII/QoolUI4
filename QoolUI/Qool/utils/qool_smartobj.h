@@ -24,19 +24,25 @@ class SmartObject: public QObject {
     QQmlListProperty<QObject> smartItems READ smartItems CONSTANT FINAL)
   Q_PROPERTY(
     QObject* parent READ parent WRITE setParent NOTIFY parentChanged)
-  Q_PROPERTY(QVariant parentItem READ parentItem NOTIFY parentChanged)
+  Q_PROPERTY(QVariant parentItem READ parentItem NOTIFY parentChanged
+      BINDABLE bindable_parentQuickItem)
   Q_PROPERTY(QQuickItem* parentQuickItem READ parentQuickItem NOTIFY
-      parentChanged)
-  Q_PROPERTY(
-    QQuickWindow* parentWindow READ parentWindow NOTIFY parentChanged)
+      parentChanged BINDABLE bindable_parentQuickItem)
+  Q_PROPERTY(QQuickWindow* parentWindow READ parentWindow NOTIFY
+      parentChanged BINDABLE bindable_parentWindow)
 
 public:
   explicit SmartObject(QObject* parent = nullptr);
   virtual ~SmartObject() = default;
 
   QVariant parentItem() const;
+  QBindable<QVariant> bindable_parentItem();
+
   QQuickItem* parentQuickItem() const;
+  QBindable<QQuickItem*> bindable_parentQuickItem();
+
   QQuickWindow* parentWindow() const;
+  QBindable<QQuickWindow*> bindable_parentWindow();
 
   Q_SIGNAL void parentChanged();
   Q_INVOKABLE void dumpProperties() const;
@@ -56,9 +62,9 @@ private:
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
     SmartObject, bool, enabled)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
     SmartObject, bool, parentEnabled)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
     SmartObject, bool, windowActived)
 };
 
