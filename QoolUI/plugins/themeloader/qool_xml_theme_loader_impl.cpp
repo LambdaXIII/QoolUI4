@@ -36,8 +36,8 @@ void XMLThemeLoaderImpl::load(const QString& filename) {
     const auto element = node.toElement();
     if (element.tagName() == "constants") {
       const auto loaded_values =
-        load_value_group(node.toElement(), this->constants);
-      this->active.insert(loaded_values);
+        load_value_group(element, this->constants);
+      this->constants.insert(loaded_values);
       continue;
     }
 
@@ -45,26 +45,22 @@ void XMLThemeLoaderImpl::load(const QString& filename) {
     refValues.insert(this->active);
 
     if (element.tagName() == "active") {
-      const auto loaded_values =
-        load_value_group(node.toElement(), refValues);
+      const auto loaded_values = load_value_group(element, refValues);
       this->active.insert(loaded_values);
       continue;
     }
     if (element.tagName() == "inactive") {
-      const auto loaded_values =
-        load_value_group(node.toElement(), refValues);
+      const auto loaded_values = load_value_group(element, refValues);
       this->inactive.insert(loaded_values);
       continue;
     }
     if (element.tagName() == "disabled") {
-      const auto loaded_values =
-        load_value_group(node.toElement(), refValues);
+      const auto loaded_values = load_value_group(element, refValues);
       this->disabled.insert(loaded_values);
       continue;
     }
     if (element.tagName() == "custom") {
-      const auto loaded_values =
-        load_value_group(node.toElement(), refValues);
+      const auto loaded_values = load_value_group(element, refValues);
       this->active.insert(loaded_values);
       continue;
     }
@@ -72,31 +68,12 @@ void XMLThemeLoaderImpl::load(const QString& filename) {
     this->metadata.insert(element.tagName(), element.text());
   } // for nodes
 
-  const auto activeGroups = root.elementsByTagName("active");
-  for (const auto& node : activeGroups) {
-    QVariantMap refValues = this->active;
-    const auto loaded_values =
-      load_value_group(node.toElement(), refValues);
-    this->active.insert(loaded_values);
-  }
-
-  const auto inactiveGroups = root.elementsByTagName("inactive");
-  for (const auto& node : inactiveGroups) {
-    QVariantMap refValues = this->active;
-    refValues.insert(this->inactive);
-    const auto loaded_values =
-      load_value_group(node.toElement(), refValues);
-    this->inactive.insert(loaded_values);
-  }
-
-  const auto disabledGroups = root.elementsByTagName("disabled");
-  for (const auto& node : disabledGroups) {
-    QVariantMap refValues = this->active;
-    refValues.insert(this->disabled);
-    const auto loaded_values =
-      load_value_group(node.toElement(), refValues);
-    this->disabled.insert(loaded_values);
-  }
+  // xDebug << "METADATA" << xDBGMap(metadata);
+  // xDebug << "CONSTANTS" << xDBGMap(constants);
+  // xDebug << "ACTIVE" << xDBGMap(active);
+  // xDebug << "INACTIVE" << xDBGMap(inactive);
+  // xDebug << "DISABLED" << xDBGMap(disabled);
+  // xDebug << "CUSTOM" << xDBGMap(custom);
 
   xInfo << xDBGToken("XMLThemeLoader") << xDBGGreen << this->filename
         << xDBGReset << "parsing finished.";
@@ -183,6 +160,8 @@ QVariantMap XMLThemeLoaderImpl::solve_values(
   QVariantMap result;
   XPropertyMap lazyProperties, listProperties;
   for (const auto& p : properties) {
+    if (p.name.isEmpty())
+      continue;
     if (p.type == "list")
       listProperties.insert(p.name, p);
     else if (p.copy.has_value())

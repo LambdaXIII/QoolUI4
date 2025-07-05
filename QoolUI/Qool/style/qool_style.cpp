@@ -25,7 +25,13 @@ Style::Style(QObject* parent)
     this,
     SLOT(update_windowActived()));
 
+  connect(custom(), &ThemeValueGroupAgent::valueCustomed, this,
+    [&] { m_customed = true; });
+
   m_theme.setBinding([&] { return m_currentTheme.value().name(); });
+
+  connect(
+    this, SIGNAL(currentThemeChanged()), this, SLOT(reload_theme));
 
   m_currentGroup.setBinding([&] {
     if (! m_parentEnabled.value())
@@ -34,6 +40,8 @@ Style::Style(QObject* parent)
       return Theme::Inactive;
     return Theme::Active;
   });
+
+  set_theme("system");
 }
 
 Style* Style::qmlAttachedProperties(QObject* object) {
@@ -92,6 +100,7 @@ void Style::set_parentItem(QObject* x) {
 void Style::set_attachedParent(QObject* x) {
   Style* a = qobject_cast<Style*>(x);
   m_attachedParent = a;
+  inherit(m_attachedParent.value());
 }
 
 void Style::setup_properties() {
@@ -117,7 +126,29 @@ void Style::setup_properties() {
   SETUP(animationEnabled)
   SETUP(papaWords)
 #undef SETUP
-} // setup_properties
+}
+
+void Style::reload_theme() {
+  const auto theme = m_currentTheme.value();
+  for (const auto& group : Theme::GROUPS) {
+    if (group == Theme::Custom && m_customed)
+      continue;
+    m_agents[group]->set_data(theme.flatMap(group));
+  }
+}
+
+void Style::propagateTheme() {
+  for (auto child : attachedChildren()) {
+    Style* child_node = qobject_cast<Style*>(child);
+    if (! child_node)
+      continue;
+    child_node->inherit(this);
+  }
+}
+
+void Style::inherit(Style* other) {
+  m_currentTheme = other->m_currentTheme;
+}
 
 QString Style::theme() const {
   return m_theme.value();

@@ -33,4 +33,5 @@ QoolWindow {
     } //content
 
     // Component.onCompleted: Qore.style.dumpInfo()
+    Component.onCompleted: console.log(Style.theme)
 }

@@ -29,6 +29,7 @@ void ThemeValueGroupAgent::setValue(
     return;
   m_data.set_value(key, value);
   when_value_changed({ key });
+  emit valueCustomed();
 }
 
 void ThemeValueGroupAgent::set_data(const QVariantMap& datas) {
@@ -112,6 +113,7 @@ void ThemeValueGroupAgent::when_value_changed(const QStringList& keys) {
     m_data.set_value(#N, value);                                       \
     emit N##Changed();                                                 \
     emit valueChanged(#N);                                             \
+    emit valueCustomed();                                              \
   }                                                                    \
   QBindable<T> ThemeValueGroupAgent::bindable_##N() {                  \
     return QBindable<T>(this, #N);                                     \

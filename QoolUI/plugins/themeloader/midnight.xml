@@ -46,7 +46,6 @@
         <color property="positive" value="#00FF68"/>
         <color property="negative" value="#FF414D"/>
         <color property="warning" value="#FF6DC9"/>
-
     </constants>
     <active>
         <!--Active group is a must-have-->

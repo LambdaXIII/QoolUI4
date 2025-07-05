@@ -33,6 +33,7 @@ public:
   Q_INVOKABLE void reset();
 
   Q_SIGNAL void valueChanged(QString);
+  Q_SIGNAL void valueCustomed(); // when user explicitly changed values
 
   void inherit(ThemeValueGroupAgent* other);
 

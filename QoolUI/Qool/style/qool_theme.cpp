@@ -46,7 +46,8 @@ Theme::Theme(const QString& name, const QVariantMap& constants,
 
 Theme::Theme(const QVariantMap& metadatas, const QVariantMap& constants,
   const QVariantMap& active, const QVariantMap& inactive,
-  const QVariantMap& disabled, const QVariantMap& custom) {
+  const QVariantMap& disabled, const QVariantMap& custom)
+  : Theme() {
   m_metadata = metadatas;
   m_data[Groups::Constants].insert(constants);
   m_data[Groups::Active].insert(active);
@@ -82,9 +83,12 @@ Theme& Theme::operator=(Theme&& other) {
 }
 
 Theme::~Theme() {
-  m_mutex->unlock();
-  delete m_mutex;
-  m_mutex = nullptr;
+  if (m_mutex) {
+    if (m_mutex->tryLock())
+      m_mutex->unlock();
+    delete m_mutex;
+    m_mutex = nullptr;
+  }
 }
 
 QString Theme::name() const {

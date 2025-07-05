@@ -37,8 +37,8 @@ public:
     , m_defaults { other.m_defaults }
     , m_currents { other.m_currents } {};
   virtual ~DefaultVariantMap() {
-    m_lock->unlock();
-    delete m_lock;
+    if (m_lock)
+      delete m_lock;
   }
 
   bool contains(const QString& key) const {

@@ -34,6 +34,7 @@ public:
   Q_SIGNAL void valueChanged(QString);
 
 protected:
+  bool m_customed { false };
   QHash<Theme::Groups, ThemeValueGroupAgent*> m_agents;
   QOOL_BINDABLE_MEMBER(Style, Style*, attachedParent);
   QOOL_BINDABLE_MEMBER(Style, QQuickItem*, parentItem);
@@ -51,6 +52,10 @@ protected:
   void set_attachedParent(QObject* x);
 
   void setup_properties();
+  Q_SLOT void reload_theme();
+
+  void propagateTheme();
+  void inherit(Style* other);
 
   QOOL_BINDABLE_MEMBER(Style, Theme::Groups, currentGroup)
   QOOL_BINDABLE_MEMBER(Style, Theme, currentTheme);
