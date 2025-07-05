@@ -1,6 +1,7 @@
 #include "qool_style.h"
 
 #include "qool_theme_database.h"
+#include "qoolcommon/debug.hpp"
 
 #include <QQuickWindow>
 
@@ -31,7 +32,7 @@ Style::Style(QObject* parent)
   m_theme.setBinding([&] { return m_currentTheme.value().name(); });
 
   connect(
-    this, SIGNAL(currentThemeChanged()), this, SLOT(reload_theme));
+    this, SIGNAL(currentThemeChanged()), this, SLOT(reload_theme()));
 
   m_currentGroup.setBinding([&] {
     if (! m_parentEnabled.value())
@@ -65,6 +66,10 @@ QVariant Style::value(
 
 void Style::setValue(const QString& key, const QVariant& value) {
   custom()->setValue(key, value);
+}
+
+void Style::dumpInfo() const {
+  xDebugQ << xDBGQPropertyList;
 }
 
 void Style::update_windowActived() {
@@ -122,7 +127,7 @@ void Style::setup_properties() {
   QOOL_FOREACH_10(SETUP, accent, light, midlight, dark, mid, shadow,
     highlight, highlightedText, link, linkVisited)
   QOOL_FOREACH_10(SETUP, text, base, alternateBase, window, windowText,
-    button, buttonText, placeHolderText, toolTipBase, toolTipText)
+    button, buttonText, placeholderText, toolTipBase, toolTipText)
   QOOL_FOREACH_8(SETUP, textSize, titleTextSize, toolTipTextSize,
     importantTextSize, decorativeTextSize, controlTitleTextSize,
     controlTextSize, windowTitleTextSize)
@@ -148,7 +153,8 @@ void Style::reload_theme() {
 }
 
 void Style::propagateTheme() {
-  for (auto child : attachedChildren()) {
+  auto children = attachedChildren();
+  for (auto child : std::as_const(children)) {
     Style* child_node = qobject_cast<Style*>(child);
     if (! child_node)
       continue;

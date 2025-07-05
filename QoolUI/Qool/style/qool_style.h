@@ -33,6 +33,8 @@ public:
 
   Q_SIGNAL void valueChanged(QString);
 
+  Q_INVOKABLE void dumpInfo() const;
+
 protected:
   bool m_customed { false };
   QHash<Theme::Groups, ThemeValueGroupAgent*> m_agents;
@@ -85,7 +87,7 @@ protected:
   QOOL_FOREACH_10(__COLOR, accent, light, midlight, dark, mid, shadow,
     highlight, highlightedText, link, linkVisited)
   QOOL_FOREACH_10(__COLOR, text, base, alternateBase, window,
-    windowText, button, buttonText, placeHolderText, toolTipBase,
+    windowText, button, buttonText, placeholderText, toolTipBase,
     toolTipText)
 #undef __COLOR
 

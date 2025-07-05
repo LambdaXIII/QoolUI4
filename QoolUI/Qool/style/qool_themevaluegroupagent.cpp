@@ -82,7 +82,7 @@ void ThemeValueGroupAgent::when_value_changed(const QStringList& keys) {
     QOOL_FOREACH_10(CHECK, accent, light, midlight, dark, mid, shadow,
       highlight, highlightedText, link, linkVisited)
     QOOL_FOREACH_10(CHECK, text, base, alternateBase, window,
-      windowText, button, buttonText, placeHolderText, toolTipBase,
+      windowText, button, buttonText, placeholderText, toolTipBase,
       toolTipText)
     QOOL_FOREACH_8(CHECK, textSize, titleTextSize, toolTipTextSize,
       importantTextSize, decorativeTextSize, controlTitleTextSize,
@@ -136,7 +136,7 @@ QOOL_FOREACH_3(
 QOOL_FOREACH_10(__COLOR, accent, light, midlight, dark, mid, shadow,
   highlight, highlightedText, link, linkVisited)
 QOOL_FOREACH_10(__COLOR, text, base, alternateBase, window, windowText,
-  button, buttonText, placeHolderText, toolTipBase, toolTipText)
+  button, buttonText, placeholderText, toolTipBase, toolTipText)
 #undef __COLOR
 
 #define __INT(N) IMPL(int, N)

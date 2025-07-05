@@ -76,7 +76,7 @@ public:
 
   Q_INVOKABLE QVariantMap flatMap(Groups group) const;
 
-private:
+protected:
   QHash<int, QVariantMap> m_data;
   QVariantMap m_metadata;
   QMutex* m_mutex;

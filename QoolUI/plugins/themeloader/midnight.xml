@@ -19,7 +19,7 @@
         <number property="transitionDuration" value="200"/>
         <number property="movementDuration" value="400"/>
 
-        <number property="menuCutSize" copy="controlCutSize"/>
+        <number property="menuCutSize" copy="buttonCutSize"/>
         <number property="buttonCutSize" value="5"/>
 
         <number property="textSize" value="14" />
@@ -97,7 +97,7 @@
         <color property="windowText" copy="text"/>
         <color property="button" copy="base"/>
         <color property="buttonText" copy="text"/>
-        <color property="placeHolderText" copy="text" darker="1.5"/>
+        <color property="placeholderText" copy="text" darker="1.5"/>
         <color property="toolTipBase" value= "#EEFC7A"/>
         <color property="toolTipText" copy="dark"/>
     </active>

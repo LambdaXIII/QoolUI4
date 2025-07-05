@@ -66,7 +66,7 @@ private:                                                               \
   QOOL_FOREACH_10(__COLOR, accent, light, midlight, dark, mid, shadow,
     highlight, highlightedText, link, linkVisited)
   QOOL_FOREACH_10(__COLOR, text, base, alternateBase, window,
-    windowText, button, buttonText, placeHolderText, toolTipBase,
+    windowText, button, buttonText, placeholderText, toolTipBase,
     toolTipText)
 #undef __COLOR
 

@@ -1,6 +1,7 @@
 #include "qool_theme_database.h"
 
 #include "qool_interface_themeloader.h"
+#include "qool_system_theme.h"
 #include "qoolcommon/debug.hpp"
 #include "qoolcommon/plugin_loader.hpp"
 
@@ -11,6 +12,7 @@ QOOL_SIMPLE_SINGLETON_QT_IMPL(ThemeDatabase)
 ThemeDatabase::ThemeDatabase()
   : QAbstractListModel(nullptr)
   , m_mutex { new QMutex } {
+  installTheme(*SystemTheme::instance());
   auto_install_themes();
 }
 
