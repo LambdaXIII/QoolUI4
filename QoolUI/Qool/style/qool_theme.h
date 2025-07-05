@@ -17,11 +17,11 @@ class Theme {
 
 public:
   enum Groups {
-    Constants = QPalette::Active - 1,
+    Constants = -999,
     Active = QPalette::Active,
     Inactive = QPalette::Inactive,
     Disabled = QPalette::Disabled,
-    Custom = QPalette::Disabled + 1
+    Custom = Qt::UserRole + 999
   };
   Q_ENUM(Groups)
   static const std::array<Groups, 5> GROUPS;
@@ -46,6 +46,7 @@ public:
   bool setName(const QString& value);
 
   QStringList keys() const;
+  QStringList keys(Groups group) const;
 
   Q_INVOKABLE QVariant value(Groups group, const QString& key,
     const QVariant& defvalue = {}) const;

@@ -1,6 +1,7 @@
 #include "qool_stylegroupagent.h"
 
 #include "qool_style.h"
+// #include "qoolcommon/debug.hpp"
 
 QOOL_NS_BEGIN
 
@@ -8,12 +9,6 @@ StyleGroupAgent::StyleGroupAgent(Theme::Groups group, Style* parent)
   : QObject { parent }
   , m_group { group }
   , m_parentStyle { parent } {
-  connect(m_parentStyle, &Style::internalValuesChanged, this,
-    [&](Theme::Groups group, const QSet<QString>& keys) {
-      // if (group != m_group)
-      //   return;
-      dispatchValueSignals(keys);
-    });
 }
 
 QVariant StyleGroupAgent::value(
@@ -34,6 +29,11 @@ void StyleGroupAgent::setParentValue(
 }
 
 void StyleGroupAgent::dispatchValueSignals(QSet<QString> keys) {
+  if (keys.isEmpty()) {
+    const auto all_keys = m_parentStyle->m_currentTheme.keys(m_group);
+    keys = QSet<QString>(all_keys.constBegin(), all_keys.constEnd());
+  }
+
   Qt::beginPropertyUpdateGroup();
   for (const auto& key : std::as_const(keys)) {
     emit valueChanged(key);
@@ -63,7 +63,7 @@ void StyleGroupAgent::dispatchValueSignals(QSet<QString> keys) {
     QOOL_FOREACH_3(
       CHECK, controlBorderWidth, windowBorderWidth, dialogBorderWidth)
     QOOL_FOREACH_2(CHECK, windowElementSpacing, windowEdgeSpacing)
-    CHECK(animationEnabled)
+    // CHECK(animationEnabled)
     CHECK(papaWords)
 #undef CHECK
   }

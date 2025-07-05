@@ -9,22 +9,30 @@ QOOL_NS_BEGIN
 // #define LOCK_DATA QMutexLocker locker(&m_mutex);
 #define LOCK_DATA
 
-const std::array<Theme::Groups, 5> Theme::GROUPS {
-  Theme::Groups::Constants, Theme::Groups::Active,
-  Theme::Groups::Inactive, Theme::Groups::Disabled,
-  Theme::Groups::Custom
-};
+const std::array<Theme::Groups, 5> Theme::GROUPS { Theme::Constants,
+  Theme::Active, Theme::Inactive, Theme::Disabled, Theme::Custom };
 
 /* 为指定的group设置查找优先级 */
-QList<Theme::Groups> ORDERED_GROUPS_FOR(Theme::Groups group) {
-  QList<Theme::Groups> result { Theme::Groups::Disabled,
-    Theme::Groups::Inactive, Theme::Groups::Active };
-  if (result.contains(group)) {
-    result.removeAll(group);
-    result.prepend(group);
+QList<Theme::Groups> ORDERED_GROUPS_FOR(
+  Theme::Groups group, bool reversed = false) {
+  QList<Theme::Groups> result;
+  result << Theme::Constants;
+
+  if (group > Theme::Constants)
+    result << Theme::Active;
+
+  if (group == Theme::Disabled)
+    result << Theme::Disabled;
+
+  if (group == Theme::Inactive)
+    result << Theme::Inactive;
+
+  if (group > Theme::Constants)
+    result << Theme::Custom;
+
+  if (reversed) {
+    std::reverse(result.begin(), result.end());
   }
-  result.prepend(Theme::Groups::Custom);
-  result.append(Theme::Groups::Constants);
   return std::move(result);
 }
 
@@ -106,12 +114,18 @@ QStringList Theme::keys() const {
   return { all_keys.constBegin(), all_keys.constEnd() };
 }
 
+QStringList Theme::keys(Groups group) const {
+  if (! m_data.contains(group))
+    return {};
+  return m_data.value(group).keys();
+}
+
 QVariant Theme::value(
   Groups group, const QString& key, const QVariant& defvalue) const {
   if (! m_data.contains(group))
     return defvalue;
 
-  const auto _groups = ORDERED_GROUPS_FOR(group);
+  const auto _groups = ORDERED_GROUPS_FOR(group, true);
 
   for (const auto& g : _groups) {
     if (m_data[g].isEmpty())
@@ -131,19 +145,17 @@ QVariant Theme::value(
 bool Theme::setValue(
   Groups group, const QString& key, const QVariant& value) {
   if (! m_data.contains(group))
-    return false;
+    group = Custom;
 
   LOCK_DATA
 
-  auto& map = m_data[group];
-
-  if (map.value(key) == value)
+  if (m_data[group].value(key) == value)
     return false;
 
   if (value.isNull())
-    map.remove(key);
+    m_data[group].remove(key);
   else
-    map.insert(key, value);
+    m_data[group].insert(key, value);
 
   return true;
 }

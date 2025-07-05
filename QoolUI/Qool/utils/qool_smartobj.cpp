@@ -74,27 +74,19 @@ void SmartObject::update_parent() {
 
 void SmartObject::update_item_properties() {
   if (! m_parentQuickItem) {
-    m_parentEnabled.setValue(true);
+    m_parentEnabled = true;
     return;
   }
-  m_parentEnabled.setValue(m_parentQuickItem->isEnabled());
+  m_parentEnabled = m_parentQuickItem->isEnabled();
 }
 
 void SmartObject::update_window_properties() {
   if (! m_parentWindow) {
-    m_windowActived.setValue(true);
+    m_windowActived = true;
     return;
   }
-  m_windowActived.setValue(m_parentWindow->isActive());
+  m_windowActived = m_parentWindow->isActive();
 }
-
-// void SmartObject::_append_item(
-//   QQmlListProperty<QObject>* list, QObject* item) {
-//   SmartObject* self = qobject_cast<SmartObject*>(list->object);
-//   self->m_items.append(item);
-//   if (item->parent() == nullptr)
-//     item->setParent(self);
-// }
 
 void SmartObject::dumpProperties() const {
   if (! objectName().isEmpty())

@@ -48,24 +48,34 @@ protected:
   friend class StyleGroupAgent;
 
   QHash<Theme::Groups, StyleGroupAgent*> m_agents;
-  Theme::Groups m_currentGroup { Theme::Active };
+
+  // Theme::Groups m_currentGroup { Theme::Active };
+  // Q_SLOT void update_currentGroup();
+
+  QProperty<Theme::Groups> m_currentGroup { Theme::Active };
+  QPropertyNotifier m_currentGroupNotifier;
+  void when_currentGroup_changed();
+
   Theme m_currentTheme;
+
   SmartObject* m_sidekick;
   bool m_valueCustomed;
 
-  Q_SIGNAL void internalValuesChanged(
-    Theme::Groups group, QSet<QString> keys);
-  Q_SLOT void dispatchValueSignals(
-    Theme::Groups group, QSet<QString> keys);
-  bool internalSetValue(
-    Theme::Groups group, const QString& key, const QVariant& value);
+  Q_SLOT void dispatchValueSignals(QSet<QString> keys);
+
+  void when_values_changed(
+    QSet<Theme::Groups> groups = {}, QSet<QString> keys = {});
+  Q_SIGNAL void values_changed_internally(
+    QSet<Theme::Groups> groups, QSet<QString> keys);
+  Q_SLOT void when_parent_vales_changed_internally(
+    QSet<Theme::Groups> groups, QSet<QString> keys);
 
   void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
     QQuickAttachedPropertyPropagator* oldParent) override;
 
   void inherit(Style* other);
-  Q_SLOT void inheritValues(Theme::Groups group, QSet<QString> keys);
-  void propagateTheme();
+
+  Q_SLOT void propagateTheme();
 
   /********** PROPERTIES ***********/
 

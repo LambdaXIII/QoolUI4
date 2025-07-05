@@ -14,12 +14,25 @@ Style::Style(QObject* parent)
     m_agents[x] = new StyleGroupAgent(x, this);
   }
   m_sidekick = new SmartObject(parent);
-
-  connect(this, &Style::internalValuesChanged, this,
-    &Style::dispatchValueSignals);
+  m_valueCustomed = false;
 
   m_currentTheme = ThemeDatabase::instance()->theme("system");
-  m_valueCustomed = false;
+  connect(this, &Style::themeChanged, this, &Style::propagateTheme);
+
+  m_currentGroup.setBinding([&] {
+    const bool enabled = m_sidekick->bindable_parentEnabled().value();
+    if (enabled == false) {
+      return Theme::Disabled;
+    }
+    const bool actived = m_sidekick->bindable_windowActived().value();
+    if (! actived) {
+      return Theme::Inactive;
+    }
+    return Theme::Active;
+  });
+
+  m_currentGroupNotifier = m_currentGroup.addNotifier(
+    [&] { this->when_currentGroup_changed(); });
 
   initialize();
 }
@@ -51,21 +64,34 @@ QVariant Style::value(Theme::Groups group, const QString& key,
 
 void Style::setValue(
   Theme::Groups group, const QString& key, const QVariant& value) {
-  bool result = internalSetValue(group, key, value);
-  if (result)
-    m_valueCustomed = true;
+  bool result = m_currentTheme.setValue(group, key, value);
+  if (! result)
+    return;
+  m_valueCustomed = true;
+  when_values_changed({ group }, { key });
 }
 
-void Style::dispatchValueSignals(
-  Theme::Groups group, QSet<QString> keys) {
+// void Style::update_currentGroup() {
+//   const auto old_group = m_currentGroup;
+//   Theme::Groups new_group = Theme::Active;
+//   if (m_sidekick->parentEnabled() == false)
+//     new_group = Theme::Disabled;
+//   else if (m_sidekick->windowActived() == false)
+//     new_group = Theme::Inactive;
+//   if (old_group == new_group)
+//     return;
+//   xDebugQ << "current group changed to:" << new_group;
+//   m_currentGroup = new_group;
+//   when_values_changed({ old_group, m_currentGroup }, {});
+// }
+
+void Style::dispatchValueSignals(QSet<QString> keys) {
   if (keys.isEmpty()) {
     const auto all_keys = m_currentTheme.keys();
     keys = QSet<QString> { all_keys.constBegin(), all_keys.constEnd() };
   }
 
-  if (group != m_currentGroup)
-    return;
-
+  Qt::beginPropertyUpdateGroup();
   for (const auto& key : std::as_const(keys)) {
     emit valueChanged(key);
 #define CHECK(N)                                                       \
@@ -97,37 +123,36 @@ void Style::dispatchValueSignals(
     CHECK(papaWords)
 #undef CHECK
   } // for
+  Qt::endPropertyUpdateGroup();
 }
 
-bool Style::internalSetValue(
-  Theme::Groups group, const QString& key, const QVariant& value) {
-  bool result = m_currentTheme.setValue(group, key, value);
-  if (result)
-    emit internalValuesChanged(group, { key });
-  return result;
-}
-
-void Style::attachedParentChange(
-  QQuickAttachedPropertyPropagator* newParent,
-  QQuickAttachedPropertyPropagator* oldParent) {
-  disconnect(oldParent);
-  Style* style = qobject_cast<Style*>(newParent);
-  inherit(style);
-}
-
-void Style::inherit(Style* other) {
-  if (other == nullptr)
-    return;
-  if (! m_valueCustomed) {
-    m_currentTheme = other->m_currentTheme;
-    emit themeChanged();
-    emit internalValuesChanged(m_currentGroup, {});
-    connect(other, &Style::internalValuesChanged, this,
-      &Style::inheritValues);
+void Style::when_values_changed(
+  QSet<Theme::Groups> groups, QSet<QString> keys) {
+  if (groups.isEmpty()) {
+    groups =
+      QSet<Theme::Groups>(Theme::GROUPS.cbegin(), Theme::GROUPS.cend());
   }
+
+  if (keys.isEmpty()) {
+    QStringList all_keys;
+    std::for_each(
+      groups.cbegin(), groups.cend(), [&](const Theme::Groups& x) {
+        all_keys.append(m_currentTheme.keys(x));
+      });
+    keys = QSet<QString>(all_keys.constBegin(), all_keys.constEnd());
+  }
+
+  for (const auto& group : std::as_const(groups))
+    m_agents[group]->dispatchValueSignals(keys);
+
+  if (groups.contains(m_currentGroup))
+    dispatchValueSignals(keys);
+
+  emit values_changed_internally(groups, keys);
 }
 
-void Style::inheritValues(Theme::Groups group, QSet<QString> keys) {
+void Style::when_parent_vales_changed_internally(
+  QSet<Theme::Groups> groups, QSet<QString> keys) {
   Style* source = qobject_cast<Style*>(sender());
   if (source == nullptr) {
     xWarningQ
@@ -138,11 +163,32 @@ void Style::inheritValues(Theme::Groups group, QSet<QString> keys) {
     return;
   if (keys.isEmpty())
     return;
-  for (const auto& key : keys) {
-    const auto value = source->value(group, key);
-    m_currentTheme.setValue(group, key, value);
+  for (const auto& group : groups)
+    for (const auto& key : keys) {
+      const auto value = source->value(group, key);
+      m_currentTheme.setValue(group, key, value);
+    }
+  when_values_changed(groups, keys);
+}
+
+void Style::attachedParentChange(
+  QQuickAttachedPropertyPropagator* newParent,
+  QQuickAttachedPropertyPropagator* oldParent) {
+  disconnect(oldParent);
+  Style* style = qobject_cast<Style*>(newParent);
+  if (style)
+    connect(style, &Style::values_changed_internally, this,
+      &Style::when_parent_vales_changed_internally);
+  inherit(style);
+}
+
+void Style::inherit(Style* other) {
+  if (other == nullptr)
+    return;
+  if (! m_valueCustomed) {
+    m_currentTheme = other->m_currentTheme;
+    emit themeChanged();
   }
-  dispatchValueSignals(group, keys);
 }
 
 void Style::propagateTheme() {
@@ -175,8 +221,16 @@ QString Style::theme() const {
 void Style::set_theme(const QString& name) {
   if (m_currentTheme.name() == name || m_valueCustomed)
     return;
+
+  m_valueCustomed = true;
+
+  auto all_keys = m_currentTheme.keys();
   m_currentTheme = ThemeDatabase::instance()->theme(name);
-  propagateTheme();
+  all_keys.append(m_currentTheme.keys());
+
+  QSet<QString> keys { all_keys.constBegin(), all_keys.constEnd() };
+  when_values_changed({}, keys);
+
   emit themeChanged();
 }
 
@@ -193,7 +247,7 @@ void Style::set_animationEnabled(const bool& x) {
   if (old == x)
     return;
   m_currentTheme.setValue(Theme::Custom, "animationEnabled", x);
-  emit internalValuesChanged(m_currentGroup, { "animationEnabled" });
+  when_values_changed({ m_currentGroup }, { "animationEnabled" });
   emit animationEnabledChanged();
 }
 
@@ -241,11 +295,16 @@ IMPL(QStringList, papaWords)
 
 void Style::dumpInfo() const {
   QVariantMap info { { "Theme", theme() },
-    { "CurrentGroup", m_currentGroup },
+    { "CurrentGroup", m_currentGroup.value() },
     { "CUSTOMED", m_valueCustomed } };
   xDebugQ << "BASIC_INFO" << xDBGMap(info);
   xDebugQ << "PROPERTIES" << xDBGQPropertyList;
   // m_currentTheme.dumpInfo();
+}
+
+void Style::when_currentGroup_changed() {
+  xDebugQ << "Group changed:" << m_currentGroup.value();
+  when_values_changed({}, {});
 }
 
 QOOL_NS_END

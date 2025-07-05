@@ -95,7 +95,7 @@ QVariant ThemeDatabase::anyValue(
   const QString& key, const QVariant& defvalue) const {
   for (auto i = m_themes.constBegin(); i != m_themes.constEnd(); ++i) {
     if (i.value().contains(key))
-      return i.value().value(key);
+      return i.value().value(Theme::Active, key);
   }
   return defvalue;
 }
