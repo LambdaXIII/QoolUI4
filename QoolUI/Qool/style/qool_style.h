@@ -1,7 +1,7 @@
 #ifndef QOOL_STYLE_H
 #define QOOL_STYLE_H
 
-#include "qool_smartobj.h"
+#include "qool_itemtracker.h"
 #include "qool_theme.h"
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/macro_foreach.hpp"
@@ -38,7 +38,7 @@ protected:
   friend class StyleGroupAgent;
 
   QHash<Theme::Groups, StyleGroupAgent*> m_agents;
-  SmartObject* m_sidekick;
+  ItemTracker* m_sidekick;
   QVariantMap m_customedValues;
 
   Theme m_currentTheme;

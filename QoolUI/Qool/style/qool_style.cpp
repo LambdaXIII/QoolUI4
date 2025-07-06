@@ -13,11 +13,12 @@ Style::Style(QObject* parent)
   for (const auto x : Theme::GROUPS) {
     m_agents[x] = new StyleGroupAgent(x, this);
   }
-  m_sidekick = new SmartObject(parent);
+  m_sidekick = new ItemTracker(parent);
+  m_sidekick->set_target(this->parent());
   m_currentTheme = ThemeDatabase::instance()->theme("system");
 
   m_currentGroup.setBinding([&] {
-    const bool enabled = m_sidekick->bindable_parentEnabled().value();
+    const bool enabled = m_sidekick->bindable_itemEnabled().value();
     if (enabled == false) {
       return Theme::Disabled;
     }

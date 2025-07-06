@@ -6,86 +6,16 @@ QOOL_NS_BEGIN
 
 SmartObject::SmartObject(QObject* parent)
   : QObject { parent } {
-  m_enabled.setValue(true);
-  connect(this, SIGNAL(parentChanged()), this, SLOT(update_parent()));
-  update_parent();
+  installEventFilter(this);
 }
 
-QVariant SmartObject::parentItem() const {
-  if (m_parentQuickItem)
-    return QVariant::fromValue(m_parentQuickItem);
-  if (m_parentWindow)
-    return QVariant::fromValue(m_parentWindow);
-  return {};
-}
-
-QBindable<QVariant> SmartObject::bindable_parentItem() {
-  return QBindable<QVariant>(this, "parentItem");
-}
-
-QQuickItem* SmartObject::parentQuickItem() const {
-  return m_parentQuickItem;
-}
-
-QBindable<QQuickItem*> SmartObject::bindable_parentQuickItem() {
-  return QBindable<QQuickItem*> { this, "parentQuickItem" };
-}
-
-QQuickWindow* SmartObject::parentWindow() const {
-  return m_parentWindow;
-}
-
-QBindable<QQuickWindow*> SmartObject::bindable_parentWindow() {
-  return QBindable<QQuickWindow*> { this, "parentWindow" };
+QBindable<QObject*> SmartObject::bindableProperty() {
+  return QBindable<QObject*>(this, "parent");
 }
 
 QQmlListProperty<QObject> SmartObject::smartItems() {
   // return { this, nullptr, _append_item, nullptr, nullptr, nullptr };
   return { this, &m_items };
-}
-
-void SmartObject::update_parent() {
-  disconnect(m_parentQuickItem);
-  disconnect(m_parentWindow);
-
-  m_parentQuickItem = qobject_cast<QQuickItem*>(parent());
-  if (m_parentQuickItem)
-    m_parentWindow = m_parentQuickItem->window();
-  else
-    m_parentWindow = qobject_cast<QQuickWindow*>(parent());
-
-  if (m_parentQuickItem) {
-    connect(m_parentQuickItem,
-      SIGNAL(enabledChanged()),
-      this,
-      SLOT(update_item_properties()));
-  }
-
-  if (m_parentWindow) {
-    connect(m_parentWindow,
-      SIGNAL(activeChanged()),
-      this,
-      SLOT(update_window_properties()));
-  }
-
-  update_item_properties();
-  update_window_properties();
-}
-
-void SmartObject::update_item_properties() {
-  if (! m_parentQuickItem) {
-    m_parentEnabled = true;
-    return;
-  }
-  m_parentEnabled = m_parentQuickItem->isEnabled();
-}
-
-void SmartObject::update_window_properties() {
-  if (! m_parentWindow) {
-    m_windowActived = true;
-    return;
-  }
-  m_windowActived = m_parentWindow->isActive();
 }
 
 void SmartObject::dumpProperties() const {
@@ -102,14 +32,10 @@ void SmartObject::dumpProperties() const {
   }
 }
 
-bool SmartObject::event(QEvent* e) {
-  if (e->type() == QEvent::ParentChange)
+bool SmartObject::eventFilter(QObject* obj, QEvent* e) {
+  if (obj == this && e->type() == QEvent::ParentChange)
     emit parentChanged();
-  else if (e->type() == QEvent::WindowChangeInternal)
-    update_parent();
-  else if (e->type() == QEvent::WindowStateChange)
-    update_window_properties();
-  return QObject::event(e);
+  return false;
 }
 
 QOOL_NS_END
