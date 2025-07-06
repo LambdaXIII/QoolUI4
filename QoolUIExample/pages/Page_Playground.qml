@@ -7,11 +7,10 @@ import Qool.Controls
 Item {
     id: root
 
-    // Style.active.accent: "red"
-    // Style.inactive.accent: "blue"
-    Style.theme: "midnight"
-    Style.inactive.accent: "red"
-    Style.highlight: "red"
+    ItemTracker {
+        id: tracker
+        target: root
+    }
 
     ControlFrame {
         id: control
@@ -22,16 +21,12 @@ Item {
         anchors.centerIn: parent
         contentSpacing: 10
         contentItem: Rectangle {
-            color: Style.accent
-            border.width: Style.controlCutSize
-            border.color: Style.highlight
+            color: tracker.windowActived ? "red" : "yellow"
         }
 
         TapHandler {
             onTapped: {
-                console.log(Style.active.accent, Style.inactive.accent,
-                            Style.accent)
-                Style.dumpInfo()
+                console.log(tracker.window, tracker.item)
             }
         }
     }

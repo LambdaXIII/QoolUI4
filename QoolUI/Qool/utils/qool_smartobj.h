@@ -24,12 +24,11 @@ class SmartObject: public QObject {
     QQmlListProperty<QObject> smartItems READ smartItems CONSTANT FINAL)
   Q_PROPERTY(
     QObject* parent READ parent WRITE setParent NOTIFY parentChanged)
-  Q_PROPERTY(QVariant parentItem READ parentItem NOTIFY parentChanged
-      BINDABLE bindable_parentQuickItem)
+  Q_PROPERTY(QVariant parentItem READ parentItem NOTIFY parentChanged)
   Q_PROPERTY(QQuickItem* parentQuickItem READ parentQuickItem NOTIFY
-      parentChanged BINDABLE bindable_parentQuickItem)
-  Q_PROPERTY(QQuickWindow* parentWindow READ parentWindow NOTIFY
-      parentChanged BINDABLE bindable_parentWindow)
+      parentChanged)
+  Q_PROPERTY(
+    QQuickWindow* parentWindow READ parentWindow NOTIFY parentChanged)
 
 public:
   explicit SmartObject(QObject* parent = nullptr);

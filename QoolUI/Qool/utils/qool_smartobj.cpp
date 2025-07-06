@@ -105,7 +105,10 @@ void SmartObject::dumpProperties() const {
 bool SmartObject::event(QEvent* e) {
   if (e->type() == QEvent::ParentChange)
     emit parentChanged();
-
+  else if (e->type() == QEvent::WindowChangeInternal)
+    update_parent();
+  else if (e->type() == QEvent::WindowStateChange)
+    update_window_properties();
   return QObject::event(e);
 }
 
