@@ -76,6 +76,8 @@ public:
   bool operator!=(const Theme& other) const;
 
   Q_INVOKABLE QVariantMap flatMap(Groups group) const;
+  QHash<int, QVariantMap>& raw();
+  const QHash<int, QVariantMap>& raw() const;
 
   Q_INVOKABLE void dumpInfo() const;
 

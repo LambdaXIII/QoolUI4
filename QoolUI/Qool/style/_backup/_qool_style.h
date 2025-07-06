@@ -1,7 +1,7 @@
 #ifndef QOOL_STYLE_H
 #define QOOL_STYLE_H
 
-#include "qool_itemtracker.h"
+#include "qool_smartobj.h"
 #include "qool_theme.h"
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/macro_foreach.hpp"
@@ -28,35 +28,56 @@ class Style: public QQuickAttachedPropertyPropagator {
 
 public:
   explicit Style(QObject* parent = nullptr);
-  ~Style() = default;
+  ~Style();
 
   static Style* qmlAttachedProperties(QObject* object);
 
+  Q_INVOKABLE QVariant value(
+    const QString& key, const QVariant& defvalue = {}) const;
+  Q_INVOKABLE void setValue(const QString& key, const QVariant& value);
+
+  Q_INVOKABLE QVariant value(Theme::Groups group, const QString& key,
+    const QVariant& defvalue = {}) const;
+  Q_INVOKABLE void setValue(
+    Theme::Groups group, const QString& key, const QVariant& value);
+
+  Q_SIGNAL void valueChanged(QString);
   Q_INVOKABLE void dumpInfo() const;
 
 protected:
   friend class StyleGroupAgent;
 
   QHash<Theme::Groups, StyleGroupAgent*> m_agents;
-  ItemTracker* m_sidekick;
-  Theme m_customedTheme;
+
+  // Theme::Groups m_currentGroup { Theme::Active };
+  // Q_SLOT void update_currentGroup();
+
+  QProperty<Theme::Groups> m_currentGroup { Theme::Active };
+  QPropertyNotifier m_currentGroupNotifier;
+  void when_currentGroup_changed();
+
   Theme m_currentTheme;
-  QVariant get_value(Theme::Groups group, QString key) const;
-  void set_value(Theme::Groups group, QString key, QVariant value);
+
+  SmartObject* m_sidekick;
+  bool m_valueCustomed;
+
+  Q_SLOT void dispatchValueSignals(QSet<QString> keys);
+
+  void when_values_changed(
+    QSet<Theme::Groups> groups = {}, QSet<QString> keys = {});
+  Q_SIGNAL void values_changed_internally(
+    QSet<Theme::Groups> groups, QSet<QString> keys);
+  Q_SLOT void when_parent_vales_changed_internally(
+    QSet<Theme::Groups> groups, QSet<QString> keys);
 
   void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
     QQuickAttachedPropertyPropagator* oldParent) override;
 
   void inherit(Style* other);
-  void propagate_theme();
-  QStringList set_currentTheme(const Theme& t);
-  void notify_property_changes(QStringList keys = {});
+
+  Q_SLOT void propagateTheme();
 
   /********** PROPERTIES ***********/
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
-    Style, Theme::Groups, currentGroup)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
-    Style, StyleGroupAgent*, current)
 
   QOOL_PROPERTY_CONSTANT_DECL(StyleGroupAgent*, active)
   QOOL_PROPERTY_CONSTANT_DECL(StyleGroupAgent*, inactive)
@@ -65,6 +86,7 @@ protected:
   QOOL_PROPERTY_CONSTANT_DECL(StyleGroupAgent*, custom)
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QString, theme)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(bool, animationEnabled)
 
 #define DECL(T, N) QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(T, N)
 
@@ -100,7 +122,6 @@ protected:
 #undef __REAL
 
   DECL(QStringList, papaWords)
-  DECL(bool, animationEnabled)
 
 #undef DECL
 };

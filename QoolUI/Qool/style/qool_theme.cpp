@@ -250,6 +250,14 @@ QVariantMap Theme::flatMap(Groups group) const {
   return result;
 }
 
+QHash<int, QVariantMap>& Theme::raw() {
+  return m_data;
+}
+
+const QHash<int, QVariantMap>& Theme::raw() const {
+  return m_data;
+}
+
 void Theme::dumpInfo() const {
   xDebugQ << "METADATA" << xDBGMap(m_metadata);
   for (const auto& group : GROUPS) {
