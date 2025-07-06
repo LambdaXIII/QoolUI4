@@ -7,8 +7,10 @@ import Qool.Controls
 Item {
     id: root
 
-    Style.active.accent: "red"
-    Style.inactive.accent: "blue"
+    Style.theme: "midnight"
+    Style.onCurrentGroupChanged: {
+        console.log(Style.accent);
+    }
 
     ControlFrame {
         id: control
@@ -24,8 +26,11 @@ Item {
 
         TapHandler {
             onTapped: {
-                console.log(Style.active.accent, Style.inactive.accent,
-                            Style.accent)
+                // console.log(Style.active.accent, Style.inactive.accent, Style.accent);
+                console.log(root.Style.theme);
+                console.log(root.Style.accent);
+                console.log(root.Style.value(Style.Inactive, "accent"));
+                console.log(root.Style.value(Style.Disabled, "accent"));
             }
         }
     }

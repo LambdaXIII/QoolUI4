@@ -25,20 +25,81 @@ class Style: public QQuickAttachedPropertyPropagator {
   QML_ATTACHED(QOOL_NS::Style)
 
 public:
+  enum Groups {
+    Active = Theme::Active,
+    Inactive = Theme::Inactive,
+    Disabled = Theme::Disabled
+  };
+  Q_ENUM(Groups)
+
   explicit Style(QObject* parent = nullptr);
   virtual ~Style();
 
   static Style* qmlAttachedProperties(QObject* object);
 
-  QVariant value(Theme::Groups group, QString key) const;
-  void setValue(Theme::Groups group, QString key, QVariant value);
+  Q_INVOKABLE QVariant value(Theme::Groups group, QString key) const;
+  Q_INVOKABLE void setValue(
+    Theme::Groups group, QString key, QVariant value);
 
 protected:
+  ItemTracker* m_itemTracker;
   QHash<Theme::Groups, DefaultVariantMap*> m_data;
   void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
     QQuickAttachedPropertyPropagator* oldParent) override;
 
-  void dispatch_signals(QStringList key);
+  void set_current_theme(QString name);
+  void update_values(
+    QList<Theme::Groups> groups = {}, QStringList keys = {});
+
+  template <typename T>
+  inline T _value(Theme::Groups group, QString key) const {
+    return value(group, key).value<T>();
+  }
+
+  /********** PROPERTIES *********/
+
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(Style, QString, theme)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    Style, Theme::Groups, currentGroup)
+
+#define DECL(T, N)                                                     \
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE_DECL(Style, T, N)
+
+#define __COLOR(N) DECL(QColor, N)
+  QOOL_FOREACH_10(__COLOR, white, silver, grey, black, red, maroon,
+    yellow, olive, lime, green)
+  QOOL_FOREACH_10(__COLOR, aqua, cyan, teal, blue, navy, fuchsia,
+    purple, orange, brown, pink)
+  QOOL_FOREACH_3(__COLOR, positive, negative, warning)
+  QOOL_FOREACH_3(
+    __COLOR, controlBackgroundColor, controlBorderColor, infoColor)
+  QOOL_FOREACH_10(__COLOR, accent, light, midlight, dark, mid, shadow,
+    highlight, highlightedText, link, linkVisited)
+  QOOL_FOREACH_10(__COLOR, text, base, alternateBase, window,
+    windowText, button, buttonText, placeholderText, toolTipBase,
+    toolTipText)
+#undef __COLOR
+
+#define __INT(N) DECL(int, N)
+  QOOL_FOREACH_8(__INT, textSize, titleTextSize, toolTipTextSize,
+    importantTextSize, decorativeTextSize, controlTitleTextSize,
+    controlTextSize, windowTitleTextSize)
+#undef __INT
+
+#define __REAL(N) DECL(qreal, N)
+  QOOL_FOREACH_3(
+    __REAL, instantDuration, transitionDuration, movementDuration)
+  QOOL_FOREACH_5(__REAL, menuCutSize, buttonCutSize, controlCutSize,
+    windowCutSize, dialogCutSize)
+  QOOL_FOREACH_3(
+    __REAL, controlBorderWidth, windowBorderWidth, dialogBorderWidth)
+  QOOL_FOREACH_2(__REAL, windowElementSpacing, windowEdgeSpacing)
+#undef __REAL
+
+  DECL(QStringList, papaWords)
+  DECL(bool, animationEnabled)
+
+#undef DECL
 };
 
 QOOL_NS_END
