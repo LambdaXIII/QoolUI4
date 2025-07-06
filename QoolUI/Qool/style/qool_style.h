@@ -28,7 +28,7 @@ class Style: public QQuickAttachedPropertyPropagator {
 
 public:
   explicit Style(QObject* parent = nullptr);
-  ~Style();
+  ~Style() = default;
 
   static Style* qmlAttachedProperties(QObject* object);
 
@@ -39,26 +39,18 @@ protected:
 
   QHash<Theme::Groups, StyleGroupAgent*> m_agents;
   ItemTracker* m_sidekick;
-  QVariantMap m_customedValues;
-
+  Theme m_customedTheme;
   Theme m_currentTheme;
+  QVariant get_value(Theme::Groups group, QString key) const;
+  void set_value(Theme::Groups group, QString key, QVariant value);
 
   void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
     QQuickAttachedPropertyPropagator* oldParent) override;
 
-  void inherit_theme(Style* p);
-  void inherit_customedValues(Style* p);
+  void inherit(Style* other);
   void propagate_theme();
-  Q_SLOT void when_theme_changed();
-  Q_SLOT void when_current_group_changed();
+  QStringList set_currentTheme(const Theme& t);
   void notify_property_changes(QStringList keys = {});
-  Q_SIGNAL void customedValueChanged(QString key, QVariant value);
-  Q_SLOT void set_customedValue(QString key, QVariant value);
-
-  Q_SIGNAL void groupCustomedValueChanged(
-    Theme::Groups group, QString key, QVariant value);
-  Q_SLOT void when_groupCustomedValueChanged(
-    Theme::Groups group, QString key, QVariant value);
 
   /********** PROPERTIES ***********/
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(

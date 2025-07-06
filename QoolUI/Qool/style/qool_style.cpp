@@ -34,18 +34,11 @@ Style::Style(QObject* parent)
     return m_agents[group];
   });
 
-  connect(
-    this, SIGNAL(themeChanged()), this, SLOT(when_theme_changed()));
-
-  connect(this, SIGNAL(currentChanged()), this,
-    SLOT(when_current_group_changed()));
+  connect(this, &Style::currentGroupChanged, this,
+    [&] { notify_property_changes({}); });
+  connect(this, &Style::themeChanged, this, &Style::propagate_theme);
 
   initialize();
-}
-
-Style::~Style() {
-  if (m_sidekick)
-    m_sidekick->deleteLater();
 }
 
 Style* Style::qmlAttachedProperties(QObject* object) {
@@ -72,23 +65,25 @@ QString Style::theme() const {
 void Style::set_theme(const QString& name) {
   if (m_currentTheme.name() == name)
     return;
-  m_currentTheme = ThemeDatabase::instance()->theme(name);
+  const auto theme = ThemeDatabase::instance()->theme(name);
+  const auto keys = set_currentTheme(theme);
+  notify_property_changes(keys);
   emit themeChanged();
 }
 
 #define IMPL(T, N)                                                     \
   T Style::N() const {                                                 \
-    if (m_customedValues.contains(#N))                                 \
-      return m_customedValues.value(#N).value<T>();                    \
-    return m_current.value()->N();                                     \
+    const auto group = m_currentGroup.value();                         \
+    return get_value(group, #N).value<T>();                            \
   }                                                                    \
   void Style::set_##N(const T& x) {                                    \
     const auto old = N();                                              \
     if (x == old)                                                      \
       return;                                                          \
+    const auto group = m_currentGroup.value();                         \
     const auto v = QVariant::fromValue<T>(x);                          \
-    set_customedValue(#N, v);                                          \
-    emit customedValueChanged(#N, v);                                  \
+    set_value(group, #N, v);                                           \
+    emit N##Changed();                                                 \
   }
 
 #define __COLOR(N) IMPL(QColor, N)
@@ -128,7 +123,23 @@ IMPL(bool, animationEnabled)
 
 void Style::dumpInfo() const {
   xDebugQ << "PROPERTIES" << xDBGQPropertyList;
-  xDebugQ << "Customed Values" << xDBGMap(m_customedValues);
+  xDebugQ << "Customed Values" << m_customedTheme.keys();
+}
+
+QVariant Style::get_value(Theme::Groups group, QString key) const {
+  QVariant result = m_customedTheme.value(group, key);
+  if (! result.isNull())
+    return result;
+  result = m_currentTheme.value(group, key);
+  if (! result.isNull())
+    return result;
+  result = ThemeDatabase::instance()->anyValue(group, key);
+  return result;
+}
+
+void Style::set_value(
+  Theme::Groups group, QString key, QVariant value) {
+  m_customedTheme.setValue(group, key, value);
 }
 
 void Style::attachedParentChange(
@@ -137,35 +148,19 @@ void Style::attachedParentChange(
   disconnect(oldParent);
   Style* style = qobject_cast<Style*>(newParent);
 
-  inherit_theme(style);
-  inherit_customedValues(style);
-
-  if (style) {
-    connect(style, &Style::customedValueChanged, this,
-      &Style::set_customedValue);
-    connect(style, &Style::groupCustomedValueChanged, this,
-      &Style::when_groupCustomedValueChanged);
-  }
+  inherit(style);
 }
 
-void Style::inherit_theme(Style* p) {
-  if (p == nullptr)
+void Style::inherit(Style* other) {
+  if (other == nullptr)
     return;
-
-  m_currentTheme = p->m_currentTheme;
-  emit themeChanged();
-}
-
-void Style::inherit_customedValues(Style* p) {
-  if (p == nullptr)
-    return;
-  QStringList keys;
-  keys.append(m_customedValues.keys());
-  m_customedValues = p->m_customedValues;
-  for (const auto& group : Theme::GROUPS) {
-    keys << m_agents[group]->inherit_customedValues(p->m_agents[group]);
+  QStringList keys = set_currentTheme(other->m_currentTheme);
+  if (m_customedTheme.isEmpty()) {
+    m_customedTheme = other->m_currentTheme;
+    keys.append(m_customedTheme.keys());
   }
   notify_property_changes(keys);
+  emit themeChanged();
 }
 
 void Style::propagate_theme() {
@@ -174,20 +169,16 @@ void Style::propagate_theme() {
     Style* s = qobject_cast<Style*>(child);
     if (s == nullptr)
       continue;
-    s->inherit_theme(this);
+    s->inherit(this);
   }
 }
 
-void Style::when_theme_changed() {
-  QStringList keys = m_currentTheme.keys();
-  keys.removeIf(
-    [&](const QString& k) { return m_customedValues.contains(k); });
-  notify_property_changes(keys);
-  propagate_theme();
-}
-
-void Style::when_current_group_changed() {
-  notify_property_changes({});
+QStringList Style::set_currentTheme(const Theme& t) {
+  QStringList keys = t.keys();
+  if (! m_customedTheme.isEmpty())
+    keys.removeIf(
+      [&](const QString& k) { return m_customedTheme.contains(k); });
+  return keys;
 }
 
 void Style::notify_property_changes(QStringList keys) {
@@ -218,16 +209,6 @@ void Style::notify_property_changes(QStringList keys) {
     dialogBorderWidth)
   QOOL_FOREACH_2(__HANDLE__, windowElementSpacing, windowEdgeSpacing)
 #undef __HANDLE__
-}
-
-void Style::set_customedValue(QString key, QVariant value) {
-  m_customedValues.insert(key, value);
-  notify_property_changes({ key });
-}
-
-void Style::when_groupCustomedValueChanged(
-  Theme::Groups group, QString key, QVariant value) {
-  m_agents[group]->set_customedValue(key, value);
 }
 
 QOOL_NS_END

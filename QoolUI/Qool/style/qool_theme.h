@@ -45,8 +45,8 @@ public:
   QString name() const;
   bool setName(const QString& value);
 
-  QStringList keys() const;
-  QStringList keys(Groups group) const;
+  Q_INVOKABLE QStringList keys() const;
+  Q_INVOKABLE QStringList keys(Groups group) const;
 
   Q_INVOKABLE QVariant value(Groups group, const QString& key,
     const QVariant& defvalue = {}) const;

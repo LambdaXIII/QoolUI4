@@ -9,40 +9,23 @@ StyleGroupAgent::StyleGroupAgent(Theme::Groups group, Style* parent)
   : QObject { parent }
   , m_group { group }
   , m_parentStyle { parent } {
-  connect(this, &StyleGroupAgent::customedValueChanged, parent,
-    &Style::groupCustomedValueChanged);
-}
-
-QStringList StyleGroupAgent::inherit_customedValues(
-  StyleGroupAgent* other) {
-  QStringList keys;
-  keys << m_customedValue.keys() << other->m_customedValue.keys();
-  m_customedValue = other->m_customedValue;
-  return keys;
-}
-
-void StyleGroupAgent::set_customedValue(
-  const QString& key, const QVariant& value) {
-  m_customedValue.insert(key, value);
-  emit customedValueChanged(m_group, key, value);
 }
 
 #define IMPL(T, N)                                                     \
   T StyleGroupAgent::N() const {                                       \
-    if (m_customedValue.contains(#N))                                  \
-      return m_customedValue.value(#N).value<T>();                     \
     if (! m_parentStyle)                                               \
       return {};                                                       \
-    return m_parentStyle->m_currentTheme.value(m_group, #N)            \
-      .value<T>();                                                     \
+    return m_parentStyle->get_value(m_group, #N).value<T>();           \
   }                                                                    \
   void StyleGroupAgent::set_##N(const T& x) {                          \
     const auto old = N();                                              \
-    if (old == x)                                                      \
+    if (old == x || m_parentStyle == nullptr)                          \
       return;                                                          \
-    set_customedValue(#N, QVariant::fromValue<T>(x));                  \
-    if (m_parentStyle && m_parentStyle->m_current.value() == this)     \
-      m_parentStyle->notify_property_changes({ #N });                  \
+    xDebugQ << #N << x;                                                \
+    m_parentStyle->set_value(m_group, #N, QVariant::fromValue<T>(x));  \
+    if (m_group == m_parentStyle->currentGroup())                      \
+      emit m_parentStyle->N##Changed();                                \
+    emit N##Changed();                                                 \
   }
 
 #define __COLOR(N) IMPL(QColor, N)

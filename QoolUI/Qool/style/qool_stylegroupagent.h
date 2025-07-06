@@ -24,15 +24,9 @@ public:
   explicit StyleGroupAgent(
     Theme::Groups group, Style* parent = nullptr);
 
-  QStringList inherit_customedValues(StyleGroupAgent* other);
-
 protected:
   friend class Style;
   Style* m_parentStyle;
-  QVariantMap m_customedValue;
-  void set_customedValue(const QString& key, const QVariant& value);
-  Q_SIGNAL void customedValueChanged(
-    Theme::Groups group, QString key, QVariant value);
 
   /********** PROPERTIES ***********/
 
