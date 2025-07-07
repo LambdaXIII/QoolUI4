@@ -125,13 +125,11 @@ Control {
             ActionButton {
                 id: showExtPointsButton
                 checkable: true
-                ButtonGroup.group: hudControlGroup
                 text: qsTr("显示外顶点")
             }
             ActionButton {
                 id: showIntPointsButton
                 checkable: true
-                ButtonGroup.group: hudControlGroup
                 text: qsTr("显示内定点")
             }
         }

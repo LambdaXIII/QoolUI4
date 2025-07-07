@@ -59,7 +59,7 @@ qt_add_qml_module(Qool
 
     QML_FILES QoolPalette.qml
 
-    SOURCES utils/qool_flags.h
+    SOURCES utils/qool_literals.h
     SOURCES utils/qool_spacehelper.h utils/qool_spacehelper.cpp
     QML_FILES
     QML_FILES OctagonInternalShapePath.qml
