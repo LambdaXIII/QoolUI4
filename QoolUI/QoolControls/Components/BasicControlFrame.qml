@@ -9,7 +9,7 @@ T.Control {
     property bool showTitle: true
     property string title: qsTr("Qool Control")
     property color backgroundColor: Style.base
-    property color borderColor: Style.midlight
+    property color borderColor: Style.controlBorderColor
 
     //titleComponent must have a text property
     property Component titleComponent: BasicControlTitleText {

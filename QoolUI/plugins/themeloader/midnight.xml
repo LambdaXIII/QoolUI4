@@ -71,7 +71,7 @@
         <color property="warning" copy="pink"/>
 
         <color property="controlBackgroundColor" copy="grey"/>
-        <color property="controlBorderColor" copy="grey" lighter="1.2"/>
+        <color property="controlBorderColor" value="#C6C6C6"/>
         <color property="infoColor" copy="cyan"/>
     </constants>
     <active>
