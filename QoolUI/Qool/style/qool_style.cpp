@@ -1,5 +1,6 @@
 #include "qool_style.h"
 
+#include "qool_stylegroupagent.h"
 #include "qool_theme_database.h"
 #include "qoolcommon/debug.hpp"
 
@@ -14,6 +15,12 @@ Style::Style(QObject* parent)
   m_data[Theme::Active] = new QVariantMap;
   m_data[Theme::Inactive] = new QVariantMap;
   m_data[Theme::Disabled] = new QVariantMap;
+
+  m_agents[Theme::Active] = new StyleGroupAgent(Theme::Active, this);
+  m_agents[Theme::Inactive] =
+    new StyleGroupAgent(Theme::Inactive, this);
+  m_agents[Theme::Disabled] =
+    new StyleGroupAgent(Theme::Disabled, this);
 
   m_currentGroup.setBinding([&] {
     if (m_itemTracker->bindable_itemEnabled().value() == false)
@@ -49,8 +56,8 @@ QVariant Style::value(Theme::Groups group, QString key) const {
   if (m_currentTheme.contains(group, key))
     return m_currentTheme.value(group, key);
   const auto value = ThemeDatabase::instance()->anyValue(group, key);
-  if (! value.isNull())
-    data->insert(key, value);
+  // if (! value.isNull())
+  // data->insert(key, value);
   return value;
 }
 
@@ -59,6 +66,15 @@ void Style::setValue(Theme::Groups group, QString key, QVariant value) {
   auto data = m_data[group];
   data->insert(key, value);
   update_values({ group }, { key });
+  propagate_value(group, key, value);
+}
+
+void Style::dumpInfo() const {
+  m_currentTheme.dumpInfo();
+  for (auto iter = m_data.constBegin(); iter != m_data.constEnd();
+    ++iter) {
+    xDebugQ << iter.key() << xDBGMap(*iter.value());
+  }
 }
 
 void Style::attachedParentChange(
@@ -87,6 +103,10 @@ void Style::update_values(
   QList<Theme::Groups> groups, QStringList keys) {
   if (groups.isEmpty())
     groups = m_data.keys();
+
+  for (const auto& g : std::as_const(groups)) {
+    m_agents[g]->update_values(keys);
+  }
 
   const auto group = currentGroup();
   if (! groups.contains(group))
@@ -134,22 +154,23 @@ void Style::update_values(
 void Style::inherit(Style* other) {
   if (! other)
     return;
-  m_currentTheme = other->m_currentTheme;
+  set_current_theme(other->m_currentTheme);
 
   const auto groups = m_data.keys();
   for (const auto& group : groups) {
     auto customed = other->m_data[group];
     if (customed->isEmpty())
       continue;
+    const auto customed_keys = customed->keys();
     QStringList updated_keys;
-    for (auto iter = customed->constBegin();
-      iter != customed->constEnd();
-      ++iter) {
-      if (m_data[group]->contains(iter.key()))
+
+    for (const auto& k : customed_keys) {
+      if (m_data[group]->contains(k))
         continue;
-      m_data[group]->insert(iter.key(), iter.value());
-      updated_keys << iter.key();
-    } // for keys
+      m_data[group]->insert(k, customed->value(k));
+      updated_keys << k;
+    }
+
     update_values({ group }, updated_keys);
   } // for groups
 
@@ -166,6 +187,26 @@ void Style::propagate_theme() {
   }
 }
 
+void Style::propagate_value(
+  Theme::Groups group, QString key, QVariant value) {
+  const auto childs = attachedChildren();
+  for (auto child : childs) {
+    Style* style = qobject_cast<Style*>(child);
+    if (! style)
+      style->update_customed_value(group, key, value);
+  }
+}
+
+void Style::update_customed_value(
+  Theme::Groups group, QString key, QVariant value) {
+  Q_ASSERT(m_data.contains(group));
+  auto data = m_data[group];
+  if (data->contains(key))
+    return;
+  data->insert(key, value);
+  update_values({ group }, { key });
+}
+
 QString Style::theme() const {
   return m_currentTheme.name();
 }
@@ -176,6 +217,18 @@ void Style::set_theme(const QString& name) {
   const auto theme = ThemeDatabase::instance()->theme(name);
   set_current_theme(theme);
   emit themeChanged();
+}
+
+StyleGroupAgent* Style::active() const {
+  return m_agents[Theme::Active];
+}
+
+StyleGroupAgent* Style::inactive() const {
+  return m_agents[Theme::Inactive];
+}
+
+StyleGroupAgent* Style::disabled() const {
+  return m_agents[Theme::Disabled];
 }
 
 #define IMPL(T, N)                                                     \

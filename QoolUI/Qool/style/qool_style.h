@@ -17,8 +17,10 @@
 #include <QQuickAttachedPropertyPropagator>
 #include <QQuickItem>
 
-QOOL_NS_BEGIN
+Q_MOC_INCLUDE("qool_stylegroupagent.h")
 
+QOOL_NS_BEGIN
+class StyleGroupAgent;
 class Style: public QQuickAttachedPropertyPropagator {
   Q_OBJECT
   QML_ELEMENT
@@ -37,14 +39,16 @@ public:
 
   static Style* qmlAttachedProperties(QObject* object);
 
-  Q_INVOKABLE QVariant value(Theme::Groups group, QString key) const;
-  Q_INVOKABLE void setValue(
-    Theme::Groups group, QString key, QVariant value);
+  QVariant value(Theme::Groups group, QString key) const;
+  void setValue(Theme::Groups group, QString key, QVariant value);
+
+  Q_INVOKABLE void dumpInfo() const;
 
 protected:
   Theme m_currentTheme;
   ItemTracker* m_itemTracker;
   QHash<Theme::Groups, QVariantMap*> m_data;
+  QHash<Theme::Groups, StyleGroupAgent*> m_agents;
   void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
     QQuickAttachedPropertyPropagator* oldParent) override;
 
@@ -54,8 +58,16 @@ protected:
 
   void inherit(Style* other);
   void propagate_theme();
+  void propagate_value(
+    Theme::Groups group, QString key, QVariant value);
+  void update_customed_value(
+    Theme::Groups group, QString key, QVariant value);
 
   /********** PROPERTIES *********/
+
+  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT_DECL(StyleGroupAgent*, active)
+  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT_DECL(StyleGroupAgent*, inactive)
+  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT_DECL(StyleGroupAgent*, disabled)
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QString, theme)
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(

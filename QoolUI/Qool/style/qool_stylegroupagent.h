@@ -27,6 +27,7 @@ public:
 protected:
   friend class Style;
   Style* m_parentStyle;
+  void update_values(QStringList keys);
 
   /********** PROPERTIES ***********/
 
