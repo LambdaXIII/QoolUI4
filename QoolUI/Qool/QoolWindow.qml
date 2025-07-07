@@ -138,7 +138,7 @@ QoolWindowBasic {
     DummyItem {
         id: dummyContent
         objectName: "dummyContent"
-        x: root.leftPadding + root.edgeSpacing
+        x: root.leftPadding + root.edgeSpacing + root.backgroundSettings.borderWidth
         y: dummyHeader.y + dummyHeader.height + root.elementSpacing
         width: root.width - root.leftPadding
                - (root.edgeSpacing + root.backgroundSettings.borderWidth) * 2 - root.rightPadding

@@ -6,9 +6,9 @@ Item {
     property bool animationEnabled: parent?.animationEnabled
                                     ?? Qore.animationEnabled
 
-    property color highColor: palette.highlight
-    property color lowColor: palette.highlightedText
-    property var words: Style.papaWords
+    property color highColor: Style.highlight
+    property color lowColor: Style.highlightedText
+    property list<string> words: Style.papaWords
 
     property bool rounded: false
 
@@ -78,6 +78,6 @@ Item {
     }
 
     BasicNumberBehavior on opacity {
-        enabled: root.animationEnabled
+        enabled: root.Style.animationEnabled
     }
 }

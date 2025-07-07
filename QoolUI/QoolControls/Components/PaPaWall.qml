@@ -4,8 +4,8 @@ import Qool
 Item {
     id: root
 
-    property color highColor: palette.highlight
-    property color lowColor: palette.highlightedText
+    property color highColor: Style.highlight
+    property color lowColor: Style.highlightedText
 
     property list<string> words: Style.papaWords
     property font font

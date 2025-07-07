@@ -32,6 +32,8 @@ QoolBox {
 
     QtObject {
         id: pCtrl
+        readonly property real resizerSize: Math.max(root.resizerSize,
+                                                     root.settings.borderWidth)
         property bool isResizing: false
         function resizeWindow(dx, dy, dw, dh) {
             if (!root.autoBind)
@@ -83,8 +85,8 @@ QoolBox {
         id: rightResizer
         target: null
         autoBind: false
-        width: root.resizerSize
-        height: root.height - root.resizerSize * 2
+        width: pCtrl.resizerSize
+        height: root.height - pCtrl.resizerSize * 2
         x: root.width - width
         cursorShape: Qt.SizeHorCursor
         property bool fallback: false
@@ -108,8 +110,8 @@ QoolBox {
         id: leftResizer
         target: null
         autoBind: false
-        width: root.resizerSize
-        height: root.height - root.resizerSize * 2
+        width: pCtrl.resizerSize
+        height: root.height - pCtrl.resizerSize * 2
         cursorShape: Qt.SizeHorCursor
         property bool fallback: false
         onPressed: {
@@ -132,9 +134,9 @@ QoolBox {
         id: topResizer
         target: null
         autoBind: false
-        width: root.width - root.resizerSize * 2
-        height: root.resizerSize
-        x: root.resizerSize
+        width: root.width - pCtrl.resizerSize * 2
+        height: pCtrl.resizerSize
+        x: pCtrl.resizerSize
         cursorShape: Qt.SizeVerCursor
         property bool fallback: false
         onPressed: {
@@ -157,9 +159,9 @@ QoolBox {
         id: bottomResizer
         target: null
         autoBind: false
-        width: root.width - root.resizerSize * 2
-        height: root.resizerSize
-        x: root.resizerSize
+        width: root.width - pCtrl.resizerSize * 2
+        height: pCtrl.resizerSize
+        x: pCtrl.resizerSize
         y: root.height - height
         cursorShape: Qt.SizeVerCursor
         property bool fallback: false
@@ -183,8 +185,8 @@ QoolBox {
         id: topRightResizer
         target: null
         autoBind: false
-        width: root.resizerSize
-        height: root.resizerSize
+        width: pCtrl.resizerSize
+        height: pCtrl.resizerSize
         x: root.width - width
         cursorShape: Qt.SizeBDiagCursor
         property bool fallback: false
@@ -208,8 +210,8 @@ QoolBox {
         id: bottomRightResizer
         target: null
         autoBind: false
-        width: root.resizerSize
-        height: root.resizerSize
+        width: pCtrl.resizerSize
+        height: pCtrl.resizerSize
         x: root.width - width
         y: root.height - height
         cursorShape: Qt.SizeFDiagCursor
@@ -235,8 +237,8 @@ QoolBox {
         id: bottomLeftResizer
         target: null
         autoBind: false
-        width: root.resizerSize
-        height: root.resizerSize
+        width: pCtrl.resizerSize
+        height: pCtrl.resizerSize
         y: root.height - height
         cursorShape: Qt.SizeBDiagCursor
         property bool fallback: false
@@ -261,8 +263,8 @@ QoolBox {
         enabled: root.forceResizeTopLeftCorner
         target: null
         autoBind: false
-        width: root.resizerSize
-        height: root.resizerSize
+        width: pCtrl.resizerSize
+        height: pCtrl.resizerSize
         cursorShape: Qt.SizeFDiagCursor
         property bool fallback: false
         onPressed: {

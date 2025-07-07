@@ -5,7 +5,7 @@ import Qool
 Item {
     id: root
 
-    property color color: palette.base
+    property color color: Style.base
 
     property Component foreground: internalFG
     property Item background: Item {}

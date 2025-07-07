@@ -27,7 +27,7 @@ QoolWindow {
             title: qsTr("内容")
             SplitView.fillWidth: true
             SplitView.fillHeight: true
-            contentItem: Page_Playground {}
+            contentItem: OctagonShapeTestPage {}
         }
     } //content
 

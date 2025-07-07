@@ -9,7 +9,7 @@ Floater {
     property bool showName: true
     property bool showPosition: true
     property bool showSize: true
-    property color color: palette.highlight
+    property color color: Style.highlight
     property bool solid: false
     property real borderWidth: 1
 
@@ -25,8 +25,8 @@ Floater {
     QtObject {
         id: pCtrl
         readonly property color textColor: ThemeDB.recommendForeground(
-                                               root.color, palette.button,
-                                               palette.buttonText)
+                                               root.color, Style.button,
+                                               Style.buttonText)
     }
 
     floatingItem: Item {

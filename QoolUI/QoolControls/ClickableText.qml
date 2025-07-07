@@ -7,9 +7,6 @@ import Qool.Controls.Components
 T.AbstractButton {
     id: root
 
-    property bool animationEnabled: parent?.animationEnabled
-                                    ?? Qore.animationEnabled
-
     property string checkedText: text
 
     property alias horizontalAlignment: mainText.horizontalAlignment
@@ -28,10 +25,10 @@ T.AbstractButton {
         text: root.text
         color: {
             if (root.down)
-                return palette.highlight
+                return Style.highlight
             if (root.checked)
-                return palette.highlightedText
-            return palette.buttonText
+                return Style.highlightedText
+            return Style.buttonText
         }
         horizontalAlignment: Qt.AlignHCenter
         verticalAlignment: Qt.AlignVCenter
@@ -43,23 +40,23 @@ T.AbstractButton {
             visible: root.showBar
             alignment: root.horizontalAlignment
             color: (root.checked
-                    || root.down) ? palette.highlight : palette.buttonText
+                    || root.down) ? Style.highlight : Style.buttonText
             percentage: (root.down || root.hovered || root.checked) ? 1 : 0
             width: parent.width
             height: root.checked ? parent.height : root.barHeight
             y: parent.height - height
             z: -20
             BasicNumberBehavior on percentage {
-                enabled: root.animationEnabled
+                enabled: root.Style.animationEnabled
                 easing.type: Easing.OutBack
             }
             BasicNumberBehavior on height {
-                enabled: root.animationEnabled
+                enabled: root.Style.animationEnabled
                 duration: Style.transitionDuration
                 easing.type: Easing.OutBack
             }
             BasicColorBehavior on color {
-                enabled: root.animationEnabled
+                enabled: root.Style.animationEnabled
             }
         }
     }

@@ -60,7 +60,7 @@ Floater {
             background: Rectangle {
                 implicitHeight: 10
                 implicitWidth: 10
-                color: Qt.alpha(palette.mid, 0.8)
+                color: Qt.alpha(Style.mid, 0.8)
                 radius: 4
                 border.width: 1
                 border.color: Qt.alpha(root.color, 0.35)

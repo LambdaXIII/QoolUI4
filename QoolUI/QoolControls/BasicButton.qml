@@ -5,15 +5,13 @@ import Qool.Controls.Components
 BasicButtonFrame {
     id: root
 
-    property bool animationEnabled: (parent?.animationEnabled
-                                     ?? Qore.animationEnabled)
-                                    && Component.completed
+
 
     property bool flat: false
     property bool highlighted: hovered
 
-    property color highlightColor: palette.highlight
-    property color highlightedTextColor: palette.highlightedText
+    property color highlightColor: Style.highlight
+    property color highlightedTextColor: Style.highlightedText
     property color disabledColor: Style.negative
 
     hoverEnabled: true
@@ -47,7 +45,7 @@ BasicButtonFrame {
         property real frameOpacity: root.flat ? 0 : 1
 
         BasicNumberBehavior on frameOpacity {
-            enabled: root.animationEnabled
+            enabled: root.Style.animationEnabled
         }
 
         Binding {
