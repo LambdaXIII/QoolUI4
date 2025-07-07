@@ -13,28 +13,28 @@ const std::array<Theme::Groups, 5> Theme::GROUPS { Theme::Constants,
   Theme::Active, Theme::Inactive, Theme::Disabled, Theme::Custom };
 
 /* 为指定的group设置查找优先级 */
-QList<Theme::Groups> ORDERED_GROUPS_FOR(
-  Theme::Groups group, bool reversed = false) {
-  QList<Theme::Groups> result;
-  result << Theme::Constants;
+// QList<Theme::Groups> ORDERED_GROUPS_FOR_(
+//   Theme::Groups group, bool reversed = false) {
+//   QList<Theme::Groups> result;
+//   result << Theme::Constants;
 
-  if (group > Theme::Constants)
-    result << Theme::Active;
+//   if (group > Theme::Constants)
+//     result << Theme::Active;
 
-  if (group == Theme::Disabled)
-    result << Theme::Disabled;
+//   if (group == Theme::Disabled)
+//     result << Theme::Disabled;
 
-  if (group == Theme::Inactive)
-    result << Theme::Inactive;
+//   if (group == Theme::Inactive)
+//     result << Theme::Inactive;
 
-  if (group > Theme::Constants)
-    result << Theme::Custom;
+//   if (group > Theme::Constants)
+//     result << Theme::Custom;
 
-  if (reversed) {
-    std::reverse(result.begin(), result.end());
-  }
-  return std::move(result);
-}
+//   if (reversed) {
+//     std::reverse(result.begin(), result.end());
+//   }
+//   return std::move(result);
+// }
 
 Theme::Theme() {
   for (const auto& x : GROUPS) {
@@ -125,9 +125,13 @@ QVariant Theme::value(
   if (! m_data.contains(group))
     return defvalue;
 
-  const auto _groups = ORDERED_GROUPS_FOR(group, true);
+  QList<Theme::Groups> _groups;
+  _groups << Custom << group;
+  if (group != Active)
+    _groups << Active;
+  _groups << Constants;
 
-  for (const auto& g : _groups) {
+  for (const auto& g : std::as_const(_groups)) {
     if (m_data[g].isEmpty())
       continue;
     if (m_data[g].contains(key))
@@ -242,10 +246,13 @@ bool Theme::operator!=(const Theme& other) const {
 QVariantMap Theme::flatMap(Groups group) const {
   QVariantMap result;
 
-  const auto _groups = ORDERED_GROUPS_FOR(group);
+  if (group != Custom)
+    result.insert(m_data[Constants]);
 
-  std::for_each(_groups.crbegin(), _groups.crend(),
-    [&](Groups group) { result.insert(m_data[group]); });
+  result.insert(m_data[group]);
+
+  if (group != Constants)
+    result.insert(m_data[Custom]);
 
   return result;
 }

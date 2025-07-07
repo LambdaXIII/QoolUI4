@@ -7,11 +7,9 @@ import Qool.Controls
 Item {
     id: root
 
-    Style.theme: "midnight"
-    Style.onCurrentGroupChanged: {
-        console.log(Style.accent);
-    }
-
+    // Style.onCurrentGroupChanged: {
+    //     console.log(Style.accent);
+    // }
     ControlFrame {
         id: control
 
@@ -21,16 +19,23 @@ Item {
         anchors.centerIn: parent
         contentSpacing: 10
         contentItem: Rectangle {
+            id: c
+            Style.theme: "midnight"
             color: Style.accent
+            Text {
+                text: Style.accent
+                anchors.centerIn: parent
+            }
         }
 
         TapHandler {
             onTapped: {
                 // console.log(Style.active.accent, Style.inactive.accent, Style.accent);
-                console.log(root.Style.theme);
-                console.log(root.Style.accent);
-                console.log(root.Style.value(Style.Inactive, "accent"));
-                console.log(root.Style.value(Style.Disabled, "accent"));
+                console.log(c.Style.theme)
+                console.log(c.Style.accent)
+                console.log(c.Style.value(Style.Inactive, "accent"))
+                console.log(c.Style.value(Style.Disabled, "accent"))
+                c.enabled = !c.enabled
             }
         }
     }
