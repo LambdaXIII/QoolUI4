@@ -18,8 +18,8 @@ T.Control {
     readonly property alias titleLoader: titleLoader
 
     property OctagonSettings backgroundSettings: OctagonSettings {
-        cutSize: Qore.style.controlCutSize
-        borderWidth: QoolConstants.controlBorderWidth
+        cutSize: Style.controlCutSize
+        borderWidth: Style.controlBorderWidth
         borderColor: root.borderColor
         fillColor: root.backgroundColor
     }

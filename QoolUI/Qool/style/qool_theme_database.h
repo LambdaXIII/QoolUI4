@@ -16,7 +16,7 @@ QOOL_NS_BEGIN
 
 class ThemeDatabase: public QAbstractListModel {
   Q_OBJECT
-  QML_ELEMENT
+  QML_NAMED_ELEMENT(ThemeDB)
   QML_SINGLETON
   QOOL_SIMPLE_SINGLETON_DECL(ThemeDatabase)
   QOOL_SIMPLE_SINGLETON_QML_CREATE(ThemeDatabase)

@@ -122,21 +122,19 @@ QStringList Theme::keys(Groups group) const {
 
 QVariant Theme::value(
   Groups group, const QString& key, const QVariant& defvalue) const {
-  if (! m_data.contains(group))
-    return defvalue;
+  Q_ASSERT(m_data.contains(group));
 
-  QList<Theme::Groups> _groups;
-  _groups << Custom << group;
-  if (group != Active)
-    _groups << Active;
-  _groups << Constants;
+  if (m_data[Custom].contains(key))
+    return m_data[Custom][key];
 
-  for (const auto& g : std::as_const(_groups)) {
-    if (m_data[g].isEmpty())
-      continue;
-    if (m_data[g].contains(key))
-      return m_data[g][key];
-  }
+  if (m_data[group].contains(key))
+    return m_data[group][key];
+
+  if (group != Active && m_data[Active].contains(key))
+    return m_data[Active][key];
+
+  if (m_data[Constants].contains(key))
+    return m_data[Constants][key];
 
   return defvalue;
 }
@@ -248,6 +246,9 @@ QVariantMap Theme::flatMap(Groups group) const {
 
   if (group != Custom)
     result.insert(m_data[Constants]);
+
+  // if (group != Active)
+  // result.insert(m_data[Active]);
 
   result.insert(m_data[group]);
 

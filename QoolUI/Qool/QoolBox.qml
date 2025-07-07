@@ -5,10 +5,10 @@ Item {
     id: root
 
     property OctagonSettings settings: OctagonSettings {
-        cutSize: Qore.style.controlCutSize
-        borderWidth: QoolConstants.controlBorderWidth
-        borderColor: root.palette.accent
-        fillColor: root.palette.dark
+        cutSize: Style.controlCutSize
+        borderWidth: Style.controlBorderWidth
+        borderColor: Style.accent
+        fillColor: Style.dark
     }
     property alias shapeControl: shape.shapeControl
 

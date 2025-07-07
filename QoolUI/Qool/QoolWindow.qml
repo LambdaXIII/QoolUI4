@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Window
+import Qool
 import "_private"
 
 QoolWindowBasic {
@@ -41,8 +42,8 @@ QoolWindowBasic {
     property real bottomPadding: topPadding
     property real leftPadding: 0
     property real rightPadding: leftPadding
-    property real elementSpacing: QoolConstants.windowElementSpacing
-    property real edgeSpacing: QoolConstants.windowEdgeSpacing
+    property real elementSpacing: Style.windowElementSpacing
+    property real edgeSpacing: Style.windowEdgeSpacing
 
     title: qsTr("Hello, Qool World!")
 

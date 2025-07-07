@@ -8,7 +8,7 @@ BasicControlFrame {
                                      ?? Qore.animationEnabled)
                                     && Component.completed
 
-    property color disabledColor: Qore.style.negative
+    property color disabledColor: Style.negative
     ControlLockedCover {
         color: disabledColor
     }

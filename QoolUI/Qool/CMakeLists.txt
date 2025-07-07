@@ -28,7 +28,7 @@ qt_add_qml_module(Qool
     NAMESPACE ${QOOL_NS}
 
     QML_FILES Qore.qml
-    QML_FILES QoolConstants.qml
+    QML_FILES
     QML_FILES PixelFont.qml
 
     QML_FILES _private/QoolWindowCloseButton.qml

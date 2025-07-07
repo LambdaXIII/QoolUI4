@@ -6,11 +6,11 @@ Behavior {
     property alias easing: ani.easing
     readonly property bool runnint: ani.running
 
-    enabled: targetProperty.object?.animationEnabled ?? Qore.animationEnabled
+    enabled: targetProperty.object?.animationEnabled ?? Style.animationEnabled
 
     NumberAnimation {
         id: ani
-        duration: Qore.style.transitionDuration
+        duration: Style.transitionDuration
         easing.type: Easing.InOutQuad
     }
 }

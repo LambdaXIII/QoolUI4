@@ -2,7 +2,7 @@ import QtQuick
 import Qool
 
 Text {
-    font.pixelSize: Qore.style.controlTitleTextSize
+    font.pixelSize: Style.controlTitleTextSize
     horizontalAlignment: Text.AlignRight
     verticalAlignment: Text.AlignTop
     color: palette.accent

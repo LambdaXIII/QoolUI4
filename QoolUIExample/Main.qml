@@ -30,4 +30,15 @@ QoolWindow {
             contentItem: Page_Playground {}
         }
     } //content
+
+    QoolWindowHud {
+        window: root
+    }
+
+    backgroundSettings {
+        cutSize: Style.windowCutSize
+        borderColor: Style.accent
+        fillColor: Style.window
+        borderWidth: Style.windowBorderWidth
+    }
 }

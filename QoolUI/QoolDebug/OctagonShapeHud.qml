@@ -15,8 +15,8 @@ Item {
 
     QtObject {
         id: pCtrl
-        property color extPointColor: Qore.style.positive
-        property color intPointColor: Qore.style.negative
+        property color extPointColor: Style.positive
+        property color intPointColor: Style.negative
     }
 
     PointIndicator {

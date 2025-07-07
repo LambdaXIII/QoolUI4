@@ -14,11 +14,11 @@ BasicButtonFrame {
 
     property color highlightColor: palette.highlight
     property color highlightedTextColor: palette.highlightedText
-    property color disabledColor: Qore.style.negative
+    property color disabledColor: Style.negative
 
     hoverEnabled: true
 
-    font.pixelSize: Qore.style.controlTextSize
+    font.pixelSize: Style.controlTextSize
 
     contentItem: BasicButtonText {
         text: root.text

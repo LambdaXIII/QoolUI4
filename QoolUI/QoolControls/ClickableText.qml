@@ -16,7 +16,7 @@ T.AbstractButton {
     property alias verticalAlignment: mainText.verticalAlignment
     property alias elide: mainText.elide
 
-    font.pixelSize: Qore.style.controlTextSize
+    font.pixelSize: Style.controlTextSize
 
     property bool showBar: true
     property real barSpacing: 2
@@ -55,7 +55,7 @@ T.AbstractButton {
             }
             BasicNumberBehavior on height {
                 enabled: root.animationEnabled
-                duration: Qore.style.transitionDuration
+                duration: Style.transitionDuration
                 easing.type: Easing.OutBack
             }
             BasicColorBehavior on color {

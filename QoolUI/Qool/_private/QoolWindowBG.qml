@@ -24,10 +24,10 @@ QoolBox {
     signal wannaREsizeTopLeftCorner(real dx, real dy)
 
     settings {
-        cutSize: QoolConstants.windowCutSize
-        borderColor: palette.accent
-        fillColor: palette.window
-        borderWidth: QoolConstants.windowBorderWidth
+        cutSize: Style.windowCutSize
+        borderColor: Style.accent
+        fillColor: Style.window
+        borderWidth: Style.windowBorderWidth
     }
 
     QtObject {
