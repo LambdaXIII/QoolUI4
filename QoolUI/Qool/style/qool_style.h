@@ -44,7 +44,7 @@ public:
 protected:
   Theme m_currentTheme;
   ItemTracker* m_itemTracker;
-  QHash<Theme::Groups, DefaultVariantMap*> m_data;
+  QHash<Theme::Groups, QVariantMap*> m_data;
   void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
     QQuickAttachedPropertyPropagator* oldParent) override;
 

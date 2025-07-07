@@ -11,9 +11,9 @@ Style::Style(QObject* parent)
   : QQuickAttachedPropertyPropagator(parent)
   , m_itemTracker { new ItemTracker(this) } {
   m_itemTracker->set_target(parent);
-  m_data[Theme::Active] = new DefaultVariantMap;
-  m_data[Theme::Inactive] = new DefaultVariantMap;
-  m_data[Theme::Disabled] = new DefaultVariantMap;
+  m_data[Theme::Active] = new QVariantMap;
+  m_data[Theme::Inactive] = new QVariantMap;
+  m_data[Theme::Disabled] = new QVariantMap;
 
   m_currentGroup.setBinding([&] {
     if (m_itemTracker->bindable_itemEnabled().value() == false)
@@ -43,18 +43,21 @@ Style* Style::qmlAttachedProperties(QObject* object) {
 
 QVariant Style::value(Theme::Groups group, QString key) const {
   Q_ASSERT(m_data.contains(group));
-  auto data = m_data[group];
-  if (! data->contains(key)) {
-    auto v = ThemeDatabase::instance()->anyValue(group, key);
-    data->set_value(key, v);
-  }
-  return data->value(key);
+  QVariantMap* data = m_data[group];
+  if (data->contains(key))
+    return data->value(key);
+  if (m_currentTheme.contains(group, key))
+    return m_currentTheme.value(group, key);
+  const auto value = ThemeDatabase::instance()->anyValue(group, key);
+  if (! value.isNull())
+    data->insert(key, value);
+  return value;
 }
 
 void Style::setValue(Theme::Groups group, QString key, QVariant value) {
   Q_ASSERT(m_data.contains(group));
   auto data = m_data[group];
-  data->set_value(key, value);
+  data->insert(key, value);
   update_values({ group }, { key });
 }
 
@@ -66,17 +69,15 @@ void Style::attachedParentChange(
 }
 
 void Style::set_current_theme(QString name) {
-  const Theme theme = ThemeDatabase::instance()->theme(name);
-  QStringList keys = theme.keys();
+  m_currentTheme = ThemeDatabase::instance()->theme(name);
+  QStringList keys = m_currentTheme.keys();
+  QStringList customedKeys;
   for (auto iter = m_data.constBegin(); iter != m_data.constEnd();
-    ++iter) {
-    QStringList custom_keys = iter.value()->currentKeys();
-    keys.removeIf(
-      [&](const QString& key) { return custom_keys.contains(key); });
-    const auto values = theme.flatMap(iter.key());
-    iter.value()->setDefaults(values);
-  }
-  update_values(m_data.keys(), keys);
+    ++iter)
+    customedKeys << iter.value()->keys();
+  keys.removeIf(
+    [&](const QString& k) { return customedKeys.contains(k); });
+  update_values({}, keys);
 }
 
 void Style::update_values(
