@@ -1,11 +1,14 @@
-#ifndef QOOL_FLAGS_H
-#define QOOL_FLAGS_H
+#ifndef QOOL_LITERALS_H
+#define QOOL_LITERALS_H
 
-#include "QObject"
 #include "qoolns.hpp"
 
+#include <QObject>
+
+#define QOOL_LITERALS_USED
+
 QOOL_NS_BEGIN
-namespace QoolFlags {
+namespace QoolLiterals {
 
 Q_NAMESPACE
 
@@ -26,7 +29,7 @@ enum Positions {
 };
 Q_ENUM_NS(Positions)
 
-} // namespace QoolFlags
+} // namespace QoolLiterals
 QOOL_NS_END
 
-#endif // QOOL_FLAGS_H
+#endif // QOOL_LITERALS_H

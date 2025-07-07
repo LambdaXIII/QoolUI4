@@ -1,124 +1,154 @@
 file(GLOB QOOL_INTERNAL_QML_FILES "${CMAKE_CURRENT_SOURCE_DIR}/_private/*.qml")
-set_source_files_properties(
-    ${QOOL_INTERNAL_QML_FILES}
-    PROPERTIES
-    QT_QML_INTERNAL_TYPE TRUE
-)
-set_source_files_properties(
-    Qore.qml
-    QoolConstants.qml
-    PixelFont.qml
-    PROPERTIES QT_QML_SINGLETON_TYPE TRUE
-)
+set_source_files_properties(${QOOL_INTERNAL_QML_FILES}
+                            PROPERTIES QT_QML_INTERNAL_TYPE TRUE)
+set_source_files_properties(Qore.qml QoolConstants.qml PixelFont.qml
+                            PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
-
-
-
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-
-qt_add_qml_module(Qool
-    URI Qool
-    VERSION ${QOOLUI_VERSION_QML}
-    NAMESPACE ${QOOL_NS}
-
-    QML_FILES Qore.qml
-    QML_FILES
-    QML_FILES PixelFont.qml
-
-    QML_FILES _private/QoolWindowCloseButton.qml
-    QML_FILES _private/QoolWindowBG.qml
-    QML_FILES _private/QoolWindowTitleItem.qml
-
-    SOURCES utils/qool_smartobj.h utils/qool_smartobj.cpp
-    SOURCES utils/qool_singleton.h utils/qool_singleton.cpp
-    SOURCES utils/qool_extension_positions.h utils/qool_extension_positions.cpp
-
-    SOURCES shapehelper/qool_octagonsettings.h shapehelper/qool_octagonsettings.cpp
-    SOURCES shapehelper/qool_abstractshapehelper.h shapehelper/qool_abstractshapehelper.cpp
-    SOURCES shapehelper/qool_octagonshapehelper.h shapehelper/qool_octagonshapehelper.cpp
-    SOURCES shapehelper/qool_shapehelper.h shapehelper/qool_shapehelper.cpp
-    QML_FILES OctagonShape.qml
-    SOURCES shapehelper/gadgets/qool_shapehelpergadget.h shapehelper/gadgets/qool_shapehelpergadget.cpp
-    SOURCES datatypes/qool_vector.h datatypes/qool_vector.cpp
-    SOURCES shapehelper/gadgets/qool_shapehelpergadget_circle.h shapehelper/gadgets/qool_shapehelpergadget_circle.cpp
-    SOURCES datatypes/qool_polar2d.h datatypes/qool_polar2d.cpp
-    SOURCES shapehelper/qool_octagoncontainmentmasker.h shapehelper/qool_octagoncontainmentmasker.cpp
-    QML_FILES OctagonRoundedShape.qml
-    QML_FILES QoolBox.qml
-    QML_FILES DragMoveArea.qml
-    QML_FILES BasicColorBehavior.qml BasicNumberBehavior.qml
-    QML_FILES PositionLocker.qml
-    QML_FILES QoolWindowBasic.qml QoolWindow.qml
-    QML_FILES DummyItem.qml
-
-    QML_FILES QoolPalette.qml
-
-    SOURCES utils/qool_flags.h
-    SOURCES utils/qool_spacehelper.h utils/qool_spacehelper.cpp
-    QML_FILES
-    QML_FILES OctagonInternalShapePath.qml
-    QML_FILES OctagonExternalShapePath.qml
-    QML_FILES OctagonRoundedExternalShapePath.qml
-    QML_FILES OctagonRoundedInternalShapePath.qml
-    QML_FILES QoolRoundedBox.qml
-    QML_FILES
-    SOURCES utils/qool_numberranger.h utils/qool_numberranger.cpp
-
-    SOURCES style/qool_style.h style/qool_style.cpp
-    SOURCES style/qool_theme.h style/qool_theme.cpp
-    SOURCES style/qool_theme_database.h style/qool_theme_database.cpp
-    SOURCES style/qool_system_theme.h style/qool_system_theme.cpp
-    SOURCES style/qool_stylegroupagent.h style/qool_stylegroupagent.cpp
-    SOURCES utils/qool_itemtracker.h utils/qool_itemtracker.cpp
-)
+qt_add_qml_module(
+  Qool
+  URI
+  Qool
+  VERSION
+  ${QOOLUI_VERSION_QML}
+  NAMESPACE
+  ${QOOL_NS}
+  QML_FILES
+  Qore.qml
+  QML_FILES
+  QML_FILES
+  PixelFont.qml
+  QML_FILES
+  _private/QoolWindowCloseButton.qml
+  QML_FILES
+  _private/QoolWindowBG.qml
+  QML_FILES
+  _private/QoolWindowTitleItem.qml
+  SOURCES
+  utils/qool_smartobj.h
+  utils/qool_smartobj.cpp
+  SOURCES
+  utils/qool_singleton.h
+  utils/qool_singleton.cpp
+  SOURCES
+  utils/qool_extension_positions.h
+  utils/qool_extension_positions.cpp
+  SOURCES
+  shapehelper/qool_octagonsettings.h
+  shapehelper/qool_octagonsettings.cpp
+  SOURCES
+  shapehelper/qool_abstractshapehelper.h
+  shapehelper/qool_abstractshapehelper.cpp
+  SOURCES
+  shapehelper/qool_octagonshapehelper.h
+  shapehelper/qool_octagonshapehelper.cpp
+  SOURCES
+  shapehelper/qool_shapehelper.h
+  shapehelper/qool_shapehelper.cpp
+  QML_FILES
+  OctagonShape.qml
+  SOURCES
+  shapehelper/gadgets/qool_shapehelpergadget.h
+  shapehelper/gadgets/qool_shapehelpergadget.cpp
+  SOURCES
+  datatypes/qool_vector.h
+  datatypes/qool_vector.cpp
+  SOURCES
+  shapehelper/gadgets/qool_shapehelpergadget_circle.h
+  shapehelper/gadgets/qool_shapehelpergadget_circle.cpp
+  SOURCES
+  datatypes/qool_polar2d.h
+  datatypes/qool_polar2d.cpp
+  SOURCES
+  shapehelper/qool_octagoncontainmentmasker.h
+  shapehelper/qool_octagoncontainmentmasker.cpp
+  QML_FILES
+  OctagonRoundedShape.qml
+  QML_FILES
+  QoolBox.qml
+  QML_FILES
+  DragMoveArea.qml
+  QML_FILES
+  BasicColorBehavior.qml
+  BasicNumberBehavior.qml
+  QML_FILES
+  PositionLocker.qml
+  QML_FILES
+  QoolWindowBasic.qml
+  QoolWindow.qml
+  QML_FILES
+  DummyItem.qml
+  QML_FILES
+  QoolPalette.qml
+  SOURCES
+  utils/qool_literals.h
+  SOURCES
+  utils/qool_spacehelper.h
+  utils/qool_spacehelper.cpp
+  QML_FILES
+  QML_FILES
+  OctagonInternalShapePath.qml
+  QML_FILES
+  OctagonExternalShapePath.qml
+  QML_FILES
+  OctagonRoundedExternalShapePath.qml
+  QML_FILES
+  OctagonRoundedInternalShapePath.qml
+  QML_FILES
+  QoolRoundedBox.qml
+  QML_FILES
+  SOURCES
+  utils/qool_numberranger.h
+  utils/qool_numberranger.cpp
+  SOURCES
+  style/qool_style.h
+  style/qool_style.cpp
+  SOURCES
+  style/qool_theme.h
+  style/qool_theme.cpp
+  SOURCES
+  style/qool_theme_database.h
+  style/qool_theme_database.cpp
+  SOURCES
+  style/qool_system_theme.h
+  style/qool_system_theme.cpp
+  SOURCES
+  style/qool_stylegroupagent.h
+  style/qool_stylegroupagent.cpp
+  SOURCES
+  utils/qool_itemtracker.h
+  utils/qool_itemtracker.cpp)
 
 qoolui_scan_assets_to(QOOL_ASSETS)
-qt_add_resources(Qool "qoolui_assets"
-    PREFIX "/qoolui"
-    FILES ${QOOL_ASSETS}
-)
+qt_add_resources(Qool "qoolui_assets" PREFIX "/qoolui" FILES ${QOOL_ASSETS})
 
+set_target_properties(
+  Qool
+  PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER org.qoolui
+             MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+             MACOSX_BUNDLE_SHORT_VERSION_STRING
+             ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+             MACOSX_BUNDLE TRUE
+             WIN32_EXECUTABLE TRUE)
 
-
-
-set_target_properties(Qool PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER org.qoolui
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
-)
-
-target_compile_definitions(Qool
-    PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
-target_link_libraries(Qool
-    PRIVATE Qt6::Core
-    PRIVATE Qt6::Quick
-    PRIVATE QoolCommon
-)
-target_link_libraries(Qool
-    PRIVATE
-    Qt6::Core
-    Qt6::QuickControls2
-)
+target_compile_definitions(
+  Qool PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
+target_link_libraries(
+  Qool
+  PRIVATE Qt6::Core Qt6::Quick
+  PRIVATE Qt6::Xml
+  PRIVATE QoolCommon)
+target_link_libraries(Qool PRIVATE Qt6::Core Qt6::QuickControls2)
 target_link_libraries(Qool PRIVATE Qt6::Core)
 target_link_libraries(Qool PRIVATE Qt6::Core)
 target_link_libraries(Qool PRIVATE Qt6::Core)
 
-target_include_directories(Qool
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapehelper"
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapehelper/gadgets"
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/datatypes"
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/style"
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/utils"
-)
-
+target_include_directories(
+  Qool
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapehelper"
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapehelper/gadgets"
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/datatypes"
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/style"
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/utils")
 
 # add_subdirectory(HandyControls)

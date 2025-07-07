@@ -5,14 +5,8 @@ import Qool.Controls.Components
 BasicButtonFrame {
     id: root
 
-
-
     property bool flat: false
     property bool highlighted: hovered
-
-    property color highlightColor: Style.highlight
-    property color highlightedTextColor: Style.highlightedText
-    property color disabledColor: Style.negative
 
     hoverEnabled: true
 
@@ -26,18 +20,18 @@ BasicButtonFrame {
 
     ControlPressedCover {
         visible: root.down
-        highColor: root.highlightColor
-        lowColor: root.highlightedTextColor
+        highColor: Style.highlight
+        lowColor: Style.highlightedText
     }
 
     ControlHighlightCover {
-        highColor: root.highlightColor
-        lowColor: root.highlightedTextColor
+        highColor: Style.highlight
+        lowColor: Style.highlightedText
         opacity: root.highlighted ? 1 : 0
     }
 
     ControlLockedCover {
-        color: disabledColor
+        color: Style.negative
     }
 
     SmartObject {

@@ -6,8 +6,10 @@ Item {
 
     property var shape: parent
 
-    readonly property OctagonShapeHelper controller: shape?.shapeControl
-                                                     ?? internalController
+    property bool showIntPoints: true
+    property bool showExtPoints: true
+
+    readonly property OctagonShapeHelper controller: shape?.shapeControl ?? internalController
 
     OctagonShapeHelper {
         id: internalController
@@ -26,6 +28,7 @@ Item {
         parent: root.shape ?? root
         point: root.controller.extTL
         color: pCtrl.extPointColor
+        visible: root.showExtPoints
     }
 
     PointIndicator {
@@ -35,6 +38,7 @@ Item {
         parent: root.shape ?? root
         point: root.controller.extTR
         color: pCtrl.extPointColor
+        visible: root.showExtPoints
     }
 
     PointIndicator {
@@ -44,6 +48,7 @@ Item {
         parent: root.shape ?? root
         point: root.controller.extBL
         color: pCtrl.extPointColor
+        visible: root.showExtPoints
     }
 
     PointIndicator {
@@ -53,6 +58,7 @@ Item {
         parent: root.shape ?? root
         point: root.controller.extBR
         color: pCtrl.extPointColor
+        visible: root.showExtPoints
     }
 
     PointIndicator {
@@ -62,6 +68,7 @@ Item {
         parent: root.shape ?? root
         point: root.controller.extLT
         color: pCtrl.extPointColor
+        visible: root.showExtPoints
     }
 
     PointIndicator {
@@ -71,6 +78,7 @@ Item {
         parent: root.shape ?? root
         point: root.controller.extLB
         color: pCtrl.extPointColor
+        visible: root.showExtPoints
     }
 
     PointIndicator {
@@ -80,6 +88,7 @@ Item {
         parent: root.shape ?? root
         point: root.controller.extRT
         color: pCtrl.extPointColor
+        visible: root.showExtPoints
     }
 
     PointIndicator {
@@ -89,6 +98,7 @@ Item {
         parent: root.shape ?? root
         point: root.controller.extRB
         color: pCtrl.extPointColor
+        visible: root.showExtPoints
     }
 
     PointIndicator {
@@ -98,6 +108,7 @@ Item {
         parent: root.shape ?? root
         point: root.controller.intTL
         color: pCtrl.intPointColor
+        visible: root.showIntPoints
     }
 
     PointIndicator {
@@ -107,6 +118,7 @@ Item {
         parent: root.shape ?? root
         point: root.controller.intTR
         color: pCtrl.intPointColor
+        visible: root.showIntPoints
     }
 
     PointIndicator {
@@ -116,6 +128,7 @@ Item {
         parent: root.shape ?? root
         point: root.controller.intBL
         color: pCtrl.intPointColor
+        visible: root.showIntPoints
     }
 
     PointIndicator {
@@ -125,6 +138,7 @@ Item {
         parent: root.shape ?? root
         point: root.controller.intBR
         color: pCtrl.intPointColor
+        visible: root.showIntPoints
     }
 
     PointIndicator {
@@ -134,6 +148,7 @@ Item {
         parent: root.shape ?? root
         point: root.controller.intLT
         color: pCtrl.intPointColor
+        visible: root.showIntPoints
     }
 
     PointIndicator {
@@ -143,6 +158,7 @@ Item {
         parent: root.shape ?? root
         point: root.controller.intLB
         color: pCtrl.intPointColor
+        visible: root.showIntPoints
     }
 
     PointIndicator {
@@ -152,6 +168,7 @@ Item {
         parent: root.shape ?? root
         point: root.controller.intRT
         color: pCtrl.intPointColor
+        visible: root.showIntPoints
     }
 
     PointIndicator {
@@ -161,5 +178,6 @@ Item {
         parent: root.shape ?? root
         point: root.controller.intRB
         color: pCtrl.intPointColor
+        visible: root.showIntPoints
     }
 }

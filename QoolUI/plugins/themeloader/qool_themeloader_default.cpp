@@ -7,11 +7,11 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QStandardPaths>
-#include <QtConcurrent>
 
 QOOL_NS_BEGIN
 
-static const QString THEMES_DIR { ":/qoolui/themes" };
+Q_GLOBAL_STATIC_WITH_ARGS(
+  QString, THEMES_DIR, QStringLiteral(":/qoolui/themes"))
 
 DefaultThemeLoader::DefaultThemeLoader()
   : QObject { nullptr }
@@ -41,7 +41,7 @@ QStringList scan_for_xml_files() {
   SimplePathExpander expander;
   expander.locations = locations;
   expander.subDirectories = sub_dirs;
-  expander.extraLocations << THEMES_DIR;
+  expander.extraLocations << *THEMES_DIR;
 
   auto xml_files = expander.entryList({ "*.xml" });
   return xml_files;
@@ -52,10 +52,13 @@ QList<ThemeLoader::Package> DefaultThemeLoader::themes() const {
 
   const QStringList xmls = scan_for_xml_files();
 
-  QList<QSharedPointer<XMLThemeLoader>> loaders =
-    QtConcurrent::blockingMapped(xmls, [](const QString& xmlPath) {
-      QSharedPointer<XMLThemeLoader> loader(
-        new XMLThemeLoader(xmlPath));
+  QList<QSharedPointer<XMLThemeLoader>> loaders;
+
+  // TODO: Consider make it concurrent again.
+
+  std::transform(xmls.constBegin(), xmls.constEnd(),
+    std::back_inserter(loaders), [&](const auto& xml) {
+      QSharedPointer<XMLThemeLoader> loader(new XMLThemeLoader(xml));
       return loader;
     });
 

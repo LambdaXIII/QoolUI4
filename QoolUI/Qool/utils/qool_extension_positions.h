@@ -1,7 +1,7 @@
 #ifndef QOOL_EXTENSION_POSITONS_H
 #define QOOL_EXTENSION_POSITONS_H
 
-#include "qool_flags.h"
+#include "qool_literals.h"
 #include "qoolcommon/macro_foreach.hpp"
 #include "qoolns.hpp"
 
@@ -19,28 +19,28 @@ public:
   explicit Extension_Positions(QObject* parent = nullptr);
 
   Q_INVOKABLE static qreal xPosFromWidth(
-    qreal width, QoolFlags::Positions position);
+    qreal width, QoolLiterals::Positions position);
   Q_INVOKABLE static qreal yPosFromHeight(
-    qreal height, QoolFlags::Positions position);
+    qreal height, QoolLiterals::Positions position);
   Q_INVOKABLE static QPointF posInRect(
-    QQuickItem* item, QoolFlags::Positions position);
+    QQuickItem* item, QoolLiterals::Positions position);
   Q_INVOKABLE static QPointF posInRect(
-    const QRectF& rect, QoolFlags::Positions position);
+    const QRectF& rect, QoolLiterals::Positions position);
 
   Q_INVOKABLE static qreal xOffsetToPos(
-    qreal width, QoolFlags::Positions position);
+    qreal width, QoolLiterals::Positions position);
   Q_INVOKABLE static qreal yOffsetToPos(
-    qreal height, QoolFlags::Positions position);
+    qreal height, QoolLiterals::Positions position);
   Q_INVOKABLE static QPointF offsetToPos(
-    QQuickItem* item, QoolFlags::Positions position);
+    QQuickItem* item, QoolLiterals::Positions position);
   Q_INVOKABLE static QPointF offsetToPos(
-    const QRectF& rect, QoolFlags::Positions position);
+    const QRectF& rect, QoolLiterals::Positions position);
 
 #define POSCOLLECTION(NAME)                                            \
 private:                                                               \
-  Q_PROPERTY(QList<QoolFlags::Positions> NAME READ NAME CONSTANT)      \
+  Q_PROPERTY(QList<QoolLiterals::Positions> NAME READ NAME CONSTANT)   \
 public:                                                                \
-  static const QList<QoolFlags::Positions>& NAME();
+  static const QList<QoolLiterals::Positions>& NAME();
 
   QOOL_FOREACH_10(POSCOLLECTION, leftSide, rightSide, topSide,
     bottomSide, leftEdge, rightEdge, topEdge, bottomEdge, hCenter,

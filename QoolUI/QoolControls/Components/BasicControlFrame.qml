@@ -9,7 +9,7 @@ T.Control {
     property bool showTitle: true
     property string title: qsTr("Qool Control")
     property color backgroundColor: Style.base
-    property color borderColor: Style.midlight
+    property color borderColor: Style.controlBorderColor
 
     //titleComponent must have a text property
     property Component titleComponent: BasicControlTitleText {
@@ -41,6 +41,7 @@ T.Control {
 
     SpaceHelper {
         id: spacer
+
         readonly property real headerSpace: {
             if (!root.showTitle)
                 return 0
@@ -54,6 +55,8 @@ T.Control {
                                                      + root.backgroundSettings.borderWidth
         readonly property real implicitBottomPadding: root.bottomInset
                                                       + root.backgroundSettings.borderWidth
+
+        padding: 0
     }
 
     topPadding: spacer.implicitTopPadding + contentTopSpacing
@@ -72,13 +75,23 @@ T.Control {
         anchors {
             top: parent.top
             right: parent.right
-            margins: root.backgroundSettings.borderWidth
+            topMargin: root.topInset + root.backgroundSettings.borderWidth
+            rightMargin: root.rightInset + root.backgroundSettings.borderWidth
         }
+
+        width: {
+            // let iw = titleLoader.item ? titleLoader.item.implicitWidth : 0
+            let max_w = root.width - root.backgroundSettings.borderWidth * 2
+                - root.leftInset - root.rightInset
+            return max_w
+        }
+
         Binding {
             target: titleLoader.item
             property: "text"
             value: root.title
             when: root.showTitle && titleLoader.item
+                  && titleLoader.item.hasOwnProperty("text")
         }
     }
 

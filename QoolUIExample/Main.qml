@@ -19,21 +19,22 @@ QoolWindow {
 
     content: SplitView {
         PageListView {
+            id: tocView
             SplitView.minimumWidth: 80
             SplitView.maximumWidth: 300
             SplitView.fillHeight: true
         }
-        ControlFrame {
-            title: qsTr("内容")
+        PageFrame {
             SplitView.fillWidth: true
             SplitView.fillHeight: true
-            contentItem: OctagonShapeTestPage {}
+            page_url: tocView.current_url
         }
     } //content
 
-    backgroundSettings.borderWidth: 10
+    // backgroundSettings.borderWidth: 1
 
     // QoolWindowHud {
     //     window: root
     // }
+    Component.onCompleted: Qore.test()
 }

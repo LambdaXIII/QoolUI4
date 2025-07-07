@@ -1,3 +1,4 @@
+#include <QDebug>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
@@ -7,7 +8,9 @@ int main(int argc, char* argv[]) {
   QQmlApplicationEngine engine;
   // engine.addImportPath(QStringLiteral("."));
   engine.addImportPath(QStringLiteral("qml"));
-  engine.addPluginPath(QStringLiteral("qoolplugins"));
+  // engine.addPluginPath(QStringLiteral("qoolplugins"));
+
+  // qDebug() << app.libraryPaths();
 
   QObject::connect(
     &engine, &QQmlApplicationEngine::objectCreationFailed, &app,

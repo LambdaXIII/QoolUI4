@@ -12,6 +12,8 @@ qt_add_qml_module(QoolControls
     QML_FILES BasicButton.qml
     QML_FILES
     QML_FILES ClickableText.qml
+    QML_FILES
+    QML_FILES SplitView.qml
 
 
 

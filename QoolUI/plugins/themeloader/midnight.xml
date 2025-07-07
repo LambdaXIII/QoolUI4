@@ -37,7 +37,7 @@
         <number property="windowElementSpacing" value="5"/>
         <number property="windowEdgeSpacing" value="5"/>
         <number property="windowTitleTextSize" value="14"/>
-        <number properyt="windowBorderWidth" value="1"/>
+        <number property="windowBorderWidth" value="1"/>
 
         <number property="dialogCutSize" copy="controlCutSize"/>
         <number property="dialogBorderWidth" copy="controlBorderWidth"/>
@@ -71,7 +71,7 @@
         <color property="warning" copy="pink"/>
 
         <color property="controlBackgroundColor" copy="grey"/>
-        <color property="controlBorderColor" copy="grey" lighter="1.2"/>
+        <color property="controlBorderColor" value="#C6C6C6"/>
         <color property="infoColor" copy="cyan"/>
     </constants>
     <active>

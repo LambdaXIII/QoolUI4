@@ -16,6 +16,12 @@ Control {
     readonly property color fillColor: fillColorButton.value
     readonly property color borderColor: borderColorButton.value
 
+    readonly property bool rounded: roundedShapeButton.checked
+    readonly property bool showExtPoints: showExtPointsButton.checked
+    readonly property bool showIntPoints: showIntPointsButton.checked
+
+    property url fillImage
+
     signal wannaDumpInfo
 
     contentItem: ColumnLayout {
@@ -96,6 +102,52 @@ Control {
                 name: qsTr("描边颜色")
             }
         }
+        RowLayout {
+            Layout.fillWidth: true
+            ButtonGroup {
+                id: boxShapeGroup
+            }
+
+            ActionButton {
+                checkable: true
+                ButtonGroup.group: boxShapeGroup
+                text: qsTr("方形切角")
+                checked: true
+            }
+            ActionButton {
+                id: roundedShapeButton
+                checkable: true
+                ButtonGroup.group: boxShapeGroup
+                text: qsTr("圆形切角")
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            ActionButton {
+                id: showExtPointsButton
+                checkable: true
+                text: qsTr("显示外顶点")
+            }
+            ActionButton {
+                id: showIntPointsButton
+                checkable: true
+                text: qsTr("显示内定点")
+            }
+        }
+
+        ActionButton {
+            checkable: true
+            text: qsTr("使用图片填充")
+            onCheckedChanged: {
+                if (checked) {
+                    root.fillImage = "qrc:/qoolexample/assets/ExamplePicture1.jpg";
+                } else {
+                    root.fillImage = null;
+                }
+            }
+        }
+
         Item {
             Layout.fillHeight: true
         }

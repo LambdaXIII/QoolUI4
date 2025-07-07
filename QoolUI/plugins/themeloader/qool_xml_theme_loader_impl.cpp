@@ -7,6 +7,9 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QScopedPointer>
+
+// TODO: consider remove dependencies for Qt6::Xml
+
 QOOL_NS_BEGIN
 
 void XMLThemeLoaderImpl::load(const QString& filename) {

@@ -16,6 +16,9 @@ qt_add_qml_module(QoolControlsComponents
     QML_FILES PaPaWall.qml
     QML_FILES ControlPressedCover.qml
     QML_FILES HorizontalBar.qml
+    QML_FILES SplitViewHandle.qml
+    QML_FILES BasicBigTitleText.qml
+    QML_FILES BasicDecorativeText.qml
 
 )
 

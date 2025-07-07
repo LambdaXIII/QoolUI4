@@ -5,6 +5,8 @@ import Qool.Controls
 Control {
     id: root
 
+    property url current_url: "pages/Page_Welcome.qml"
+
     ButtonGroup {
         id: pageButtons
     }
@@ -17,6 +19,8 @@ Control {
             checkable: true
             ButtonGroup.group: pageButtons
             width: ListView.view.width
+            onCheckedChanged: if (checked)
+                                  root.current_url = "pages/" + model.page
         }
         implicitWidth: 100
     }
