@@ -29,5 +29,5 @@ target_include_directories(qool_themeloader_default
 
 target_link_libraries(
   qool_themeloader_default
-  PRIVATE Qt6::Core Qt6::Gui Qt6::Concurrent Qt6::Xml
+  PRIVATE Qt6::Core Qt6::Gui Qt6::Xml
   PRIVATE QoolCommon)

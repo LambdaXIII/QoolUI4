@@ -18,7 +18,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(
   Qt6 6.8
-  COMPONENTS Core Quick QuickControls2 Concurrent
+  COMPONENTS Core Quick QuickControls2 Concurrent Xml
   REQUIRED)
 
 if(NOT DEFINED QOOLUI_QML_PROJECT_SETUP_LOADED)

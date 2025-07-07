@@ -5,6 +5,8 @@
 
 #include <QObject>
 
+#define QOOL_LITERALS_USED
+
 QOOL_NS_BEGIN
 namespace QoolLiterals {
 

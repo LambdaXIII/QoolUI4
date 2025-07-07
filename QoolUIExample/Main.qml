@@ -36,4 +36,5 @@ QoolWindow {
     // QoolWindowHud {
     //     window: root
     // }
+    Component.onCompleted: Qore.test()
 }
