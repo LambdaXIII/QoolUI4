@@ -15,9 +15,6 @@ Style::Style(QObject* parent)
   m_data[Theme::Inactive] = new DefaultVariantMap;
   m_data[Theme::Disabled] = new DefaultVariantMap;
 
-  connect(this, &Style::themeChanged, this,
-    [&] { set_current_theme(theme()); });
-
   m_currentGroup.setBinding([&] {
     if (m_itemTracker->bindable_itemEnabled().value() == false)
       return Theme::Disabled;
@@ -129,6 +126,17 @@ void Style::update_values(
 
 #undef __HANDLE__
 } // update_values
+
+QString Style::theme() const {
+  return m_currentTheme.name();
+}
+
+void Style::set_theme(const QString& name) {
+  if (theme() == name)
+    return;
+  set_current_theme(name);
+  emit themeChanged();
+}
 
 #define IMPL(T, N)                                                     \
   T Style::N() const {                                                 \

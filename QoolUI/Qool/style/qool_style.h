@@ -42,6 +42,7 @@ public:
     Theme::Groups group, QString key, QVariant value);
 
 protected:
+  Theme m_currentTheme;
   ItemTracker* m_itemTracker;
   QHash<Theme::Groups, DefaultVariantMap*> m_data;
   void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
@@ -51,14 +52,9 @@ protected:
   void update_values(
     QList<Theme::Groups> groups = {}, QStringList keys = {});
 
-  template <typename T>
-  inline T _value(Theme::Groups group, QString key) const {
-    return value(group, key).value<T>();
-  }
-
   /********** PROPERTIES *********/
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(Style, QString, theme)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QString, theme)
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
     Style, Theme::Groups, currentGroup)
 
