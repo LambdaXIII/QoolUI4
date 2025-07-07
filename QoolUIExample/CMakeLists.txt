@@ -15,14 +15,17 @@ qt_add_qml_module(appQoolUIExample
     # IMPORTS Qool
     QML_FILES
     Main.qml
-    QML_FILES pages/OctagonShapeTestPage.qml
+    QML_FILES pages/Page_QoolBox.qml
     QML_FILES pages/PaletteSheet.qml
-    QML_FILES pages/components/OctagonShapeControlPanel.qml
+    QML_FILES pages/components/QoolBoxShapeControlPanel.qml
     QML_FILES
     RESOURCES toc.xml
     QML_FILES PageListModel.qml
     QML_FILES PageListView.qml
     QML_FILES pages/Page_Playground.qml
+    QML_FILES PageFrame.qml
+    QML_FILES pages/BasicPage.qml
+    QML_FILES pages/Page_Welcome.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
