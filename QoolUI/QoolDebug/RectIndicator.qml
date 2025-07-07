@@ -24,7 +24,7 @@ Floater {
 
     QtObject {
         id: pCtrl
-        readonly property color textColor: StyleDB.recommendForeground(
+        readonly property color textColor: ThemeDB.recommendForeground(
                                                root.color, palette.button,
                                                palette.buttonText)
     }
@@ -50,14 +50,14 @@ Floater {
                 }
                 PropertyTipText {
                     title: "x"
-                    titleColor: Qore.style.negative
+                    titleColor: Style.negative
                     displayValue: root.x
                     valueColor: pCtrl.textColor
                     visible: root.showPosition
                 }
                 PropertyTipText {
                     title: "y"
-                    titleColor: Qore.style.positive
+                    titleColor: Style.positive
                     displayValue: root.y
                     valueColor: pCtrl.textColor
                     visible: root.showPosition
@@ -73,7 +73,7 @@ Floater {
             anchors.top: parent.top
             contentItem: PropertyTipText {
                 title: "width"
-                titleColor: Qore.style.negative
+                titleColor: Style.negative
                 displayValue: root.width
                 valueColor: pCtrl.textColor
             }
@@ -86,7 +86,7 @@ Floater {
             anchors.bottom: parent.bottom
             contentItem: PropertyTipText {
                 title: "height"
-                titleColor: Qore.style.positive
+                titleColor: Style.positive
                 displayValue: root.height
                 valueColor: pCtrl.textColor
             }
@@ -100,14 +100,14 @@ Floater {
             contentItem: Row {
                 PropertyTipText {
                     title: "x"
-                    titleColor: Qore.style.negative
+                    titleColor: Style.negative
                     displayValue: root.x + root.width
                     valueColor: pCtrl.textColor
                     visible: root.showPosition
                 }
                 PropertyTipText {
                     title: "y"
-                    titleColor: Qore.style.positive
+                    titleColor: Style.positive
                     displayValue: root.y + root.height
                     valueColor: pCtrl.textColor
                     visible: root.showPosition

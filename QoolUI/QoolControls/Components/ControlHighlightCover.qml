@@ -8,7 +8,7 @@ Item {
 
     property color highColor: palette.highlight
     property color lowColor: palette.highlightedText
-    property var words: Qore.style.papaWords
+    property var words: Style.papaWords
 
     property bool rounded: false
 

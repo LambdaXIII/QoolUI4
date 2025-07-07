@@ -15,6 +15,12 @@ set_source_files_properties(
 
 
 find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_add_qml_module(Qool
     URI Qool
@@ -22,7 +28,7 @@ qt_add_qml_module(Qool
     NAMESPACE ${QOOL_NS}
 
     QML_FILES Qore.qml
-    QML_FILES QoolConstants.qml
+    QML_FILES
     QML_FILES PixelFont.qml
 
     QML_FILES _private/QoolWindowCloseButton.qml
@@ -52,11 +58,7 @@ qt_add_qml_module(Qool
     QML_FILES DummyItem.qml
 
     QML_FILES QoolPalette.qml
-    SOURCES style/qool_styledb.h style/qool_styledb.cpp
-    SOURCES style/qool_theme_package.h style/qool_theme_package.cpp
-    SOURCES style/qool_default_theme.h style/qool_default_theme.cpp
-    SOURCES style/qool_style_agent.h style/qool_style_agent.cpp
-    SOURCES style/qool_style_agent_group.h style/qool_style_agent_group.cpp
+
     SOURCES utils/qool_flags.h
     SOURCES utils/qool_spacehelper.h utils/qool_spacehelper.cpp
     QML_FILES
@@ -67,6 +69,13 @@ qt_add_qml_module(Qool
     QML_FILES QoolRoundedBox.qml
     QML_FILES
     SOURCES utils/qool_numberranger.h utils/qool_numberranger.cpp
+
+    SOURCES style/qool_style.h style/qool_style.cpp
+    SOURCES style/qool_theme.h style/qool_theme.cpp
+    SOURCES style/qool_theme_database.h style/qool_theme_database.cpp
+    SOURCES style/qool_system_theme.h style/qool_system_theme.cpp
+    SOURCES style/qool_stylegroupagent.h style/qool_stylegroupagent.cpp
+    SOURCES utils/qool_itemtracker.h utils/qool_itemtracker.cpp
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)
@@ -93,6 +102,13 @@ target_link_libraries(Qool
     PRIVATE Qt6::Quick
     PRIVATE QoolCommon
 )
+target_link_libraries(Qool
+    PRIVATE
+    Qt6::Core
+    Qt6::QuickControls2
+)
+target_link_libraries(Qool PRIVATE Qt6::Core)
+target_link_libraries(Qool PRIVATE Qt6::Core)
 target_link_libraries(Qool PRIVATE Qt6::Core)
 
 target_include_directories(Qool

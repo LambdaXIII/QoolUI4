@@ -8,11 +8,11 @@ Behavior {
     readonly property bool running: ani.running
 
     enabled: targetProperty.object?.animationEnabled
-             ?? QoolConstants.animationEnabled
+             ?? Style.animationEnabled
 
     ColorAnimation {
         id: ani
-        duration: Qore.style.transitionDuration
+        duration: Style.transitionDuration
         easing.type: Easing.InOutQuad
     }
 }

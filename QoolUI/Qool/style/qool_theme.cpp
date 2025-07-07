@@ -1,0 +1,278 @@
+#include "qool_theme.h"
+
+#include "qoolcommon/debug.hpp"
+
+#include <utility>
+
+QOOL_NS_BEGIN
+
+// #define LOCK_DATA QMutexLocker locker(&m_mutex);
+#define LOCK_DATA
+
+const std::array<Theme::Groups, 5> Theme::GROUPS { Theme::Constants,
+  Theme::Active, Theme::Inactive, Theme::Disabled, Theme::Custom };
+
+/* 为指定的group设置查找优先级 */
+// QList<Theme::Groups> ORDERED_GROUPS_FOR_(
+//   Theme::Groups group, bool reversed = false) {
+//   QList<Theme::Groups> result;
+//   result << Theme::Constants;
+
+//   if (group > Theme::Constants)
+//     result << Theme::Active;
+
+//   if (group == Theme::Disabled)
+//     result << Theme::Disabled;
+
+//   if (group == Theme::Inactive)
+//     result << Theme::Inactive;
+
+//   if (group > Theme::Constants)
+//     result << Theme::Custom;
+
+//   if (reversed) {
+//     std::reverse(result.begin(), result.end());
+//   }
+//   return std::move(result);
+// }
+
+Theme::Theme() {
+  for (const auto& x : GROUPS) {
+    m_data[x] = QVariantMap();
+  }
+}
+
+Theme::Theme(const QString& name, const QVariantMap& constants,
+  const QVariantMap& active, const QVariantMap& inactive,
+  const QVariantMap& disabled, const QVariantMap& custom)
+  : Theme() {
+  m_data[Groups::Constants].insert(constants);
+  m_data[Groups::Active].insert(active);
+  m_data[Groups::Inactive].insert(inactive);
+  m_data[Groups::Disabled].insert(disabled);
+  m_data[Groups::Custom].insert(custom);
+  setName(name);
+}
+
+Theme::Theme(const QVariantMap& metadatas, const QVariantMap& constants,
+  const QVariantMap& active, const QVariantMap& inactive,
+  const QVariantMap& disabled, const QVariantMap& custom)
+  : Theme() {
+  m_metadata = metadatas;
+  m_data[Groups::Constants].insert(constants);
+  m_data[Groups::Active].insert(active);
+  m_data[Groups::Inactive].insert(inactive);
+  m_data[Groups::Disabled].insert(disabled);
+  m_data[Groups::Custom].insert(custom);
+}
+
+Theme::Theme(const Theme& other)
+  : m_metadata { other.m_metadata }
+  , m_data { other.m_data } {
+}
+
+Theme::Theme(Theme&& other)
+  : m_metadata { std::move(other.m_metadata) }
+  , m_data { std::move(other.m_data) } {
+}
+
+Theme& Theme::operator=(const Theme& other) {
+  LOCK_DATA
+  m_metadata = other.m_metadata;
+  m_data = other.m_data;
+  return *this;
+}
+
+Theme& Theme::operator=(Theme&& other) {
+  LOCK_DATA
+  m_metadata = std::move(other.m_metadata);
+  m_data = std::move(other.m_data);
+  return *this;
+}
+
+QString Theme::name() const {
+  return m_metadata.value("name").toString();
+}
+
+bool Theme::setName(const QString& value) {
+  if (value.isEmpty())
+    return false;
+  if (m_metadata.value("name").toString() == value)
+    return false;
+  LOCK_DATA
+  m_metadata.insert("name", value);
+  return true;
+}
+
+QStringList Theme::keys() const {
+  QSet<QString> all_keys;
+  std::for_each(GROUPS.cbegin(), GROUPS.cend(), [&](Groups x) {
+    const auto ks = this->m_data[x].keys();
+    for (const auto& k : ks)
+      all_keys << k;
+  });
+  return { all_keys.constBegin(), all_keys.constEnd() };
+}
+
+QStringList Theme::keys(Groups group) const {
+  if (! m_data.contains(group))
+    return {};
+  return m_data.value(group).keys();
+}
+
+QVariant Theme::value(
+  Groups group, const QString& key, const QVariant& defvalue) const {
+  Q_ASSERT(m_data.contains(group));
+
+  if (m_data[Custom].contains(key))
+    return m_data[Custom].value(key);
+
+  if (m_data[group].contains(key))
+    return m_data[group].value(key);
+
+  if (group != Active && m_data[Active].contains(key))
+    return m_data[Active].value(key);
+
+  if (m_data[Constants].contains(key))
+    return m_data[Constants].value(key);
+
+  return defvalue;
+}
+
+QVariant Theme::value(
+  const QString& key, const QVariant& defvalue) const {
+  return value(Active, key, defvalue);
+}
+
+bool Theme::setValue(
+  Groups group, const QString& key, const QVariant& value) {
+  if (! m_data.contains(group))
+    group = Custom;
+
+  LOCK_DATA
+
+  if (m_data[group].value(key) == value)
+    return false;
+
+  if (value.isNull())
+    m_data[group].remove(key);
+  else
+    m_data[group].insert(key, value);
+
+  return true;
+}
+
+bool Theme::setCustomValue(const QString& key, const QVariant& value) {
+  if (m_data[Groups::Custom].value(key) == value)
+    return false;
+  LOCK_DATA
+  if (value.isNull())
+    m_data[Groups::Custom].remove(key);
+  else
+    m_data[Groups::Custom].insert(key, value);
+  return true;
+}
+
+QVariant Theme::metadata(
+  const QString& key, const QVariant& defvalue) const {
+  return m_metadata.value(key, defvalue);
+}
+
+bool Theme::set_metadata(const QString& key, const QVariant& value) {
+  if (m_metadata.value(key) == value)
+    return false;
+  LOCK_DATA
+  if (value.isNull())
+    m_metadata.remove(key);
+  else
+    m_metadata.insert(key, value);
+  return true;
+}
+
+bool Theme::contains(Groups group, const QString& key) const {
+  if (! m_data.contains(group))
+    return false;
+  return m_data[group].contains(key);
+}
+
+bool Theme::contains(const QString& key) const {
+  for (const auto& x : GROUPS) {
+    if (m_data[x].contains(key))
+      return true;
+  }
+  return false;
+}
+
+bool Theme::containsMetadata(const QString& key) const {
+  return m_metadata.contains(key);
+}
+
+void Theme::insert(Groups group, const QVariantMap& datas) {
+  LOCK_DATA
+  m_data[group].insert(datas);
+}
+
+void Theme::insert(const Theme& other) {
+  LOCK_DATA
+  m_metadata.insert(other.m_metadata);
+  for (const auto& x : GROUPS) {
+    m_data[x].insert(other.m_data[x]);
+  }
+}
+
+void Theme::insertMetadatas(const QVariantMap& datas) {
+  LOCK_DATA
+  m_metadata.insert(datas);
+}
+
+bool Theme::isEmpty() const {
+  for (const auto& x : GROUPS) {
+    if (! m_data[x].isEmpty())
+      return false;
+  }
+  return true;
+}
+
+bool Theme::operator==(const Theme& other) const {
+  return m_metadata == other.m_metadata && m_data == other.m_data;
+}
+
+bool Theme::operator!=(const Theme& other) const {
+  return ! operator==(other);
+}
+
+QVariantMap Theme::flatMap(Groups group) const {
+  QVariantMap result;
+
+  if (group != Custom)
+    result.insert(m_data[Constants]);
+
+  // if (group != Active)
+  // result.insert(m_data[Active]);
+
+  result.insert(m_data[group]);
+
+  if (group != Constants)
+    result.insert(m_data[Custom]);
+
+  return result;
+}
+
+QHash<int, QVariantMap>& Theme::raw() {
+  return m_data;
+}
+
+const QHash<int, QVariantMap>& Theme::raw() const {
+  return m_data;
+}
+
+void Theme::dumpInfo() const {
+  xDebugQ << "METADATA" << xDBGMap(m_metadata);
+  for (const auto& group : GROUPS) {
+    xDebugQ << "GROUP" << group << xDBGMap(m_data[group]);
+  }
+}
+
+#undef LOCK_DATA
+
+QOOL_NS_END

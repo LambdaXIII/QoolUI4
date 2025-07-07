@@ -15,10 +15,13 @@ public:
 
   QString name() const;
   QString filename() const;
+  const QVariantMap& metadata() const;
+
+  const QVariantMap& constants() const;
   const QVariantMap& active() const;
   const QVariantMap& inactive() const;
   const QVariantMap& disabled() const;
-  const QVariantMap& metadata() const;
+  const QVariantMap& custom() const;
 
   bool isValid() const;
 

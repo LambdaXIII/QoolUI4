@@ -19,12 +19,7 @@ XMLThemeLoader::~XMLThemeLoader() {
 }
 
 QString XMLThemeLoader::name() const {
-  if (m_pImpl->metadata.contains("name")) {
-    const auto nameV = m_pImpl->metadata.value("name");
-    if (nameV.typeId() == QMetaType::QString)
-      return nameV.toString();
-  }
-  return QFileInfo(m_pImpl->filename).baseName();
+  return m_pImpl->metadata.value("name").toString();
 }
 
 const QVariantMap& XMLThemeLoader::metadata() const {
@@ -41,6 +36,14 @@ const QVariantMap& XMLThemeLoader::inactive() const {
 
 const QVariantMap& XMLThemeLoader::disabled() const {
   return m_pImpl->disabled;
+}
+
+const QVariantMap& XMLThemeLoader::constants() const {
+  return m_pImpl->constants;
+}
+
+const QVariantMap& XMLThemeLoader::custom() const {
+  return m_pImpl->custom;
 }
 
 bool XMLThemeLoader::isValid() const {

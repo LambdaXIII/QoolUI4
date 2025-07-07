@@ -4,7 +4,6 @@
 #include "qool_extension_positions.h"
 #include "qool_flags.h"
 #include "qool_smartobj.h"
-#include "qool_style_agent.h"
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/property_macros_for_qobject.hpp"
 #include "qoolns.hpp"
@@ -21,7 +20,7 @@ class QoolSingleton: public SmartObject {
     QString, version, QOOLUI_VERSION_FULL)
   QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(
     Extension_Positions*, positions, nullptr)
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleAgent*, style, nullptr)
+  // QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleAgent*, style, nullptr)
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE_DECL(
     QoolSingleton, bool, animationEnabled)

@@ -14,8 +14,24 @@ Item {
         height: 300
 
         anchors.centerIn: parent
-        backgroundSettings.cutSize: 200
         contentSpacing: 10
-        contentItem: SimpleButton {}
+        contentItem: Rectangle {
+            id: c
+            color: Style.accent
+            Text {
+
+                text: Style.accent
+                anchors.centerIn: parent
+            }
+        }
+
+        TapHandler {
+            onTapped: {
+                // console.log(Style.active.accent, Style.inactive.accent, Style.accent);
+                c.enabled = !c.enabled
+
+                c.Style.dumpInfo()
+            }
+        }
     }
 }

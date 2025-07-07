@@ -12,7 +12,7 @@ Item {
     property alias angel: bars.angle
     property int cycleDuration: 2000
 
-    property color color: Qore.style.negative
+    property color color: Style.negative
 
     property bool rounded: false
     property OctagonSettings settings: parent?.backgroundSettings

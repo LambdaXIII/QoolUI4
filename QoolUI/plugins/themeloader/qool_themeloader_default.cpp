@@ -66,10 +66,12 @@ QList<ThemeLoader::Package> DefaultThemeLoader::themes() const {
       continue;
     }
     Package p;
-    p.name = loader->name();
+    p.metadata = loader->metadata();
     p.active = loader->active();
     p.inactive = loader->inactive();
     p.disabled = loader->disabled();
+    p.constants = loader->constants();
+    p.custom = loader->custom();
     packages.append(p);
   }
 

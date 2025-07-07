@@ -12,7 +12,7 @@ QOOL_NS_BEGIN
 class DefaultVariantMap {
 protected:
   QVariantMap m_defaults, m_currents;
-  mutable QReadWriteLock m_lock;
+  QReadWriteLock* m_lock;
   inline static void _insert_value(
     const QString& key, const QVariant& v, QVariantMap& map) {
     if (v.isNull())
@@ -22,33 +22,40 @@ protected:
   }
 
 public:
-  DefaultVariantMap() = default;
+  DefaultVariantMap()
+    : m_lock { new QReadWriteLock } {}
   explicit DefaultVariantMap(const QVariantMap& def)
-    : m_defaults { def } {}
+    : m_lock { new QReadWriteLock }
+    , m_defaults { def } {}
   DefaultVariantMap(
     const QVariantMap& currentMap, const QVariantMap& defaultMap)
-    : m_currents { currentMap }
+    : m_lock { new QReadWriteLock }
+    , m_currents { currentMap }
     , m_defaults { defaultMap } {};
   DefaultVariantMap(const DefaultVariantMap& other)
-    : m_defaults { other.m_defaults }
+    : m_lock { new QReadWriteLock }
+    , m_defaults { other.m_defaults }
     , m_currents { other.m_currents } {};
-  virtual ~DefaultVariantMap() = default;
+  virtual ~DefaultVariantMap() {
+    if (m_lock)
+      delete m_lock;
+  }
 
   bool contains(const QString& key) const {
-    QReadLocker locker(&m_lock);
+    QReadLocker locker(m_lock);
     return m_defaults.contains(key) || m_currents.contains(key);
   }
 
   QVariant value(
     const QString& key, const QVariant& defaultValue = {}) const {
-    QReadLocker locker(&m_lock);
+    QReadLocker locker(m_lock);
     if (m_currents.contains(key))
       return m_currents.value(key);
     return m_defaults.value(key, defaultValue);
   }
 
   void set_value(const QString& key, const QVariant& v) {
-    QWriteLocker locker(&m_lock);
+    QWriteLocker locker(m_lock);
     if (m_defaults.contains(key))
       _insert_value(key, v, m_currents);
     else {
@@ -73,12 +80,12 @@ public:
   // Default Value Manipulations
 
   QVariant defaultValue(const QString& key) const {
-    QReadLocker locker(&m_lock);
+    QReadLocker locker(m_lock);
     return m_defaults.value(key);
   }
 
   void set_defaultValue(const QString& key, const QVariant& v) {
-    QWriteLocker locker(&m_lock);
+    QWriteLocker locker(m_lock);
     _insert_value(key, v, m_defaults);
   }
 
@@ -98,7 +105,7 @@ public:
   void insert(const QVariantMap& other) {
     if (other.isEmpty())
       return;
-    QWriteLocker locker(&m_lock);
+    QWriteLocker locker(m_lock);
     for (auto iter = other.constBegin(); iter != other.constEnd();
       ++iter) {
       const auto key = iter.key();
@@ -117,56 +124,56 @@ public:
   void insertCurrents(const QVariantMap& other) {
     if (other.isEmpty())
       return;
-    QWriteLocker locker(&m_lock);
+    QWriteLocker locker(m_lock);
     m_currents.insert(other);
   }
 
   void insertDefaults(const QVariantMap& other) {
     if (other.isEmpty())
       return;
-    QWriteLocker locker(&m_lock);
+    QWriteLocker locker(m_lock);
     m_defaults.insert(other);
   }
 
   void setCurrents(const QVariantMap& other) {
-    QWriteLocker locker(&m_lock);
+    QWriteLocker locker(m_lock);
     m_currents = other;
   }
 
   void setDefaults(const QVariantMap& other) {
-    QWriteLocker locker(&m_lock);
+    QWriteLocker locker(m_lock);
     m_defaults = other;
   }
 
   void reset() {
-    QWriteLocker locker(&m_lock);
+    QWriteLocker locker(m_lock);
     m_currents.clear();
   }
 
   void reset(const QString& key) {
-    QWriteLocker locker(&m_lock);
+    QWriteLocker locker(m_lock);
     m_currents.remove(key);
   }
 
   void remove(const QString& key) {
-    QWriteLocker locker(&m_lock);
+    QWriteLocker locker(m_lock);
     m_defaults.remove(key);
     m_currents.remove(key);
   }
 
   void clear() {
-    QWriteLocker locker(&m_lock);
+    QWriteLocker locker(m_lock);
     m_defaults.clear();
     m_currents.clear();
   }
 
   QVariantMap::size_type size() const {
-    QReadLocker locker(&m_lock);
+    QReadLocker locker(m_lock);
     return qMax(m_currents.size(), m_defaults.size());
   }
 
   QStringList keys() const {
-    QReadLocker locker(&m_lock);
+    QReadLocker locker(m_lock);
     QSet<QString> keys;
     for (const auto& k : m_defaults.keys())
       keys << k;
@@ -175,8 +182,17 @@ public:
     return { keys.cbegin(), keys.cend() };
   }
 
+  QStringList currentKeys() const {
+    QReadLocker locker(m_lock);
+    return m_currents.keys();
+  }
+  QStringList defaultKeys() const {
+    QReadLocker locker(m_lock);
+    return m_defaults.keys();
+  }
+
   QVariantMap collapse() const {
-    QReadLocker locker(&m_lock);
+    QReadLocker locker(m_lock);
     auto result = m_defaults;
     result.insert(m_currents);
     return result;

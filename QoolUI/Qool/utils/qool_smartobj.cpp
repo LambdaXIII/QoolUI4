@@ -5,37 +5,17 @@
 QOOL_NS_BEGIN
 
 SmartObject::SmartObject(QObject* parent)
-  : QObject {} {
-  this->setParent(parent);
+  : QObject { parent } {
+  installEventFilter(this);
+}
+
+QBindable<QObject*> SmartObject::bindableProperty() {
+  return QBindable<QObject*>(this, "parent");
 }
 
 QQmlListProperty<QObject> SmartObject::smartItems() {
-  return { this, nullptr, _append_item, nullptr, nullptr, nullptr };
-}
-
-void SmartObject::_append_item(
-  QQmlListProperty<QObject>* list, QObject* item) {
-  SmartObject* self = qobject_cast<SmartObject*>(list->object);
-  self->m_items.append(item);
-  if (item->parent() == nullptr)
-    item->setParent(self);
-}
-
-void SmartObject::setParent(QObject* parent) {
-  QObject* old_parent = this->parent();
-  if (parent == old_parent)
-    return;
-  QObject::setParent(parent);
-  emit parentChanged();
-  QQuickItem* pItem = qobject_cast<QQuickItem*>(parent);
-  if (pItem != m_parentItem) {
-    m_parentItem = pItem;
-    emit parentItemChanged();
-  }
-}
-
-QVariant SmartObject::parentItem() const {
-  return QVariant::fromValue(m_parentItem);
+  // return { this, nullptr, _append_item, nullptr, nullptr, nullptr };
+  return { this, &m_items };
 }
 
 void SmartObject::dumpProperties() const {
@@ -50,6 +30,12 @@ void SmartObject::dumpProperties() const {
             << xDBGGrey << "=" << xDBGGreen << property.read(this)
             << xDBGReset;
   }
+}
+
+bool SmartObject::eventFilter(QObject* obj, QEvent* e) {
+  if (obj == this && e->type() == QEvent::ParentChange)
+    emit parentChanged();
+  return false;
 }
 
 QOOL_NS_END

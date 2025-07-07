@@ -9,14 +9,13 @@ import "pages"
 
 QoolWindow {
     id: root
+    objectName: "XXXX"
     width: 1024
     height: 720
     visible: true
     title: qsTr("Hello, Qool World!")
 
-    palette: QoolPalette {
-        theme: "midnight"
-    }
+    Style.theme: "midnight"
 
     content: SplitView {
         PageListView {
@@ -32,5 +31,9 @@ QoolWindow {
         }
     } //content
 
-    // Component.onCompleted: Qore.style.dumpInfo()
+    backgroundSettings.borderWidth: 10
+
+    // QoolWindowHud {
+    //     window: root
+    // }
 }

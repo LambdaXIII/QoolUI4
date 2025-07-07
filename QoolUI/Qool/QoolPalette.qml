@@ -3,79 +3,79 @@ import Qool
 
 Palette {
     id: root
-    property string theme: Qore.style.theme
-    property Style style: Style {
-        theme: root.theme
-    }
+    property string theme: "system"
+    Style.theme: root.theme
+
+    Component.onCompleted: console.log(Style.theme)
 
     active {
-        accent: style.active.accent
-        alternateBase: style.active.alternateBase
-        base: style.active.base
-        brightText: style.active.brightText
-        button: style.active.button
-        buttonText: style.active.buttonText
-        dark: style.active.dark
-        highlight: style.active.highlight
-        highlightedText: style.active.highlightedText
-        light: style.active.light
-        link: style.active.link
-        linkVisited: style.active.linkVisited
-        mid: style.active.mid
-        midlight: style.active.midlight
-        placeholderText: style.active.placeholderText
-        shadow: style.active.shadow
-        text: style.active.text
-        toolTipBase: style.active.toolTipBase
-        toolTipText: style.active.toolTipText
-        window: style.active.window
-        windowText: style.active.windowText
+        accent: Style.active.accent
+        alternateBase: Style.active.alternateBase
+        base: Style.active.base
+        brightText: Style.active.brightText
+        button: Style.active.button
+        buttonText: Style.active.buttonText
+        dark: Style.active.dark
+        highlight: Style.active.highlight
+        highlightedText: Style.active.highlightedText
+        light: Style.active.light
+        link: Style.active.link
+        linkVisited: Style.active.linkVisited
+        mid: Style.active.mid
+        midlight: Style.active.midlight
+        placeholderText: Style.active.placeholderText
+        shadow: Style.active.shadow
+        text: Style.active.text
+        toolTipBase: Style.active.toolTipBase
+        toolTipText: Style.active.toolTipText
+        window: Style.active.window
+        windowText: Style.active.windowText
     }
 
     inactive {
-        accent: style.inactive.accent
-        alternateBase: style.inactive.alternateBase
-        base: style.inactive.base
-        brightText: style.inactive.brightText
-        button: style.inactive.button
-        buttonText: style.inactive.buttonText
-        dark: style.inactive.dark
-        highlight: style.inactive.highlight
-        highlightedText: style.inactive.highlightedText
-        light: style.inactive.light
-        link: style.inactive.link
-        linkVisited: style.inactive.linkVisited
-        mid: style.inactive.mid
-        midlight: style.inactive.midlight
-        placeholderText: style.inactive.placeholderText
-        shadow: style.inactive.shadow
-        text: style.inactive.text
-        toolTipBase: style.inactive.toolTipBase
-        toolTipText: style.inactive.toolTipText
-        window: style.inactive.window
-        windowText: style.inactive.windowText
+        accent: Style.inactive.accent
+        alternateBase: Style.inactive.alternateBase
+        base: Style.inactive.base
+        brightText: Style.inactive.brightText
+        button: Style.inactive.button
+        buttonText: Style.inactive.buttonText
+        dark: Style.inactive.dark
+        highlight: Style.inactive.highlight
+        highlightedText: Style.inactive.highlightedText
+        light: Style.inactive.light
+        link: Style.inactive.link
+        linkVisited: Style.inactive.linkVisited
+        mid: Style.inactive.mid
+        midlight: Style.inactive.midlight
+        placeholderText: Style.inactive.placeholderText
+        shadow: Style.inactive.shadow
+        text: Style.inactive.text
+        toolTipBase: Style.inactive.toolTipBase
+        toolTipText: Style.inactive.toolTipText
+        window: Style.inactive.window
+        windowText: Style.inactive.windowText
     }
     disabled {
-        accent: style.disabled.accent
-        alternateBase: style.disabled.alternateBase
-        base: style.disabled.base
-        brightText: style.disabled.brightText
-        button: style.disabled.button
-        buttonText: style.disabled.buttonText
-        dark: style.disabled.dark
-        highlight: style.disabled.highlight
-        highlightedText: style.disabled.highlightedText
-        light: style.disabled.light
-        link: style.disabled.link
-        linkVisited: style.disabled.linkVisited
-        mid: style.disabled.mid
-        midlight: style.disabled.midlight
-        placeholderText: style.disabled.placeholderText
-        shadow: style.disabled.shadow
-        text: style.disabled.text
-        toolTipBase: style.disabled.toolTipBase
-        toolTipText: style.disabled.toolTipText
-        window: style.disabled.window
-        windowText: style.disabled.windowText
+        accent: Style.disabled.accent
+        alternateBase: Style.disabled.alternateBase
+        base: Style.disabled.base
+        brightText: Style.disabled.brightText
+        button: Style.disabled.button
+        buttonText: Style.disabled.buttonText
+        dark: Style.disabled.dark
+        highlight: Style.disabled.highlight
+        highlightedText: Style.disabled.highlightedText
+        light: Style.disabled.light
+        link: Style.disabled.link
+        linkVisited: Style.disabled.linkVisited
+        mid: Style.disabled.mid
+        midlight: Style.disabled.midlight
+        placeholderText: Style.disabled.placeholderText
+        shadow: Style.disabled.shadow
+        text: Style.disabled.text
+        toolTipBase: Style.disabled.toolTipBase
+        toolTipText: Style.disabled.toolTipText
+        window: Style.disabled.window
+        windowText: Style.disabled.windowText
     }
 }

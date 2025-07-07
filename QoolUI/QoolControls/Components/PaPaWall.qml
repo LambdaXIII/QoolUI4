@@ -7,7 +7,7 @@ Item {
     property color highColor: palette.highlight
     property color lowColor: palette.highlightedText
 
-    property list<string> words: Qore.style.papaWords
+    property list<string> words: Style.papaWords
     property font font
     font.pixelSize: height / 2
     font.bold: true

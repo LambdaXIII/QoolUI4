@@ -13,11 +13,11 @@ T.AbstractButton {
     property color textColor: palette.buttonText
     property color highlightColor: palette.highlight
     property color highlightedTextColor: palette.highlightedText
-    property real radius: Math.max(2, Math.floor(Qore.style.controlCutSize / 2))
-    property real borderWidth: QoolConstants.controlBorderWidth
+    property real radius: Math.max(2, Math.floor(Style.controlCutSize / 2))
+    property real borderWidth: Style.controlBorderWidth
     property color borderColor: palette.midlight
 
-    font.pixelSize: Qore.style.controlTextSize
+    font.pixelSize: Style.controlTextSize
     hoverEnabled: enabled
 
     //TODO: Create a way to provide disable colors
@@ -25,7 +25,7 @@ T.AbstractButton {
         text: root.action?.text ?? root.text
         color: {
             if (!root.enabled)
-                return Qore.style.negative
+                return Style.negative
             return root.checked ? root.highlightedTextColor : root.textColor
         }
         leftPadding: root.radius
@@ -47,7 +47,7 @@ T.AbstractButton {
         border.width: root.borderWidth
         border.color: {
             if (!root.enabled)
-                return Qore.style.negative
+                return Style.negative
             return (root.hovered
                     || root.checked) ? root.highlightColor : root.borderColor
         }

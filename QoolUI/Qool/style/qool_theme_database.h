@@ -1,7 +1,7 @@
-#ifndef QOOL_STYLE_DB_H
-#define QOOL_STYLE_DB_H
+#ifndef QOOL_THEME_DATABASE_H
+#define QOOL_THEME_DATABASE_H
 
-#include "qool_theme_package.h"
+#include "qool_theme.h"
 #include "qoolcommon/property_macros_for_qobject_declonly.hpp"
 #include "qoolcommon/singleton.hpp"
 #include "qoolns.hpp"
@@ -14,41 +14,50 @@
 
 QOOL_NS_BEGIN
 
-class StyleDB: public QAbstractListModel {
+class ThemeDatabase: public QAbstractListModel {
   Q_OBJECT
-  QML_ELEMENT
+  QML_NAMED_ELEMENT(ThemeDB)
   QML_SINGLETON
-  QOOL_SIMPLE_SINGLETON_QML_CREATE(StyleDB)
-  QOOL_SIMPLE_SINGLETON_DECL(StyleDB)
+  QOOL_SIMPLE_SINGLETON_DECL(ThemeDatabase)
+  QOOL_SIMPLE_SINGLETON_QML_CREATE(ThemeDatabase)
+
 public:
-  Q_INVOKABLE ThemePackage theme(const QString& name) const;
+  ~ThemeDatabase();
+  Q_INVOKABLE Theme theme(const QString& name) const;
+  Q_INVOKABLE void installTheme(Theme theme);
   Q_SIGNAL void themeInstalled(const QString& name);
 
   enum Roles {
-    NameRole = Qt::UserRole + 1,
-    ThemePackageRole,
+    NameRole = Qt::UserRole + 100,
+    ThemeRole,
+    MetadataRole,
+    ConstantsRole,
     ActiveRole,
     InactiveRole,
-    DisabledRole
+    DisabledRole,
+    CustomRole
   };
   QHash<int, QByteArray> roleNames() const override;
   int rowCount(
     const QModelIndex& parent = QModelIndex()) const override;
-  QVariant data(const QModelIndex& index, int role) const override;
+  QVariant data(const QModelIndex& index,
+    int role = Qt::DisplayRole) const override;
 
+  Q_INVOKABLE QVariant anyValue(Theme::Groups group, const QString& key,
+    const QVariant& defvalue = {}) const;
   Q_INVOKABLE QVariant anyValue(
-    const QString& key, const QVariant& defaultValue = {}) const;
+    const QString& key, const QVariant& defvalue = {}) const;
+
   Q_INVOKABLE static qreal visualBrightness(QColor color);
   Q_INVOKABLE static QColor recommendForeground(const QColor& bgColor,
     const QColor& light = { "white" },
     const QColor& dark = { "black" });
 
-private:
-  QMap<QString, ThemePackage> m_packages;
-  QStringList m_themes;
-  QMutex m_mutex;
+protected:
+  QMap<QString, Theme> m_themes;
+  QStringList m_themeNames;
+  QMutex* m_mutex;
   void auto_install_themes();
-  void installTheme(const ThemePackage& package);
 
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_DECL(QStringList, themes)
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_DECL(int, count)
@@ -56,4 +65,4 @@ private:
 
 QOOL_NS_END
 
-#endif // QOOL_STYLE_DB_H
+#endif // QOOL_THEME_DATABASE_H

@@ -23,7 +23,7 @@ struct XMLThemeLoaderImpl {
   using XPropertyMap = QMap<QString, XProperty>;
 
   QString filename;
-  QVariantMap metadata, active, inactive, disabled;
+  QVariantMap metadata, constants, active, inactive, disabled, custom;
 
   void load(const QString& filename);
 
