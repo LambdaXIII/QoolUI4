@@ -11,14 +11,14 @@ AbstractButton {
         implicitWidth: 100
         Text {
             text: root.text
-            color: root.down ? palette.button : palette.buttonText
+            color: root.down ? Style.button : Style.buttonText
             anchors.centerIn: parent
             font.pixelSize: 12
         }
 
         Rectangle {
             visible: root.checkable
-            color: root.checked ? palette.highlight : palette.midlight
+            color: root.checked ? Style.highlight : Style.midlight
             width: 8
             height: 8
             radius: 4
@@ -29,7 +29,7 @@ AbstractButton {
     }
 
     background: BGBox {
-        border.color: root.hovered ? palette.highlight : palette.shadow
-        color: root.down ? palette.highlight : palette.button
+        border.color: root.hovered ? Style.highlight : Style.shadow
+        color: root.down ? Style.highlight : Style.button
     }
 }

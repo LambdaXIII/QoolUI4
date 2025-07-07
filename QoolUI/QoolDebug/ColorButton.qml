@@ -33,7 +33,7 @@ DBGControl {
             verticalAlignment: Text.AlignVCenter
             font.pixelSize: 12
             fontSizeMode: Text.Fit
-            color: palette.text
+            color: Style.text
             anchors.centerIn: parent
         }
     } //contentItem

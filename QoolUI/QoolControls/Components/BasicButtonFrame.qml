@@ -7,8 +7,8 @@ T.AbstractButton {
 
     property bool showTitle: false
     property string title: qsTr("Qool Button")
-    property color backgroundColor: palette.button
-    property color borderColor: palette.midlight
+    property color backgroundColor: Style.button
+    property color borderColor: Style.midlight
 
     property Component titleComponent: BasicControlTitleText {
         color: root.borderColor

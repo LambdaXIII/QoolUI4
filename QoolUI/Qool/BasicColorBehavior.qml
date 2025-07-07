@@ -7,7 +7,7 @@ Behavior {
     property alias easing: ani.easing
     readonly property bool running: ani.running
 
-    enabled: targetProperty.object?.animationEnabled
+    enabled: targetProperty.object?.Style.animationEnabled
              ?? Style.animationEnabled
 
     ColorAnimation {

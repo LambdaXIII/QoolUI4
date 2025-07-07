@@ -9,9 +9,9 @@ Item {
     property string displayValue
     property string commet
 
-    property color titleColor: palette.accent
-    property color valueColor: palette.buttonText
-    property color commetColor: palette.toolTipText
+    property color titleColor: Style.accent
+    property color valueColor: Style.buttonText
+    property color commetColor: Style.toolTipText
 
     implicitWidth: contentLayout.implicitWidth
     implicitHeight: contentLayout.implicitHeight

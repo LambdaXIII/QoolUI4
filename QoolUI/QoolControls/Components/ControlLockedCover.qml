@@ -104,7 +104,7 @@ Item {
             to: 0 - bars.barOffset
             running: true
             loops: Animation.Infinite
-            paused: !(root.visible && root.animationEnabled)
+            paused: !(root.visible && root.Style.animationEnabled)
         }
     }
 }

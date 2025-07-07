@@ -67,7 +67,7 @@ DBGControl {
             font.pixelSize: 12
             anchors.top: parent.top
             anchors.left: parent.left
-            color: palette.buttonText
+            color: Style.buttonText
         }
 
         Text {
@@ -77,7 +77,7 @@ DBGControl {
             anchors.fill: parent
             horizontalAlignment: Text.AlignRight
             verticalAlignment: Text.AlignBottom
-            color: palette.buttonText
+            color: Style.buttonText
             fontSizeMode: Text.Fit
         }
 
@@ -95,7 +95,7 @@ DBGControl {
 
         Rectangle {
             border.width: 0
-            color: mArea.dragging ? palette.highlight : palette.mid
+            color: mArea.dragging ? Style.highlight : Style.mid
             height: parent.height
             width: parent.width * root.percent
             radius: 4
@@ -104,8 +104,8 @@ DBGControl {
     } //contentItem
 
     background: Rectangle {
-        color: palette.button
-        border.color: palette.buttonText
+        color: Style.button
+        border.color: Style.buttonText
         border.width: 1
         radius: 4
     }

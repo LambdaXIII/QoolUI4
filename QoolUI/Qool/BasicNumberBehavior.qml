@@ -6,7 +6,7 @@ Behavior {
     property alias easing: ani.easing
     readonly property bool runnint: ani.running
 
-    enabled: targetProperty.object?.animationEnabled ?? Style.animationEnabled
+    enabled: targetProperty.object?.Style.animationEnabled ?? Style.animationEnabled
 
     NumberAnimation {
         id: ani
