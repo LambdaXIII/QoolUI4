@@ -125,16 +125,16 @@ QVariant Theme::value(
   Q_ASSERT(m_data.contains(group));
 
   if (m_data[Custom].contains(key))
-    return m_data[Custom][key];
+    return m_data[Custom].value(key);
 
   if (m_data[group].contains(key))
-    return m_data[group][key];
+    return m_data[group].value(key);
 
   if (group != Active && m_data[Active].contains(key))
-    return m_data[Active][key];
+    return m_data[Active].value(key);
 
   if (m_data[Constants].contains(key))
-    return m_data[Constants][key];
+    return m_data[Constants].value(key);
 
   return defvalue;
 }

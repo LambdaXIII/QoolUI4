@@ -56,8 +56,8 @@ QoolWindowBasic {
             const min_height = root.backgroundSettings.cutSize - y
             return Math.max(prefered_height, min_height)
         }
-        x: root.width - root.edgeSpacing - width
-        y: root.edgeSpacing
+        x: root.width - (root.edgeSpacing + root.backgroundSettings.borderWidth) - width
+        y: root.edgeSpacing + root.backgroundSettings.borderWidth
         Binding {
             when: root.titleItem
             root.titleItem.x: dummyTitleItem.x
@@ -72,7 +72,7 @@ QoolWindowBasic {
         id: dummyToolBar
         objectName: "dummyToolBar"
         x: root.backgroundSettings.cutSize + root.elementSpacing
-        y: root.edgeSpacing
+        y: root.edgeSpacing + root.backgroundSettings.borderWidth
         width: root.width - dummyToolBar.x - root.elementSpacing - dummyTitleItem.x
         height: {
             const prefered_height = dummyTitleItem.height
@@ -93,10 +93,12 @@ QoolWindowBasic {
     DummyItem {
         id: dummyHeader
         objectName: "dummyHeader"
-        x: root.leftPadding + root.edgeSpacing
-        y: dummyToolBar.y + dummyToolBar.height + Math.max(root.elementSpacing,
-                                                           root.edgeSpacing)
-        width: root.width - root.leftPadding - root.edgeSpacing * 2 - root.rightPadding
+        x: root.leftPadding + root.edgeSpacing + root.backgroundSettings.borderWidth
+        y: dummyToolBar.y + dummyToolBar.height + Math.max(
+               root.elementSpacing,
+               root.edgeSpacing + root.backgroundSettings.borderWidth)
+        width: root.width - root.leftPadding
+               - (root.edgeSpacing + root.backgroundSettings.borderWidth) * 2 - root.rightPadding
         height: root.header?.height ?? 0
         Binding {
             when: root.header
@@ -111,9 +113,11 @@ QoolWindowBasic {
     DummyItem {
         id: dummyFooter
         objectName: "dummyFooter"
-        x: root.leftPadding + root.edgeSpacing + root.backgroundSettings.cutSizeBL
-        y: root.height - root.edgeSpacing - height
-        width: root.width - root.leftPadding - root.edgeSpacing * 2 - root.rightPadding
+        x: root.leftPadding + (root.edgeSpacing + root.backgroundSettings.borderWidth)
+           + root.backgroundSettings.cutSizeBL
+        y: root.height - (root.edgeSpacing + root.backgroundSettings.borderWidth) - height
+        width: root.width - root.leftPadding
+               - (root.edgeSpacing + root.backgroundSettings.borderWidth) * 2 - root.rightPadding
                - root.backgroundSettings.cutSizeBL - root.backgroundSettings.cutSizeBR
         height: {
             const preferred_height = root.footer?.implicitHeight ?? 0
@@ -136,7 +140,8 @@ QoolWindowBasic {
         objectName: "dummyContent"
         x: root.leftPadding + root.edgeSpacing
         y: dummyHeader.y + dummyHeader.height + root.elementSpacing
-        width: root.width - root.leftPadding - root.edgeSpacing * 2 - root.rightPadding
+        width: root.width - root.leftPadding
+               - (root.edgeSpacing + root.backgroundSettings.borderWidth) * 2 - root.rightPadding
         height: dummyFooter.y - y - root.elementSpacing
         Binding {
             when: root.content

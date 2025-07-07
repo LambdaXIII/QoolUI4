@@ -53,9 +53,9 @@ QVariant Style::value(Theme::Groups group, QString key) const {
   QVariantMap* data = m_data[group];
   if (data->contains(key))
     return data->value(key);
-  if (m_currentTheme.contains(group, key))
-    return m_currentTheme.value(group, key);
-  const auto value = ThemeDatabase::instance()->anyValue(group, key);
+  auto value = m_currentTheme.value(group, key);
+  if (value.isNull())
+    value = ThemeDatabase::instance()->anyValue(group, key);
   // if (! value.isNull())
   // data->insert(key, value);
   return value;
@@ -75,6 +75,7 @@ void Style::dumpInfo() const {
     ++iter) {
     xDebugQ << iter.key() << xDBGMap(*iter.value());
   }
+  xDebugQ << xDBGQPropertyList;
 }
 
 void Style::attachedParentChange(

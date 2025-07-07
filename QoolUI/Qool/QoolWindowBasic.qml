@@ -14,8 +14,8 @@ Window {
     minimumWidth: 200
     minimumHeight: 200
 
-    // flags: Qt.Window | Qt.CustomizeWindowHint | Qt.FramelessWindowHint
-    // color: "transparent"
+    flags: Qt.Window | Qt.CustomizeWindowHint | Qt.FramelessWindowHint
+    color: "transparent"
     QoolWindowBG {
         id: bgShape
     }

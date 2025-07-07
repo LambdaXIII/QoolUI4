@@ -31,14 +31,9 @@ QoolWindow {
         }
     } //content
 
-    QoolWindowHud {
-        window: root
-    }
+    backgroundSettings.borderWidth: 10
 
-    backgroundSettings {
-        cutSize: Style.windowCutSize
-        borderColor: Style.accent
-        fillColor: Style.window
-        borderWidth: Style.windowBorderWidth
-    }
+    // QoolWindowHud {
+    //     window: root
+    // }
 }
