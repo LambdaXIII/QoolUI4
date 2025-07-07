@@ -10,8 +10,10 @@ class DefaultThemeLoader
   : public QObject
   , public ThemeLoader {
   Q_OBJECT
-  Q_PLUGIN_METADATA(IID "org.qoolui.themeloader.default" FILE
-                        "qool_themeloader_default.json")
+  // Q_PLUGIN_METADATA(IID "org.qoolui.themeloader.default" FILE
+  //                       "qool_themeloader_default.json")
+  Q_PLUGIN_METADATA(
+    IID QOOL_THEMELOADER_IID FILE "qool_themeloader_default.json")
   Q_INTERFACES(QOOL_NS::ThemeLoader)
 public:
   DefaultThemeLoader();

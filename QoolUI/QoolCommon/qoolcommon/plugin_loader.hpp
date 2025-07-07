@@ -5,9 +5,11 @@
 
 #include <QAnyStringView>
 #include <QCoreApplication>
+#include <QDebug>
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QLibrary>
+#include <QLibraryInfo>
 #include <QPluginLoader>
 #include <QSet>
 #include <QString>
@@ -22,11 +24,18 @@ class PluginScanner {
 
 public:
   PluginScanner() = default;
-  explicit PluginScanner(QAnyStringView subfoldere) {
-    m_subfolders << subfoldere.toString();
+  explicit PluginScanner(QAnyStringView subfolder) {
+    m_subfolders << subfolder.toString();
   }
+
   PluginScanner& addSubFolder(QAnyStringView f) {
     m_subfolders << f.toString();
+    return *this;
+  }
+
+  PluginScanner& addSubFolders(const QStringList fs) {
+    for (const auto f : fs)
+      m_subfolders << f;
     return *this;
   }
 
@@ -34,54 +43,64 @@ public:
     m_extraFolders << p;
     return *this;
   }
+
+  PluginScanner& addExtraPaths(const QStringList& ps) {
+    for (const auto& p : ps)
+      m_extraFolders << p;
+    return *this;
+  }
+
   PluginScanner& set_defaultPathEnabled(bool v) {
     m_defaultPathEnabled = v;
     return *this;
   }
-  QStringList pluginPaths() const {
+
+  QStringList pluginSearchPaths() const {
     QStringList result;
-    QSet<QString> rawPaths;
+    QStringList parentFolders;
 
     if (m_defaultPathEnabled) {
-      for (const auto& libPath : QCoreApplication::libraryPaths())
-        rawPaths << libPath;
-      rawPaths << QCoreApplication::applicationDirPath();
+      parentFolders << QLibraryInfo::paths(QLibraryInfo::PluginsPath)
+                    << QLibraryInfo::paths(QLibraryInfo::QmlImportsPath)
+                    << QLibraryInfo::paths(QLibraryInfo::LibrariesPath)
+                    << QLibraryInfo::paths(QLibraryInfo::PrefixPath)
+                    << QCoreApplication::applicationDirPath();
     }
 
-    for (const auto& extraPath : m_extraFolders)
-      rawPaths << extraPath;
+    parentFolders << m_extraFolders;
 
     if (m_subfolders.isEmpty())
-      result = QStringList(rawPaths.constBegin(), rawPaths.constEnd());
+      result = parentFolders;
     else
-      for (const auto& sub : m_subfolders) {
-        std::for_each(
-          rawPaths.cbegin(), rawPaths.cend(), [&](const QString& x) {
-            auto n = x + '/' + sub;
-            result << n;
-          });
-      }
+      for (const auto& parentFolder : std::as_const(parentFolders))
+        for (const auto& subFolder : std::as_const(m_subfolders)) {
+          const QString x = parentFolder + "/" + subFolder;
+          const QFileInfo info(x);
+          if (! info.isDir() || ! info.exists())
+            continue;
+          result << QFileInfo(x).absoluteFilePath();
+        }
 
-    result.removeIf([](const QString& x) {
-      QFileInfo p(x);
-      bool good = p.exists() && p.isDir();
-      return ! good;
-    });
-    std::sort(result.begin(), result.end());
+    std::stable_sort(result.begin(), result.end());
+
     auto last = std::unique(result.begin(), result.end());
     result.erase(last, result.end());
-    result.squeeze();
+    result.shrink_to_fit();
     return result;
   }
 
   QStringList plugins() const {
     QStringList result;
-    for (const QString& dir : pluginPaths()) {
+    const auto pluginFolders = pluginSearchPaths();
+    for (const QString& dir : pluginFolders) {
+      qDebug() << "searching:" << dir;
       QDirIterator iter(dir);
       while (iter.hasNext()) {
         auto a = iter.next();
-        if (QLibrary::isLibrary(a))
+        if (QLibrary::isLibrary(a)) {
           result << a;
+          qDebug() << "found:" << a;
+        }
       }
     }
     return result;
@@ -115,9 +134,8 @@ template <typename Interface>
 struct PluginLoader {
   using InstanceMap = QMultiHash<QString, Interface*>;
 
-  static InstanceMap loadInstances() {
+  static inline InstanceMap loadInstances() {
     QOOL_NS::PluginScanner scanner(QOOL_PLUGIN_DIR);
-    scanner.addExtraPath(QCoreApplication::applicationDirPath());
     auto plugins = scanner.plugins();
     if (plugins.isEmpty())
       return {};
@@ -127,7 +145,9 @@ struct PluginLoader {
     for (const auto& pluginPath : plugins) {
       QScopedPointer<QPluginLoader> loader { new QPluginLoader(
         pluginPath) };
+
       auto ins_object = loader->instance();
+      qDebug() << loader->fileName() << ins_object;
 
       Interface* ins_interface = qobject_cast<Interface*>(ins_object);
       if (ins_interface == nullptr) {
@@ -140,7 +160,7 @@ struct PluginLoader {
         plugin_name = QFileInfo(pluginPath).baseName();
       result.insert(plugin_name, ins_interface);
     }
-
+    qDebug() << result;
     return result;
   }
 };

@@ -36,9 +36,4 @@ QoolWindow {
     // QoolWindowHud {
     //     window: root
     // }
-
-    Component.onCompleted: {
-        console.log(Style.windowBorderWidth, root.backgroundSettings.borderWidth);
-        Style.dumpInfo();
-    }
 }
