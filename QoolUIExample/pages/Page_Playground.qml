@@ -6,7 +6,7 @@ import Qool.Controls
 
 Item {
     id: root
-
+    Style.theme: "midnight"
     // Style.onCurrentGroupChanged: {
     //     console.log(Style.accent);
     // }
@@ -20,7 +20,7 @@ Item {
         contentSpacing: 10
         contentItem: Rectangle {
             id: c
-            Style.theme: "midnight"
+
             color: Style.accent
             Text {
                 text: Style.accent

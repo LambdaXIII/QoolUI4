@@ -48,9 +48,12 @@ protected:
   void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
     QQuickAttachedPropertyPropagator* oldParent) override;
 
-  void set_current_theme(QString name);
+  void set_current_theme(const Theme& theme);
   void update_values(
     QList<Theme::Groups> groups = {}, QStringList keys = {});
+
+  void inherit(Style* other);
+  void propagate_theme();
 
   /********** PROPERTIES *********/
 

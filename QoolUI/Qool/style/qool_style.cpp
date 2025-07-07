@@ -64,12 +64,14 @@ void Style::setValue(Theme::Groups group, QString key, QVariant value) {
 void Style::attachedParentChange(
   QQuickAttachedPropertyPropagator* newParent,
   QQuickAttachedPropertyPropagator* oldParent) {
-  Q_UNUSED(newParent)
+  // disconnect(oldParent);
   Q_UNUSED(oldParent)
+  Style* style = qobject_cast<Style*>(newParent);
+  inherit(style);
 }
 
-void Style::set_current_theme(QString name) {
-  m_currentTheme = ThemeDatabase::instance()->theme(name);
+void Style::set_current_theme(const Theme& theme) {
+  m_currentTheme = theme;
   QStringList keys = m_currentTheme.keys();
   QStringList customedKeys;
   for (auto iter = m_data.constBegin(); iter != m_data.constEnd();
@@ -78,6 +80,7 @@ void Style::set_current_theme(QString name) {
   keys.removeIf(
     [&](const QString& k) { return customedKeys.contains(k); });
   update_values({}, keys);
+  propagate_theme();
 }
 
 void Style::update_values(
@@ -126,7 +129,42 @@ void Style::update_values(
   __HANDLE__(bool, animationEnabled)
 
 #undef __HANDLE__
-} // update_values
+}
+
+void Style::inherit(Style* other) {
+  if (! other)
+    return;
+  m_currentTheme = other->m_currentTheme;
+
+  const auto groups = m_data.keys();
+  for (const auto& group : groups) {
+    auto customed = other->m_data[group];
+    if (customed->isEmpty())
+      continue;
+    QStringList updated_keys;
+    for (auto iter = customed->constBegin();
+      iter != customed->constEnd();
+      ++iter) {
+      if (m_data[group]->contains(iter.key()))
+        continue;
+      m_data[group]->insert(iter.key(), iter.value());
+      updated_keys << iter.key();
+    } // for keys
+    update_values({ group }, updated_keys);
+  } // for groups
+
+  emit themeChanged();
+}
+
+void Style::propagate_theme() {
+  const auto childs = attachedChildren();
+  for (auto child : childs) {
+    auto style = qobject_cast<Style*>(child);
+    if (! style)
+      continue;
+    style->inherit(this);
+  }
+}
 
 QString Style::theme() const {
   return m_currentTheme.name();
@@ -135,7 +173,8 @@ QString Style::theme() const {
 void Style::set_theme(const QString& name) {
   if (theme() == name)
     return;
-  set_current_theme(name);
+  const auto theme = ThemeDatabase::instance()->theme(name);
+  set_current_theme(theme);
   emit themeChanged();
 }
 
