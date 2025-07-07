@@ -11,10 +11,9 @@ Item {
         fillColor: Style.dark
     }
     property alias shapeControl: shape.shapeControl
-
     property alias cutSize: root.settings.cutSize
-
     property alias fillItem: shape.fillItem
+    property alias shape: shape
 
     OctagonShape {
         id: shape

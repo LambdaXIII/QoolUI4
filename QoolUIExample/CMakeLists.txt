@@ -28,6 +28,12 @@ qt_add_qml_module(appQoolUIExample
     QML_FILES pages/Page_Welcome.qml
 )
 
+qoolui_scan_assets_to(appQoolUIExample)
+qt_add_resources(Qool "qoolexample_assets"
+    PREFIX "/qoolexample"
+    FILES ${QOOL_ASSETS}
+)
+
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.

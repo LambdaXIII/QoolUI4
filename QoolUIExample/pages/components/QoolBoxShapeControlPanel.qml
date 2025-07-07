@@ -20,6 +20,8 @@ Control {
     readonly property bool showExtPoints: showExtPointsButton.checked
     readonly property bool showIntPoints: showIntPointsButton.checked
 
+    property url fillImage
+
     signal wannaDumpInfo
 
     contentItem: ColumnLayout {
@@ -131,6 +133,18 @@ Control {
                 id: showIntPointsButton
                 checkable: true
                 text: qsTr("显示内定点")
+            }
+        }
+
+        ActionButton {
+            checkable: true
+            text: qsTr("使用图片填充")
+            onCheckedChanged: {
+                if (checked) {
+                    root.fillImage = "qrc:/qoolexample/assets/ExamplePicture1.jpg";
+                } else {
+                    root.fillImage = null;
+                }
             }
         }
 
