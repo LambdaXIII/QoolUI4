@@ -31,9 +31,14 @@ QoolWindow {
         }
     } //content
 
-    backgroundSettings.borderWidth: 10
+    // backgroundSettings.borderWidth: 1
 
     // QoolWindowHud {
     //     window: root
     // }
+
+    Component.onCompleted: {
+        console.log(Style.windowBorderWidth, root.backgroundSettings.borderWidth);
+        Style.dumpInfo();
+    }
 }

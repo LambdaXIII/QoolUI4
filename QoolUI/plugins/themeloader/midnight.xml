@@ -37,7 +37,7 @@
         <number property="windowElementSpacing" value="5"/>
         <number property="windowEdgeSpacing" value="5"/>
         <number property="windowTitleTextSize" value="14"/>
-        <number properyt="windowBorderWidth" value="1"/>
+        <number property="windowBorderWidth" value="1"/>
 
         <number property="dialogCutSize" copy="controlCutSize"/>
         <number property="dialogBorderWidth" copy="controlBorderWidth"/>
