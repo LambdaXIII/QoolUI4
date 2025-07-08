@@ -53,7 +53,7 @@ T.ProgressBar {
                 }
             }
 
-            width: parent.width
+            width: parent.width + barOffset * 2
             height: parent.height
         }
         NumberAnimation {
@@ -66,16 +66,44 @@ T.ProgressBar {
             running: true
             loops: Animation.Infinite
             paused: !(root.visible && root.Style.animationEnabled)
-                    || duration <= 0 || root.indeterminate
+                    || duration <= 0
         }
     }
 
+    SequentialAnimation {
+        id: interAnime
+        running: root.indeterminate
+        loops: Animation.Infinite
+        NumberAnimation {
+            target: progressShape.shapeControl
+            property: "offsetX"
+            duration: root.cycleDuration * 2
+            from: 0
+            to: mainItem.width - progressShape.width
+            easing.type: Easing.OutQuad
+        }
+        NumberAnimation {
+            target: progressShape.shapeControl
+            property: "offsetX"
+            duration: root.cycleDuration * 2
+            to: 0
+            from: mainItem.width - progressShape.width
+            easing.type: Easing.OutQuad
+        }
+        alwaysRunToEnd: true
+    }
+
     contentItem: Item {
+        id: mainItem
         implicitWidth: 100
         implicitHeight: 20
         OctagonRoundedShape {
             id: progressShape
-            width: parent.width * root.visualPosition
+            width: {
+                if (root.indeterminate)
+                    return Math.min(parent.width * 0.35, 150)
+                return parent.width * root.visualPosition
+            }
             height: parent.height
             settings {
                 borderWidth: root.settings.borderWidth
@@ -85,39 +113,6 @@ T.ProgressBar {
                 cutSizesLocked: true
             }
             fillItem: face
-            visible: !root.indeterminate
-        }
-
-        OctagonRoundedShape {
-            id: indeterminateShape
-            width: Math.min(parent.width * 0.35, 150)
-            height: parent.height
-            settings {
-                borderWidth: root.settings.borderWidth
-                borderColor: root.settings.borderColor
-                fillColor: Style.highlight
-                cutSize: height / 2
-                cutSizesLocked: true
-            }
-            fillItem: face
-            visible: root.indeterminate
-            SequentialAnimation {
-                id: interAnime
-                running: root.indeterminate
-                loops: Animation.Infinite
-                XAnimator {
-                    target: indeterminateShape
-                    duration: root.cycleDuration * 2
-                    from: 0
-                    to: target.parent.width - target.width
-                }
-                XAnimator {
-                    target: indeterminateShape
-                    duration: root.cycleDuration * 2
-                    to: 0
-                    from: target.parent.width - target.width
-                }
-            }
         }
     }
 }

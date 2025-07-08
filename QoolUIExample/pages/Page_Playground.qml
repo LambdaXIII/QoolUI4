@@ -10,6 +10,12 @@ BasicPage {
     title: qsTr("试炼场")
     note: qsTr("测试一些东西……")
 
+    ClickableText {
+        id: btn
+        checkable: true
+        text: "Click!"
+    }
+
     ProgressBar {
         id: bar
 
@@ -17,6 +23,6 @@ BasicPage {
         width: 200
         height: 20
 
-        indeterminate: true
+        indeterminate: btn.checked
     }
 }
