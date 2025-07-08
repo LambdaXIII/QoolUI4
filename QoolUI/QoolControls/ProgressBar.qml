@@ -72,14 +72,13 @@ T.ProgressBar {
 
     SequentialAnimation {
         id: interAnime
-        running: root.indeterminate
+        // running: root.indeterminate
         loops: Animation.Infinite
         NumberAnimation {
             target: progressShape.shapeControl
             property: "offsetX"
             duration: root.cycleDuration * 2
-            from: 0
-            to: mainItem.width - progressShape.width
+            to: mainItem.width - progressShape.shapeControl.width
             easing.type: Easing.OutQuad
         }
         NumberAnimation {
@@ -87,10 +86,30 @@ T.ProgressBar {
             property: "offsetX"
             duration: root.cycleDuration * 2
             to: 0
-            from: mainItem.width - progressShape.width
             easing.type: Easing.OutQuad
         }
         alwaysRunToEnd: true
+        onStopped: stopIndeterminateAnime.start()
+    }
+
+    NumberAnimation {
+        id: startIndeterminateAnime
+        target: progressShape.shapeControl
+        property: "width"
+        duration: Style.transitionDuration
+        to: Math.min(mainItem.width * 0.35, 200)
+        easing.type: Easing.OutQuad
+    }
+
+
+    NumberAnimation {
+        id: stopIndeterminateAnime
+        target: progressShape.shapeControl
+        property: "width"
+        duration: Style.transitionDuration
+        to: mainItem.width * root.visualPosition
+        easing.type: Easing.OutQuad
+        onFinished: interAnime.start()
     }
 
     contentItem: Item {
@@ -99,12 +118,9 @@ T.ProgressBar {
         implicitHeight: 20
         OctagonRoundedShape {
             id: progressShape
-            width: {
-                if (root.indeterminate)
-                    return Math.min(parent.width * 0.35, 150)
-                return parent.width * root.visualPosition
-            }
+            shapeControl.width: parent.width * root.visualPosition
             height: parent.height
+            width: parent.width
             settings {
                 borderWidth: root.settings.borderWidth
                 borderColor: root.settings.borderColor
@@ -114,5 +130,12 @@ T.ProgressBar {
             }
             fillItem: face
         }
+    }
+
+    onIndeterminateChanged: {
+        if (root.indeterminate)
+            startIndeterminateAnime.start()
+        else
+            interAnime.stop()
     }
 }

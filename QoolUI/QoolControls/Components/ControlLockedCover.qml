@@ -4,8 +4,6 @@ import Qool
 
 Item {
     id: root
-    property bool animationEnabled: parent?.animationEnabled
-                                    ?? Qore.animationEnabled
 
     property alias barWidth: bars.barWidth
     property alias spacing: bars.barSpacing
@@ -93,18 +91,13 @@ Item {
                     color: Qt.alpha(root.color, 0.5)
                 }
             }
-        }
+        } //bars
 
-        NumberAnimation {
-            id: scrollingAnime
-            duration: root.cycleDuration
+        ParallelVerticalBarsAnimation {
             target: bars
-            property: "x"
-            from: 0 - bars.barOffset * 2
-            to: 0 - bars.barOffset
-            running: true
-            loops: Animation.Infinite
+            duration: root.cycleDuration
             paused: !(root.visible && root.Style.animationEnabled)
+            running: true
         }
     }
 }
