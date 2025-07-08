@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import Qool.Controls
 import Qool.Controls.Components
 import Qool
@@ -64,4 +65,30 @@ BasicControlFrame {
             }
         }
     } //contentItem
+
+    Popup {
+        id: loadingBar
+        contentItem: ProgressBar {
+            indeterminate: true
+            value: 0.2
+        }
+        padding: 0
+        background: Item {}
+        width: 300
+        height: 20
+        closePolicy: Popup.NoAutoClose
+        anchors.centerIn: parent
+        popupType: Popup.Item
+    }
+
+    Connections {
+        target: pageLoader
+        function onSourceChanged() {
+            loadingBar.visible = true
+        }
+        function onStatusChanged() {
+            if (pageLoader.status != Loader.Loading)
+                loadingBar.visible = false
+        }
+    }
 }

@@ -53,9 +53,6 @@ T.ProgressBar {
                     color: Qt.darker(Style.active.highlight, 1.5)
                 }
             }
-
-            width: parent.width + barOffset * 2
-            height: parent.height
         }
         ParallelVerticalBarsAnimation {
             target: bars
@@ -184,17 +181,30 @@ T.ProgressBar {
             onFinished: pCtrl.visualBindingEnabled = true
         }
 
+        function startIndeterminate() {
+            indeterminateIn.start()
+            indeterminateLoop.start()
+        }
+
+        function stopIndeterminate() {
+            indeterminateLoop.stop()
+            indeterminateOut.start()
+        }
+
+        function check_indeterminate() {
+            if (root.indeterminate)
+                startIndeterminate()
+            else
+                stopIndeterminate()
+        }
+
         Connections {
             target: root
             function onIndeterminateChanged() {
-                if (root.indeterminate) {
-                    indeterminateIn.start()
-                    indeterminateLoop.start()
-                } else {
-                    indeterminateLoop.stop()
-                    indeterminateOut.start()
-                }
+                pCtrl.check_indeterminate()
             }
         }
     }
+
+    Component.onCompleted: pCtrl.check_indeterminate()
 }
