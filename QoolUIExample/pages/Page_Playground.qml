@@ -10,12 +10,20 @@ BasicPage {
     title: qsTr("试炼场")
     note: qsTr("测试一些东西……")
 
+    // Style.animationEnabled: false
     ControlFrame {
         width: 200
-        contentItem: ClickableText {
-            id: btn
-            checkable: true
-            text: "Click!"
+        contentItem: Column {
+            ClickableText {
+                id: btn
+                checkable: true
+                text: "Click!"
+            }
+            ClickableText {
+                id: btn2
+                checkable: true
+                text: "Click!"
+            }
         }
     }
 
@@ -27,5 +35,6 @@ BasicPage {
         height: 20
 
         indeterminate: btn.checked
+        horizontalAlignment: btn2.checked ? Qt.AlignRight : Qt.AlignLeft
     }
 }

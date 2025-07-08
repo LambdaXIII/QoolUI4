@@ -15,6 +15,7 @@ T.ProgressBar {
     }
 
     property int cycleDuration: Style.movementDuration * 2
+    property int horizontalAlignment: Qt.AlignLeft
 
     background: OctagonRoundedShape {
         implicitWidth: 100
@@ -56,60 +57,12 @@ T.ProgressBar {
             width: parent.width + barOffset * 2
             height: parent.height
         }
-        NumberAnimation {
-            id: scrollingAnime
-            duration: root.cycleDuration
+        ParallelVerticalBarsAnimation {
             target: bars
-            property: "x"
-            from: 0 - bars.barOffset * 2
-            to: 0 - bars.barOffset
+            duration: root.cycleDuration * 2
+            paused: root.indeterminate || (!root.Style.animationEnabled)
             running: true
-            loops: Animation.Infinite
-            paused: !(root.visible && root.Style.animationEnabled)
-                    || duration <= 0
         }
-    }
-
-    SequentialAnimation {
-        id: interAnime
-        // running: root.indeterminate
-        loops: Animation.Infinite
-        NumberAnimation {
-            target: progressShape.shapeControl
-            property: "offsetX"
-            duration: root.cycleDuration * 2
-            to: mainItem.width - progressShape.shapeControl.width
-            easing.type: Easing.OutQuad
-        }
-        NumberAnimation {
-            target: progressShape.shapeControl
-            property: "offsetX"
-            duration: root.cycleDuration * 2
-            to: 0
-            easing.type: Easing.OutQuad
-        }
-        alwaysRunToEnd: true
-        onStopped: stopIndeterminateAnime.start()
-    }
-
-    NumberAnimation {
-        id: startIndeterminateAnime
-        target: progressShape.shapeControl
-        property: "width"
-        duration: Style.transitionDuration
-        to: Math.min(mainItem.width * 0.35, 200)
-        easing.type: Easing.OutQuad
-    }
-
-
-    NumberAnimation {
-        id: stopIndeterminateAnime
-        target: progressShape.shapeControl
-        property: "width"
-        duration: Style.transitionDuration
-        to: mainItem.width * root.visualPosition
-        easing.type: Easing.OutQuad
-        onFinished: interAnime.start()
     }
 
     contentItem: Item {
@@ -118,7 +71,6 @@ T.ProgressBar {
         implicitHeight: 20
         OctagonRoundedShape {
             id: progressShape
-            shapeControl.width: parent.width * root.visualPosition
             height: parent.height
             width: parent.width
             settings {
@@ -132,10 +84,117 @@ T.ProgressBar {
         }
     }
 
-    onIndeterminateChanged: {
-        if (root.indeterminate)
-            startIndeterminateAnime.start()
-        else
-            interAnime.stop()
+    SmartObject {
+        id: pCtrl
+        readonly property real visualWidth: (mainItem.width - mainItem.height) * root.visualPosition
+        readonly property real visualX: {
+            switch (root.horizontalAlignment) {
+            case Qt.AlignLeft:
+                return 0
+            case Qt.AlignRight:
+                return mainItem.width - visualWidth
+            default:
+                return (mainItem.width - visualWidth) / 2
+            }
+        }
+
+        readonly property real indeterminateWidth: Math.min(
+                                                       200,
+                                                       mainItem.width * 0.35)
+        property bool visualBindingEnabled: !root.indeterminate
+        Binding {
+            when: pCtrl.visualBindingEnabled
+            progressShape.shapeControl.width: pCtrl.visualWidth
+            progressShape.shapeControl.offsetX: pCtrl.visualX
+            restoreMode: Binding.RestoreNone
+        }
+
+        ParallelAnimation {
+            id: indeterminateIn
+            onStarted: {
+                pCtrl.visualBindingEnabled = false
+                if (!root.Style.animationEnabled)
+                    complete()
+            }
+            NumberAnimation {
+                target: progressShape.shapeControl
+                property: "width"
+                to: pCtrl.indeterminateWidth
+                duration: Style.transitionDuration
+                easing.type: Easing.OutBack
+            }
+            NumberAnimation {
+                target: progressShape.shapeControl
+                property: "offsetX"
+                to: 0
+                duration: Style.transitionDuration
+                easing.type: Easing.OutBack
+            }
+        }
+        ParallelAnimation {
+            id: indeterminateOut
+            onStarted: {
+                if (!root.Style.animationEnabled)
+                    complete()
+            }
+
+            onFinished: pCtrl.visualBindingEnabled = true
+            NumberAnimation {
+                target: progressShape.shapeControl
+                property: "width"
+                to: pCtrl.visualWidth
+                duration: Style.transitionDuration
+                easing.type: Easing.OutBack
+            }
+            NumberAnimation {
+                target: progressShape.shapeControl
+                property: "offsetX"
+                to: pCtrl.visualX
+                duration: Style.transitionDuration
+                easing.type: Easing.OutBack
+            }
+        }
+        SequentialAnimation {
+            id: indeterminateLoop
+            loops: Animation.Infinite
+            NumberAnimation {
+                target: progressShape.shapeControl
+                property: "offsetX"
+                to: mainItem.width - pCtrl.indeterminateWidth
+                duration: root.cycleDuration * 2
+                easing.type: Easing.OutSine
+            }
+            NumberAnimation {
+                target: progressShape.shapeControl
+                property: "offsetX"
+                to: 0
+                duration: root.cycleDuration * 2
+                easing.type: Easing.OutSine
+            }
+        }
+
+        NumberAnimation {
+            id: alignmentAnime
+            target: progressShape.shapeControl
+            property: "offsetX"
+            to: pCtrl.visualX
+            duration: Style.transitionDuration
+            easing.type: Easing.OutBack
+            onStarted: pCtrl.visualBindingEnabled = false
+            onFinished: pCtrl.visualBindingEnabled = true
+        }
+
+        Connections {
+            target: root
+            function onIndeterminateChanged() {
+                if (root.indeterminate) {
+                    indeterminateIn.start()
+                    indeterminateLoop.start()
+                } else {
+                    indeterminateLoop.stop()
+                    indeterminateOut.start()
+                }
+            }
+        }
     }
 }
