@@ -4,9 +4,7 @@
 #include "qool_itemtracker.h"
 #include "qool_theme.h"
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
-#include "qoolcommon/default_variant_map.hpp"
 #include "qoolcommon/macro_foreach.hpp"
-#include "qoolcommon/property_macros.hpp"
 #include "qoolcommon/property_macros_for_qobject_declonly.hpp"
 #include "qoolns.hpp"
 

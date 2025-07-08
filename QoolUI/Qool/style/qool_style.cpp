@@ -238,8 +238,9 @@ StyleGroupAgent* Style::disabled() const {
   }                                                                    \
   void Style::set_##N(const T& value) {                                \
     const QVariant v = QVariant::fromValue<T>(value);                  \
-    const auto group = currentGroup();                                 \
-    setValue(group, #N, v);                                            \
+    setValue(Theme::Active, #N, v);                                    \
+    setValue(Theme::Inactive, #N, v);                                  \
+    setValue(Theme::Disabled, #N, v);                                  \
   }
 
 #define __COLOR(N) IMPL(QColor, N)
