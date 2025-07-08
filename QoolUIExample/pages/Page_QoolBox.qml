@@ -41,6 +41,7 @@ BasicPage {
                     cutSizeBR: control.cutSizeBR
                     fillColor: control.fillColor
                     borderColor: control.borderColor
+                    cutSizesLocked: control.lockCorners
                 }
             }
 
@@ -58,6 +59,7 @@ BasicPage {
                     cutSizeBR: control.cutSizeBR
                     fillColor: control.fillColor
                     borderColor: control.borderColor
+                    cutSizesLocked: control.lockCorners
                 }
             }
 

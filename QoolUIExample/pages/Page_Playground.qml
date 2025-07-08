@@ -10,31 +10,13 @@ BasicPage {
     title: qsTr("试炼场")
     note: qsTr("测试一些东西……")
 
-    ControlFrame {
-        id: control
-
-        width: 400
-        height: 300
+    ProgressBar {
+        id: bar
 
         anchors.centerIn: parent
-        contentSpacing: 10
-        contentItem: Rectangle {
-            id: c
-            color: Style.accent
-            Text {
+        width: 200
+        height: 20
 
-                text: Style.accent
-                anchors.centerIn: parent
-            }
-        }
-
-        TapHandler {
-            onTapped: {
-                // console.log(Style.active.accent, Style.inactive.accent, Style.accent);
-                c.enabled = !c.enabled
-
-                c.Style.dumpInfo()
-            }
-        }
+        indeterminate: true
     }
 }

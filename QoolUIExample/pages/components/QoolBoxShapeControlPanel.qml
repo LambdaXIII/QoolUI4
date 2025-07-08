@@ -19,6 +19,7 @@ Control {
     readonly property bool rounded: roundedShapeButton.checked
     readonly property bool showExtPoints: showExtPointsButton.checked
     readonly property bool showIntPoints: showIntPointsButton.checked
+    readonly property bool lockCorners: lockCornersButton.checked
 
     property url fillImage
 
@@ -132,8 +133,14 @@ Control {
             ActionButton {
                 id: showIntPointsButton
                 checkable: true
-                text: qsTr("显示内定点")
+                text: qsTr("显示内顶点")
             }
+        }
+
+        ActionButton {
+            id: lockCornersButton
+            checkable: true
+            text: qsTr("锁定边角")
         }
 
         ActionButton {
@@ -141,9 +148,9 @@ Control {
             text: qsTr("使用图片填充")
             onCheckedChanged: {
                 if (checked) {
-                    root.fillImage = "qrc:/qoolexample/assets/ExamplePicture1.jpg";
+                    root.fillImage = "qrc:/qoolexample/assets/ExamplePicture1.jpg"
                 } else {
-                    root.fillImage = null;
+                    root.fillImage = null
                 }
             }
         }

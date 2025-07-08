@@ -10,7 +10,7 @@ BasicControlFrame {
     property url page_url
 
     backgroundSettings {
-        fillColor: Style.window
+        fillColor: Style.shadow
     }
 
     signal pageLoaded
@@ -25,16 +25,16 @@ BasicControlFrame {
         BasicBigTitleText {
             text: pCtrl.title
             Layout.alignment: Qt.AlignRight
-            topPadding: 2
-            rightPadding: 2
+            topPadding: 4
+            rightPadding: 6
         }
         BasicDecorativeText {
             text: pCtrl.note
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             Layout.alignment: Qt.AlignRight
             Layout.preferredWidth: Math.min(parent.width, implicitWidth)
-            rightPadding: 2
-            leftPadding: 2
+            rightPadding: 6
+            leftPadding: 6
         }
     }
 
@@ -52,6 +52,7 @@ BasicControlFrame {
 
         Loader {
             id: pageLoader
+            asynchronous: true
             width: main.contentWidth
             source: root.page_url
             onLoaded: {
