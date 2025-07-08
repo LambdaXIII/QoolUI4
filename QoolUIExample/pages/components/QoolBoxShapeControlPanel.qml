@@ -21,7 +21,8 @@ Control {
     readonly property bool showIntPoints: showIntPointsButton.checked
     readonly property bool lockCorners: lockCornersButton.checked
 
-    property url fillImage
+    readonly property real offsetX: offsetXSlider.value
+    readonly property real offsetY: offsetYSlider.value
 
     signal wannaDumpInfo
 
@@ -90,6 +91,24 @@ Control {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignTop
         }
+        NumberSlider {
+            id: offsetXSlider
+            name: qsTr("水平偏移量")
+            defaultValue: 0
+            from: -600
+            to: 600
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop
+        }
+        NumberSlider {
+            id: offsetYSlider
+            name: qsTr("竖直偏移量")
+            defaultValue: 0
+            from: -600
+            to: 600
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop
+        }
         RowLayout {
             Layout.fillWidth: true
             ColorButton {
@@ -141,18 +160,7 @@ Control {
             id: lockCornersButton
             checkable: true
             text: qsTr("锁定边角")
-        }
-
-        ActionButton {
-            checkable: true
-            text: qsTr("使用图片填充")
-            onCheckedChanged: {
-                if (checked) {
-                    root.fillImage = "qrc:/qoolexample/assets/ExamplePicture1.jpg"
-                } else {
-                    root.fillImage = null
-                }
-            }
+            Layout.fillWidth: true
         }
 
         Item {

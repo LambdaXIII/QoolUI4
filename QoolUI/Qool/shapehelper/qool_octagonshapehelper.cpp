@@ -10,7 +10,10 @@ QOOL_NS_BEGIN
 OctagonShapeHelper::OctagonShapeHelper(QObject* parent)
   : AbstractShapeHelper { parent }
   , m_settings { new OctagonSettings(this) } {
-  // m_settings.setValue(new OctagonSettings(this));
+  m_offsetX.setValue(0);
+  m_offsetY.setValue(0);
+  m_intOffsetX.setValue(0);
+  m_intOffsetY.setValue(0);
 
   __setup_reference_values();
   __setup_ext_points();
@@ -153,25 +156,33 @@ void OctagonShapeHelper::__connect_points() {
 void OctagonShapeHelper::__setup_ext_points() {
 #define W bindable_width().value()
 #define H bindable_height().value()
-  m_extTLx.setBinding([&] { return m_safeTL.value(); });
-  m_extTLy.setValue(0);
-  m_extTRx.setBinding([&] { return W - m_safeTR.value(); });
-  m_extTRy.setValue(0);
+  m_extTLx.setBinding(
+    [&] { return m_safeTL.value() + m_offsetX.value(); });
+  m_extTLy.setBinding([&] { return 0 + m_offsetY.value(); });
+  m_extTRx.setBinding(
+    [&] { return W - m_safeTR.value() + m_offsetX.value(); });
+  m_extTRy.setBinding([&] { return 0 + m_offsetY.value(); });
 
-  m_extBLx.setBinding([&] { return m_safeBL.value(); });
-  m_extBLy.setBinding([&] { return H; });
-  m_extBRx.setBinding([&] { return W - m_safeBR.value(); });
-  m_extBRy.setBinding([&] { return H; });
+  m_extBLx.setBinding(
+    [&] { return m_safeBL.value() + m_offsetX.value(); });
+  m_extBLy.setBinding([&] { return H + m_offsetY.value(); });
+  m_extBRx.setBinding(
+    [&] { return W - m_safeBR.value() + m_offsetX.value(); });
+  m_extBRy.setBinding([&] { return H + m_offsetY.value(); });
 
-  m_extLTx.setValue(0);
-  m_extLTy.setBinding([&] { return m_safeTL.value(); });
-  m_extLBx.setValue(0);
-  m_extLBy.setBinding([&] { return H - m_safeBL.value(); });
+  m_extLTx.setBinding([&] { return 0 + m_offsetX.value(); });
+  m_extLTy.setBinding(
+    [&] { return m_safeTL.value() + m_offsetY.value(); });
+  m_extLBx.setBinding([&] { return 0 + m_offsetX.value(); });
+  m_extLBy.setBinding(
+    [&] { return H - m_safeBL.value() + m_offsetY.value(); });
 
-  m_extRTx.setBinding([&] { return W; });
-  m_extRTy.setBinding([&] { return m_safeTR.value(); });
-  m_extRBx.setBinding([&] { return W; });
-  m_extRBy.setBinding([&] { return H - m_safeBR.value(); });
+  m_extRTx.setBinding([&] { return W + m_offsetX.value(); });
+  m_extRTy.setBinding(
+    [&] { return m_safeTR.value() + m_offsetY.value(); });
+  m_extRBx.setBinding([&] { return W + m_offsetX.value(); });
+  m_extRBy.setBinding(
+    [&] { return H - m_safeBR.value() + m_offsetY.value(); });
 #undef W
 #undef H
 }
@@ -179,119 +190,144 @@ void OctagonShapeHelper::__setup_ext_points() {
 void OctagonShapeHelper::__setup_int_points() {
 #define W bindable_width().value()
 #define H bindable_height().value()
-#define Border m_safeBorderWidth.value()
-#define Shrink m_borderShrinkSize.value()
-#define Left Border
-#define Top Border
-#define Right (W - Border)
-#define Bottom (H - Border)
+#define DEF_COMMON const auto border = m_safeBorderWidth.value();
+#define DEF_SHRINK const auto shrink = m_borderShrinkSize.value();
+
+#define DEF_VALUES_X                                                   \
+  DEF_COMMON;                                                          \
+  const auto offset = m_intOffsetX.value();
+
+#define DEF_VALUES_Y                                                   \
+  DEF_COMMON;                                                          \
+  const auto offset = m_intOffsetY.value();
+
+#define RETURN_X(V)                                                    \
+  const auto __offset_x__ = m_offsetX.value();                         \
+  const auto left = border + __offset_x__;                             \
+  const auto right = W - border + __offset_x__;                        \
+  return math::auto_bound(left, V, right) + offset;
+
+#define RETURN_Y(V)                                                    \
+  const auto __offset_y__ = m_offsetY.value();                         \
+  const auto top = border + __offset_y__;                              \
+  const auto bottom = H - border + __offset_y__;                       \
+  return math::auto_bound(top, V, bottom) + offset;
 
   m_intTLx.setBinding([&] {
-    if (Border == 0)
-      return m_extTLx.value();
-    const qreal v = m_extTLx.value() + Shrink;
-    return math::auto_bound(Left, v, Right);
+    DEF_VALUES_X
+    DEF_SHRINK
+    const auto base = m_extTLx.value();
+    qreal result = (border == 0) ? base : base + shrink;
+    RETURN_X(result);
   });
+
   m_intTLy.setBinding([&] {
-    if (Border == 0)
-      return m_extTLy.value();
-    const qreal v = m_extTLy.value() + Border;
-    return math::auto_bound(Top, v, Bottom);
+    DEF_VALUES_Y
+    const auto base = m_extTLy.value();
+    const auto result = (border == 0) ? base : base + border;
+    RETURN_Y(result)
   });
   m_intTRx.setBinding([&] {
-    if (Border == 0)
-      return m_extTRx.value();
-    const qreal v = m_extTRx.value() - Shrink;
-    return math::auto_bound(Left, v, Right);
+    DEF_VALUES_X
+    DEF_SHRINK
+    const auto base = m_extTRx.value();
+    const auto result = (border == 0) ? base : base - shrink;
+    RETURN_X(result)
   });
   m_intTRy.setBinding([&] {
-    if (Border == 0)
-      return m_extTRy.value();
-    const qreal v = m_extTRy.value() + Border;
-    return math::auto_bound(Top, v, Bottom);
+    DEF_VALUES_Y
+    const auto base = m_extTRy.value();
+    const auto result = (border == 0) ? base : base + border;
+    RETURN_Y(result)
   });
 
   m_intBLx.setBinding([&] {
-    if (Border == 0)
-      return m_extBLx.value();
-    const auto v = m_extBLx.value() + Shrink;
-    return math::auto_bound(Left, v, Right);
+    DEF_VALUES_X
+    DEF_SHRINK
+    const auto base = m_extBLx.value();
+    const auto result = (border == 0) ? base : base + shrink;
+    RETURN_X(result);
   });
   m_intBLy.setBinding([&] {
-    if (Border == 0)
-      return m_extBLy.value();
-    const auto v = m_extBLy.value() - Border;
-    return math::auto_bound(Top, v, Bottom);
+    DEF_VALUES_Y
+    const auto base = m_extBLy.value();
+    const auto result = (border == 0) ? base : base - border;
+    RETURN_Y(result);
   });
   m_intBRx.setBinding([&] {
-    if (Border == 0)
-      return m_extBRx.value();
-    const auto v = m_extBRx.value() - Shrink;
-    return math::auto_bound(Left, v, Right);
+    DEF_VALUES_X
+    DEF_SHRINK
+    const auto base = m_extBRx.value();
+    const auto result = (border == 0) ? base : base - shrink;
+    RETURN_X(result);
   });
   m_intBRy.setBinding([&] {
-    if (Border == 0)
-      return m_extBRy.value();
-    const auto v = m_extBRy.value() - Border;
-    return math::auto_bound(Top, v, Bottom);
+    DEF_VALUES_Y
+    const auto base = m_extBRy.value();
+    const auto result = (border == 0) ? base : base - border;
+    RETURN_Y(result)
   });
 
   m_intLTx.setBinding([&] {
-    if (Border == 0)
-      return m_extLTx.value();
-    const auto v = m_extLTx.value() + Border;
-    return math::auto_bound(Left, v, Right);
+    DEF_VALUES_X
+    const auto base = m_extLTx.value();
+    const auto result = (border == 0) ? base : base + border;
+    RETURN_X(result);
   });
   m_intLTy.setBinding([&] {
-    if (Border == 0)
-      return m_extLTy.value();
-    const auto v = m_extLTy.value() + Shrink;
-    return math::auto_bound(Top, v, Bottom);
+    DEF_VALUES_Y
+    DEF_SHRINK
+    const auto base = m_extLTy.value();
+    const auto result = (border == 0) ? base : base + shrink;
+    RETURN_Y(result)
   });
   m_intLBx.setBinding([&] {
-    if (Border == 0)
-      return m_extLBx.value();
-    const auto v = m_extLBx.value() + Border;
-    return math::auto_bound(Left, v, Right);
+    DEF_VALUES_X
+    const auto base = m_extLBx.value();
+    const auto result = (border == 0) ? base : base + border;
+    RETURN_X(result)
   });
   m_intLBy.setBinding([&] {
-    if (Border == 0)
-      return m_extLBy.value();
-    const auto v = m_extLBy.value() - Shrink;
-    return math::auto_bound(Top, v, Bottom);
+    DEF_VALUES_Y
+    DEF_SHRINK
+    const auto base = m_extLBy.value();
+    const auto result = (border == 0) ? base : base + shrink;
+    RETURN_Y(result)
   });
 
   m_intRTx.setBinding([&] {
-    if (Border == 0)
-      return m_extRTx.value();
-    const auto v = m_extRTx.value() - Border;
-    return math::auto_bound(Left, v, Right);
+    DEF_VALUES_X
+    const auto base = m_extRTx.value();
+    const auto result = (border == 0) ? base : base - border;
+    RETURN_X(result)
   });
   m_intRTy.setBinding([&] {
-    if (Border == 0)
-      return m_extRTy.value();
-    const auto v = m_extRTy.value() + Shrink;
-    return math::auto_bound(Top, v, Bottom);
+    DEF_VALUES_Y
+    DEF_SHRINK
+    const auto base = m_extRTy.value();
+    const auto result = (border == 0) ? base : base + shrink;
+    RETURN_Y(result)
   });
   m_intRBx.setBinding([&] {
-    if (Border == 0)
-      return m_extRBx.value();
-    const auto v = m_extRBx.value() - Border;
-    return math::auto_bound(Left, v, Right);
+    DEF_VALUES_X
+    const auto base = m_extRBx.value();
+    const auto result = (border == 0) ? base : base - border;
+    RETURN_X(result)
   });
   m_intRBy.setBinding([&] {
-    if (Border == 0)
-      return m_extRBy.value();
-    const auto v = m_extRBy.value() - Shrink;
-    return math::auto_bound(Top, v, Bottom);
+    DEF_VALUES_Y
+    DEF_SHRINK
+    const auto base = m_extRBy.value();
+    const auto result = (border == 0) ? base : base - shrink;
+    RETURN_Y(result)
   });
 
-#undef Bottom
-#undef Right
-#undef Top
-#undef Left
-#undef Shrink
-#undef Border
+#undef RETURN_X
+#undef RETURN_Y
+#undef DEF_VALUES_X
+#undef DEF_VALUES_Y
+#undef DEF_COMMON
+#undef DEF_SHRINK
 #undef H
 #undef W
 }

@@ -43,6 +43,10 @@ BasicPage {
                     borderColor: control.borderColor
                     cutSizesLocked: control.lockCorners
                 }
+                shapeControl {
+                    offsetX: control.offsetX
+                    offsetY: control.offsetY
+                }
             }
 
             OctagonRoundedShape {
@@ -60,6 +64,10 @@ BasicPage {
                     fillColor: control.fillColor
                     borderColor: control.borderColor
                     cutSizesLocked: control.lockCorners
+                }
+                shapeControl {
+                    offsetX: control.offsetX
+                    offsetY: control.offsetY
                 }
             }
 
