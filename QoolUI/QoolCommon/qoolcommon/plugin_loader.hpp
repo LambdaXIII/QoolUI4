@@ -1,11 +1,11 @@
 #ifndef QOOLCOMMON_PLUGIN_LOADER_HPP
 #define QOOLCOMMON_PLUGIN_LOADER_HPP
 
+#include "debug.hpp"
 #include "qoolns.hpp"
 
 #include <QAnyStringView>
 #include <QCoreApplication>
-#include <QDebug>
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QLibrary>
@@ -60,6 +60,8 @@ public:
     QStringList parentFolders;
 
     if (m_defaultPathEnabled) {
+      xInfo << xDBGToken("QoolPluginScanner")
+            << "Invoking default search paths ...";
       parentFolders << QLibraryInfo::paths(QLibraryInfo::PluginsPath)
                     << QLibraryInfo::paths(QLibraryInfo::QmlImportsPath)
                     << QLibraryInfo::paths(QLibraryInfo::LibrariesPath)
@@ -86,6 +88,8 @@ public:
     auto last = std::unique(result.begin(), result.end());
     result.erase(last, result.end());
     result.shrink_to_fit();
+    xInfo << xDBGToken("QoolPluginScanner")
+          << "final search paths:" << xDBGList(result);
     return result;
   }
 
@@ -93,13 +97,11 @@ public:
     QStringList result;
     const auto pluginFolders = pluginSearchPaths();
     for (const QString& dir : pluginFolders) {
-      qDebug() << "searching:" << dir;
       QDirIterator iter(dir);
       while (iter.hasNext()) {
         auto a = iter.next();
         if (QLibrary::isLibrary(a)) {
           result << a;
-          qDebug() << "found:" << a;
         }
       }
     }
@@ -147,20 +149,32 @@ struct PluginLoader {
         pluginPath) };
 
       auto ins_object = loader->instance();
-      qDebug() << loader->fileName() << ins_object;
+
+      if (! ins_object)
+        xWarning << xDBGToken("QoolUIPluginLoader")
+                 << "Failed loading qoolplugin:" << xDBGRed
+                 << loader->fileName() << xDBGYellow
+                 << "set QT_DEBUG_PLUGINS to 1 to debug plugins."
+                 << xDBGReset;
 
       Interface* ins_interface = qobject_cast<Interface*>(ins_object);
       if (ins_interface == nullptr) {
         loader->unload();
         continue;
       }
+
       QString plugin_name =
         QOOL_NS::pluginMetadata(*loader, "name").toString();
       if (plugin_name.isEmpty())
         plugin_name = QFileInfo(pluginPath).baseName();
       result.insert(plugin_name, ins_interface);
+
+      xInfo << xDBGToken("QoolUIPluginLoader")
+            << "Found qoolplugin:" << xDBGGreen << loader->fileName()
+            << xDBGReset << "loaded as" << xDBGBlue << plugin_name
+            << xDBGYellow << ins_interface << xDBGReset;
     }
-    qDebug() << result;
+
     return result;
   }
 };
