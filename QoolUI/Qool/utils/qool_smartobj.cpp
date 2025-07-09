@@ -9,7 +9,7 @@ SmartObject::SmartObject(QObject* parent)
   installEventFilter(this);
 }
 
-QBindable<QObject*> SmartObject::bindableProperty() {
+QBindable<QObject*> SmartObject::bindableParent() {
   return QBindable<QObject*>(this, "parent");
 }
 

@@ -28,7 +28,7 @@ public:
   explicit SmartObject(QObject* parent = nullptr);
   virtual ~SmartObject() = default;
 
-  QBindable<QObject*> bindableProperty();
+  QBindable<QObject*> bindableParent();
 
   Q_SIGNAL void parentChanged();
   Q_INVOKABLE void dumpProperties() const;

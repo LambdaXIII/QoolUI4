@@ -16,13 +16,14 @@ class Vector {
   Q_GADGET
   QML_VALUE_TYPE(qoolvector)
   QML_STRUCTURED_VALUE
+  QML_CONSTRUCTIBLE_VALUE
 
 public:
   using Data = std::array<QVector2D, 3>;
 
   Vector(qreal xpos = 0, qreal ypos = 0);
-  Vector(const QVector2D& vector);
-  Vector(const QPointF& point);
+  Q_INVOKABLE Vector(const QVector2D& vector);
+  Q_INVOKABLE Vector(const QPointF& point);
   Vector(const QPoint& point);
   Vector(const Vector& other);
   Vector(const QPointF& from, const QPointF& to);
