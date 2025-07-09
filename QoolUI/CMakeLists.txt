@@ -21,6 +21,7 @@ add_subdirectory(QoolCommon)
 
 add_subdirectory(Qool)
 add_subdirectory(QoolControls)
+add_subdirectory(QoolChat)
 add_subdirectory(QoolDebug)
 
 add_subdirectory(plugins)

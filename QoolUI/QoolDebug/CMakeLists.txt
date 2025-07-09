@@ -6,6 +6,8 @@
 #     QT_QML_INTERNAL_TYPE TRUE
 # )
 
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
 qt_add_qml_module(QoolDebug
     URI Qool.Debug
     VERSION ${QOOLUI_VERSION_QML}
@@ -27,6 +29,7 @@ qt_add_qml_module(QoolDebug
     QML_FILES OctagonShapeHud.qml
     QML_FILES RectIndicator.qml
     QML_FILES QoolWindowHud.qml
+    SOURCES
 )
 
 set_target_properties(QoolDebug PROPERTIES
@@ -43,6 +46,7 @@ target_link_libraries(QoolDebug
     PRIVATE Qt6::Quick
     PRIVATE QoolCommon
 )
+target_link_libraries(QoolDebug PRIVATE Qt6::Core)
 
 target_include_directories(QoolDebug
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
