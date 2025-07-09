@@ -10,6 +10,10 @@ QOOL_NS_BEGIN
 OctagonSettings::OctagonSettings(QObject* parent)
   : QObject { parent } {
   m_cutSizes.fill(0);
+  m_offsetX.setValue(0);
+  m_offsetY.setValue(0);
+  m_intOffsetX.setValue(0);
+  m_intOffsetY.setValue(0);
   QOOL_PROPERTY_BINDABLE_INIT_VALUE(borderWidth, 0);
   QOOL_PROPERTY_BINDABLE_INIT_VALUE(borderColor, Qt::red);
   QOOL_PROPERTY_BINDABLE_INIT_VALUE(fillColor, Qt::yellow);

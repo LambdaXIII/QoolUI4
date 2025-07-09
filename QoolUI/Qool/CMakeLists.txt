@@ -96,7 +96,7 @@ qt_add_qml_module(
   QML_FILES
   OctagonRoundedInternalShapePath.qml
   QML_FILES
-  QoolRoundedBox.qml
+
   QML_FILES
   SOURCES
   utils/qool_numberranger.h

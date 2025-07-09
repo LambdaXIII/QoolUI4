@@ -59,6 +59,15 @@ private:                                                               \
     OctagonSettings, QColor, borderColor)
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
     OctagonSettings, QColor, fillColor)
+
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+    OctagonSettings, qreal, offsetX)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+    OctagonSettings, qreal, offsetY)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+    OctagonSettings, qreal, intOffsetX)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+    OctagonSettings, qreal, intOffsetY)
 };
 
 QOOL_NS_END

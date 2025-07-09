@@ -9,7 +9,9 @@ BasicPage {
 
     title: qsTr("试炼场")
     note: qsTr("测试一些东西……")
-
+    QoolBox {
+        id: testBox
+    }
 
     ControlFrame {
         width: 200
@@ -23,6 +25,11 @@ BasicPage {
                 id: btn2
                 checkable: true
                 text: "Click!"
+            }
+
+            ClickableText {
+                text: "text"
+                onClicked: console.log(testBox.fillItem)
             }
         }
     }

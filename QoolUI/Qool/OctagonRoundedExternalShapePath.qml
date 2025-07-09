@@ -5,85 +5,85 @@ import Qool
 ShapePath {
     id: root
 
-    property OctagonShapeHelper shapeControl
+    property OctagonShapeHelper control
 
     joinStyle: ShapePath.BevelJoin
     strokeWidth: 0
     strokeColor: "transparent"
 
-    startX: shapeControl.extTLx
-    startY: shapeControl.extTLy
+    startX: control.extTLx
+    startY: control.extTLy
 
     readonly property QtObject pCtrl: QtObject {
-        readonly property real borderFix: shapeControl.borderShrinkSize
-                                          - shapeControl.safeBorderWidth
+        readonly property real borderFix: control.borderShrinkSize
+                                          - control.safeBorderWidth
         readonly property real intTR: Math.max(0,
-                                               shapeControl.safeTR + borderFix)
+                                               control.safeTR + borderFix)
         readonly property real intTL: Math.max(0,
-                                               shapeControl.safeTL + borderFix)
+                                               control.safeTL + borderFix)
         readonly property real intBL: Math.max(0,
-                                               shapeControl.safeBL + borderFix)
+                                               control.safeBL + borderFix)
         readonly property real intBR: Math.max(0,
-                                               shapeControl.safeBR + borderFix)
+                                               control.safeBR + borderFix)
     }
 
     PathLine {
-        x: shapeControl.extTRx
-        y: shapeControl.extTRy
+        x: control.extTRx
+        y: control.extTRy
     }
 
     PathArc {
-        radiusX: shapeControl.safeTR
-        radiusY: shapeControl.safeTR
+        radiusX: control.safeTR
+        radiusY: control.safeTR
         relativeX: radiusX
         relativeY: radiusY
     }
 
     PathLine {
-        x: shapeControl.extRBx
-        y: shapeControl.extRBy
+        x: control.extRBx
+        y: control.extRBy
     }
 
     PathArc {
-        radiusX: shapeControl.safeBR
-        radiusY: shapeControl.safeBR
-        x: shapeControl.extBRx
-        y: shapeControl.extBRy
+        radiusX: control.safeBR
+        radiusY: control.safeBR
+        x: control.extBRx
+        y: control.extBRy
     }
 
     PathLine {
-        x: shapeControl.extBLx
-        y: shapeControl.extBLy
+        x: control.extBLx
+        y: control.extBLy
     }
 
     PathArc {
-        radiusX: shapeControl.safeBL
-        radiusY: shapeControl.safeBL
-        x: shapeControl.extLBx
-        y: shapeControl.extLBy
+        radiusX: control.safeBL
+        radiusY: control.safeBL
+        x: control.extLBx
+        y: control.extLBy
     }
 
     PathLine {
-        x: shapeControl.extLTx
-        y: shapeControl.extLTy
+        x: control.extLTx
+        y: control.extLTy
     }
 
     PathArc {
-        radiusX: shapeControl.safeTL
-        radiusY: shapeControl.safeTL
-        x: shapeControl.extTLx
-        y: shapeControl.extTLy
+        radiusX: control.safeTL
+        radiusY: control.safeTL
+        x: control.extTLx
+        y: control.extTLy
     }
 
     //internal
     PathMove {
-        x: shapeControl.intTLx
-        y: shapeControl.intTLy
+        x: control.intTLx
+        y: control.intTLy
     }
 
     PathLine {
-        x: shapeControl.intTRx
-        y: shapeControl.intTRy
+        x: control.intTRx
+        y: control.intTRy
     }
 
     PathArc {
@@ -94,38 +94,38 @@ ShapePath {
     }
 
     PathLine {
-        x: shapeControl.intRBx
-        y: shapeControl.intRBy
+        x: control.intRBx
+        y: control.intRBy
     }
 
     PathArc {
         radiusX: pCtrl.intBR
         radiusY: pCtrl.intBR
-        x: shapeControl.intBRx
-        y: shapeControl.intBRy
+        x: control.intBRx
+        y: control.intBRy
     }
 
     PathLine {
-        x: shapeControl.intBLx
-        y: shapeControl.intBLy
+        x: control.intBLx
+        y: control.intBLy
     }
 
     PathArc {
         radiusX: pCtrl.intBL
         radiusY: pCtrl.intBL
-        x: shapeControl.intLBx
-        y: shapeControl.intLBy
+        x: control.intLBx
+        y: control.intLBy
     }
 
     PathLine {
-        x: shapeControl.intLTx
-        y: shapeControl.intLTy
+        x: control.intLTx
+        y: control.intLTy
     }
 
     PathArc {
         radiusX: pCtrl.intTL
         radiusY: pCtrl.intTL
-        x: shapeControl.intTLx
-        y: shapeControl.intTLy
+        x: control.intTLx
+        y: control.intTLy
     }
 }

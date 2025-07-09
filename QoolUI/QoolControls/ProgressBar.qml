@@ -105,14 +105,14 @@ T.ProgressBar {
         property bool visualBindingEnabled: !root.indeterminate
         Binding {
             when: pCtrl.visualBindingEnabled
-            target: progressShape.shapeControl
+            target: progressShape.control
             property: "width"
             value: pCtrl.visualWidth
             restoreMode: Binding.RestoreValue
         }
         Binding {
             when: pCtrl.visualBindingEnabled
-            target: progressShape.shapeControl
+            target: progressShape.control
             property: "offsetX"
             value: pCtrl.visualX
             restoreMode: Binding.RestoreValue
@@ -126,14 +126,14 @@ T.ProgressBar {
                     complete()
             }
             NumberAnimation {
-                target: progressShape.shapeControl
+                target: progressShape.control
                 property: "width"
                 to: pCtrl.indeterminateWidth
                 duration: Style.transitionDuration
                 easing.type: Easing.OutBack
             }
             NumberAnimation {
-                target: progressShape.shapeControl
+                target: progressShape.control
                 property: "offsetX"
                 to: 0
                 duration: Style.transitionDuration
@@ -149,14 +149,14 @@ T.ProgressBar {
 
             onFinished: pCtrl.visualBindingEnabled = true
             NumberAnimation {
-                target: progressShape.shapeControl
+                target: progressShape.control
                 property: "width"
                 to: pCtrl.visualWidth
                 duration: Style.transitionDuration
                 easing.type: Easing.OutBack
             }
             NumberAnimation {
-                target: progressShape.shapeControl
+                target: progressShape.control
                 property: "offsetX"
                 to: pCtrl.visualX
                 duration: Style.transitionDuration
@@ -167,14 +167,14 @@ T.ProgressBar {
             id: indeterminateLoop
             loops: Animation.Infinite
             NumberAnimation {
-                target: progressShape.shapeControl
+                target: progressShape.control
                 property: "offsetX"
                 to: mainItem.width - pCtrl.indeterminateWidth
                 duration: root.cycleDuration * 2
                 easing.type: Easing.OutSine
             }
             NumberAnimation {
-                target: progressShape.shapeControl
+                target: progressShape.control
                 property: "offsetX"
                 to: 0
                 duration: root.cycleDuration * 2
@@ -184,7 +184,7 @@ T.ProgressBar {
 
         NumberAnimation {
             id: alignmentAnime
-            target: progressShape.shapeControl
+            target: progressShape.control
             property: "offsetX"
             to: pCtrl.visualX
             duration: Style.transitionDuration

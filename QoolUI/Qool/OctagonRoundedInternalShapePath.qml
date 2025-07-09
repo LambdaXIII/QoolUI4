@@ -5,31 +5,31 @@ import Qool
 ShapePath {
     id: root
 
-    property OctagonShapeHelper shapeControl
+    property OctagonShapeHelper control
 
     joinStyle: ShapePath.BevelJoin
     strokeWidth: 0
     strokeColor: "transparent"
 
-    startX: shapeControl.intTLx
-    startY: shapeControl.intTLy
+    startX: control.intTLx
+    startY: control.intTLy
 
     readonly property QtObject pCtrl: QtObject {
-        readonly property real borderFix: shapeControl.borderShrinkSize
-                                          - shapeControl.safeBorderWidth
+        readonly property real borderFix: control.borderShrinkSize
+                                          - control.safeBorderWidth
         readonly property real intTR: Math.max(0,
-                                               shapeControl.safeTR + borderFix)
+                                               control.safeTR + borderFix)
         readonly property real intTL: Math.max(0,
-                                               shapeControl.safeTL + borderFix)
+                                               control.safeTL + borderFix)
         readonly property real intBL: Math.max(0,
-                                               shapeControl.safeBL + borderFix)
+                                               control.safeBL + borderFix)
         readonly property real intBR: Math.max(0,
-                                               shapeControl.safeBR + borderFix)
+                                               control.safeBR + borderFix)
     }
 
     PathLine {
-        x: shapeControl.intTRx
-        y: shapeControl.intTRy
+        x: control.intTRx
+        y: control.intTRy
     }
 
     PathArc {
@@ -40,38 +40,38 @@ ShapePath {
     }
 
     PathLine {
-        x: shapeControl.intRBx
-        y: shapeControl.intRBy
+        x: control.intRBx
+        y: control.intRBy
     }
 
     PathArc {
         radiusX: pCtrl.intBR
         radiusY: pCtrl.intBR
-        x: shapeControl.intBRx
-        y: shapeControl.intBRy
+        x: control.intBRx
+        y: control.intBRy
     }
 
     PathLine {
-        x: shapeControl.intBLx
-        y: shapeControl.intBLy
+        x: control.intBLx
+        y: control.intBLy
     }
 
     PathArc {
         radiusX: pCtrl.intBL
         radiusY: pCtrl.intBL
-        x: shapeControl.intLBx
-        y: shapeControl.intLBy
+        x: control.intLBx
+        y: control.intLBy
     }
 
     PathLine {
-        x: shapeControl.intLTx
-        y: shapeControl.intLTy
+        x: control.intLTx
+        y: control.intLTy
     }
 
     PathArc {
         radiusX: pCtrl.intTL
         radiusY: pCtrl.intTL
-        x: shapeControl.intTLx
-        y: shapeControl.intTLy
+        x: control.intTLx
+        y: control.intTLy
     }
 }

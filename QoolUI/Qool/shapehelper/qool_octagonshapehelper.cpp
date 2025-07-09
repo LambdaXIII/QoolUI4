@@ -10,15 +10,24 @@ QOOL_NS_BEGIN
 OctagonShapeHelper::OctagonShapeHelper(QObject* parent)
   : AbstractShapeHelper { parent }
   , m_settings { new OctagonSettings(this) } {
-  m_offsetX.setValue(0);
-  m_offsetY.setValue(0);
-  m_intOffsetX.setValue(0);
-  m_intOffsetY.setValue(0);
-
   __setup_reference_values();
   __setup_ext_points();
   __setup_int_points();
   __connect_points();
+
+  m_offsetX.setBinding([&] {
+    return bindable_settings().value()->bindable_offsetX().value();
+  });
+  m_offsetY.setBinding([&] {
+    return bindable_settings().value()->bindable_offsetY().value();
+  });
+
+  m_intOffsetX.setBinding([&] {
+    return bindable_settings().value()->bindable_intOffsetX().value();
+  });
+  m_intOffsetY.setBinding([&] {
+    return bindable_settings().value()->bindable_intOffsetY().value();
+  });
 
   m_intPoints.setBinding([&] {
     return QList<QPointF> { m_intTL.value(), m_intTR.value(),
