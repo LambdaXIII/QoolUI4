@@ -7,14 +7,15 @@ NumberAnimation {
 
     readonly property ParallelVerticalBars targetBars: target as ParallelVerticalBars
 
-    property real defaultX: 0 - targetBars.barOffset * 2
-    property real offset: targetBars.barOffset
+    property real offsetStart: 0
+    property real offsetMove: targetBars.barOffset
 
-    target: parent
     duration: Style.movementDuration * 5
-    property: "x"
+    property: "offset"
 
-    from: defaultX
-    to: defaultX + offset
+    from: offsetStart
+    to: offsetStart + (offsetMove - offsetMove / duration)
     loops: Animation.Infinite
+
+    running: true
 }

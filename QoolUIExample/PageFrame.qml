@@ -69,26 +69,31 @@ BasicControlFrame {
     Popup {
         id: loadingBar
         contentItem: ProgressBar {
-            indeterminate: true
-            value: 0.2
+            value: pageLoader.progress
+            radius: 0
         }
         padding: 0
         background: Item {}
-        width: 300
-        height: 20
+        width: parent.width - Style.controlBorderWidth * 2
+        height: 15
+        x: Style.controlBorderWidth
+        y: parent.height - height - Style.controlBorderWidth
         closePolicy: Popup.NoAutoClose
-        anchors.centerIn: parent
         popupType: Popup.Item
     }
 
     Connections {
         target: pageLoader
-        function onSourceChanged() {
-            loadingBar.visible = true
+        function onLoaded() {
+            // if (pageLoader.status != Loader.Loading)
+            loadingBar.visible = false
         }
-        function onStatusChanged() {
-            if (pageLoader.status != Loader.Loading)
-                loadingBar.visible = false
+    }
+
+    Connections {
+        target: root
+        function onPage_urlChanged() {
+            loadingBar.visible = true
         }
     }
 }

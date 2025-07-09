@@ -33,6 +33,24 @@ Polar2D QoolSingleton::polar2d(const QVector2D& vector2d) {
   return Polar2D(vector2d.toPointF());
 }
 
+QList<int> QoolSingleton::intRange(
+  int from, int to, bool rightEdgeIncluded) {
+  QList<int> result;
+  if (from == to) {
+    result << from;
+  } else if (from < to) {
+    for (int i = from; i != to; i++)
+      result << i;
+  } else {
+    for (int i = from; i != to; i--)
+      result << i;
+  }
+  if (rightEdgeIncluded && result.constLast() != to)
+    result << to;
+  // xDebugQ << "IntRange" << from << "->" << to << "=" << result;
+  return result;
+}
+
 void QoolSingleton::test() {
   auto plugins = PluginLoader<TestObject>::loadInstances();
   for (auto iter = plugins.constBegin(); iter != plugins.constEnd();

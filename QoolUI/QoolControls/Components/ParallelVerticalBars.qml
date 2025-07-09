@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Shapes
+import Qool
 
 Shape {
     id: root
@@ -15,24 +16,26 @@ Shape {
     property alias fillItem: mainPath.fillItem
 
     readonly property real barOffset: barWidth + barSpacing
+    readonly property int extraBarCount: core.extraBarCount
 
-    implicitWidth: parent.width + barOffset * 3
-    implicitHeight: parent.height
+    property real offset: 0 //horizontally moves shape
 
-    x: 0 - barOffset * 2
+    implicitWidth: 200
+    implicitHeight: 200
 
-    QtObject {
+    SmartObject {
         id: core
         readonly property real rad: root.angle * Math.PI / 180
         readonly property real tangent: Math.tan(rad)
 
         readonly property int barCount: root.width / root.barOffset
-        readonly property int extraBarCount: Math.abs(
-                                                 tangent * root.height) / root.barOffset
+        readonly property int extraBarCount: Math.round(
+                                                 Math.abs(
+                                                     tangent * root.height) / root.barOffset)
 
         function barlygon(index = 0) {
             let extra_w = tangent * root.height
-            let off = index * root.barOffset
+            let off = index * root.barOffset + root.offset
             let a = Qt.point(0 + off, 0)
             let b = Qt.point(root.barWidth + off, 0)
             let c = Qt.point(extra_w + off, root.height)
@@ -40,12 +43,21 @@ Shape {
             return [a, b, d, c]
         }
 
-        function polylines() {
-            let result = Array()
+        function barIndexesRange() {
+            let result = Object()
             let leftCount = rad > 0 ? extraBarCount : 0
             let rightCount = rad < 0 ? extraBarCount : 0
-            for (var i = 0 - leftCount; i < barCount + rightCount; i++) {
-                result.push(barlygon(i))
+            result["left"] = 0 - (leftCount + 1)
+            result["right"] = barCount + rightCount + 1
+            return result
+        }
+
+        function polylines() {
+            let result = Array()
+            let indexRange = barIndexesRange()
+            for (var i = indexRange.left; i <= indexRange.right; i++) {
+                let shape = barlygon(i)
+                result.push(shape)
             }
             return result
         }
@@ -59,7 +71,6 @@ Shape {
             paths: core.polylines()
         }
 
-        // fillColor: "red"
         strokeColor: "transparent"
         strokeWidth: 0
     }

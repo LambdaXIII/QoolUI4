@@ -40,6 +40,8 @@ T.ProgressBar {
         visible: false
         ParallelVerticalBars {
             id: bars
+            width: parent.width
+            height: parent.height
             strokeWidth: 0
             barWidth: 10
             barSpacing: 8
@@ -85,7 +87,7 @@ T.ProgressBar {
 
     SmartObject {
         id: pCtrl
-        readonly property real visualWidth: (mainItem.width - mainItem.height) * root.visualPosition
+        readonly property real visualWidth: (mainItem.width - root.radius) * root.visualPosition
         readonly property real visualX: {
             switch (root.horizontalAlignment) {
             case Qt.AlignLeft:

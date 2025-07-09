@@ -10,7 +10,7 @@ BasicPage {
     title: qsTr("试炼场")
     note: qsTr("测试一些东西……")
 
-    // Style.animationEnabled: false
+
     ControlFrame {
         width: 200
         contentItem: Column {
@@ -33,6 +33,8 @@ BasicPage {
         anchors.centerIn: parent
         width: 200
         height: 20
+
+        value: 0.8
 
         indeterminate: btn.checked
         horizontalAlignment: btn2.checked ? Qt.AlignRight : Qt.AlignLeft
