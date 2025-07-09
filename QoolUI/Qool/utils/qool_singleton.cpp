@@ -9,7 +9,8 @@ QOOL_NS_BEGIN
 QoolSingleton::QoolSingleton(QObject* parent)
   : SmartObject(parent)
   , m_positions { new Extension_Positions(this) }
-{}
+  , m_geo { new GeoUtils(this) } {
+}
 
 void QoolSingleton::test() {
   auto plugins = PluginLoader<TestObject>::loadInstances();

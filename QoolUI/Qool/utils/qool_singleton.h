@@ -2,6 +2,7 @@
 #define QOOL_SINGLETON_H
 
 #include "qool_extension_positions.h"
+#include "qool_geoutils.h"
 #include "qool_literals.h"
 #include "qool_smartobj.h"
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
@@ -22,6 +23,7 @@ class QoolSingleton: public SmartObject {
     QString, version, QOOLUI_VERSION_FULL)
   QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(
     Extension_Positions*, positions, nullptr)
+  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(GeoUtils*, geo, nullptr)
 
 public:
   explicit QoolSingleton(QObject* parent = nullptr);

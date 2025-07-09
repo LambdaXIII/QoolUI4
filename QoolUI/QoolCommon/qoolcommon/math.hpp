@@ -5,6 +5,8 @@
 #include "math/numbers.hpp"
 #include "math/utils.hpp"
 
+#define QOOLCOMMON_MATH_MARK
+
 MATH_GEOMETRY_HPP
 MATH_NUMBERS_HPP
 MATH_UTILS_HPP
