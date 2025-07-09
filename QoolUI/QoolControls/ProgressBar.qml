@@ -17,6 +17,8 @@ T.ProgressBar {
     property int cycleDuration: Style.movementDuration * 2
     property int horizontalAlignment: Qt.AlignLeft
 
+    property real radius: Math.floor(height / 2)
+
     background: OctagonRoundedShape {
         implicitWidth: 100
         implicitHeight: 20
@@ -24,7 +26,7 @@ T.ProgressBar {
             borderWidth: root.settings.borderWidth
             borderColor: root.settings.borderColor
             fillColor: Style.dark
-            cutSize: height / 2
+            cutSize: root.radius
             cutSizesLocked: true
         }
     }
@@ -74,7 +76,7 @@ T.ProgressBar {
                 borderWidth: root.settings.borderWidth
                 borderColor: root.settings.borderColor
                 fillColor: Style.highlight
-                cutSize: height / 2
+                cutSize: root.radius
                 cutSizesLocked: true
             }
             fillItem: face
@@ -101,9 +103,17 @@ T.ProgressBar {
         property bool visualBindingEnabled: !root.indeterminate
         Binding {
             when: pCtrl.visualBindingEnabled
-            progressShape.shapeControl.width: pCtrl.visualWidth
-            progressShape.shapeControl.offsetX: pCtrl.visualX
-            restoreMode: Binding.RestoreNone
+            target: progressShape.shapeControl
+            property: "width"
+            value: pCtrl.visualWidth
+            restoreMode: Binding.RestoreValue
+        }
+        Binding {
+            when: pCtrl.visualBindingEnabled
+            target: progressShape.shapeControl
+            property: "offsetX"
+            value: pCtrl.visualX
+            restoreMode: Binding.RestoreValue
         }
 
         ParallelAnimation {
