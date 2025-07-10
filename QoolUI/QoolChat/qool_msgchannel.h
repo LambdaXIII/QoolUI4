@@ -53,7 +53,7 @@ class MsgChannelSet: public QSet<MsgChannel> {
 public:
   MsgChannelSet();
   Q_INVOKABLE explicit MsgChannelSet(const QStringList& codes);
-  Q_INVOKABLE explicit MsgChannelSet(const QList<QByteArray>& codes);
+  Q_INVOKABLE explicit MsgChannelSet(const QByteArrayList& codes);
   Q_INVOKABLE explicit MsgChannelSet(const QString& code);
   explicit MsgChannelSet(std::initializer_list<QAnyStringView> codes);
   explicit MsgChannelSet(const QSet<QString>& codes);

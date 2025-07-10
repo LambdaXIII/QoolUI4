@@ -86,7 +86,7 @@ MsgChannelSet::MsgChannelSet(const QStringList& codes) {
     insert(MsgChannel(x));
 }
 
-MsgChannelSet::MsgChannelSet(const QList<QByteArray>& codes) {
+MsgChannelSet::MsgChannelSet(const QByteArrayList& codes) {
   for (const auto& x : codes)
     insert(MsgChannel(x));
 }
