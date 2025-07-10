@@ -64,9 +64,6 @@ public:
 
   QString encode() const;
   static MsgChannelSet decode(QAnyStringView string);
-
-private:
-  static const QString m_splitChars;
 };
 
 QOOL_NS_END

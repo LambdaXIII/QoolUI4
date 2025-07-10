@@ -4,6 +4,7 @@
 #include "qool_msgchannel.h"
 #include "qoolns.hpp"
 
+#include <QDateTime>
 #include <QMutex>
 #include <QObject>
 #include <QQmlEngine>
@@ -37,6 +38,11 @@ class Message {
   Q_PROPERTY(QString content READ content WRITE setContent)
   Q_PROPERTY(
     QVariantMap attachments READ attachments WRITE setAttachments)
+  Q_PROPERTY(MsgChannelSet channels READ channels WRITE setChannels)
+  Q_PROPERTY(QString channelCode READ channelCode WRITE setChannelCode)
+  Q_PROPERTY(QByteArray senderID READ senderID WRITE setSenderID)
+  Q_PROPERTY(QDateTime created READ created CONSTNAT)
+  Q_PROPERTY(QByteArray messageID READ messageID CONSTANT)
 
 public:
   Message();

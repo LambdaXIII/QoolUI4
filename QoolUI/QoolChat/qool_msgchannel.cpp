@@ -77,6 +77,19 @@ size_t qHash(const MsgChannel& key, size_t seed) noexcept {
   return qHashMulti(seed, "msgchannel", key.m_data);
 }
 
+const std::string SPLIT_CHARS { " ,;" };
+QByteArrayList __decode_channels__(QAnyStringView str) {
+  static const QRegularExpression splitRegex { QString("[%1]").arg(
+    SPLIT_CHARS) };
+  const QStringList symbols =
+    str.toString().split(splitRegex, Qt::SkipEmptyParts);
+  QByteArrayList result;
+  std::transform(symbols.cbegin(), symbols.cend(),
+    std::back_inserter(result),
+    [](const QString& x) { return x.toUtf8(); });
+  return result;
+}
+
 MsgChannelSet::MsgChannelSet()
   : QSet<MsgChannel>() {
 }
@@ -89,6 +102,10 @@ MsgChannelSet::MsgChannelSet(const QStringList& codes) {
 MsgChannelSet::MsgChannelSet(const QByteArrayList& codes) {
   for (const auto& x : codes)
     insert(MsgChannel(x));
+}
+
+MsgChannelSet::MsgChannelSet(const QString& code)
+  : MsgChannelSet { __decode_channels__(code) } {
 }
 
 MsgChannelSet::MsgChannelSet(
@@ -116,17 +133,11 @@ MsgChannelSet::operator QList<QByteArray>() const {
 }
 
 QString MsgChannelSet::encode() const {
-  return QStringList(*this).join(m_splitChars[0]);
+  return QStringList(*this).join(SPLIT_CHARS[0]);
 }
 
 MsgChannelSet MsgChannelSet::decode(QAnyStringView string) {
-  static const QRegularExpression splitRegex { QString("[%1]").arg(
-    m_splitChars) };
-  const QStringList symbols =
-    string.toString().split(splitRegex, Qt::SkipEmptyParts);
-  return MsgChannelSet(symbols);
+  return MsgChannelSet(__decode_channels__(string));
 }
-
-const QString MsgChannelSet::m_splitChars { QStringLiteral(" ,;") };
 
 QOOL_NS_END
