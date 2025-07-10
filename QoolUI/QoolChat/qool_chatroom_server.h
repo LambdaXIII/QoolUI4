@@ -6,7 +6,11 @@
 #include "qoolns.hpp"
 
 #include <QObject>
+#include <QObjectCleanupHandler>
+#include <QPointer>
 #include <QQmlEngine>
+
+Q_MOC_INCLUDE("qool_beeper.h");
 
 QOOL_NS_BEGIN
 
@@ -21,10 +25,19 @@ public:
 
   ~ChatRoomServer();
 
-  Q_SLOT void signIn();
-  Q_SLOT void signOut();
+  void signIn(Beeper* beeper);
+  void signOut(Beeper* beeper);
 
-  Q_SLOT void post(const Message& msg);
+  void dispatchMessage(const Message& msg) const;
+
+protected:
+  QMutex m_mutex;
+  QObjectCleanupHandler m_objectTracker;
+  QHash<QByteArray, QPointer<Beeper>> m_beepers;
+
+  static void trySend(const Message& msg, QPointer<Beeper> beeper);
+
+  // void customEvent(QEvent* event) override;
 };
 
 QOOL_NS_END

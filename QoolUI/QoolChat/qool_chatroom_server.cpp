@@ -1,10 +1,62 @@
 #include "qool_chatroom_server.h"
 
+#include "qool_beeper.h"
+#include "qool_message_event.h"
+#include "qoolcommon/debug.hpp"
+
+#include <QCoreApplication>
+
 QOOL_NS_BEGIN
 
 ChatRoomServer::ChatRoomServer(const QString& name, QObject* parent)
   : QObject(parent)
   , m_name(name) {
+}
+
+ChatRoomServer::~ChatRoomServer() {
+  if (! m_objectTracker.isEmpty())
+    xWarningQ << xDBGRed << "Beepers are still connected while charroom"
+              << xDBGYellow << m_name << xDBGRed << "is deconstructing."
+              << xDBGReset;
+}
+
+void ChatRoomServer::signIn(Beeper* beeper) {
+  if (beeper == nullptr)
+    return;
+  QMutexLocker locker(&m_mutex);
+  m_objectTracker.add(beeper);
+  m_beepers.insert(beeper->id(), beeper);
+}
+
+void ChatRoomServer::signOut(Beeper* beeper) {
+  if (beeper == nullptr)
+    return;
+  QMutexLocker locker(&m_mutex);
+  m_objectTracker.remove(beeper);
+  m_beepers.remove(beeper->id());
+}
+
+void ChatRoomServer::dispatchMessage(const Message& msg) const {
+  const QList<QPointer<Beeper>> beepers = m_beepers.values();
+  for (const auto& beeper : beepers)
+    trySend(msg, beeper);
+}
+
+void ChatRoomServer::trySend(
+  const Message& msg, QPointer<Beeper> beeper) {
+  if (beeper.isNull())
+    return;
+  if (beeper->id() == msg.senderID())
+    return;
+  const auto msgChannels = msg.channels();
+  const auto beeperChannels = beeper->channels();
+  static const MsgChannel ALLCHANNEL { MsgChannel::ALL };
+  if (msgChannels.contains(ALLCHANNEL)
+      || beeperChannels.contains(ALLCHANNEL)
+      || msgChannels.intersects(beeper->channels())) {
+    MessageEvent* e = new MessageEvent(msg);
+    QCoreApplication::instance()->postEvent(beeper, e);
+  }
 }
 
 QOOL_NS_END
