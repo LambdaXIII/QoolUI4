@@ -25,7 +25,7 @@ public:
     const QString& channels, const Message& message);
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(QByteArray, id, {})
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QString, chatroom)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QString, chatRoom)
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QVariant, channels)
 };
 
