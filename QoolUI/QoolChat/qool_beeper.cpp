@@ -16,6 +16,11 @@ Beeper::Beeper(QObject* parent)
     this, SIGNAL(channelsChanged()), this, SIGNAL(channelChanged()));
 }
 
+Beeper::~Beeper() {
+  if (chatRoom())
+    chatRoom()->signOut(this);
+}
+
 void Beeper::postMessage(Message message) {
   message.setSenderID(name());
   message << m_channels;

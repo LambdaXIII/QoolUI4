@@ -50,7 +50,10 @@ public:
   Q_INVOKABLE explicit Message(const QString& content);
   Message(const QString& content, const QVariantMap& obj);
   Message(const Message& other);
-  // Message(Message&& other);
+  Message(Message&& other);
+
+  Message& operator=(const Message& other);
+  Message& operator=(Message&& other);
 
   const QString content() const;
   Message& setContent(const QString& msg);

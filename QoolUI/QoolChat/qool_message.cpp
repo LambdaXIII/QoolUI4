@@ -67,9 +67,21 @@ Message::Message(const Message& other)
   : m_data(other.m_data) {
 }
 
-// Message::Message(Message&& other)
-//   : m_data(std::move(other.m_data)) {
-// }
+Message::Message(Message&& other)
+  : m_data(std::move(other.m_data)) {
+}
+
+Message& Message::operator=(const Message& other) {
+  LOCK_DATA
+  m_data = other.m_data;
+  return *this;
+}
+
+Message& Message::operator=(Message&& other) {
+  LOCK_DATA
+  m_data = std::move(other.m_data);
+  return *this;
+}
 
 const QString Message::content() const {
   return m_data->content;
@@ -191,6 +203,14 @@ Message& Message::operator<<(const MsgChannel& channel) {
   LOCK_DATA
   m_data->channels.insert(channel);
   return *this;
+}
+
+QDateTime Message::created() const {
+  return m_data->created;
+}
+
+QByteArray Message::messageID() const {
+  return m_data->messageID;
 }
 
 Message& Message::operator<<(const MsgChannelSet& channels) {
