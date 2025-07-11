@@ -67,9 +67,9 @@ Message::Message(const Message& other)
   : m_data(other.m_data) {
 }
 
-Message::Message(Message&& other)
-  : m_data(std::move(other.m_data)) {
-}
+// Message::Message(Message&& other)
+//   : m_data(std::move(other.m_data)) {
+// }
 
 const QString Message::content() const {
   return m_data->content;
@@ -131,7 +131,7 @@ const MsgChannelSet& Message::channels() const {
   return m_data->channels;
 }
 
-QString Message::channelCode() const {
+QString Message::channel() const {
   return m_data->channels.encode();
 }
 
@@ -143,8 +143,8 @@ Message& Message::setChannels(const MsgChannelSet& channels) {
   return *this;
 }
 
-Message& Message::setChannelCode(const QString& code) {
-  if (this->channelCode() != code) {
+Message& Message::setChannel(const QString& code) {
+  if (this->channel() != code) {
     LOCK_DATA
     m_data->channels = MsgChannelSet::decode(code);
   }

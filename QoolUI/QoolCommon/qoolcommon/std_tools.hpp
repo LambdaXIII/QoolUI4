@@ -23,7 +23,7 @@ inline std::string generate_random_string(size_t length = 5,
 
   const unsigned random_seed = seed.value_or(
     std::chrono::system_clock::now().time_since_epoch().count());
-  std::mt19937 generator(seed);
+  std::mt19937 generator(random_seed);
   std::uniform_int_distribution<> distribution(0, sizeof(charset) - 2);
 
   std::string result;

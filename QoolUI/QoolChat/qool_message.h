@@ -39,9 +39,9 @@ class Message {
   Q_PROPERTY(
     QVariantMap attachments READ attachments WRITE setAttachments)
   Q_PROPERTY(MsgChannelSet channels READ channels WRITE setChannels)
-  Q_PROPERTY(QString channelCode READ channelCode WRITE setChannelCode)
+  Q_PROPERTY(QString channel READ channel WRITE setChannel)
   Q_PROPERTY(QByteArray senderID READ senderID WRITE setSenderID)
-  Q_PROPERTY(QDateTime created READ created CONSTNAT)
+  Q_PROPERTY(QDateTime created READ created CONSTANT)
   Q_PROPERTY(QByteArray messageID READ messageID CONSTANT)
 
 public:
@@ -50,7 +50,7 @@ public:
   Q_INVOKABLE explicit Message(const QString& content);
   Message(const QString& content, const QVariantMap& obj);
   Message(const Message& other);
-  Message(Message&& other);
+  // Message(Message&& other);
 
   const QString content() const;
   Message& setContent(const QString& msg);
@@ -69,9 +69,9 @@ public:
   Message& setSenderID(QByteArrayView id);
 
   const MsgChannelSet& channels() const;
-  QString channelCode() const;
+  QString channel() const;
   Message& setChannels(const MsgChannelSet& channels);
-  Message& setChannelCode(const QString& code);
+  Message& setChannel(const QString& code);
 
   Q_INVOKABLE Message& addChannel(const MsgChannel& channel);
   Q_INVOKABLE Message& addChannels(const MsgChannelSet& channels);

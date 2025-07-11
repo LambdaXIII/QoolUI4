@@ -25,7 +25,7 @@ void ChatRoomServer::signIn(Beeper* beeper) {
     return;
   QMutexLocker locker(&m_mutex);
   m_objectTracker.add(beeper);
-  m_beepers.insert(beeper->id(), beeper);
+  m_beepers.insert(beeper->name(), beeper);
 }
 
 void ChatRoomServer::signOut(Beeper* beeper) {
@@ -33,7 +33,7 @@ void ChatRoomServer::signOut(Beeper* beeper) {
     return;
   QMutexLocker locker(&m_mutex);
   m_objectTracker.remove(beeper);
-  m_beepers.remove(beeper->id());
+  m_beepers.remove(beeper->name());
 }
 
 void ChatRoomServer::dispatchMessage(const Message& msg) const {
@@ -46,7 +46,7 @@ void ChatRoomServer::trySend(
   const Message& msg, QPointer<Beeper> beeper) {
   if (beeper.isNull())
     return;
-  if (beeper->id() == msg.senderID())
+  if (beeper->name() == msg.senderID())
     return;
   const auto msgChannels = msg.channels();
   const auto beeperChannels = beeper->channels();
