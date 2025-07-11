@@ -86,3 +86,4 @@ CMakeLists.txt.user*
 **/.qmlls.ini
 
 **/_backup/
+**/.cache/
