@@ -24,15 +24,14 @@ public:
 
   Q_INVOKABLE void postMessage(const Message& message);
   Q_INVOKABLE void postMessage(
-    const QString& channels, const Message& message);
+    const QString& channels, Message message);
 
   void signIn(Beeper* beeper);
   void signOut(Beeper* beeper);
 
 protected:
-  QString m_name;
   QPointer<ChatRoomServer> m_server;
-  QList<QPointer<Beeper>> m_beeprs;
+  QList<QPointer<Beeper>> m_beepers;
 
   void connectToServer(QPointer<ChatRoomServer> server);
 
