@@ -55,6 +55,12 @@ MsgChannel::operator QByteArray() const {
 QSet<QByteArray> MsgChannel::m_symbols { ALL, EMPTY_CODE };
 
 QByteArray MsgChannel::symbolify(QByteArrayView code) {
+  const auto n = QString::fromUtf8(code).toLower();
+  if (n == "all")
+    return ALL;
+  if (n.isEmpty())
+    return EMPTY_CODE;
+
   static QMutex mutex;
   const auto symbol = code.toByteArray();
   if (! m_symbols.contains(symbol)) {
@@ -77,10 +83,11 @@ size_t qHash(const MsgChannel& key, size_t seed) noexcept {
   return qHashMulti(seed, "msgchannel", key.m_data);
 }
 
-const std::string SPLIT_CHARS { " ,;" };
+Q_GLOBAL_STATIC_WITH_ARGS(QString, SPLIT_CHARS, QStringLiteral(" ,;"));
+
 QByteArrayList __decode_channels__(QAnyStringView str) {
   static const QRegularExpression splitRegex { QString("[%1]").arg(
-    SPLIT_CHARS) };
+    *SPLIT_CHARS) };
   const QStringList symbols =
     str.toString().split(splitRegex, Qt::SkipEmptyParts);
   QByteArrayList result;
@@ -133,11 +140,16 @@ MsgChannelSet::operator QList<QByteArray>() const {
 }
 
 QString MsgChannelSet::encode() const {
-  return QStringList(*this).join(SPLIT_CHARS[0]);
+  return QStringList(this->constBegin(), this->constEnd())
+    .join(SPLIT_CHARS->at(0));
 }
 
 MsgChannelSet MsgChannelSet::decode(QAnyStringView string) {
   return MsgChannelSet(__decode_channels__(string));
+}
+
+MsgChannelSet MsgChannelSet::all() {
+  return MsgChannelSet(MsgChannel(MsgChannel::ALL));
 }
 
 QOOL_NS_END

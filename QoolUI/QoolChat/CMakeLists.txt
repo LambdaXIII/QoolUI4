@@ -1,5 +1,6 @@
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_add_qml_module( QoolChat
   URI Qool.Chat
@@ -17,6 +18,7 @@ qt_add_qml_module( QoolChat
     qool_message.cpp
     SOURCES qool_msgchannel.h qool_msgchannel.cpp
     SOURCES qool_beeper.h qool_beeper.cpp
+    SOURCES qool_chatroom.h qool_chatroom.cpp
 )
 
 set_target_properties(
@@ -38,6 +40,7 @@ target_link_libraries(
   PRIVATE Qt6::Core
   PRIVATE QoolCommon
 )
+target_link_libraries(QoolChat PRIVATE Qt6::Core)
 target_link_libraries(QoolChat PRIVATE Qt6::Core)
 target_link_libraries(QoolChat PRIVATE Qt6::Core)
 
