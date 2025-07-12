@@ -15,7 +15,7 @@ BasicPage {
 
     ChatRoom {
         id: room
-        name: "BABY"
+        // name: "BABY"
     }
 
     Beeper {

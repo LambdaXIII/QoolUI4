@@ -61,7 +61,9 @@ void ChatRoomServer::dispatchMessage(const Message& msg) const {
 }
 
 bool ChatRoomServer::isEmpty() const {
-  return m_beepers.isEmpty() && m_objectTracker.isEmpty();
+  if (m_name == "GLOBAL")
+    return false;
+  return m_beepers.isEmpty() || m_objectTracker.isEmpty();
 }
 
 void ChatRoomServer::trySend(

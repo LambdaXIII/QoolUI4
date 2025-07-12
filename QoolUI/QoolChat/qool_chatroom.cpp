@@ -7,8 +7,8 @@
 QOOL_NS_BEGIN
 
 ChatRoom::ChatRoom(QObject* parent)
-  : QObject { parent } {
-  set_name("GLOBAL");
+  : QObject { parent }
+  , QQmlParserStatus() {
 }
 
 ChatRoom::~ChatRoom() {
@@ -43,6 +43,14 @@ void ChatRoom::signOut(Beeper* beeper) {
 void ChatRoom::dumpInfo() const {
   xDebugQ << "Server:" << m_server->name();
   xDebugQ << "Beepers:" << xDBGList(m_beepers);
+}
+
+void ChatRoom::classBegin() {
+}
+
+void ChatRoom::componentComplete() {
+  if (m_server.isNull())
+    set_name("GLOBAL");
 }
 
 QString ChatRoom::name() const {

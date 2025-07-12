@@ -1,7 +1,4 @@
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
+
 
 qt_add_qml_module( QoolChat
   URI Qool.Chat
@@ -42,9 +39,6 @@ target_link_libraries(
   PRIVATE Qt6::Core
   PRIVATE QoolCommon
 )
-target_link_libraries(QoolChat PRIVATE Qt6::Core)
-target_link_libraries(QoolChat PRIVATE Qt6::Core)
-target_link_libraries(QoolChat PRIVATE Qt6::Core)
-target_link_libraries(QoolChat PRIVATE Qt6::Core)
+
 
 target_include_directories(QoolChat PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

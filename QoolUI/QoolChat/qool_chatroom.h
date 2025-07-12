@@ -7,16 +7,19 @@
 
 #include <QObject>
 #include <QQmlEngine>
-
+#include <QQmlParserStatus>
 Q_MOC_INCLUDE("qool_beeper.h");
 Q_MOC_INCLUDE("qool_chatroom_server.h")
 
 QOOL_NS_BEGIN
 class Beeper;
 class ChatRoomServer;
-class ChatRoom: public QObject {
+class ChatRoom
+  : public QObject
+  , public QQmlParserStatus {
   Q_OBJECT
   QML_ELEMENT
+  Q_INTERFACES(QQmlParserStatus)
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QString, name)
 
 public:
@@ -31,6 +34,9 @@ public:
   void signOut(Beeper* beeper);
 
   Q_INVOKABLE void dumpInfo() const;
+
+  void classBegin() override;
+  void componentComplete() override;
 
 protected:
   QPointer<ChatRoomServer> m_server;
