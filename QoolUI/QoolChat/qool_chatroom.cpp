@@ -2,11 +2,19 @@
 
 #include "qool_beeper.h"
 #include "qool_chatroom_manager.h"
+#include "qoolcommon/debug.hpp"
 
 QOOL_NS_BEGIN
 
 ChatRoom::ChatRoom(QObject* parent)
   : QObject { parent } {
+  set_name("GLOBAL");
+}
+
+ChatRoom::~ChatRoom() {
+  while (! m_beepers.isEmpty()) {
+    emit wannaSignOut(m_beepers.takeFirst());
+  }
 }
 
 void ChatRoom::postMessage(const Message& message) {
@@ -32,6 +40,11 @@ void ChatRoom::signOut(Beeper* beeper) {
   emit wannaSignOut(beeper);
 }
 
+void ChatRoom::dumpInfo() const {
+  xDebugQ << "Server:" << m_server->name();
+  xDebugQ << "Beepers:" << xDBGList(m_beepers);
+}
+
 QString ChatRoom::name() const {
   if (m_server.isNull())
     return {};
@@ -46,10 +59,10 @@ void ChatRoom::set_name(const QString& v) {
   m_server = ChatRoomManager::instance()->server(v);
   connect(this, &ChatRoom::wannaPostMessage, m_server,
     &ChatRoomServer::dispatchMessage);
-  connect(
-    this, &ChatRoom::wannaSignIn, m_server, &ChatRoomServer::signIn);
-  connect(
-    this, &ChatRoom::wannaSignOut, m_server, &ChatRoomServer::signOut);
+  connect(this, &ChatRoom::wannaSignIn, m_server,
+    &ChatRoomServer::signIn, Qt::BlockingQueuedConnection);
+  connect(this, &ChatRoom::wannaSignOut, m_server,
+    &ChatRoomServer::signOut, Qt::BlockingQueuedConnection);
   emit nameChanged();
 }
 

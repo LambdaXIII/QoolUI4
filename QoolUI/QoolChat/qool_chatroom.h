@@ -21,6 +21,7 @@ class ChatRoom: public QObject {
 
 public:
   explicit ChatRoom(QObject* parent = nullptr);
+  ~ChatRoom();
 
   Q_INVOKABLE void postMessage(const Message& message);
   Q_INVOKABLE void postMessage(
@@ -28,6 +29,8 @@ public:
 
   void signIn(Beeper* beeper);
   void signOut(Beeper* beeper);
+
+  Q_INVOKABLE void dumpInfo() const;
 
 protected:
   QPointer<ChatRoomServer> m_server;

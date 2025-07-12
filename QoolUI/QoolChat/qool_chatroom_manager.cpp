@@ -33,17 +33,23 @@ QPointer<ChatRoomServer> ChatRoomManager::server(const QString& name) {
     server = new ChatRoomServer(name);
     server->moveToThread(m_serverThread);
     m_servers[name] = server;
+    connect(server, &ChatRoomServer::beeperSignedOut, this,
+      &ChatRoomManager::serverPurgingRequested);
   }
-  emit serverPurgingRequested();
+  // emit serverPurgingRequested();
   return server;
 }
 
 void ChatRoomManager::purgeClosedServers() {
   QMutexLocker locker(&m_mutex);
   const auto names = m_servers.keys();
-  for (const auto& name : names)
+  for (const auto& name : names) {
     if (m_servers[name].isNull())
       m_servers.remove(name);
+    if (m_servers[name]->isEmpty()) {
+      m_servers.take(name)->deleteLater();
+    }
+  }
 }
 
 QOOL_NS_END

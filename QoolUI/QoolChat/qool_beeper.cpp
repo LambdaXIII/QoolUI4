@@ -10,7 +10,7 @@ QOOL_NS_BEGIN
 Beeper::Beeper(QObject* parent)
   : QObject { parent } {
   m_name =
-    QString("BEEPER#%1").arg(tools::generate_random_string(6)).toUtf8();
+    QString("BEEPER_%1").arg(tools::generate_random_string(6)).toUtf8();
 
   connect(
     this, SIGNAL(channelsChanged()), this, SIGNAL(channelChanged()));

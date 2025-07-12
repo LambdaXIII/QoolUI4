@@ -11,7 +11,7 @@ QOOL_NS_BEGIN
 #define LOCK_DATA QMutexLocker locker(&m_mutex);
 
 QByteArray __generate_id__(const QDateTime& time) {
-  static const QString t { QStringLiteral("Message%1%2") };
+  static const QString t { QStringLiteral("MESSAGE_%1_%2") };
   const QString timecode =
     time.toString(QStringLiteral("yyyyMMddhhmmsszzz"));
   const unsigned seed = time.toMSecsSinceEpoch();

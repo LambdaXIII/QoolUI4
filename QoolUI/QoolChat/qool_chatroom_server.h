@@ -30,6 +30,11 @@ public:
 
   void dispatchMessage(const Message& msg) const;
 
+  Q_SIGNAL void beeperSignedOut(QPointer<Beeper> beeper);
+  Q_SIGNAL void beeperSignedIn(QPointer<Beeper> beeper);
+
+  bool isEmpty() const;
+
 protected:
   QMutex m_mutex;
   QObjectCleanupHandler m_objectTracker;
