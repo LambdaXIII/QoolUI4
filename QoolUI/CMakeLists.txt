@@ -17,6 +17,10 @@ target_include_directories(QoolIncludes
     INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
 )
 
+# target_link_libraries(QoolIncludes
+# INTERFACE Qt6::Qml
+# )
+
 add_subdirectory(QoolCommon)
 
 add_subdirectory(Qool)
