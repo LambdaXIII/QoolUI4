@@ -51,6 +51,31 @@ void ChatRoom::classBegin() {
 void ChatRoom::componentComplete() {
   if (m_server.isNull())
     set_name("GLOBAL");
+  for (const auto& beeper : std::as_const(m_beepers))
+    if (! beeper->chatRoom())
+      emit wannaSignIn(beeper);
+}
+
+QQmlListProperty<Beeper> ChatRoom::__beepers() {
+  return { this, nullptr, &ChatRoom::__append, &ChatRoom::__count,
+    &ChatRoom::__at, nullptr };
+}
+
+void ChatRoom::__append(
+  QQmlListProperty<Beeper>* property, Beeper* value) {
+  ChatRoom* room = qobject_cast<ChatRoom*>(property->object);
+  room->signIn(value);
+}
+
+qsizetype ChatRoom::__count(QQmlListProperty<Beeper>* property) {
+  ChatRoom* room = qobject_cast<ChatRoom*>(property->object);
+  return room->m_beepers.count();
+}
+
+Beeper* ChatRoom::__at(
+  QQmlListProperty<Beeper>* property, qsizetype index) {
+  ChatRoom* room = qobject_cast<ChatRoom*>(property->object);
+  return room->m_beepers.at(index);
 }
 
 QString ChatRoom::name() const {

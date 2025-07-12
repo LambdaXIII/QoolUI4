@@ -55,6 +55,7 @@ Message::Message(const QVariantMap& obj)
 Message::Message(const QString& content)
   : Message() {
   m_data->content = content;
+  m_data->channels << MsgChannel(MsgChannel::ALL);
 }
 
 Message::Message(const QString& content, const QVariantMap& obj)

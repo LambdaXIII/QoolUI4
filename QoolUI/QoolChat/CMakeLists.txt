@@ -1,4 +1,8 @@
-
+set_source_files_properties(
+  GlobalChatRoom.qml
+PROPERTIES
+  QT_QML_SINGLETON_TYPE TRUE
+)
 
 qt_add_qml_module( QoolChat
   URI Qool.Chat
@@ -18,6 +22,7 @@ qt_add_qml_module( QoolChat
     SOURCES qool_beeper.h qool_beeper.cpp
     SOURCES qool_chatroom.h qool_chatroom.cpp
     SOURCES qool_chatroom_manager.h qool_chatroom_manager.cpp
+    QML_FILES GlobalChatRoom.qml
 )
 
 set_target_properties(

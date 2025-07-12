@@ -20,6 +20,12 @@ class ChatRoom
   Q_OBJECT
   QML_ELEMENT
   Q_INTERFACES(QQmlParserStatus)
+  Q_CLASSINFO("DefaultProperty", "beepers")
+  QML_LIST_PROPERTY_ASSIGN_BEHAVIOR_APPEND
+
+  Q_PROPERTY(
+    QQmlListProperty<Beeper> beepers READ __beepers CONSTANT FINAL)
+
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QString, name)
 
 public:
@@ -41,6 +47,13 @@ public:
 protected:
   QPointer<ChatRoomServer> m_server;
   QList<QPointer<Beeper>> m_beepers;
+
+  QQmlListProperty<Beeper> __beepers();
+  static void __append(
+    QQmlListProperty<Beeper>* property, Beeper* value);
+  static qsizetype __count(QQmlListProperty<Beeper>* property);
+  static Beeper* __at(
+    QQmlListProperty<Beeper>* property, qsizetype index);
 
   void connectToServer(QPointer<ChatRoomServer> server);
 

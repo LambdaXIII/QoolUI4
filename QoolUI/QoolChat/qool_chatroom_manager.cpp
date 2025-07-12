@@ -14,6 +14,8 @@ ChatRoomManager::ChatRoomManager()
     &ChatRoomManager::purgeClosedServers, Qt::QueuedConnection);
 
   m_serverThread->start();
+
+  // server("GLOBAL");
 }
 
 ChatRoomManager::~ChatRoomManager() {

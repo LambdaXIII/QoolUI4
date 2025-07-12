@@ -12,6 +12,8 @@ Beeper::Beeper(QObject* parent)
   m_name =
     QString("BEEPER_%1").arg(tools::generate_random_string(6)).toUtf8();
 
+  m_channels = MsgChannelSet::all();
+
   connect(
     this, SIGNAL(channelsChanged()), this, SIGNAL(channelChanged()));
 }

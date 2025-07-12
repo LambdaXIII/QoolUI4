@@ -15,36 +15,20 @@ BasicPage {
 
     ChatRoom {
         id: room
-        // name: "BABY"
-    }
-
-    Beeper {
-        id: beeper
-        chatRoom: room
-        channel: "greeting"
-        onMessageRecieved: msg => {
-                               console.log(msg.content)
-                           }
-    }
-
-    Beeper {
-        id: beeper2
-        chatRoom: room
-        channel: "greeting"
-        onMessageRecieved: msg => {
-                               console.log(msg.content)
-                           }
+        // name: "A1"
+        Beeper {
+            id: beeper
+            onMessageRecieved: msg => {
+                                   console.log(msg)
+                               }
+        }
     }
 
     ClickableText {
         text: "SEND TEXT"
         onClicked: {
-            let a = Object()
-            a.channel = "greeting"
-            a.content = "HELLO!"
-            room.postMessage(a)
-            room.dumpInfo()
-            beeper.postMessage(root.m)
+            room.postMessage(root.m)
+            console.log(room.beepers)
         }
     }
 

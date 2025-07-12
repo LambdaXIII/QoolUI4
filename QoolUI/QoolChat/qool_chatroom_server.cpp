@@ -37,8 +37,7 @@ void ChatRoomServer::signIn(Beeper* beeper) {
   m_objectTracker.add(beeper);
   m_beepers.insert(beeper->name(), beeper);
   xInfoQ << "Beeper" << xDBGGreen << beeper->name() << xDBGReset
-         << "joined chat room" << xDBGYellow << beeper->name()
-         << xDBGReset;
+         << "joined chat room" << xDBGYellow << m_name << xDBGReset;
   emit beeperSignedIn(beeper);
 }
 
@@ -49,8 +48,7 @@ void ChatRoomServer::signOut(Beeper* beeper) {
   m_objectTracker.remove(beeper);
   m_beepers.remove(beeper->name());
   xInfoQ << "Beeper" << xDBGRed << beeper->name() << xDBGReset
-         << "left chat room" << xDBGYellow << beeper->name()
-         << xDBGReset;
+         << "left chat room" << xDBGYellow << m_name << xDBGReset;
   emit beeperSignedOut(beeper);
 }
 
