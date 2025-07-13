@@ -58,9 +58,10 @@ Control {
         NumberSlider {
             id: tlSlider
             name: qsTr("左上切角距离")
-            defaultValue: 20
+            defaultValue: 0
             from: 0
             to: 300
+            value: 70
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignTop
         }
@@ -70,6 +71,7 @@ Control {
             defaultValue: 0
             from: 0
             to: 300
+            value: 24
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignTop
         }
@@ -79,6 +81,7 @@ Control {
             defaultValue: 0
             from: 0
             to: 300
+            value: 50
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignTop
         }
@@ -88,6 +91,7 @@ Control {
             defaultValue: 0
             from: 0
             to: 300
+            value: 105
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignTop
         }

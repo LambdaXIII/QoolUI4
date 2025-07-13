@@ -32,6 +32,7 @@ BasicPage {
                 anchors.centerIn: parent
                 width: control.shapeWidth
                 height: control.shapeHeight
+
                 settings {
                     borderWidth: control.borderWidth
                     cutSizeTL: control.cutSizeTL

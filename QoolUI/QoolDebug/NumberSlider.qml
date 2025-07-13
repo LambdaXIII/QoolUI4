@@ -5,10 +5,11 @@ import "_private"
 DBGControl {
     id: root
 
+    property real defaultValue: 50
     property real from: 0
     property real to: 100
     property real value: defaultValue
-    property real defaultValue: 50
+
     property string name
     property bool checkBeforeSet: true
     readonly property real percent: value / (to - from)
