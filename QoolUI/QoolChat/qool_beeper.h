@@ -10,13 +10,20 @@
 #include <QQmlEngine>
 
 Q_MOC_INCLUDE("qool_chatroom.h")
+Q_MOC_INCLUDE("qool_basicbeeperapp.h")
 
 QOOL_NS_BEGIN
-
+class BasicBeeperApp;
 class ChatRoom;
 class Beeper: public QObject {
   Q_OBJECT
   QML_ELEMENT
+  Q_CLASSINFO("DefaultProperty", "apps")
+  QML_LIST_PROPERTY_ASSIGN_BEHAVIOR_REPLACE_IF_NOT_DEFAULT
+
+  Q_PROPERTY(
+    QQmlListProperty<BasicBeeperApp> apps READ __apps CONSTANT FINAL)
+
 public:
   explicit Beeper(QObject* parent = nullptr);
   ~Beeper();
@@ -29,6 +36,8 @@ public:
 protected:
   void customEvent(QEvent* event) override;
   QPointer<ChatRoom> m_chatRoom;
+  QList<BasicBeeperApp*> m_apps;
+  QQmlListProperty<BasicBeeperApp> __apps();
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(QByteArray, name, {})
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(ChatRoom*, chatRoom)

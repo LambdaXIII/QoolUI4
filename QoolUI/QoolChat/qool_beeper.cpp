@@ -1,5 +1,6 @@
 #include "qool_beeper.h"
 
+#include "qool_basicbeeperapp.h"
 #include "qool_chatroom.h"
 #include "qool_message_event.h"
 #include "qoolcommon/debug.hpp"
@@ -53,6 +54,17 @@ void Beeper::customEvent(QEvent* event) {
     emit messageRecieved(e->message());
     event->setAccepted(true);
   }
+}
+
+void __apps_append(
+  QQmlListProperty<BasicBeeperApp>* property, BasicBeeperApp* app) {
+  Beeper* beeper = qobject_cast<Beeper*>(property->object);
+  if (app->target() == nullptr)
+    app->setTarget(beeper);
+}
+
+QQmlListProperty<BasicBeeperApp> Beeper::__apps() {
+  return { this, nullptr, &__apps_append, nullptr, nullptr, nullptr };
 }
 
 ChatRoom* Beeper::chatRoom() const {

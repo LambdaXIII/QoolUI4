@@ -1,28 +1,49 @@
 set_source_files_properties(
-  GlobalChatRoom.qml
-PROPERTIES
-  QT_QML_SINGLETON_TYPE TRUE
+  GlobalChatRoom.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE
 )
 
-qt_add_qml_module( QoolChat
-  URI Qool.Chat
-  VERSION ${QOOLUI_VERSION_QML}
-  NAMESPACE ${QOOL_NS}
-  IMPORTS Qool
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
+qt_add_qml_module(
+  QoolChat
+  URI
+  Qool.Chat
+  VERSION
+  ${QOOLUI_VERSION_QML}
+  NAMESPACE
+  ${QOOL_NS}
+  IMPORTS
+  Qool
   SOURCES
-    qool_chatroom_server.h
-    qool_chatroom_server.cpp
+  qool_chatroom_server.h
+  qool_chatroom_server.cpp
   SOURCES
-    qool_message_event.h
-    qool_message_event.cpp
+  qool_message_event.h
+  qool_message_event.cpp
   SOURCES
-    qool_message.h
-    qool_message.cpp
-    SOURCES qool_msgchannel.h qool_msgchannel.cpp
-    SOURCES qool_beeper.h qool_beeper.cpp
-    SOURCES qool_chatroom.h qool_chatroom.cpp
-    SOURCES qool_chatroom_manager.h qool_chatroom_manager.cpp
-    QML_FILES GlobalChatRoom.qml
+  qool_message.h
+  qool_message.cpp
+  SOURCES
+  qool_msgchannel.h
+  qool_msgchannel.cpp
+  SOURCES
+  qool_beeper.h
+  qool_beeper.cpp
+  SOURCES
+  qool_chatroom.h
+  qool_chatroom.cpp
+  SOURCES
+  qool_chatroom_manager.h
+  qool_chatroom_manager.cpp
+  QML_FILES
+  GlobalChatRoom.qml
+  SOURCES
+
+
+  SOURCES apps/qool_basicbeeperapp.h apps/qool_basicbeeperapp.cpp
+  SOURCES apps/qool_messagelogger.h apps/qool_messagelogger.cpp
 )
 
 set_target_properties(
@@ -44,6 +65,12 @@ target_link_libraries(
   PRIVATE Qt6::Core
   PRIVATE QoolCommon
 )
+target_link_libraries(QoolChat PRIVATE Qt6::Core)
+target_link_libraries(QoolChat PRIVATE Qt6::Core)
+target_link_libraries(QoolChat PRIVATE Qt6::Core)
 
-
-target_include_directories(QoolChat PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(
+  QoolChat
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/apps
+)

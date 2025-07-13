@@ -18,17 +18,22 @@ BasicPage {
         // name: "A1"
         Beeper {
             id: beeper
-            onMessageRecieved: msg => {
-                                   console.log(msg)
-                               }
+            onMessageRecieved: console.log("r1")
+            MessageLogger {
+                id: logger
+                onMessageRecieved: {
+                    console.log(length)
+                }
+            }
         }
     }
 
     ClickableText {
         text: "SEND TEXT"
         onClicked: {
-            room.postMessage(root.m)
-            console.log(room.beepers)
+            room.postMessage(qsTr("%1").arg(Math.random()))
+            // console.log(room.beepers)
+            console.log(logger.target)
         }
     }
 
