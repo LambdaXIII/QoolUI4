@@ -5,7 +5,7 @@
     <constants>
         <bool property="animationEnabled" value="YES" />
 
-        <list property="papaWords">
+        <stringlist property="papaWords">
             <string>Pa</string>
             <string>PaPa</string>
             <string>Pa!!!</string>
@@ -13,7 +13,7 @@
             <string>啪!!!</string>
             <string>啪啪!</string>
             <string>啪啪啪</string>
-        </list>
+        </stringlist>
 
         <number property="instantDuration" value="100"/>
         <number property="transitionDuration" value="200"/>

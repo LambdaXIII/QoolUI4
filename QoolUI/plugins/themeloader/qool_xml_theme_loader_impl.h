@@ -14,7 +14,7 @@ struct XMLThemeLoaderImpl {
   struct XProperty {
     QString name, type;
     QVariant value;
-    QList<XProperty> values;
+    QList<XProperty> values; // currently no use
     std::optional<QString> copy;
     std::optional<qreal> add, multiply, darker, lighter;
     std::optional<QString> prepend, append;

@@ -144,6 +144,7 @@ XMLThemeLoaderImpl::XProperty __decode_property__(
 XMLThemeLoaderImpl::XProperty __decode_list__(const QDomElement& e) {
   Q_ASSERT(e.tagName() == "list");
   XMLThemeLoaderImpl::XProperty result;
+  result.type = "list";
   if (e.hasAttribute("property"))
     result.name = e.attribute("property");
   const auto nodes = e.childNodes();
@@ -154,10 +155,30 @@ XMLThemeLoaderImpl::XProperty __decode_list__(const QDomElement& e) {
   return result;
 }
 
+XMLThemeLoaderImpl::XProperty __decode_stringlist__(
+  const QDomElement& e) {
+  Q_ASSERT(e.tagName() == "stringlist");
+  XMLThemeLoaderImpl::XProperty result;
+  result.type = "stringlist";
+  if (e.hasAttribute("property"))
+    result.name = e.attribute("property");
+  const auto nodes = e.childNodes();
+  QStringList valueList;
+  for (const auto& node : nodes) {
+    valueList << node.toElement().text();
+  }
+  result.value = valueList;
+  return result;
+}
+
 XMLThemeLoaderImpl::XProperty XMLThemeLoaderImpl::parse_property(
   const QDomElement& e) {
+  if (e.tagName() == "stringlist")
+    return __decode_stringlist__(e);
+
   if (e.tagName() == "list")
     return __decode_list__(e);
+
   return __decode_property__(e);
 }
 

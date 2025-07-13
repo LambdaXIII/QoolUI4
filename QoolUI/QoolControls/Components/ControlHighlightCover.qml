@@ -3,8 +3,6 @@ import Qool
 
 Item {
     id: root
-    property bool animationEnabled: parent?.animationEnabled
-                                    ?? Qore.animationEnabled
 
     property color highColor: Style.highlight
     property color lowColor: Style.highlightedText
