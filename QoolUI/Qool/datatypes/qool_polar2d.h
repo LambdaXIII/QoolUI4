@@ -21,9 +21,9 @@ class Polar2D {
 
 public:
   Polar2D();
-  Polar2D(const QPointF&);
+  Q_INVOKABLE Polar2D(const QPointF&);
   Polar2D(const QPoint&);
-  Polar2D(const QVector2D&);
+  Q_INVOKABLE Polar2D(const QVector2D&);
   Polar2D(qreal radius, qreal angle);
 
   Polar2D(const Polar2D& other);

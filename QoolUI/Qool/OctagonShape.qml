@@ -8,7 +8,7 @@ Shape {
     property OctagonSettings settings: OctagonSettings {
         borderWidth: 10
     }
-    property OctagonShapeHelper shapeControl: OctagonShapeHelper {
+    readonly property OctagonShapeHelper control: OctagonShapeHelper {
         settings: root.settings
         target: root
     }
@@ -16,17 +16,19 @@ Shape {
 
     OctagonExternalShapePath {
         id: borderShape
-        shapeControl: root.shapeControl
+        control: root.control
         strokeWidth: 0
         strokeColor: "transparent"
-        fillColor: root.shapeControl.settings.borderColor
+        fillColor: root.control.settings.borderColor
     }
 
     OctagonInternalShapePath {
         id: fillShape
-        shapeControl: root.shapeControl
+        control: root.control
         strokeWidth: 0
         strokeColor: "transparent"
-        fillColor: root.shapeControl.settings.fillColor
+        fillColor: root.control.settings.fillColor
     }
+
+    containmentMask: root.control
 }

@@ -12,7 +12,7 @@ BasicPage {
 
     OctagonShapeHud {
         id: hud
-        parent: control.rounded ? rounded_shape : box_shape
+        parent: box_shape.shape
         showExtPoints: control.showExtPoints
         showIntPoints: control.showIntPoints
     }
@@ -27,9 +27,8 @@ BasicPage {
             SplitView.fillWidth: true
             clip: true
 
-            OctagonShape {
+            QoolBox {
                 id: box_shape
-                visible: !control.rounded
                 anchors.centerIn: parent
                 width: control.shapeWidth
                 height: control.shapeHeight
@@ -41,24 +40,11 @@ BasicPage {
                     cutSizeBR: control.cutSizeBR
                     fillColor: control.fillColor
                     borderColor: control.borderColor
+                    cutSizesLocked: control.lockCorners
+                    offsetX: control.offsetX
+                    offsetY: control.offsetY
                 }
-            }
-
-            OctagonRoundedShape {
-                id: rounded_shape
-                visible: control.rounded
-                anchors.centerIn: parent
-                width: control.shapeWidth
-                height: control.shapeHeight
-                settings {
-                    borderWidth: control.borderWidth
-                    cutSizeTL: control.cutSizeTL
-                    cutSizeBL: control.cutSizeBL
-                    cutSizeTR: control.cutSizeTR
-                    cutSizeBR: control.cutSizeBR
-                    fillColor: control.fillColor
-                    borderColor: control.borderColor
-                }
+                round: control.rounded
             }
 
             z: -1

@@ -190,4 +190,29 @@ inline QDebug operator<<(
 
 #define xDBGQPropertyList __XDBGMETAPROPERTYLIST__(this)
 
+template <typename T>
+struct __XDBGQLIST__ {
+  QList<T> list;
+  __XDBGQLIST__(const QList<T>& a) { list = a; }
+};
+
+template <typename T>
+inline QDebug operator<<(
+  QDebug debug, const __XDBGQLIST__<T>& x) noexcept {
+  const int len = x.list.length();
+  const int max_index_length = QString::number(len).length();
+  debug.noquote().nospace()
+    << xDBGBlue << "[QList:" << len << "]" << xDBGReset;
+  for (auto index = 0; index < len; index++) {
+    QString index_text =
+      QString::number(index).leftJustified(max_index_length, ' ');
+    debug << "\n"
+          << xDBGYellow << "[" << index_text << "] " << xDBGGreen
+          << x.list[index] << xDBGReset;
+  }
+  return debug.space();
+}
+
+#define xDBGList(__list__) __XDBGQLIST__(__list__)
+
 #endif // QOOL_DEBUG_HPP

@@ -4,7 +4,7 @@ import Qool
 
 ShapePath {
     id: root
-    property OctagonShapeHelper shapeControl
+    property OctagonShapeHelper control
 
     strokeWidth: 0
     strokeColor: "transparent"
@@ -12,39 +12,39 @@ ShapePath {
     pathHints: ShapePath.PahtLinear | ShapePath.PathNonOverlappingControlPointTriangles
                | ShapePath.PathConvex
 
-    startX: root.shapeControl.intTLx
-    startY: root.shapeControl.intTLy
+    startX: root.control.intTLx
+    startY: root.control.intTLy
 
     PathLine {
-        x: root.shapeControl.intTRx
-        y: root.shapeControl.intTRy
+        x: root.control.intTRx
+        y: root.control.intTRy
     }
     PathLine {
-        x: root.shapeControl.intRTx
-        y: root.shapeControl.intRTy
+        x: root.control.intRTx
+        y: root.control.intRTy
     }
     PathLine {
-        x: root.shapeControl.intRBx
-        y: root.shapeControl.intRBy
+        x: root.control.intRBx
+        y: root.control.intRBy
     }
     PathLine {
-        x: root.shapeControl.intBRx
-        y: root.shapeControl.intBRy
+        x: root.control.intBRx
+        y: root.control.intBRy
     }
     PathLine {
-        x: root.shapeControl.intBLx
-        y: root.shapeControl.intBLy
+        x: root.control.intBLx
+        y: root.control.intBLy
     }
     PathLine {
-        x: root.shapeControl.intLBx
-        y: root.shapeControl.intLBy
+        x: root.control.intLBx
+        y: root.control.intLBy
     }
     PathLine {
-        x: root.shapeControl.intLTx
-        y: root.shapeControl.intLTy
+        x: root.control.intLTx
+        y: root.control.intLTy
     }
     PathLine {
-        x: root.shapeControl.intTLx
-        y: root.shapeControl.intTLy
+        x: root.control.intTLx
+        y: root.control.intTLy
     }
 } //fill shape

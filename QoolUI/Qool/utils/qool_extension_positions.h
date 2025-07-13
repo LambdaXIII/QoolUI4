@@ -13,7 +13,7 @@ QOOL_NS_BEGIN
 
 class Extension_Positions: public QObject {
   Q_OBJECT
-  QML_ELEMENT
+  // QML_ELEMENT
   QML_ANONYMOUS
 public:
   explicit Extension_Positions(QObject* parent = nullptr);

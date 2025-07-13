@@ -23,7 +23,7 @@ T.Control {
         borderColor: root.borderColor
         fillColor: root.backgroundColor
     }
-    readonly property alias backgroundShapeControl: bgShape.shapeControl
+    readonly property OctagonShapeHelper backgroundShapeControl: bgShape.shape.control
 
     background: QoolBox {
         id: bgShape

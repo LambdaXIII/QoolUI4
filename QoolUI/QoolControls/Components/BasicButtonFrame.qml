@@ -21,7 +21,7 @@ T.AbstractButton {
         borderColor: root.borderColor
         fillColor: root.backgroundColor
     }
-    readonly property alias backgroundShapeControl: bgShape.shapeControl
+    readonly property alias backgroundShapeControl: bgShape.control
 
     background: QoolBox {
         id: bgShape

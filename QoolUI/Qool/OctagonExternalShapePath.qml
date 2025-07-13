@@ -4,81 +4,81 @@ import Qool
 
 ShapePath {
     id: strokeShape
-    property OctagonShapeHelper shapeControl
+    property OctagonShapeHelper control
 
     joinStyle: ShapePath.BevelJoin
     pathHints: ShapePath.PahtLinear | ShapePath.PathNonOverlappingControlPointTriangles
 
-    startX: root.shapeControl.extTLx
-    startY: root.shapeControl.extTLy
+    startX: root.control.extTLx
+    startY: root.control.extTLy
 
     PathLine {
-        x: root.shapeControl.extTRx
-        y: root.shapeControl.extTRy
+        x: root.control.extTRx
+        y: root.control.extTRy
     }
     PathLine {
-        x: root.shapeControl.extRTx
-        y: root.shapeControl.extRTy
+        x: root.control.extRTx
+        y: root.control.extRTy
     }
     PathLine {
-        x: root.shapeControl.extRBx
-        y: root.shapeControl.extRBy
+        x: root.control.extRBx
+        y: root.control.extRBy
     }
     PathLine {
-        x: root.shapeControl.extBRx
-        y: root.shapeControl.extBRy
+        x: root.control.extBRx
+        y: root.control.extBRy
     }
     PathLine {
-        x: root.shapeControl.extBLx
-        y: root.shapeControl.extBLy
+        x: root.control.extBLx
+        y: root.control.extBLy
     }
     PathLine {
-        x: root.shapeControl.extLBx
-        y: root.shapeControl.extLBy
+        x: root.control.extLBx
+        y: root.control.extLBy
     }
     PathLine {
-        x: root.shapeControl.extLTx
-        y: root.shapeControl.extLTy
+        x: root.control.extLTx
+        y: root.control.extLTy
     }
     PathLine {
-        x: root.shapeControl.extTLx
-        y: root.shapeControl.extTLy
+        x: root.control.extTLx
+        y: root.control.extTLy
     }
     //inner
     PathMove {
-        x: root.shapeControl.intTLx
-        y: root.shapeControl.intTLy
+        x: root.control.intTLx
+        y: root.control.intTLy
     }
     PathLine {
-        x: root.shapeControl.intTRx
-        y: root.shapeControl.intTRy
+        x: root.control.intTRx
+        y: root.control.intTRy
     }
     PathLine {
-        x: root.shapeControl.intRTx
-        y: root.shapeControl.intRTy
+        x: root.control.intRTx
+        y: root.control.intRTy
     }
     PathLine {
-        x: root.shapeControl.intRBx
-        y: root.shapeControl.intRBy
+        x: root.control.intRBx
+        y: root.control.intRBy
     }
     PathLine {
-        x: root.shapeControl.intBRx
-        y: root.shapeControl.intBRy
+        x: root.control.intBRx
+        y: root.control.intBRy
     }
     PathLine {
-        x: root.shapeControl.intBLx
-        y: root.shapeControl.intBLy
+        x: root.control.intBLx
+        y: root.control.intBLy
     }
     PathLine {
-        x: root.shapeControl.intLBx
-        y: root.shapeControl.intLBy
+        x: root.control.intLBx
+        y: root.control.intLBy
     }
     PathLine {
-        x: root.shapeControl.intLTx
-        y: root.shapeControl.intLTy
+        x: root.control.intLTx
+        y: root.control.intLTy
     }
     PathLine {
-        x: root.shapeControl.intTLx
-        y: root.shapeControl.intTLy
+        x: root.control.intTLx
+        y: root.control.intTLy
     }
 }

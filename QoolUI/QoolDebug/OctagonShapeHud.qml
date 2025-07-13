@@ -9,7 +9,7 @@ Item {
     property bool showIntPoints: true
     property bool showExtPoints: true
 
-    readonly property OctagonShapeHelper controller: shape?.shapeControl ?? internalController
+    readonly property OctagonShapeHelper controller: shape?.control ?? internalController
 
     OctagonShapeHelper {
         id: internalController

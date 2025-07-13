@@ -84,3 +84,6 @@ CMakeLists.txt.user*
 .idea/
 .vscode/
 **/.qmlls.ini
+
+**/_backup/
+**/.cache/

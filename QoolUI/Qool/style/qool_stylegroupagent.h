@@ -18,7 +18,7 @@ QOOL_NS_BEGIN
 class Style;
 class StyleGroupAgent: public QObject {
   Q_OBJECT
-  QML_ELEMENT
+  // QML_ELEMENT
   QML_ANONYMOUS
 public:
   explicit StyleGroupAgent(

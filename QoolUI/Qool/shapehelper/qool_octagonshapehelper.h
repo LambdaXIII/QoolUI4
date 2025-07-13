@@ -55,6 +55,15 @@ public:
 
 #undef DECL_POINT
 
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+    OctagonShapeHelper, qreal, offsetX)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+    OctagonShapeHelper, qreal, offsetY)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+    OctagonShapeHelper, qreal, intOffsetX)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+    OctagonShapeHelper, qreal, intOffsetY)
+
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
     OctagonShapeHelper, QPolygonF, intPolygon)
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(

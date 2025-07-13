@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import Qool.Controls
 import Qool.Controls.Components
 import Qool
@@ -10,7 +11,7 @@ BasicControlFrame {
     property url page_url
 
     backgroundSettings {
-        fillColor: Style.window
+        fillColor: Style.shadow
     }
 
     signal pageLoaded
@@ -25,16 +26,16 @@ BasicControlFrame {
         BasicBigTitleText {
             text: pCtrl.title
             Layout.alignment: Qt.AlignRight
-            topPadding: 2
-            rightPadding: 2
+            topPadding: 4
+            rightPadding: 6
         }
         BasicDecorativeText {
             text: pCtrl.note
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             Layout.alignment: Qt.AlignRight
             Layout.preferredWidth: Math.min(parent.width, implicitWidth)
-            rightPadding: 2
-            leftPadding: 2
+            rightPadding: 6
+            leftPadding: 6
         }
     }
 
@@ -52,6 +53,7 @@ BasicControlFrame {
 
         Loader {
             id: pageLoader
+            asynchronous: true
             width: main.contentWidth
             source: root.page_url
             onLoaded: {
@@ -63,4 +65,35 @@ BasicControlFrame {
             }
         }
     } //contentItem
+
+    Popup {
+        id: loadingBar
+        contentItem: ProgressBar {
+            value: pageLoader.progress
+            radius: 0
+        }
+        padding: 0
+        background: Item {}
+        width: parent.width - Style.controlBorderWidth * 2
+        height: 15
+        x: Style.controlBorderWidth
+        y: parent.height - height - Style.controlBorderWidth
+        closePolicy: Popup.NoAutoClose
+        popupType: Popup.Item
+    }
+
+    Connections {
+        target: pageLoader
+        function onLoaded() {
+            // if (pageLoader.status != Loader.Loading)
+            loadingBar.visible = false
+        }
+    }
+
+    Connections {
+        target: root
+        function onPage_urlChanged() {
+            loadingBar.visible = true
+        }
+    }
 }

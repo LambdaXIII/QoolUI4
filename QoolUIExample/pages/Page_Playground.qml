@@ -3,6 +3,7 @@ import Qool
 import QtQuick.Shapes
 import Qool.Controls.Components
 import Qool.Controls
+import Qool.Chat
 
 BasicPage {
     id: root
@@ -10,31 +11,39 @@ BasicPage {
     title: qsTr("试炼场")
     note: qsTr("测试一些东西……")
 
-    ControlFrame {
-        id: control
+    property qoolmessage m: "Greetings!"
 
-        width: 400
-        height: 300
+    ChatRoom {
+        id: room
+        // name: "A1"
+        Beeper {
+            id: beeper
+            onMessageRecieved: console.log("r1")
+            MessageLogger {
+                id: logger
+                onMessageRecieved: {
+                    console.log(length)
+                }
+            }
+        }
+    }
+
+    ClickableText {
+        text: "SEND TEXT"
+        onClicked: {
+            room.postMessage(qsTr("%1").arg(Math.random()))
+            // console.log(room.beepers)
+            console.log(logger.target)
+        }
+    }
+
+    ProgressBar {
+        id: bar
 
         anchors.centerIn: parent
-        contentSpacing: 10
-        contentItem: Rectangle {
-            id: c
-            color: Style.accent
-            Text {
+        width: 200
+        height: 20
 
-                text: Style.accent
-                anchors.centerIn: parent
-            }
-        }
-
-        TapHandler {
-            onTapped: {
-                // console.log(Style.active.accent, Style.inactive.accent, Style.accent);
-                c.enabled = !c.enabled
-
-                c.Style.dumpInfo()
-            }
-        }
+        value: 0.8
     }
 }

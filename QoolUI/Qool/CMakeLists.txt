@@ -4,6 +4,8 @@ set_source_files_properties(${QOOL_INTERNAL_QML_FILES}
 set_source_files_properties(Qore.qml QoolConstants.qml PixelFont.qml
                             PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
 qt_add_qml_module(
   Qool
   URI
@@ -94,7 +96,7 @@ qt_add_qml_module(
   QML_FILES
   OctagonRoundedInternalShapePath.qml
   QML_FILES
-  QoolRoundedBox.qml
+
   QML_FILES
   SOURCES
   utils/qool_numberranger.h
@@ -116,7 +118,8 @@ qt_add_qml_module(
   style/qool_stylegroupagent.cpp
   SOURCES
   utils/qool_itemtracker.h
-  utils/qool_itemtracker.cpp)
+  utils/qool_itemtracker.cpp
+  SOURCES utils/qool_geoutils.h utils/qool_geoutils.cpp)
 
 qoolui_scan_assets_to(QOOL_ASSETS)
 qt_add_resources(Qool "qoolui_assets" PREFIX "/qoolui" FILES ${QOOL_ASSETS})
@@ -138,6 +141,7 @@ target_link_libraries(
   PRIVATE Qt6::Xml
   PRIVATE QoolCommon)
 target_link_libraries(Qool PRIVATE Qt6::Core Qt6::QuickControls2)
+target_link_libraries(Qool PRIVATE Qt6::Core)
 target_link_libraries(Qool PRIVATE Qt6::Core)
 target_link_libraries(Qool PRIVATE Qt6::Core)
 target_link_libraries(Qool PRIVATE Qt6::Core)

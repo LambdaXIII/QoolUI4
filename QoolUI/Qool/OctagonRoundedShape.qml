@@ -8,7 +8,7 @@ Shape {
     property OctagonSettings settings: OctagonSettings {
         borderWidth: 10
     }
-    property OctagonShapeHelper shapeControl: OctagonShapeHelper {
+    readonly property OctagonShapeHelper control: OctagonShapeHelper {
         settings: root.settings
         target: root
     }
@@ -16,13 +16,15 @@ Shape {
     property alias fillItem: fillShape.fillItem
 
     OctagonRoundedExternalShapePath {
-        shapeControl: root.shapeControl
+        control: root.control
         fillColor: root.settings.borderColor
     }
 
     OctagonRoundedInternalShapePath {
         id: fillShape
-        shapeControl: root.shapeControl
+        control: root.control
         fillColor: root.settings.fillColor
     }
+
+    containsMode: Shape.FillContains
 }
