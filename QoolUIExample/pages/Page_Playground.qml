@@ -28,12 +28,10 @@ BasicPage {
         }
     }
 
-    ClickableText {
+    BasicButton {
         text: "SEND TEXT"
         onClicked: {
-            room.postMessage(qsTr("%1").arg(Math.random()))
-            // console.log(room.beepers)
-            console.log(logger.target)
+            console.log(Style.papaWords)
         }
     }
 

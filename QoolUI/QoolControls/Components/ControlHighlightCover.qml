@@ -15,6 +15,8 @@ Item {
     property OctagonSettings settings: parent?.backgroundSettings
                                        ?? internalSettings
 
+    property alias round: baseBox.round
+
     z: 85
     anchors {
         fill: parent
@@ -28,34 +30,15 @@ Item {
         id: internalSettings
     }
 
-    Component {
+    QoolBox {
         id: baseBox
-        QoolBox {
-            settings {
-                cutSizes: root.settings.cutSizes
-                borderWidth: root.settings.borderWidth
-                borderColor: root.highColor
-            }
-            fillItem: lightBeam
-        }
-    }
-
-    Component {
-        id: roundedBox
-        QoolRoundedBox {
-            settings {
-                cutSizes: root.settings.cutSizes
-                borderWidth: root.settings.borderWidth
-                borderColor: root.highColor
-            }
-            fillItem: lightBeam
-        }
-    }
-
-    Loader {
-        id: loader
-        sourceComponent: root.rounded ? roundedBox : baseBox
         anchors.fill: parent
+        settings {
+            cutSizes: root.settings.cutSizes
+            borderWidth: root.settings.borderWidth
+            borderColor: root.highColor
+        }
+        fillItem: lightBeam
     }
 
     Rectangle {

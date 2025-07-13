@@ -16,6 +16,8 @@ Item {
     property OctagonSettings settings: parent?.backgroundSettings
                                        ?? internalSettings
 
+    property alias round:baseBox.round
+
     z: 90
     anchors {
         fill: parent
@@ -32,33 +34,14 @@ Item {
         id: internalSettings
     }
 
-    Component {
+    QoolBox {
         id: baseBox
-        QoolBox {
-            settings {
-                cutSizes: root.settings.cutSizes
-                borderWidth: root.settings.borderWidth
-                borderColor: root.color
-            }
-            fillItem: barView
+        settings {
+            cutSizes: root.settings.cutSizes
+            borderWidth: root.settings.borderWidth
+            borderColor: root.color
         }
-    }
-
-    Component {
-        id: roundedBox
-        QoolRoundedBox {
-            settings {
-                cutSizes: root.settings.cutSizes
-                borderWidth: root.settings.borderWidth
-                borderColor: root.color
-            }
-            fillItem: barView
-        }
-    }
-
-    Loader {
-        id: loader
-        sourceComponent: root.rounded ? roundedBox : baseBox
+        fillItem: barView
         anchors.fill: parent
     }
 
