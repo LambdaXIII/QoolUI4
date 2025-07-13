@@ -300,7 +300,7 @@ void OctagonShapeHelper::__setup_int_points() {
     DEF_VALUES_Y
     DEF_SHRINK
     const auto base = m_extLBy.value();
-    const auto result = (border == 0) ? base : base + shrink;
+    const auto result = (border == 0) ? base : base - shrink;
     RETURN_Y(result)
   });
 
