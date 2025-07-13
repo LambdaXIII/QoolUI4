@@ -21,20 +21,63 @@ Item {
 
     property bool round: false
 
-    Component {
-        id: boxShape
-        OctagonShape {}
+    property bool animatingHint: false
+
+    enum ImplShapes {
+        Oct,
+        RoundedOct,
+        Rect
     }
 
-    Component {
-        id: roundShape
-        OctagonRoundedShape {}
+    SmartObject {
+        id: pCtrl
+
+        readonly property int selectedShape: {
+            if (!root.fillItem) {
+                if (root.round)
+                    return QoolBox.Rect
+                if (root.cutSizes === 0)
+                    return QoolBox.Rect
+            }
+            return root.round ? RoundedOct : QoolBox.Oct
+        }
+
+        Component {
+            id: boxShape
+            OctagonShape {}
+        }
+
+        Component {
+            id: roundShape
+            OctagonRoundedShape {}
+        }
+
+        Component {
+            id: rectShape
+            OctagonRectangleShape {}
+        }
     }
 
     Loader {
         id: loader
         anchors.fill: parent
-        sourceComponent: root.round ? roundShape : boxShape
+        sourceComponent: {
+            if (root.animatingHint == false) {
+                let cond1 = !root.fillItem && root.round
+                const half = Math.min(root.width, root.height) / 2
+                let cond2 = root.settings.cutSizeTL <= half
+                    && root.settings.cutSizeTR <= half
+                    && root.settings.cutSizeBL <= half
+                    && root.settings.cutSizeBR <= half
+                let cond3 = root.settings.cutSizeTL === 0
+                    && root.settings.cutSizeTR === 0
+                    && root.settings.cutSizeBL === 0
+                    && root.settings.cutSizeBR === 0
+                if (cond1 && (cond2 || cond3))
+                    return rectShape
+            }
+            return root.round ? roundShape : boxShape
+        }
     }
 
     Binding {
@@ -50,13 +93,11 @@ Item {
         property: "fillItem"
         value: root.fillItem
     }
-
     Binding {
-        when: loader.item?.control ?? false
+        when: loader.item
         target: root
         property: "control"
         value: loader.item.control
     }
-
     containmentMask: loader.item
 }

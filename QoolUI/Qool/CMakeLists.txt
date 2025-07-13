@@ -119,7 +119,8 @@ qt_add_qml_module(
   SOURCES
   utils/qool_itemtracker.h
   utils/qool_itemtracker.cpp
-  SOURCES utils/qool_geoutils.h utils/qool_geoutils.cpp)
+  SOURCES utils/qool_geoutils.h utils/qool_geoutils.cpp
+  QML_FILES _private/OctagonRectangleShape.qml)
 
 qoolui_scan_assets_to(QOOL_ASSETS)
 qt_add_resources(Qool "qoolui_assets" PREFIX "/qoolui" FILES ${QOOL_ASSETS})
