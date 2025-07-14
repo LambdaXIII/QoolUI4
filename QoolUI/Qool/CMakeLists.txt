@@ -1,8 +1,11 @@
 file(GLOB QOOL_INTERNAL_QML_FILES "${CMAKE_CURRENT_SOURCE_DIR}/_private/*.qml")
-set_source_files_properties(${QOOL_INTERNAL_QML_FILES}
-                            PROPERTIES QT_QML_INTERNAL_TYPE TRUE)
-set_source_files_properties(Qore.qml QoolConstants.qml PixelFont.qml
-                            PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
+set_source_files_properties(
+  ${QOOL_INTERNAL_QML_FILES} PROPERTIES QT_QML_INTERNAL_TYPE TRUE
+)
+set_source_files_properties(
+  Qore.qml QoolConstants.qml PixelFont.qml PROPERTIES QT_QML_SINGLETON_TYPE
+                                                      TRUE
+)
 
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
@@ -96,7 +99,6 @@ qt_add_qml_module(
   QML_FILES
   OctagonRoundedInternalShapePath.qml
   QML_FILES
-
   QML_FILES
   SOURCES
   utils/qool_numberranger.h
@@ -119,8 +121,12 @@ qt_add_qml_module(
   SOURCES
   utils/qool_itemtracker.h
   utils/qool_itemtracker.cpp
-  SOURCES utils/qool_geoutils.h utils/qool_geoutils.cpp
-  QML_FILES _private/OctagonRectangleShape.qml)
+  SOURCES
+  utils/qool_geoutils.h
+  utils/qool_geoutils.cpp
+  QML_FILES
+  _private/OctagonRectangleShape.qml
+)
 
 qoolui_scan_assets_to(QOOL_ASSETS)
 qt_add_resources(Qool "qoolui_assets" PREFIX "/qoolui" FILES ${QOOL_ASSETS})
@@ -132,15 +138,18 @@ set_target_properties(
              MACOSX_BUNDLE_SHORT_VERSION_STRING
              ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
              MACOSX_BUNDLE TRUE
-             WIN32_EXECUTABLE TRUE)
+             WIN32_EXECUTABLE TRUE
+)
 
 target_compile_definitions(
-  Qool PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
+  Qool PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>
+)
 target_link_libraries(
   Qool
   PRIVATE Qt6::Core Qt6::Quick
   PRIVATE Qt6::Xml
-  PRIVATE QoolCommon)
+  PRIVATE QoolCommon
+)
 target_link_libraries(Qool PRIVATE Qt6::Core Qt6::QuickControls2)
 target_link_libraries(Qool PRIVATE Qt6::Core)
 target_link_libraries(Qool PRIVATE Qt6::Core)
@@ -154,6 +163,7 @@ target_include_directories(
   PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapehelper/gadgets"
   PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/datatypes"
   PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/style"
-  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/utils")
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/utils"
+)
 
 # add_subdirectory(HandyControls)
