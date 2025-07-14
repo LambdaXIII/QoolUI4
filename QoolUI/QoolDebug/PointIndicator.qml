@@ -24,7 +24,7 @@ Floater {
     x: point.x - markerSize / 2
     y: point.y - markerSize / 2
 
-    floatingItem: Item {
+    content: Item {
         implicitWidth: root.markerSize
         implicitHeight: root.markerSize
         Rectangle {
@@ -75,5 +75,5 @@ Floater {
             horizontalSpacing: 4
             verticalSpacing: 4
         }
-    } //floatingItem
+    } //content
 }

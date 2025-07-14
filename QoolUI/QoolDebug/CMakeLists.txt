@@ -21,7 +21,7 @@ qt_add_qml_module(QoolDebug
     QML_FILES _private/DBGControl.qml
     QML_FILES _private/PropertyTipText.qml
 
-    QML_FILES Floater.qml
+    QML_FILES
     QML_FILES PointIndicator.qml
     QML_FILES NumberSlider.qml
     QML_FILES ColorButton.qml

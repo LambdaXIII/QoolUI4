@@ -126,6 +126,7 @@ qt_add_qml_module(
   utils/qool_geoutils.cpp
   QML_FILES
   _private/OctagonRectangleShape.qml
+  QML_FILES Floater.qml
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)
