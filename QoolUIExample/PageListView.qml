@@ -5,13 +5,14 @@ import Qool.Controls
 Control {
     id: root
 
-    property url current_url: "pages/Page_Welcome.qml"
+    property url current_url
 
     ButtonGroup {
         id: pageButtons
     }
 
     contentItem: ListView {
+        id: mainList
         model: PageListModel {}
         delegate: ClickableText {
             text: model.title
@@ -35,6 +36,8 @@ Control {
                     border.color: Style.toolTipText
                 }
             }
+            Component.onCompleted: if (model.index === 0)
+                                       checked = true
         }
         implicitWidth: 100
     }
