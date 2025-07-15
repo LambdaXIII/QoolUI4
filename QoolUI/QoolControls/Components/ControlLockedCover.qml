@@ -16,7 +16,7 @@ Item {
     property OctagonSettings settings: parent?.backgroundSettings
                                        ?? internalSettings
 
-    property alias round:baseBox.round
+    property alias round: baseBox.round
 
     z: 90
     anchors {
@@ -37,7 +37,10 @@ Item {
     QoolBox {
         id: baseBox
         settings {
-            cutSizes: root.settings.cutSizes
+            cutSizeTL: root.settings.cutSizeTL
+            cutSizeTR: root.settings.cutSizeTR
+            cutSizeBL: root.settings.cutSizeBL
+            cutSizeBR: root.settings.cutSizeBR
             borderWidth: root.settings.borderWidth
             borderColor: root.color
         }

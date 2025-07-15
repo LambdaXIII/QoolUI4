@@ -23,24 +23,8 @@ Item {
 
     property bool animatingHint: false
 
-    enum ImplShapes {
-        Oct,
-        RoundedOct,
-        Rect
-    }
-
     SmartObject {
         id: pCtrl
-
-        readonly property int selectedShape: {
-            if (!root.fillItem) {
-                if (root.round)
-                    return QoolBox.Rect
-                if (root.cutSizes === 0)
-                    return QoolBox.Rect
-            }
-            return root.round ? RoundedOct : QoolBox.Oct
-        }
 
         Component {
             id: boxShape

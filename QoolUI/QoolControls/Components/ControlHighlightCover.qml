@@ -32,7 +32,10 @@ Item {
         id: baseBox
         anchors.fill: parent
         settings {
-            cutSizes: root.settings.cutSizes
+            cutSizeTL: root.settings.cutSizeTL
+            cutSizeTR: root.settings.cutSizeTR
+            cutSizeBL: root.settings.cutSizeBL
+            cutSizeBR: root.settings.cutSizeBR
             borderWidth: root.settings.borderWidth
             borderColor: root.highColor
         }
