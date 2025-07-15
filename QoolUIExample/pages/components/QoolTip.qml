@@ -16,9 +16,9 @@ MouseArea {
         // console.log("entered")
         let a = {
             "channel": "qooltip",
-            "content": root.text
+            "content": root.text,
+            "color": "red"
         }
-        console.log(a)
         GlobalChatRoom.postMessage(a)
     }
 

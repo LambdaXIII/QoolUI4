@@ -49,6 +49,7 @@ public:
   MsgChannelSet channels() const;
   void set_channels(const MsgChannelSet& x);
 
+  Q_INVOKABLE bool contains(const QString& key) const;
   Q_INVOKABLE QVariant attachment(const QString& key) const;
   Q_INVOKABLE Message& attach(
     const QString& key, const QVariant& value);

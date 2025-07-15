@@ -111,6 +111,10 @@ void Message::set_channels(const MsgChannelSet& x) {
   m_data->channels = x;
 }
 
+bool Message::contains(const QString& key) const {
+  return m_data->attachments.contains(key);
+}
+
 QVariant Message::attachment(const QString& key) const {
   return m_data->attachments.value(key);
 }

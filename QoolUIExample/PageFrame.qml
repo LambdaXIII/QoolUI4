@@ -5,6 +5,7 @@ import Qool.Controls
 import Qool.Controls.Components
 import Qool
 import Qool.Chat
+import "pages/components"
 
 BasicControlFrame {
     id: root
@@ -64,6 +65,7 @@ BasicControlFrame {
                 root.pageLoaded()
                 main.contentY = 0
             }
+            QoolTipPanel {}
         }
     } //contentItem
 
@@ -96,13 +98,5 @@ BasicControlFrame {
         function onPage_urlChanged() {
             loadingBar.visible = true
         }
-    }
-
-    Beeper {
-        channel: "qooltip"
-        chatRoom: GlobalChatRoom
-        onMessageRecieved: msg => {
-                               console.log(msg)
-                           }
     }
 }

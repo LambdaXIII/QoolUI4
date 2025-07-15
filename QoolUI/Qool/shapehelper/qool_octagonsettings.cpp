@@ -153,35 +153,45 @@ constexpr int TR_INDEX = 1;
 constexpr int BR_INDEX = 2;
 constexpr int BL_INDEX = 3;
 
-#define ISNOTTL(N) (QStringLiteral(#N) != QStringLiteral("TL"))
-#define ISTL(N) (QStringLiteral(#N) == QStringLiteral("TL"))
-
 #define IMPL(N)                                                        \
   qreal OctagonSettings::cutSize##N() const {                          \
-    if (m_cutSizesLocked && ISNOTTL(N))                                \
+    if (m_cutSizesLocked)                                              \
       return m_cutSizes[TL_INDEX];                                     \
     return m_cutSizes[N##_INDEX];                                      \
   }                                                                    \
   void OctagonSettings::set_cutSize##N(qreal x) {                      \
     const auto old = cutSize##N();                                     \
-    m_cutSizes[N##_INDEX] = x;                                         \
-    if (m_cutSizesLocked && ISNOTTL(N))                                \
+    if (old == x)                                                      \
       return;                                                          \
-    if (old != x) {                                                    \
-      if (m_cutSizesLocked && ISTL(N)) {                               \
-        notify_all_cutSizes_changed();                                 \
-      } else                                                           \
-        emit cutSize##N##Changed();                                    \
-    }                                                                  \
+    m_cutSizes[N##_INDEX] = x;                                         \
+    if (! m_cutSizesLocked)                                            \
+      emit cutSize##N##Changed();                                      \
   }                                                                    \
   QBindable<qreal> OctagonSettings::bindable_cutSize##N() {            \
     return QBindable<qreal>(this, "cutSize" #N);                       \
   }
 
-QOOL_FOREACH_4(IMPL, TL, TR, BL, BR)
+QOOL_FOREACH_3(IMPL, TR, BL, BR)
 
 #undef IMPL
-#undef ISTL
-#undef ISNOTTL
+
+qreal OctagonSettings::cutSizeTL() const {
+  return m_cutSizes[TL_INDEX];
+}
+
+void OctagonSettings::set_cutSizeTL(qreal x) {
+  const auto old = cutSizeTL();
+  if (old == x)
+    return;
+  m_cutSizes[TL_INDEX] = x;
+  if (m_cutSizesLocked)
+    notify_all_cutSizes_changed();
+  else
+    emit cutSizeTLChanged();
+}
+
+QBindable<qreal> OctagonSettings::bindable_cutSizeTL() {
+  return QBindable<qreal>(this, "cutSizeTL");
+}
 
 QOOL_NS_END
