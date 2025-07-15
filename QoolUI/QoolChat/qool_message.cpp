@@ -145,6 +145,10 @@ Message& Message::removeChannels(const MsgChannelSet& channels) {
   return *this;
 }
 
+bool Message::isEmpty() const {
+  return m_data->content.isEmpty() && m_data->attachments.isEmpty();
+}
+
 void Message::__auto_insert(const QVariantMap& data) {
   LOCK_DATA
   Qt::beginPropertyUpdateGroup();

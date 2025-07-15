@@ -58,6 +58,8 @@ public:
   Q_INVOKABLE Message& removeChannel(const QString& channel);
   Q_INVOKABLE Message& removeChannels(const MsgChannelSet& channels);
 
+  Q_INVOKABLE bool isEmpty() const;
+
   friend bool operator==(const Message& a, const Message& b);
 
 private:
