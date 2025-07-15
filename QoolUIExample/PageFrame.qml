@@ -65,7 +65,12 @@ BasicControlFrame {
                 root.pageLoaded()
                 main.contentY = 0
             }
-            QoolTipPanel {}
+            onStatusChanged: tipPanel.hide()
+            QoolTipPanel {
+                id: tipPanel
+                maximumWidth: parent.width / 2
+                maximumHeight: parent.height
+            }
         }
     } //contentItem
 

@@ -127,6 +127,7 @@ qt_add_qml_module(
   QML_FILES
   _private/OctagonRectangleShape.qml
   QML_FILES Floater.qml
+  QML_FILES BasicTextBehavior.qml
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)

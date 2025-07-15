@@ -17,25 +17,17 @@ BasicPage {
         Button {
             text: qsTr("QoolUI的按钮")
             QoolTip {
-                text: "exe"
+                text: "QoolUI提供一个普通的按钮，在引入 Qool.Controls 时，它将自动覆盖掉 QtQuick.Controls.Button。"
+                color: Style.yellow
             }
         }
 
-        GroupBox {
-            title: qsTr("按钮组")
-            Column {
-                Button {
-                    text: "a"
-                }
-                Button {
-                    text: "b"
-                }
-                Button {
-                    text: "c"
-                }
-                Button {
-                    text: "d"
-                }
+        Button {
+            text: qsTr("QoolUI的按钮")
+            flat: true
+            QoolTip {
+                text: "这个种按钮完全兼容标准按钮中的 highlighted 和 flat 属性。"
+                color: Style.blue
             }
         }
     }
