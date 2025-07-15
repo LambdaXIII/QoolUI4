@@ -72,10 +72,10 @@ void ChatRoomServer::trySend(
     return;
   const auto msgChannels = msg.channels();
   const auto beeperChannels = beeper->channels();
-  static const MsgChannel ALLCHANNEL { MsgChannel::ALL };
-  if (msgChannels.contains(ALLCHANNEL)
-      || beeperChannels.contains(ALLCHANNEL)
-      || msgChannels.intersects(beeper->channels())) {
+
+  if (msgChannels.contains(MsgChannel::ALL)
+      || beeperChannels.contains(MsgChannel::ALL)
+      || msgChannels.intersects(beeperChannels)) {
     MessageEvent* e = new MessageEvent(msg);
     QCoreApplication::instance()->postEvent(beeper, e);
   }

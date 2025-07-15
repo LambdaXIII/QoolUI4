@@ -14,8 +14,8 @@ MsgChannel::MsgChannel() {
   m_data = symbolify(EMPTY_CODE);
 }
 
-MsgChannel::MsgChannel(QAnyStringView name) {
-  m_data = symbolify(name.toString().toUtf8());
+MsgChannel::MsgChannel(const QByteArray& name) {
+  m_data = symbolify(name);
 }
 
 MsgChannel::MsgChannel(const MsgChannel& other)
@@ -54,7 +54,7 @@ MsgChannel::operator QByteArray() const {
 
 QSet<QByteArray> MsgChannel::m_symbols { ALL, EMPTY_CODE };
 
-QByteArray MsgChannel::symbolify(QByteArrayView code) {
+QByteArray MsgChannel::symbolify(const QByteArray& code) {
   const auto n = QString::fromUtf8(code).toLower();
   if (n == "all")
     return ALL;
@@ -62,7 +62,7 @@ QByteArray MsgChannel::symbolify(QByteArrayView code) {
     return EMPTY_CODE;
 
   static QMutex mutex;
-  const auto symbol = code.toByteArray();
+  const auto symbol = code;
   if (! m_symbols.contains(symbol)) {
     QMutexLocker locker(&mutex);
     if (! m_symbols.contains(symbol))
@@ -95,61 +95,6 @@ QByteArrayList __decode_channels__(QAnyStringView str) {
     std::back_inserter(result),
     [](const QString& x) { return x.toUtf8(); });
   return result;
-}
-
-MsgChannelSet::MsgChannelSet()
-  : QSet<MsgChannel>() {
-}
-
-MsgChannelSet::MsgChannelSet(const QStringList& codes) {
-  for (const auto& x : codes)
-    insert(MsgChannel(x));
-}
-
-MsgChannelSet::MsgChannelSet(const QByteArrayList& codes) {
-  for (const auto& x : codes)
-    insert(MsgChannel(x));
-}
-
-MsgChannelSet::MsgChannelSet(const QString& code)
-  : MsgChannelSet { __decode_channels__(code) } {
-}
-
-MsgChannelSet::MsgChannelSet(
-  std::initializer_list<QAnyStringView> codes) {
-  for (const auto& x : codes)
-    insert(MsgChannel(x));
-}
-
-MsgChannelSet::MsgChannelSet(const QSet<QString>& codes) {
-  for (const auto& x : codes)
-    insert(MsgChannel(x));
-}
-
-MsgChannelSet::MsgChannelSet(const QSet<QByteArray>& codes) {
-  for (const auto& x : codes)
-    insert(MsgChannel(x));
-}
-
-MsgChannelSet::operator QStringList() const {
-  return { this->constBegin(), this->constEnd() };
-}
-
-MsgChannelSet::operator QList<QByteArray>() const {
-  return { this->constBegin(), this->constEnd() };
-}
-
-QString MsgChannelSet::encode() const {
-  return QStringList(this->constBegin(), this->constEnd())
-    .join(SPLIT_CHARS->at(0));
-}
-
-MsgChannelSet MsgChannelSet::decode(QAnyStringView string) {
-  return MsgChannelSet(__decode_channels__(string));
-}
-
-MsgChannelSet MsgChannelSet::all() {
-  return MsgChannelSet(MsgChannel(MsgChannel::ALL));
 }
 
 QOOL_NS_END

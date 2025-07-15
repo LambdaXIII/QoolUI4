@@ -13,10 +13,7 @@ Beeper::Beeper(QObject* parent)
   m_name =
     QString("BEEPER_%1").arg(tools::generate_random_string(6)).toUtf8();
 
-  m_channels = MsgChannelSet::all();
-
-  connect(
-    this, SIGNAL(channelsChanged()), this, SIGNAL(channelChanged()));
+  m_channels.insert(MsgChannel::ALL);
 }
 
 Beeper::~Beeper() {
@@ -25,8 +22,9 @@ Beeper::~Beeper() {
 }
 
 void Beeper::postMessage(Message message) {
-  message.setSenderID(name());
-  message << m_channels;
+  message.set_senderID(name());
+  message.addChannels(channels());
+
   if (! chatRoom()) {
     xWarningQ
       << "Beeper" << xDBGYellow << name() << xDBGReset
@@ -37,8 +35,8 @@ void Beeper::postMessage(Message message) {
 }
 
 void Beeper::postMessage(const QString& channels, Message message) {
-  message.setSenderID(name());
-  message << MsgChannelSet::decode(channels);
+  message.set_senderID(name());
+  message.addChannel(channels);
   if (! chatRoom()) {
     xWarningQ
       << "Beeper" << xDBGYellow << name() << xDBGReset
@@ -83,14 +81,23 @@ void Beeper::set_chatRoom(ChatRoom* room) {
 }
 
 QString Beeper::channel() const {
-  return channels().encode();
+  return m_channels;
 }
 
 void Beeper::set_channel(const QString& v) {
-  MsgChannelSet x = MsgChannelSet::decode(v);
-  if (channels() == x)
+  const auto decoded = MsgChannelSet::decode(v);
+  set_channels(decoded);
+}
+
+MsgChannelSet Beeper::channels() const {
+  return m_channels;
+}
+
+void Beeper::set_channels(const MsgChannelSet& channels) {
+  if (channels == m_channels)
     return;
-  set_channels(x);
+  m_channels = channels;
+  emit channelsChanged();
 }
 
 QOOL_NS_END

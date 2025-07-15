@@ -100,6 +100,7 @@ BasicControlFrame {
 
     Beeper {
         channel: "qooltip"
+        chatRoom: GlobalChatRoom
         onMessageRecieved: msg => {
                                console.log(msg)
                            }

@@ -44,6 +44,7 @@ qt_add_qml_module(
 
   SOURCES apps/qool_basicbeeperapp.h apps/qool_basicbeeperapp.cpp
   SOURCES apps/qool_messagelogger.h apps/qool_messagelogger.cpp
+  SOURCES qool_msgchannelset.h qool_msgchannelset.cpp
 )
 
 set_target_properties(

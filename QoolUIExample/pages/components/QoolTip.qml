@@ -14,9 +14,11 @@ MouseArea {
         if (!text)
             return
         // console.log("entered")
-        let a = Object()
-        a.content = root.text
-        a.channel = "qooltip"
+        let a = {
+            "channel": "qooltip",
+            "content": root.text
+        }
+        console.log(a)
         GlobalChatRoom.postMessage(a)
     }
 
