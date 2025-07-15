@@ -26,6 +26,7 @@ qt_add_qml_module(appQoolUIExample
     QML_FILES PageFrame.qml
     QML_FILES pages/BasicPage.qml
     QML_FILES pages/Page_Welcome.qml
+    QML_FILES pages/Page_Buttons.qml
 )
 
 qoolui_scan_assets_to(appQoolUIExample)

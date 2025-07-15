@@ -16,6 +16,8 @@ Control {
         delegate: ClickableText {
             text: model.title
             ToolTip.text: model.note
+            ToolTip.delay: Application.styleHints.mousePressAndHoldInterval
+            ToolTip.visible: hovered
             checkable: true
             ButtonGroup.group: pageButtons
             width: ListView.view.width

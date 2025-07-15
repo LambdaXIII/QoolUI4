@@ -13,7 +13,7 @@
     </page>
 
     <page>
-        <title>基础按钮</title>
+        <title>酷酷的按钮</title>
         <note>来体验一下酷酷的按钮吧</note>
         <page>Page_Buttons.qml</page>
     </page>
