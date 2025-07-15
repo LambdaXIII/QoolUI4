@@ -15,6 +15,7 @@ qt_add_qml_module(QoolControls
     QML_FILES
     QML_FILES SplitView.qml
     QML_FILES ProgressBar.qml
+    QML_FILES
 
 
 
