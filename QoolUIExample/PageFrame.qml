@@ -4,6 +4,7 @@ import QtQuick.Controls
 import Qool.Controls
 import Qool.Controls.Components
 import Qool
+import Qool.Chat
 
 BasicControlFrame {
     id: root
@@ -95,5 +96,12 @@ BasicControlFrame {
         function onPage_urlChanged() {
             loadingBar.visible = true
         }
+    }
+
+    Beeper {
+        channel: "qooltip"
+        onMessageRecieved: msg => {
+                               console.log(msg)
+                           }
     }
 }

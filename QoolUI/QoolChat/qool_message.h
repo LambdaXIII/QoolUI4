@@ -46,8 +46,8 @@ class Message {
 
 public:
   Message();
-  Q_INVOKABLE explicit Message(const QVariantMap& obj);
-  Q_INVOKABLE explicit Message(const QString& content);
+  Q_INVOKABLE Message(const QVariantMap& obj);
+  Q_INVOKABLE Message(const QString& content);
   Message(const QString& content, const QVariantMap& obj);
   Message(const Message& other);
   Message(Message&& other);
