@@ -5,7 +5,7 @@ Item {
     id: root
 
     property OctagonSettings settings: OctagonSettings {
-        cutSize: Style.controlCutSize
+        // cutSize: Style.controlCutSize
         borderWidth: Style.controlBorderWidth
         borderColor: Style.accent
         fillColor: Style.dark

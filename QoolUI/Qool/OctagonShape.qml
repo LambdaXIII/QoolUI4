@@ -6,7 +6,7 @@ Shape {
     id: root
 
     property OctagonSettings settings: OctagonSettings {
-        borderWidth: 10
+        // borderWidth: 10
     }
     readonly property OctagonShapeHelper control: OctagonShapeHelper {
         settings: root.settings
