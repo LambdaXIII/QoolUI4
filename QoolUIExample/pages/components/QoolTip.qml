@@ -10,7 +10,9 @@ MouseArea {
 
     anchors.fill: parent
 
-    propagateComposedEvents: true
+    // propagateComposedEvents: true
+    // preventStealing: false
+    acceptedButtons: Qt.NoButton
 
     onEntered: {
         if (!text)

@@ -26,6 +26,7 @@ Floater {
             color: root.textColor
             font.pixelSize: root.Style.controlTextSize
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            textFormat: Text.MarkdownText
             BasicTextBehavior on text {}
             BasicColorBehavior on color {}
         }
