@@ -17,6 +17,24 @@ QoolWindow {
 
     Style.theme: "midnight"
 
+    ButtonGroup {
+        id: langGroup
+    }
+    toolBar: Flow {
+        ToolButton {
+            text: "ZH"
+            width: 65
+            checkable: true
+            ButtonGroup.group: langGroup
+        }
+        ToolButton {
+            text: "EN"
+              width: 65
+            checkable: true
+            ButtonGroup.group: langGroup
+        }
+    }
+
     content: SplitView {
         PageListView {
             id: tocView

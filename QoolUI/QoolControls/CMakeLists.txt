@@ -17,6 +17,7 @@ qt_add_qml_module(QoolControls
     QML_FILES ProgressBar.qml
     QML_FILES
     QML_FILES Button.qml
+    QML_FILES ToolButton.qml
 
 
 
