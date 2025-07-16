@@ -17,7 +17,8 @@ BasicPage {
         Button {
             text: qsTr("QoolUI的按钮")
             QoolTip {
-                text: "QoolUI提供一个普通的按钮，在引入 Qool.Controls 时，它将自动覆盖掉 QtQuick.Controls.Button。"
+                //% "Tip for the plain simple button"
+                text: qsTrId("qooltip-basic-button-1")
                 color: Style.yellow
             }
         }

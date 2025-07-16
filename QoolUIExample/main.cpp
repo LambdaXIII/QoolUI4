@@ -1,16 +1,17 @@
 #include <QDebug>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QTranslator>
 
 int main(int argc, char* argv[]) {
   QGuiApplication app(argc, argv);
 
-  QQmlApplicationEngine engine;
-  // engine.addImportPath(QStringLiteral("."));
-  engine.addImportPath(QStringLiteral("qml"));
-  // engine.addPluginPath(QStringLiteral("qoolplugins"));
+  QTranslator translator;
+  if (translator.load(QLocale(), "qoolexample", "_", ":/i18n"))
+    app.installTranslator(&translator);
 
-  // qDebug() << app.libraryPaths();
+  QQmlApplicationEngine engine;
+  engine.addImportPath(QStringLiteral("qml"));
 
   QObject::connect(
     &engine, &QQmlApplicationEngine::objectCreationFailed, &app,

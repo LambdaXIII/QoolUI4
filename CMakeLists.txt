@@ -19,7 +19,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(
   Qt6 6.8
-  COMPONENTS Core Quick QuickControls2 Concurrent Xml
+  COMPONENTS Core Quick QuickControls2 Concurrent Xml LinguistTools
   REQUIRED
 )
 
@@ -29,7 +29,10 @@ endif()
 
 load_qoolui_standard_options()
 
-qt_standard_project_setup(REQUIRES 6.8)
+qt_standard_project_setup(
+  REQUIRES 6.8
+  I18N_TRANSLATED_LANGUAGES zh en
+)
 
 set(CMAKE_INSTALL_PREFIX
     "${CMAKE_BINARY_DIR}/install"

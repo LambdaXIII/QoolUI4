@@ -37,6 +37,12 @@ qt_add_resources(Qool "qoolexample_assets"
     FILES ${QOOL_ASSETS}
 )
 
+qt_add_translations(appQoolUIExample
+TS_FILES i18n/qoolexample_en_US.ts i18n/qoolexample_zh_CN.ts
+RESOURCE_PREFIX /i18n
+LRELEASE_OPTIONS -idbased
+)
+
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
