@@ -17,24 +17,6 @@ QoolWindow {
 
     Style.theme: "midnight"
 
-    ButtonGroup {
-        id: langGroup
-    }
-    toolBar: Flow {
-        ToolButton {
-            text: "ZH"
-            width: 65
-            checkable: true
-            ButtonGroup.group: langGroup
-        }
-        ToolButton {
-            text: "EN"
-              width: 65
-            checkable: true
-            ButtonGroup.group: langGroup
-        }
-    }
-
     content: SplitView {
         PageListView {
             id: tocView
@@ -48,11 +30,4 @@ QoolWindow {
             page_url: tocView.current_url
         }
     } //content
-
-    // backgroundSettings.borderWidth: 1
-
-    // QoolWindowHud {
-    //     window: root
-    // }
-    Component.onCompleted: Qore.test()
 }
