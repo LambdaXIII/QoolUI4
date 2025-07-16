@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en" sourcelanguage="zh">
+<TS version="2.1" language="zh_CN" sourcelanguage="en_US">
 <context>
     <name></name>
     <message id="qooltip-basic-button-1">
         <location filename="../pages/Page_Buttons.qml" line="21"/>
         <source>Tip for the plain simple button</source>
-        <translation>QoolUI provided a simple gadget called *Button*. When imported Qool.Controls, *Button* will override the default QtQuick.Controls.Button. So we can easily use this wonderful button, which supports Style system that QoolUI provides.</translation>
+        <translation>你好！</translation>
     </message>
     <message id="qooltip-basic-button-flat-and-highlighted">
         <location filename="../pages/Page_Buttons.qml" line="31"/>
         <source>Introduce that the button has flat and highlighted properties.</source>
-        <translation>This *Button* is based on QtQuick&apos;s Button. It even supports **flat** and **highlighted** properties.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -19,7 +19,7 @@
     <message>
         <location filename="../Main.qml" line="16"/>
         <source>Hello, Qool World!</source>
-        <translation type="unfinished"></translation>
+        <translation>欢迎使用 QoolUI ！</translation>
     </message>
 </context>
 <context>

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="zh" sourcelanguage="zh">
+<TS version="2.1" language="en_US" sourcelanguage="en_US">
 <context>
     <name></name>
     <message id="qooltip-basic-button-1">
         <location filename="../pages/Page_Buttons.qml" line="21"/>
         <source>Tip for the plain simple button</source>
-        <translation>QoolUI提供一个简单的Button组件。当引入 Qool.Controls 时，它将覆盖 QtQuick.Controls.Button 以进行便捷的声明。这个 Button 组件支持使用 QoolUI 内置的 Style 系统进行风格化设置。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message id="qooltip-basic-button-flat-and-highlighted">
         <location filename="../pages/Page_Buttons.qml" line="31"/>
         <source>Introduce that the button has flat and highlighted properties.</source>
-        <translation>这个简单的 Button 组件基于 QtQuick 本身的 Button 声明实现，甚至支持 **flat** 和 **highlighted** 属性。</translation>
+        <translation>This is a button.</translation>
     </message>
 </context>
 <context>
@@ -19,7 +19,7 @@
     <message>
         <location filename="../Main.qml" line="16"/>
         <source>Hello, Qool World!</source>
-        <translation type="unfinished"></translation>
+        <translation>Welcome!</translation>
     </message>
 </context>
 <context>

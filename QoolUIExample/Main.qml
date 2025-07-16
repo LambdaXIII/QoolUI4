@@ -17,6 +17,16 @@ QoolWindow {
 
     Style.theme: "midnight"
 
+    toolBar: Flow {
+        ToolButton {
+            text: "EN"
+            width: 65
+            onClicked: {
+                Qt.uiLanguage = Qt.uiLanguage === "en_US" ? "zh_CN" : "en_US"
+            }
+        }
+    }
+
     content: SplitView {
         PageListView {
             id: tocView
