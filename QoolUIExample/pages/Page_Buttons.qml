@@ -27,7 +27,8 @@ BasicPage {
             text: qsTr("QoolUI的按钮")
             flat: true
             QoolTip {
-                text: "这个种按钮完全兼容标准按钮中的 highlighted 和 flat 属性。"
+                //% "Introduce that the button has flat and highlighted properties."
+                text: qsTrId("qooltip-basic-button-flat-and-highlighted")
                 color: Style.blue
             }
         }

@@ -8,6 +8,11 @@
         <source>Tip for the plain simple button</source>
         <translation type="unfinished"></translation>
     </message>
+    <message id="qooltip-basic-button-flat-and-highlighted">
+        <location filename="../pages/Page_Buttons.qml" line="31"/>
+        <source>Introduce that the button has flat and highlighted properties.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>BasicButtonFrame</name>

@@ -12,6 +12,11 @@
         <source>Tip for the plain simple button</source>
         <translation>QoolUI提供了一个简单的按钮，命名为Button。当引入了 Qool.Controls 时，它将覆盖 QtQuick.Controls.Button，从而方便地使用这个简单的兼容于 QoolUI 的主题系统的按钮。</translation>
     </message>
+    <message id="qooltip-basic-button-flat-and-highlighted">
+        <location filename="../pages/Page_Buttons.qml" line="31"/>
+        <source>Introduce that the button has flat and highlighted properties.</source>
+        <translation>这个 Button 组件同样支持 QtQuick.Controls.Button 中的 *flat* 和 *highlighted* 属性。当*flat*激活时，按钮的边框会隐藏，但在交互时仍会显示反馈。当 *checkable* 的按钮被按下时，会自动激活*highlighted*状态。</translation>
+    </message>
 </context>
 <context>
     <name>BasicButtonFrame</name>
