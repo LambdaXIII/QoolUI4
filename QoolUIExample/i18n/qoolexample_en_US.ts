@@ -15,22 +15,6 @@
     </message>
 </context>
 <context>
-    <name>BasicButtonFrame</name>
-    <message>
-        <location filename="../../QoolUI/QoolControls/Components/BasicButtonFrame.qml" line="9"/>
-        <source>Qool Button</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>BasicControlFrame</name>
-    <message>
-        <location filename="../../QoolUI/QoolControls/Components/BasicControlFrame.qml" line="10"/>
-        <source>Qool Control</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>Main</name>
     <message>
         <location filename="../Main.qml" line="16"/>
@@ -181,14 +165,6 @@
     <message>
         <location filename="../pages/components/QoolBoxShapeControlPanel.qml" line="175"/>
         <source>Dump信息至控制台</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QoolWindow</name>
-    <message>
-        <location filename="../../QoolUI/Qool/QoolWindow.qml" line="48"/>
-        <source>Hello, Qool World!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

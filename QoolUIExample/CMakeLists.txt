@@ -1,9 +1,25 @@
-# set_source_files_properties(
-#     PageListModel.qml
-#     PROPERTIES
-#     QT_QML_INTERNAL_TYPE TRUE
-# )
 
+project(QoolUIExample
+VERSION ${QOOLUI_VERSION_FULL}
+LANGUAGES CXX
+)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(
+  Qt6 6.8
+  COMPONENTS Core Quick LinguistTools
+  REQUIRED
+)
+
+
+
+
+qt_standard_project_setup(
+  REQUIRES 6.8
+  I18N_TRANSLATED_LANGUAGES zh en
+)
 
 qt_add_executable(appQoolUIExample
     main.cpp
@@ -38,7 +54,9 @@ qt_add_resources(Qool "qoolexample_assets"
 )
 
 qt_add_translations(appQoolUIExample
-TS_FILES i18n/qoolexample_en_US.ts i18n/qoolexample_zh_CN.ts
+TS_FILES
+    i18n/qoolexample_en_US.ts
+    i18n/qoolexample_zh_CN.ts
 RESOURCE_PREFIX /i18n
 LRELEASE_OPTIONS -idbased
 )
