@@ -40,9 +40,7 @@ project(QoolUIBundle
 )
 
 add_library(
-  GENERAL_HELP
-  INTERFACE
-  EXCLUDE_FROM_ALL
+  GENERAL_HELP INTERFACE EXCLUDE_FROM_ALL
   .clang-format
   README.md
   qool_qml_project_setup.cmake
