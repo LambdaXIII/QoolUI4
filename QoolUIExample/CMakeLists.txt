@@ -13,43 +13,35 @@ find_package(
 )
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
-qt_standard_project_setup(REQUIRES 6.8 I18N_TRANSLATED_LANGUAGES zh_CN en_US)
+qt_standard_project_setup(
+  REQUIRES 6.8
+  I18N_SOURCE_LANGUAGE zh
+  I18N_TRANSLATED_LANGUAGES zh en
+)
 
 qt_add_executable(appQoolUIExample main.cpp)
 
 qt_add_qml_module(appQoolUIExample
   URI QoolUIExample
   VERSION 1.0
-  RESOURCE_PREFIX /qoolexample
+  # RESOURCE_PREFIX /qoolexample
 
   # IMPORTS Qool
   QML_FILES Main.qml
   QML_FILES pages/Page_QoolBox.qml
-  QML_FILES
-  pages/PaletteSheet.qml
-  QML_FILES
-  pages/components/QoolBoxShapeControlPanel.qml
-  QML_FILES
-  RESOURCES
-  toc.xml
-  QML_FILES
-  PageListModel.qml
-  QML_FILES
-  PageListView.qml
-  QML_FILES
-  pages/Page_Playground.qml
-  QML_FILES
-  PageFrame.qml
-  QML_FILES
-  pages/BasicPage.qml
-  QML_FILES
-  pages/Page_Welcome.qml
-  QML_FILES
-  pages/Page_Buttons.qml
-  QML_FILES
-  pages/components/QoolTip.qml
-  QML_FILES
-  pages/components/QoolTipPanel.qml
+  QML_FILES pages/PaletteSheet.qml
+  QML_FILES pages/components/QoolBoxShapeControlPanel.qml
+
+  RESOURCES toc.xml
+  QML_FILES PageListModel.qml
+  QML_FILES PageListView.qml
+  QML_FILES pages/Page_Playground.qml
+  QML_FILES PageFrame.qml
+  QML_FILES pages/BasicPage.qml
+  QML_FILES pages/Page_Welcome.qml
+  QML_FILES pages/Page_Buttons.qml
+  QML_FILES pages/components/QoolTip.qml
+  QML_FILES pages/components/QoolTipPanel.qml
 )
 
 qoolui_scan_assets_to(appQoolUIExample)
@@ -64,7 +56,7 @@ qt_add_translations(
   # i18n/qoolexample.zh.ts
   TS_FILE_BASE qml
   TS_FILE_DIR i18n
-  RESOURCE_PREFIX /qoolexample/i18n
+  RESOURCE_PREFIX /qt/qml/QoolUIExample/i18n
   LRELEASE_OPTIONS -idbased
 )
 
