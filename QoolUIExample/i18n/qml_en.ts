@@ -23,6 +23,19 @@
     </message>
 </context>
 <context>
+    <name>MainWindowToolBar</name>
+    <message>
+        <location filename="../MainWindowToolBar.qml" line="21"/>
+        <source>中文</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../MainWindowToolBar.qml" line="33"/>
+        <source>英文</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Page_Buttons</name>
     <message>
         <location filename="../pages/Page_Buttons.qml" line="12"/>

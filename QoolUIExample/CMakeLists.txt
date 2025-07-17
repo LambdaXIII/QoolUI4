@@ -42,6 +42,7 @@ qt_add_qml_module(appQoolUIExample
   QML_FILES pages/Page_Buttons.qml
   QML_FILES pages/components/QoolTip.qml
   QML_FILES pages/components/QoolTipPanel.qml
+  QML_FILES MainWindowToolBar.qml
 )
 
 qoolui_scan_assets_to(appQoolUIExample)
