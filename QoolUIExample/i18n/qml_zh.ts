@@ -4,13 +4,15 @@
 <context>
     <name></name>
     <message id="qooltip-basic-button-1">
-        <location filename="../pages/Page_Buttons.qml" line="21"/>
-        <source>Tip for the plain simple button</source>
-        <translation>你好！</translation>
+        <location filename="../pages/Page_Buttons.qml" line="26"/>
+        <source>普通按钮的介绍</source>
+        <oldsource>Tip for the plain simple button</oldsource>
+        <translation type="unfinished">你好！</translation>
     </message>
     <message id="qooltip-basic-button-flat-and-highlighted">
-        <location filename="../pages/Page_Buttons.qml" line="31"/>
-        <source>Introduce that the button has flat and highlighted properties.</source>
+        <location filename="../pages/Page_Buttons.qml" line="36"/>
+        <source>介绍按钮对于 flat 和 highlighted 的支持</source>
+        <oldsource>Introduce that the button has flat and highlighted properties.</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -38,19 +40,23 @@
 <context>
     <name>Page_Buttons</name>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="12"/>
+        <location filename="../pages/Page_Buttons.qml" line="13"/>
         <source>酷酷的按钮</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="13"/>
+        <location filename="../pages/Page_Buttons.qml" line="14"/>
         <source>QoolUI提供了风格化的按钮</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="18"/>
-        <location filename="../pages/Page_Buttons.qml" line="27"/>
+        <location filename="../pages/Page_Buttons.qml" line="23"/>
         <source>QoolUI的按钮</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="32"/>
+        <source>标记为 flat 的按钮</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

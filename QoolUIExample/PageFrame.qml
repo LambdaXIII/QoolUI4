@@ -66,13 +66,15 @@ BasicControlFrame {
                 main.contentY = 0
             }
             onStatusChanged: tipPanel.hide()
-            QoolTipPanel {
-                id: tipPanel
-                maximumWidth: parent.width / 2
-                maximumHeight: parent.height
-            }
         }
     } //contentItem
+
+    QoolTipPanel {
+        id: tipPanel
+        parent: main
+        maximumWidth: parent.width / 2
+        maximumHeight: parent.height
+    }
 
     Popup {
         id: loadingBar
