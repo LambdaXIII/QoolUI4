@@ -13,10 +13,10 @@ QoolBox {
     }
 
     settings {
-        cutSize: Style.controlCutSize
         borderWidth: Style.controlBorderWidth
-        borderColor: root.borderColor
-        fillColor: root.backgroundColor
+        borderColor: Style.controlBorderColor
+        fillColor: Style.controlBackgroundColor
+        cutSize: Style.controlCutSize
     }
 
     Item {

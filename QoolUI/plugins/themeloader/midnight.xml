@@ -5,9 +5,7 @@
     <constants>
 
         <stringlist property="papaWords">
-            <string>Pa</string>
-            <string>PaPa</string>
-            <string>Pa!!!</string>
+            <string>Pa !</string>
             <string>啪！</string>
             <string>啪!!!</string>
             <string>啪啪!</string>
@@ -107,8 +105,8 @@
     <disabled>
         <!--Can contain different vlues only-->
         <color property="accent" copy="negative"/>
-        <color property="text" copy="mid" lighter="1.2"/>
-        <color property="windowText" copy="mid" lighter="1.2"/>
-        <color property="buttonText" copy="mid" lighter="1.2"/>
+        <color property="text" copy="text" darker="1.8"/>
+        <color property="windowText" copy="text" darker="1.8"/>
+        <color property="buttonText" copy="text" darker="1.8"/>
     </disabled>
 </qooltheme>
