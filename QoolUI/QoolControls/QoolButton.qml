@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Templates as T
 import Qool.Controls.Components
+import Qool
 
 T.AbstractButton {
     id: root

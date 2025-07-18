@@ -3,7 +3,6 @@
     <author>qoolui</author>
     <description>A Qool dark theme</description>
     <constants>
-        <bool property="animationEnabled" value="YES" />
 
         <stringlist property="papaWords">
             <string>Pa</string>

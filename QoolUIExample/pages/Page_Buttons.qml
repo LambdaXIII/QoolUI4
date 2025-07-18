@@ -93,10 +93,11 @@ BasicPage {
             }
 
             QoolButton {
+                id: disabledButton
                 title: qsTr("被禁用的按钮")
                 text: qsTr("奏凯！别摸我！")
                 enabled: false
-                Style.animationEnabled: false
+                Style.animationEnabled: animeButton.checked
                 QoolTip {
                     //% "介绍如何控制组件的动画"
                     text: qsTrId("qooltip-qoolbutton-animation")
