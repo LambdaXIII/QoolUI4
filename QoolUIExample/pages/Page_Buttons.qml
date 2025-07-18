@@ -106,5 +106,14 @@ BasicPage {
                 Layout.fillWidth: true
             }
         }
+
+        ExampleBasicButton {
+            implicitWidth: 400
+            implicitHeight: 250
+            QoolTip {
+                //% "介绍 BasicButton 货 papa words"
+                text: qsTrId("qooltip-basicbutton-example")
+            }
+        }
     } //cc
 }
