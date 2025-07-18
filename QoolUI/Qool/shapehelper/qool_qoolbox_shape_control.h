@@ -26,6 +26,19 @@ public:
   Q_INVOKABLE void dumpInfo() const override;
   Q_INVOKABLE bool contains(const QPointF& point) const override;
 
+protected:
+  // QOOL_BINDABLE_MEMBER(QoolBoxShapeControl, qreal, safeBorderWidth)
+  // QOOL_BINDABLE_MEMBER(QoolBoxShapeControl, qreal, borderShrinkSize)
+  QOOL_BINDABLE_MEMBER(QoolBoxShapeControl, QList<QPointF>, intPoints)
+  QOOL_BINDABLE_MEMBER(QoolBoxShapeControl, QList<QPointF>, extPoints)
+
+private:
+  void __setup_reference_values();
+  void __connect_points();
+  void __setup_ext_points();
+  void __setup_int_points();
+  void __setup_helper_properties();
+
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
     QoolBoxShapeControl, qreal, safeTR)
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
@@ -69,17 +82,14 @@ public:
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
     QoolBoxShapeControl, QPolygonF, extPolygon)
 
-protected:
-  // QOOL_BINDABLE_MEMBER(QoolBoxShapeControl, qreal, safeBorderWidth)
-  // QOOL_BINDABLE_MEMBER(QoolBoxShapeControl, qreal, borderShrinkSize)
-  QOOL_BINDABLE_MEMBER(QoolBoxShapeControl, QList<QPointF>, intPoints)
-  QOOL_BINDABLE_MEMBER(QoolBoxShapeControl, QList<QPointF>, extPoints)
-
-private:
-  void __setup_reference_values();
-  void __connect_points();
-  void __setup_ext_points();
-  void __setup_int_points();
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    QoolBoxShapeControl, qreal, topSpace)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    QoolBoxShapeControl, qreal, bottomSpace)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    QoolBoxShapeControl, qreal, leftSpace)
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    QoolBoxShapeControl, qreal, rightSpace)
 };
 
 QOOL_NS_END
