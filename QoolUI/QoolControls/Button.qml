@@ -11,6 +11,7 @@ T.AbstractButton {
         fillColor: root.Style.button
         borderColor: root.Style.controlBorderColor
         borderWidth: root.Style.controlBorderWidth
+        curved: true
     }
 
     property bool highlighted: enabled && hovered

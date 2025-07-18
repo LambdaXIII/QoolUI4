@@ -9,7 +9,7 @@ qt_add_qml_module(QoolControls
 
     IMPORTS Qool
     QML_FILES
-    QML_FILES BasicButton.qml
+    QML_FILES
     QML_FILES
     QML_FILES ClickableText.qml
     QML_FILES
@@ -19,6 +19,7 @@ qt_add_qml_module(QoolControls
     QML_FILES Button.qml
     QML_FILES ToolButton.qml
     QML_FILES QoolControl.qml
+    QML_FILES QoolButton.qml
 
 
 

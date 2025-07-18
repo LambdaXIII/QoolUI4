@@ -9,6 +9,7 @@ QoolBox {
     property Item label: BasicControlTitleText {
         text: root.title
         visible: text
+        color: root.settings.borderColor
     }
 
     settings {
@@ -36,11 +37,12 @@ QoolBox {
         dummyTitle.height: root.label.height
     }
 
-    readonly property real topSpace: dummyTitle.x + dummyTitle.height + root.settings.borderWidth
+    readonly property real topSpace: dummyTitle.height + root.settings.borderWidth
     readonly property real leftSpace: root.control.leftSpace + root.settings.borderWidth
     readonly property real rightSpace: root.control.rightSpace + root.settings.borderWidth
     readonly property real bottomSpace: root.control.bottomSpace + root.settings.borderWidth
 
     implicitHeight: root.settings.borderWidth * 2 + root.control.topSpace + root.control.bottomSpace
-    implicitWidth: root.settings.borderWidth * 2 + root.control.leftSpace + root.control.rightSpace
+    implicitWidth: root.settings.borderWidth * 2 + root.control.leftSpace
+                   + root.control.rightSpace + root.label?.implicitWidth ?? 0
 }

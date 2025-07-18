@@ -4,15 +4,39 @@
 <context>
     <name></name>
     <message id="qooltip-basic-button-1">
-        <location filename="../pages/Page_Buttons.qml" line="26"/>
         <source>普通按钮的介绍</source>
         <oldsource>Tip for the plain simple button</oldsource>
+        <translation type="obsolete">你好！</translation>
+    </message>
+    <message id="qooltip-basicbutton">
+        <location filename="../pages/Page_Buttons.qml" line="27"/>
+        <source>普通按钮的介绍</source>
         <translation type="unfinished">你好！</translation>
     </message>
-    <message id="qooltip-basic-button-flat-and-highlighted">
-        <location filename="../pages/Page_Buttons.qml" line="36"/>
+    <message id="qooltip-basicbutton-extra-properties">
+        <location filename="../pages/Page_Buttons.qml" line="37"/>
+        <location filename="../pages/Page_Buttons.qml" line="47"/>
         <source>介绍按钮对于 flat 和 highlighted 的支持</source>
-        <oldsource>Introduce that the button has flat and highlighted properties.</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="qooltip-qoolbutton">
+        <location filename="../pages/Page_Buttons.qml" line="63"/>
+        <source>介绍QoolButton</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="qooltip-qoolbutton-extra-properties">
+        <location filename="../pages/Page_Buttons.qml" line="75"/>
+        <source>QoolButton也可以flat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="qooltip-qoolbutton-checkable">
+        <location filename="../pages/Page_Buttons.qml" line="89"/>
+        <source>介绍QoolButton的checkable属性</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="qooltip-qoolbutton-animation">
+        <location filename="../pages/Page_Buttons.qml" line="102"/>
+        <source>介绍如何控制组件的动画</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -41,6 +65,7 @@
     <name>Page_Buttons</name>
     <message>
         <location filename="../pages/Page_Buttons.qml" line="13"/>
+        <location filename="../pages/Page_Buttons.qml" line="60"/>
         <source>酷酷的按钮</source>
         <translation type="unfinished"></translation>
     </message>
@@ -50,12 +75,62 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="23"/>
-        <source>QoolUI的按钮</source>
+        <location filename="../pages/Page_Buttons.qml" line="24"/>
+        <source>默认按钮</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="32"/>
+        <location filename="../pages/Page_Buttons.qml" line="43"/>
+        <source>可以 Check 的按钮</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="43"/>
+        <source>已经 Check 的按钮</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="59"/>
+        <source>这是一个酷酷的按钮</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="70"/>
+        <source>酷酷的按钮也可以有 flat 模式</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="71"/>
+        <source>平平无奇的酷酷的按钮</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="83"/>
+        <source>可以开关的按钮</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="84"/>
+        <source>动画已启用</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="84"/>
+        <source>动画已禁用</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="96"/>
+        <source>被禁用的按钮</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="97"/>
+        <source>奏凯！别摸我！</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="33"/>
         <source>标记为 flat 的按钮</source>
         <translation type="unfinished"></translation>
     </message>
