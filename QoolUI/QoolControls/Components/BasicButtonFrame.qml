@@ -15,7 +15,7 @@ T.AbstractButton {
     }
     readonly property alias titleLoader: titleLoader
 
-    property OctagonSettings backgroundSettings: OctagonSettings {
+    property QoolBoxSettings backgroundSettings: QoolBoxSettings {
         cutSize: Style.controlCutSize
         borderWidth: Style.controlBorderWidth
         borderColor: root.borderColor

@@ -5,10 +5,10 @@ import Qool
 Shape {
     id: root
 
-    property OctagonSettings settings: OctagonSettings {
+    property QoolBoxSettings settings: QoolBoxSettings {
         // borderWidth: 10
     }
-    readonly property OctagonShapeHelper control: OctagonShapeHelper {
+    readonly property QoolBoxShapeControl control: QoolBoxShapeControl {
         settings: root.settings
         target: root
     }

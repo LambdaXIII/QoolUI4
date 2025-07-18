@@ -10,10 +10,8 @@ Item {
 
     property bool rounded: false
 
-    property OctagonSettings settings: parent?.backgroundSettings
+    property QoolBoxSettings settings: parent?.backgroundSettings
                                        ?? internalSettings
-
-    property alias round: baseBox.round
 
     z: 85
     anchors {
@@ -24,7 +22,7 @@ Item {
         rightMargin: parent.rightInset
     }
 
-    OctagonSettings {
+    QoolBoxSettings {
         id: internalSettings
     }
 
@@ -38,6 +36,7 @@ Item {
             cutSizeBR: root.settings.cutSizeBR
             borderWidth: root.settings.borderWidth
             borderColor: root.highColor
+            curved: root.settings.curved
         }
         fillItem: lightBeam
     }

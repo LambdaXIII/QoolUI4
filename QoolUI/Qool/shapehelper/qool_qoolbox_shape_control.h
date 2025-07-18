@@ -1,8 +1,8 @@
-#ifndef QOOL_OCTAGONSHAPEHELPER_H
-#define QOOL_OCTAGONSHAPEHELPER_H
+#ifndef QOOL_QOOLBOX_SHAPE_CONTROL_H
+#define QOOL_QOOLBOX_SHAPE_CONTROL_H
 
 #include "qool_abstractshapehelper.h"
-#include "qool_octagonsettings.h"
+#include "qool_qoolbox_settings.h"
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/macro_foreach.hpp"
 #include "qoolns.hpp"
@@ -14,39 +14,39 @@
 
 QOOL_NS_BEGIN
 
-class OctagonShapeHelper: public AbstractShapeHelper {
+class QoolBoxShapeControl: public AbstractShapeHelper {
   Q_OBJECT
   QML_ELEMENT
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
-    OctagonShapeHelper, OctagonSettings*, settings)
+    QoolBoxShapeControl, QoolBoxSettings*, settings)
 
 public:
-  explicit OctagonShapeHelper(QObject* parent = nullptr);
+  explicit QoolBoxShapeControl(QObject* parent = nullptr);
   Q_INVOKABLE void dumpInfo() const override;
   Q_INVOKABLE bool contains(const QPointF& point) const override;
 
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
-    OctagonShapeHelper, qreal, safeTR)
+    QoolBoxShapeControl, qreal, safeTR)
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
-    OctagonShapeHelper, qreal, safeTL)
+    QoolBoxShapeControl, qreal, safeTL)
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
-    OctagonShapeHelper, qreal, safeBL)
+    QoolBoxShapeControl, qreal, safeBL)
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
-    OctagonShapeHelper, qreal, safeBR)
+    QoolBoxShapeControl, qreal, safeBR)
 
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
-    OctagonShapeHelper, qreal, borderShrinkSize)
+    QoolBoxShapeControl, qreal, borderShrinkSize)
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
-    OctagonShapeHelper, qreal, safeBorderWidth)
+    QoolBoxShapeControl, qreal, safeBorderWidth)
 
 #define DECL_POINT(_N_)                                                \
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(                         \
-    OctagonShapeHelper, QPointF, _N_)                                  \
+    QoolBoxShapeControl, QPointF, _N_)                                 \
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(                         \
-    OctagonShapeHelper, qreal, _N_##x)                                 \
+    QoolBoxShapeControl, qreal, _N_##x)                                \
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(                         \
-    OctagonShapeHelper, qreal, _N_##y)
+    QoolBoxShapeControl, qreal, _N_##y)
 
   QOOL_FOREACH_8(
     DECL_POINT, intTL, intTR, intLT, intLB, intRT, intRB, intBL, intBR)
@@ -56,24 +56,24 @@ public:
 #undef DECL_POINT
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
-    OctagonShapeHelper, qreal, offsetX)
+    QoolBoxShapeControl, qreal, offsetX)
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
-    OctagonShapeHelper, qreal, offsetY)
+    QoolBoxShapeControl, qreal, offsetY)
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
-    OctagonShapeHelper, qreal, intOffsetX)
+    QoolBoxShapeControl, qreal, intOffsetX)
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
-    OctagonShapeHelper, qreal, intOffsetY)
+    QoolBoxShapeControl, qreal, intOffsetY)
 
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
-    OctagonShapeHelper, QPolygonF, intPolygon)
+    QoolBoxShapeControl, QPolygonF, intPolygon)
   QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
-    OctagonShapeHelper, QPolygonF, extPolygon)
+    QoolBoxShapeControl, QPolygonF, extPolygon)
 
 protected:
-  // QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, safeBorderWidth)
-  // QOOL_BINDABLE_MEMBER(OctagonShapeHelper, qreal, borderShrinkSize)
-  QOOL_BINDABLE_MEMBER(OctagonShapeHelper, QList<QPointF>, intPoints)
-  QOOL_BINDABLE_MEMBER(OctagonShapeHelper, QList<QPointF>, extPoints)
+  // QOOL_BINDABLE_MEMBER(QoolBoxShapeControl, qreal, safeBorderWidth)
+  // QOOL_BINDABLE_MEMBER(QoolBoxShapeControl, qreal, borderShrinkSize)
+  QOOL_BINDABLE_MEMBER(QoolBoxShapeControl, QList<QPointF>, intPoints)
+  QOOL_BINDABLE_MEMBER(QoolBoxShapeControl, QList<QPointF>, extPoints)
 
 private:
   void __setup_reference_values();
@@ -84,4 +84,4 @@ private:
 
 QOOL_NS_END
 
-#endif // QOOL_OCTAGONSHAPEHELPER_H
+#endif // QOOL_QOOLBOX_SHAPE_CONTROL_H

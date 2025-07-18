@@ -4,7 +4,7 @@ import Qool
 
 ShapePath {
     id: root
-    property OctagonShapeHelper control
+    property QoolBoxShapeControl control
 
     strokeWidth: 0
     strokeColor: "transparent"

@@ -8,7 +8,7 @@ T.ToolButton {
 
     readonly property bool isFirst: Positioner.isFirstItem
 
-    property OctagonSettings backgroundSettings: OctagonSettings {
+    property QoolBoxSettings backgroundSettings: QoolBoxSettings {
         fillColor: root.Style.button
         borderWidth: root.Style.controlBorderWidth
         borderColor: root.Style.controlBorderColor

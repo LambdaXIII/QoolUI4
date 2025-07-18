@@ -1,4 +1,4 @@
-#include "qool_octagonsettings.h"
+#include "qool_qoolbox_settings.h"
 
 #include "qoolcommon/debug.hpp"
 #include "qoolcommon/macro_foreach.hpp"
@@ -7,7 +7,7 @@
 
 QOOL_NS_BEGIN
 
-OctagonSettings::OctagonSettings(QObject* parent)
+QoolBoxSettings::QoolBoxSettings(QObject* parent)
   : QObject { parent } {
   m_cutSizes.fill(0);
   m_offsetX.setValue(0);
@@ -22,11 +22,11 @@ OctagonSettings::OctagonSettings(QObject* parent)
     SLOT(notify_all_cutSizes_changed()));
 }
 
-void OctagonSettings::dumpInfo() const {
+void QoolBoxSettings::dumpInfo() const {
   xDebugQ << "Properties:" << xDBGQPropertyList;
 }
 
-void OctagonSettings::notify_all_cutSizes_changed() {
+void QoolBoxSettings::notify_all_cutSizes_changed() {
   Qt::beginPropertyUpdateGroup();
   emit cutSizeTLChanged();
   emit cutSizeTRChanged();
@@ -35,11 +35,11 @@ void OctagonSettings::notify_all_cutSizes_changed() {
   Qt::endPropertyUpdateGroup();
 }
 
-void OctagonSettings::set_sizes(qreal x) {
+void QoolBoxSettings::set_sizes(qreal x) {
   set_sizes(x, x, x, x);
 }
 
-void OctagonSettings::set_sizes(
+void QoolBoxSettings::set_sizes(
   qreal tl, qreal tr, qreal br, qreal bl) {
   Qt::beginPropertyUpdateGroup();
   set_cutSizeTL(tl);
@@ -49,7 +49,7 @@ void OctagonSettings::set_sizes(
   Qt::endPropertyUpdateGroup();
 }
 
-void OctagonSettings::set_sizes(
+void QoolBoxSettings::set_sizes(
   const std::vector<std::optional<qreal>>& numbers) {
   if (numbers.empty())
     return;
@@ -71,7 +71,7 @@ void OctagonSettings::set_sizes(
   Qt::endPropertyUpdateGroup();
 }
 
-void OctagonSettings::set_sizes(const QVariantList& list) {
+void QoolBoxSettings::set_sizes(const QVariantList& list) {
   static const auto trans = [&](const QVariant& v) {
     if (v.canConvert<qreal>())
       return std::make_optional(v.toDouble());
@@ -85,7 +85,7 @@ void OctagonSettings::set_sizes(const QVariantList& list) {
   set_sizes(numbers);
 }
 
-void OctagonSettings::set_sizes(const QString& x) {
+void QoolBoxSettings::set_sizes(const QString& x) {
   static const QRegularExpression regex("\\d+(\\.\\d+)?");
   auto matches = regex.globalMatch(x);
   std::vector<std::optional<qreal>> numbers;
@@ -100,7 +100,7 @@ void OctagonSettings::set_sizes(const QString& x) {
   set_sizes(numbers);
 }
 
-QVariant OctagonSettings::cutSizes() const {
+QVariant QoolBoxSettings::cutSizes() const {
   static const auto all_equals = [&] {
     return m_cutSizes[0] == m_cutSizes[1]
            && m_cutSizes[0] == m_cutSizes[2]
@@ -117,7 +117,7 @@ QVariant OctagonSettings::cutSizes() const {
   return sizes.join(' ');
 }
 
-void OctagonSettings::set_cutSizes(const QVariant& sizes_var) {
+void QoolBoxSettings::set_cutSizes(const QVariant& sizes_var) {
   if (sizes_var.typeId() == QMetaType::Int
       || sizes_var.typeId() == QMetaType::Double) {
     const qreal x = sizes_var.toDouble();
@@ -138,10 +138,10 @@ void OctagonSettings::set_cutSizes(const QVariant& sizes_var) {
   }
 }
 
-bool OctagonSettings::cutSizesLocked() const {
+bool QoolBoxSettings::cutSizesLocked() const {
   return m_cutSizesLocked;
 }
-void OctagonSettings::set_cutSizesLocked(const bool& x) {
+void QoolBoxSettings::set_cutSizesLocked(const bool& x) {
   if (m_cutSizesLocked == x)
     return;
   m_cutSizesLocked = x;
@@ -154,12 +154,12 @@ constexpr int BR_INDEX = 2;
 constexpr int BL_INDEX = 3;
 
 #define IMPL(N)                                                        \
-  qreal OctagonSettings::cutSize##N() const {                          \
+  qreal QoolBoxSettings::cutSize##N() const {                          \
     if (m_cutSizesLocked)                                              \
       return m_cutSizes[TL_INDEX];                                     \
     return m_cutSizes[N##_INDEX];                                      \
   }                                                                    \
-  void OctagonSettings::set_cutSize##N(qreal x) {                      \
+  void QoolBoxSettings::set_cutSize##N(qreal x) {                      \
     const auto old = cutSize##N();                                     \
     if (old == x)                                                      \
       return;                                                          \
@@ -167,7 +167,7 @@ constexpr int BL_INDEX = 3;
     if (! m_cutSizesLocked)                                            \
       emit cutSize##N##Changed();                                      \
   }                                                                    \
-  QBindable<qreal> OctagonSettings::bindable_cutSize##N() {            \
+  QBindable<qreal> QoolBoxSettings::bindable_cutSize##N() {            \
     return QBindable<qreal>(this, "cutSize" #N);                       \
   }
 
@@ -175,11 +175,11 @@ QOOL_FOREACH_3(IMPL, TR, BL, BR)
 
 #undef IMPL
 
-qreal OctagonSettings::cutSizeTL() const {
+qreal QoolBoxSettings::cutSizeTL() const {
   return m_cutSizes[TL_INDEX];
 }
 
-void OctagonSettings::set_cutSizeTL(qreal x) {
+void QoolBoxSettings::set_cutSizeTL(qreal x) {
   const auto old = cutSizeTL();
   if (old == x)
     return;
@@ -190,7 +190,7 @@ void OctagonSettings::set_cutSizeTL(qreal x) {
     emit cutSizeTLChanged();
 }
 
-QBindable<qreal> OctagonSettings::bindable_cutSizeTL() {
+QBindable<qreal> QoolBoxSettings::bindable_cutSizeTL() {
   return QBindable<qreal>(this, "cutSizeTL");
 }
 

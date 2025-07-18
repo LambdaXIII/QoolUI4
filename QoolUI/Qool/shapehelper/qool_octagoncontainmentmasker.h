@@ -1,7 +1,7 @@
 #ifndef QOOL_OCTAGONCONTAINMENTMASKER_H
 #define QOOL_OCTAGONCONTAINMENTMASKER_H
 
-#include "qool_octagonshapehelper.h"
+#include "qool_qoolbox_shape_control.h"
 #include "qoolcommon/property_macros_for_qobject.hpp"
 #include "qoolns.hpp"
 
@@ -15,7 +15,7 @@ class OctagonContainmentMasker: public QQuickItem {
   Q_OBJECT
   QML_ELEMENT
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(
-    OctagonShapeHelper*, shapeHelper, nullptr)
+    QoolBoxShapeControl*, shapeHelper, nullptr)
 public:
   explicit OctagonContainmentMasker(QQuickItem* parent = nullptr);
 

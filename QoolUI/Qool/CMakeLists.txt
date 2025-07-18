@@ -51,14 +51,14 @@ qt_add_qml_module(Qool
   utils/qool_geoutils.h
   utils/qool_geoutils.cpp
 
-  shapehelper/qool_octagonsettings.h
-  shapehelper/qool_octagonsettings.cpp
+  shapehelper/qool_qoolbox_settings.h
+  shapehelper/qool_qoolbox_settings.cpp
 
   shapehelper/qool_abstractshapehelper.h
   shapehelper/qool_abstractshapehelper.cpp
 
-  shapehelper/qool_octagonshapehelper.h
-  shapehelper/qool_octagonshapehelper.cpp
+  shapehelper/qool_qoolbox_shape_control.h
+  shapehelper/qool_qoolbox_shape_control.cpp
 
   shapehelper/qool_shapehelper.h
   shapehelper/qool_shapehelper.cpp

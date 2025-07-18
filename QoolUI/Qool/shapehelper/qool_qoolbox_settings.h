@@ -1,5 +1,5 @@
-#ifndef QOOL_OCTAGONSETTINGS_H
-#define QOOL_OCTAGONSETTINGS_H
+#ifndef QOOL_QOOLBOX_SETTINGS_H
+#define QOOL_QOOLBOX_SETTINGS_H
 
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/macro_foreach.hpp"
@@ -14,12 +14,12 @@
 
 QOOL_NS_BEGIN
 
-class OctagonSettings: public QObject {
+class QoolBoxSettings: public QObject {
   Q_OBJECT
   QML_ELEMENT
 
 public:
-  explicit OctagonSettings(QObject* parent = nullptr);
+  explicit QoolBoxSettings(QObject* parent = nullptr);
   Q_INVOKABLE void dumpInfo() const;
 
 private:
@@ -54,22 +54,25 @@ private:                                                               \
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(bool, cutSizesLocked)
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
-    OctagonSettings, qreal, borderWidth)
+    QoolBoxSettings, qreal, borderWidth)
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
-    OctagonSettings, QColor, borderColor)
+    QoolBoxSettings, QColor, borderColor)
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
-    OctagonSettings, QColor, fillColor)
+    QoolBoxSettings, QColor, fillColor)
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
-    OctagonSettings, qreal, offsetX)
+    QoolBoxSettings, qreal, offsetX)
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
-    OctagonSettings, qreal, offsetY)
+    QoolBoxSettings, qreal, offsetY)
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
-    OctagonSettings, qreal, intOffsetX)
+    QoolBoxSettings, qreal, intOffsetX)
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
-    OctagonSettings, qreal, intOffsetY)
+    QoolBoxSettings, qreal, intOffsetY)
+
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+    QoolBoxSettings, bool, curved)
 };
 
 QOOL_NS_END
 
-#endif // QOOL_OCTAGONSETTINGS_H
+#endif // QOOL_QOOLBOX_SETTINGS_H

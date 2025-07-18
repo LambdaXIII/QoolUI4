@@ -40,7 +40,7 @@ Floater {
             }
             BasicColorBehavior on settings.fillColor {}
             BasicColorBehavior on settings.borderColor {}
-            round: true
+            curved: true
         }
 
         leftPadding: 10

@@ -5,7 +5,7 @@ import Qool
 ShapePath {
     id: root
 
-    property OctagonShapeHelper control
+    property QoolBoxShapeControl control
 
     joinStyle: ShapePath.BevelJoin
     strokeWidth: 0

@@ -6,7 +6,7 @@ import Qool
 T.AbstractButton {
     id: root
 
-    property OctagonSettings backgroundSettings: OctagonSettings {
+    property QoolBoxSettings backgroundSettings: QoolBoxSettings {
         cutSizes: root.Style.buttonCutSize
         fillColor: root.Style.button
         borderColor: root.Style.controlBorderColor
@@ -74,7 +74,6 @@ T.AbstractButton {
         visible: root.down
         highColor: root.Style.highlight
         lowColor: root.Style.highlightedText
-        round: true
         settings: root.backgroundSettings
     }
 
@@ -82,13 +81,11 @@ T.AbstractButton {
         highColor: root.Style.highlight
         lowColor: root.Style.highlightedText
         opacity: root.highlighted ? 1 : 0
-        round: true
         settings: root.backgroundSettings
     }
 
     ControlLockedCover {
         color: root.Style.negative
         settings: root.backgroundSettings
-        round: true
     }
 }

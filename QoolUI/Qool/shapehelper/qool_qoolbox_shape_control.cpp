@@ -1,4 +1,4 @@
-#include "qool_octagonshapehelper.h"
+#include "qool_qoolbox_shape_control.h"
 
 #include "qoolcommon/debug.hpp"
 #include "qoolcommon/math.hpp"
@@ -7,9 +7,9 @@
 
 QOOL_NS_BEGIN
 
-OctagonShapeHelper::OctagonShapeHelper(QObject* parent)
+QoolBoxShapeControl::QoolBoxShapeControl(QObject* parent)
   : AbstractShapeHelper { parent }
-  , m_settings { new OctagonSettings(this) } {
+  , m_settings { new QoolBoxSettings(this) } {
   __setup_reference_values();
   __setup_ext_points();
   __setup_int_points();
@@ -56,7 +56,7 @@ OctagonShapeHelper::OctagonShapeHelper(QObject* parent)
   });
 }
 
-void OctagonShapeHelper::dumpInfo() const {
+void QoolBoxShapeControl::dumpInfo() const {
   AbstractShapeHelper::dumpInfo();
   xDebugQ << "设定信息：";
   m_settings.value()->dumpInfo();
@@ -87,7 +87,7 @@ void OctagonShapeHelper::dumpInfo() const {
           << "BL" << safeBL() << "BR" << safeBR();
 }
 
-bool OctagonShapeHelper::contains(const QPointF& point) const {
+bool QoolBoxShapeControl::contains(const QPointF& point) const {
   const auto x = point.x();
   const auto y = point.y();
   const bool in_bound = AbstractShapeHelper::contains(point);
@@ -104,7 +104,7 @@ bool OctagonShapeHelper::contains(const QPointF& point) const {
   return true;
 }
 
-void OctagonShapeHelper::__setup_reference_values() {
+void QoolBoxShapeControl::__setup_reference_values() {
 #define SHORT_EDGE bindable_shortEdge().value()
   m_safeTL.setBinding([&] {
     const qreal x =
@@ -151,7 +151,7 @@ void OctagonShapeHelper::__setup_reference_values() {
 
 } //__setup_reference_values
 
-void OctagonShapeHelper::__connect_points() {
+void QoolBoxShapeControl::__connect_points() {
 #define CONNECT_P(_N_)                                                 \
   m_##_N_.setBinding(                                                  \
     [&] { return QPointF(m_##_N_##x.value(), m_##_N_##y.value()); });
@@ -162,7 +162,7 @@ void OctagonShapeHelper::__connect_points() {
 #undef CONNECT_P
 }
 
-void OctagonShapeHelper::__setup_ext_points() {
+void QoolBoxShapeControl::__setup_ext_points() {
 #define W bindable_width().value()
 #define H bindable_height().value()
   m_extTLx.setBinding(
@@ -196,7 +196,7 @@ void OctagonShapeHelper::__setup_ext_points() {
 #undef H
 }
 
-void OctagonShapeHelper::__setup_int_points() {
+void QoolBoxShapeControl::__setup_int_points() {
 #define W bindable_width().value()
 #define H bindable_height().value()
 #define DEF_COMMON const auto border = m_safeBorderWidth.value();
