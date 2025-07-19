@@ -3,12 +3,9 @@
     <author>qoolui</author>
     <description>A Qool dark theme</description>
     <constants>
-        <bool property="animationEnabled" value="YES" />
 
         <stringlist property="papaWords">
-            <string>Pa</string>
-            <string>PaPa</string>
-            <string>Pa!!!</string>
+            <string>Pa !</string>
             <string>啪！</string>
             <string>啪!!!</string>
             <string>啪啪!</string>
@@ -22,15 +19,15 @@
         <number property="menuCutSize" copy="buttonCutSize"/>
         <number property="buttonCutSize" value="5"/>
 
-        <number property="textSize" value="14" />
-        <number property="titleTextSize" copy="textSize" add="2"/>
-        <number property="toolTipTextSize" copy="textSize" add="-4"/>
+        <number property="textSize" value="16" />
+        <number property="titleTextSize" copy="textSize" add="4"/>
+        <number property="toolTipTextSize" copy="textSize" add="-6"/>
         <number property="importantTextSize" copy="textSize" multiply="2"/>
         <number property="decorativeTextSize" copy="toolTipTextSize"/>
 
         <number property="controlCutSize" value="10"/>
         <number property="controlBorderWidth" value="1"/>
-        <number property="controlTitleTextSize" copy="controlTextSize" add="-2" />
+        <number property="controlTitleTextSize" copy="controlTextSize" add="-4" />
         <number property="controlTextSize" copy="textSize" add="-2"/>
 
         <number property="windowCutSize" value="35"/>
@@ -108,8 +105,8 @@
     <disabled>
         <!--Can contain different vlues only-->
         <color property="accent" copy="negative"/>
-        <color property="text" copy="mid" lighter="1.2"/>
-        <color property="windowText" copy="mid" lighter="1.2"/>
-        <color property="buttonText" copy="mid" lighter="1.2"/>
+        <color property="text" copy="text" darker="1.8"/>
+        <color property="windowText" copy="text" darker="1.8"/>
+        <color property="buttonText" copy="text" darker="1.8"/>
     </disabled>
 </qooltheme>

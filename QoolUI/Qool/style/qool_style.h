@@ -5,6 +5,7 @@
 #include "qool_theme.h"
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/macro_foreach.hpp"
+#include "qoolcommon/property_macros_for_qobject.hpp"
 #include "qoolcommon/property_macros_for_qobject_declonly.hpp"
 #include "qoolns.hpp"
 
@@ -23,92 +24,89 @@ class Style: public QQuickAttachedPropertyPropagator {
   Q_OBJECT
   QML_ELEMENT
   QML_ATTACHED(QOOL_NS::Style)
+  QML_UNCREATABLE(
+    "It's an attached item. Creating directly is forbidden.")
 
 public:
-  enum Groups {
-    Active = Theme::Active,
-    Inactive = Theme::Inactive,
-    Disabled = Theme::Disabled
-  };
-  Q_ENUM(Groups)
-
   explicit Style(QObject* parent = nullptr);
   virtual ~Style();
+  // Q_INVOKABLE void dumpInfo() const;
 
   static Style* qmlAttachedProperties(QObject* object);
 
-  QVariant value(Theme::Groups group, QString key) const;
-  void setValue(Theme::Groups group, QString key, QVariant value);
-
-  Q_INVOKABLE void dumpInfo() const;
+  QString theme() const;
+  void setTheme(const QString& theme);
+  void resetTheme();
+  Q_SIGNAL void themeChanged();
 
 protected:
+  Q_PROPERTY(QString theme READ theme WRITE setTheme RESET resetTheme
+      NOTIFY themeChanged)
   Theme m_currentTheme;
+  // bool m_explicitCustomed { false };
   ItemTracker* m_itemTracker;
-  QHash<Theme::Groups, QVariantMap*> m_data;
-  QHash<Theme::Groups, StyleGroupAgent*> m_agents;
+  void __setup_properties();
+  void __spread_theme_values();
+  QOOL_BINDABLE_MEMBER(Style, StyleGroupAgent*, currentAgent)
+
   void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
     QQuickAttachedPropertyPropagator* oldParent) override;
-
-  void set_current_theme(const Theme& theme);
-  void update_values(
-    QList<Theme::Groups> groups = {}, QStringList keys = {});
-
   void inherit(Style* other);
-  void propagate_theme();
-  void propagate_value(
-    Theme::Groups group, QString key, QVariant value);
-  void update_customed_value(
-    Theme::Groups group, QString key, QVariant value);
+  void __propagate_theme();
+  void __copy_values(Style* other);
 
   /********** PROPERTIES *********/
 
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT_DECL(StyleGroupAgent*, active)
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT_DECL(StyleGroupAgent*, inactive)
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT_DECL(StyleGroupAgent*, disabled)
-
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QString, theme)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
-    Style, Theme::Groups, currentGroup)
+  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, active, nullptr)
+  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(
+    StyleGroupAgent*, inactive, nullptr)
+  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(
+    StyleGroupAgent*, disabled, nullptr)
 
 #define DECL(T, N)                                                     \
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE_DECL(Style, T, N)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(Style, T, N)
 
-#define __COLOR(N) DECL(QColor, N)
-  QOOL_FOREACH_10(__COLOR, white, silver, grey, black, red, maroon,
+#define __HANDLE__(N) DECL(QColor, N)
+  QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, red, maroon,
     yellow, olive, lime, green)
-  QOOL_FOREACH_10(__COLOR, aqua, cyan, teal, blue, navy, fuchsia,
+  QOOL_FOREACH_10(__HANDLE__, aqua, cyan, teal, blue, navy, fuchsia,
     purple, orange, brown, pink)
-  QOOL_FOREACH_3(__COLOR, positive, negative, warning)
+  QOOL_FOREACH_3(__HANDLE__, positive, negative, warning)
   QOOL_FOREACH_3(
-    __COLOR, controlBackgroundColor, controlBorderColor, infoColor)
-  QOOL_FOREACH_10(__COLOR, accent, light, midlight, dark, mid, shadow,
-    highlight, highlightedText, link, linkVisited)
-  QOOL_FOREACH_10(__COLOR, text, base, alternateBase, window,
+    __HANDLE__, controlBackgroundColor, controlBorderColor, infoColor)
+  QOOL_FOREACH_10(__HANDLE__, accent, light, midlight, dark, mid,
+    shadow, highlight, highlightedText, link, linkVisited)
+  QOOL_FOREACH_10(__HANDLE__, text, base, alternateBase, window,
     windowText, button, buttonText, placeholderText, toolTipBase,
     toolTipText)
-#undef __COLOR
+#undef __HANDLE__
 
-#define __INT(N) DECL(int, N)
-  QOOL_FOREACH_8(__INT, textSize, titleTextSize, toolTipTextSize,
+#define __HANDLE__(N) DECL(int, N)
+  QOOL_FOREACH_8(__HANDLE__, textSize, titleTextSize, toolTipTextSize,
     importantTextSize, decorativeTextSize, controlTitleTextSize,
     controlTextSize, windowTitleTextSize)
-#undef __INT
+#undef __HANDLE__
 
-#define __REAL(N) DECL(qreal, N)
+#define __HANDLE__(N) DECL(qreal, N)
   QOOL_FOREACH_3(
-    __REAL, instantDuration, transitionDuration, movementDuration)
-  QOOL_FOREACH_5(__REAL, menuCutSize, buttonCutSize, controlCutSize,
+    __HANDLE__, instantDuration, transitionDuration, movementDuration)
+  QOOL_FOREACH_5(__HANDLE__, menuCutSize, buttonCutSize, controlCutSize,
     windowCutSize, dialogCutSize)
-  QOOL_FOREACH_3(
-    __REAL, controlBorderWidth, windowBorderWidth, dialogBorderWidth)
-  QOOL_FOREACH_2(__REAL, windowElementSpacing, windowEdgeSpacing)
-#undef __REAL
+  QOOL_FOREACH_3(__HANDLE__, controlBorderWidth, windowBorderWidth,
+    dialogBorderWidth)
+  QOOL_FOREACH_2(__HANDLE__, windowElementSpacing, windowEdgeSpacing)
+#undef __HANDLE__
 
   DECL(QStringList, papaWords)
-  DECL(bool, animationEnabled)
 
 #undef DECL
+
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(bool, animationEnabled)
+protected:
+  bool m_animationEnabledCustomed { false };
+  bool m_animationEnabled { true };
+  void __inherit_animationEnabled(Style* other);
+  void __propagate_animationEnabled();
 };
 
 QOOL_NS_END

@@ -247,8 +247,8 @@ QVariantMap Theme::flatMap(Groups group) const {
   if (group != Custom)
     result.insert(m_data[Constants]);
 
-  // if (group != Active)
-  // result.insert(m_data[Active]);
+  if (group != Active)
+    result.insert(m_data[Active]);
 
   result.insert(m_data[group]);
 

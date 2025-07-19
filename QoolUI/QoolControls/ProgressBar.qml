@@ -9,7 +9,7 @@ T.ProgressBar {
 
     value: 0.5
 
-    readonly property OctagonSettings settings: OctagonSettings {
+    readonly property QoolBoxSettings settings: QoolBoxSettings {
         borderWidth: Style.controlBorderWidth
         borderColor: Style.mid
     }

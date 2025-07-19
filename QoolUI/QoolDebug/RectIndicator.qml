@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import Qool
 import "_private"
 
 Floater {
@@ -29,7 +30,7 @@ Floater {
                                                Style.buttonText)
     }
 
-    floatingItem: Item {
+    content: Item {
         implicitWidth: 10
         implicitHeight: 10
         Rectangle {

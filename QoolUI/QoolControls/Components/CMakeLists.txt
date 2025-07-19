@@ -5,7 +5,7 @@ qt_add_qml_module(QoolControlsComponents
 
     IMPORTS Qool
 
-    QML_FILES BasicControlFrame.qml
+    QML_FILES
     QML_FILES BasicControlTitleText.qml
     QML_FILES ParallelVerticalBars.qml
     QML_FILES ControlHighlightCover.qml
@@ -20,6 +20,11 @@ qt_add_qml_module(QoolControlsComponents
     QML_FILES BasicBigTitleText.qml
     QML_FILES BasicDecorativeText.qml
     QML_FILES ParallelVerticalBarsAnimation.qml
+    QML_FILES
+    QML_FILES
+    QML_FILES QoolBGBox.qml
+    QML_FILES BasicControl.qml
+    QML_FILES BasicButton.qml
 
 )
 

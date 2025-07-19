@@ -3,6 +3,7 @@
 #include "qoolcommon/debug.hpp"
 #include "qoolcommon/std_tools.hpp"
 
+#include <QBindable>
 #include <QDateTime>
 #include <QUuid>
 
@@ -43,33 +44,35 @@ bool MessageData::operator==(const MessageData& other) const {
          && attachments == other.attachments;
 }
 
-Message::Message()
-  : m_data { new MessageData } {
+bool operator==(const Message& a, const Message& b) {
+  return a.m_data == b.m_data
+         || *a.m_data.constData() == *b.m_data.constData();
 }
 
-Message::Message(const QVariantMap& obj)
-  : Message() {
-  check_and_insert(obj);
+bool operator!=(const Message& a, const Message& b) {
+  return ! operator==(a, b);
+}
+
+Message::Message()
+  : m_data { new MessageData } {
 }
 
 Message::Message(const QString& content)
   : Message() {
   m_data->content = content;
-  m_data->channels << MsgChannel(MsgChannel::ALL);
 }
 
-Message::Message(const QString& content, const QVariantMap& obj)
+Message::Message(const QVariantMap& object)
   : Message() {
-  check_and_insert(obj);
-  m_data->content = content;
+  __auto_insert(object);
 }
 
 Message::Message(const Message& other)
-  : m_data(other.m_data) {
+  : m_data { other.m_data } {
 }
 
 Message::Message(Message&& other)
-  : m_data(std::move(other.m_data)) {
+  : m_data { std::move(other.m_data) } {
 }
 
 Message& Message::operator=(const Message& other) {
@@ -84,90 +87,49 @@ Message& Message::operator=(Message&& other) {
   return *this;
 }
 
-const QString Message::content() const {
-  return m_data->content;
+
+QString Message::channel() const {
+  return m_data->channels;
 }
 
-Message& Message::setContent(const QString& msg) {
-  if (content() != msg) {
-    LOCK_DATA
-    m_data->content = msg;
-  }
-  return *this;
+void Message::set_channel(const QString& x) {
+  const auto decoded = MsgChannelSet::decode(x);
+  if (decoded == m_data->channels)
+    return;
+  LOCK_DATA
+  m_data->channels = decoded;
 }
 
-const QVariantMap& Message::attachments() const {
-  return m_data->attachments;
+MsgChannelSet Message::channels() const {
+  return m_data->channels;
 }
 
-Message& Message::setAttachments(const QVariantMap& attachments) {
-  if (m_data->attachments != attachments) {
-    LOCK_DATA
-    m_data->attachments.clear();
-    check_and_insert(attachments);
-  }
-  return *this;
+void Message::set_channels(const MsgChannelSet& x) {
+  if (m_data->channels == x)
+    return;
+  LOCK_DATA
+  m_data->channels = x;
 }
 
 bool Message::contains(const QString& key) const {
   return m_data->attachments.contains(key);
 }
 
-QVariant Message::attachment(
-  const QString& key, const QVariant& defvalue) const {
-  return m_data->attachments.value(key, defvalue);
+QVariant Message::attachment(const QString& key) const {
+  return m_data->attachments.value(key);
 }
 
 Message& Message::attach(const QString& key, const QVariant& value) {
-  check_and_insert(key, value);
-  return *this;
-}
-
-Message& Message::attach(const QVariantMap& attachments) {
-  check_and_insert(attachments);
-  return *this;
-}
-
-const QByteArray& Message::senderID() const {
-  return m_data->senderID;
-}
-
-Message& Message::setSenderID(QByteArrayView id) {
-  if (senderID() != id) {
-    LOCK_DATA
-    m_data->senderID = id.toByteArray();
-  }
-  return *this;
-}
-
-const MsgChannelSet& Message::channels() const {
-  return m_data->channels;
-}
-
-QString Message::channel() const {
-  return m_data->channels.encode();
-}
-
-Message& Message::setChannels(const MsgChannelSet& channels) {
-  if (this->channels() != channels) {
-    LOCK_DATA
-    m_data->channels = channels;
-  }
-  return *this;
-}
-
-Message& Message::setChannel(const QString& code) {
-  if (this->channel() != code) {
-    LOCK_DATA
-    m_data->channels = MsgChannelSet::decode(code);
-  }
-  return *this;
-}
-
-Message& Message::addChannel(const MsgChannel& channel) {
+  if (m_data->attachments.value(key) == value)
+    return *this;
   LOCK_DATA
-  m_data->channels.insert(channel);
+  __auto_insert(key, value);
   return *this;
+}
+
+Message& Message::addChannel(const QString& channel) {
+  const auto decoded = MsgChannelSet::decode(channel);
+  return addChannels(decoded);
 }
 
 Message& Message::addChannels(const MsgChannelSet& channels) {
@@ -176,16 +138,9 @@ Message& Message::addChannels(const MsgChannelSet& channels) {
   return *this;
 }
 
-Message& Message::addChannels(const QString& code) {
-  LOCK_DATA
-  m_data->channels.unite(MsgChannelSet::decode(code));
-  return *this;
-}
-
-Message& Message::removeChannel(const MsgChannel& channel) {
-  LOCK_DATA
-  m_data->channels.remove(channel);
-  return *this;
+Message& Message::removeChannel(const QString& channel) {
+  const auto decoded = MsgChannelSet::decode(channel);
+  return removeChannels(decoded);
 }
 
 Message& Message::removeChannels(const MsgChannelSet& channels) {
@@ -194,90 +149,52 @@ Message& Message::removeChannels(const MsgChannelSet& channels) {
   return *this;
 }
 
-Message& Message::removeChannels(const QString& code) {
+bool Message::isEmpty() const {
+  return m_data->content.isEmpty() && m_data->attachments.isEmpty();
+}
+
+void Message::__auto_insert(const QVariantMap& data) {
   LOCK_DATA
-  m_data->channels.subtract(MsgChannelSet::decode(code));
-  return *this;
-}
-
-Message& Message::operator<<(const MsgChannel& channel) {
-  LOCK_DATA
-  m_data->channels.insert(channel);
-  return *this;
-}
-
-QDateTime Message::created() const {
-  return m_data->created;
-}
-
-QByteArray Message::messageID() const {
-  return m_data->messageID;
-}
-
-Message& Message::operator<<(const MsgChannelSet& channels) {
-  LOCK_DATA
-  m_data->channels.unite(channels);
-  return *this;
-}
-
-Message& Message::operator<<(const QVariantMap& attachments) {
-  check_and_insert(attachments);
-  return *this;
-}
-
-void Message::check_and_insert(
-  const QString& key, const QVariant& value) {
-  if (key.isEmpty()) {
-    xWarningQ << "Empty key is not acceptable. Ignored.";
-    return;
+  Qt::beginPropertyUpdateGroup();
+  for (auto iter = data.constBegin(); iter != data.constEnd(); ++iter) {
+    __auto_insert(iter.key().simplified(), iter.value());
   }
+  Qt::endPropertyUpdateGroup();
+}
 
-  if (key == "created" || key == "messageID") {
-    xWarningQ << "Keys equal to constant properties are not "
-                 "acceptable. Ignored.";
-    return;
-  }
-
+void Message::__auto_insert(const QString& key, const QVariant& value) {
   LOCK_DATA
-
   if (key == "content") {
-    m_data->content = value.toString();
+    if (value.canConvert<QString>())
+      set_content(value.toString());
     return;
   }
 
   if (key == "channels" || key == "channel") {
-    if (value.typeId() == QMetaType::QStringList)
-      m_data->channels = MsgChannelSet(value.toStringList());
-    else if (value.typeId() == QMetaType::QByteArrayList)
-      m_data->channels = MsgChannelSet(value.value<QByteArrayList>());
-    else if (value.typeId() == QMetaType::QString)
-      m_data->channels = MsgChannelSet::decode(value.toString());
-    else if (value.typeId() == QMetaType::QByteArray)
-      m_data->channels = MsgChannelSet(value.toByteArray());
-    else if (value.canConvert<MsgChannelSet>())
-      m_data->channels = value.value<MsgChannelSet>();
-    else if (value.canConvert<MsgChannel>())
-      m_data->channels.insert(value.value<MsgChannel>());
-    else
-      xWarningQ
-        << xDBGRed
-        << "\"channels\" property cannot be set, check its type."
-        << xDBGReset << "Currently its typeID is" << xDBGYellow
-        << value.typeId() << xDBGReset;
+    if (value.canConvert<MsgChannelSet>())
+      set_channels(value.value<MsgChannelSet>());
+    else if (value.canConvert<QStringList>()) {
+      const QStringList codes = value.toStringList();
+      MsgChannelSet _channels;
+      for (const auto& code : codes)
+        _channels.unite(MsgChannelSet::decode(code));
+      set_channels(_channels);
+    } else if (value.canConvert<QString>())
+      set_channel(value.toString());
     return;
   }
 
   if (key == "senderID") {
-    if (value.typeId() == QMetaType::QByteArray)
-      m_data->senderID = value.toByteArray();
-    else if (value.typeId() == QMetaType::QString)
-      m_data->senderID = value.toString().toUtf8();
-    else
-      xWarningQ
-        << xDBGRed
-        << "\"senderID\" property cannot be set, check its type."
-        << xDBGReset << "Currently its typeID is" << xDBGYellow
-        << value.typeId() << xDBGReset;
+    if (value.canConvert<QByteArray>())
+      set_senderID(value.toByteArray());
+    return;
+  }
+
+  static const QStringList CONSTANT_KEYS { "created", "messageID",
+    "attachment", "attachments" };
+
+  if (CONSTANT_KEYS.contains(key)) {
+    xWarningQ << xDBGRed << key << xDBGReset "is not a valid key.";
     return;
   }
 
@@ -287,21 +204,43 @@ void Message::check_and_insert(
     m_data->attachments.insert(key, value);
 }
 
-void Message::check_and_insert(const QVariantMap& values) {
+QString Message::content() const {
+  return m_data->content;
+}
+void Message::set_content(const QString& x) {
+  if (m_data->content == x)
+    return;
   LOCK_DATA
-  for (auto iter = values.constBegin(); iter != values.constEnd();
-    ++iter) {
-    check_and_insert(iter.key(), iter.value());
-  }
+  m_data->content = x;
 }
 
-bool operator==(const Message& a, const Message& b) {
-  return a.m_data == b.m_data
-         || a.m_data.constData() == b.m_data.constData();
+QVariantMap Message::attachments() const {
+  return m_data->attachments;
 }
 
-bool operator!=(const Message& a, const Message& b) {
-  return ! operator==(a, b);
+void Message::set_attachments(const QVariantMap& data) {
+  if (m_data->attachments == data)
+    return;
+  LOCK_DATA;
+  m_data->attachments = data;
+}
+
+QByteArray Message::senderID() const {
+  return m_data->senderID;
+}
+
+void Message::set_senderID(const QByteArray& x) {
+  if (m_data->senderID == x)
+    return;
+  LOCK_DATA
+  m_data->senderID = x;
+}
+
+QDateTime Message::created() const {
+  return m_data->created;
+}
+QByteArray Message::messageID() const {
+  return m_data->messageID;
 }
 
 #undef LOCK_DATA

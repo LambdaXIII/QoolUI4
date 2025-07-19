@@ -1,62 +1,24 @@
-#include "qool_octagonshapehelper.h"
+#include "qool_qoolbox_shape_control.h"
 
 #include "qoolcommon/debug.hpp"
 #include "qoolcommon/math.hpp"
-
+QOOLCOMMON_MATH_MARK
 #include <cmath>
 
 QOOL_NS_BEGIN
 
-OctagonShapeHelper::OctagonShapeHelper(QObject* parent)
+QoolBoxShapeControl::QoolBoxShapeControl(QObject* parent)
   : AbstractShapeHelper { parent }
-  , m_settings { new OctagonSettings(this) } {
+  , m_settings { new QoolBoxSettings(this) } {
   __setup_reference_values();
   __setup_ext_points();
   __setup_int_points();
   __connect_points();
 
-  m_offsetX.setBinding([&] {
-    return bindable_settings().value()->bindable_offsetX().value();
-  });
-  m_offsetY.setBinding([&] {
-    return bindable_settings().value()->bindable_offsetY().value();
-  });
-
-  m_intOffsetX.setBinding([&] {
-    return bindable_settings().value()->bindable_intOffsetX().value();
-  });
-  m_intOffsetY.setBinding([&] {
-    return bindable_settings().value()->bindable_intOffsetY().value();
-  });
-
-  m_intPoints.setBinding([&] {
-    return QList<QPointF> { m_intTL.value(), m_intTR.value(),
-      m_intRT.value(), m_intRB.value(), m_intBR.value(),
-      m_intBL.value(), m_intLB.value(), m_intLT.value() };
-  });
-
-  m_extPoints.setBinding([&] {
-    return QList<QPointF> { m_extTL.value(), m_extTR.value(),
-      m_extRT.value(), m_extRB.value(), m_extBR.value(),
-      m_extBL.value(), m_extLB.value(), m_extLT.value() };
-  });
-
-  m_intPolygon.setBinding([&] {
-    auto points = m_intPoints.value();
-    auto start_point = points.first();
-    points.append(start_point);
-    return QPolygonF(points);
-  });
-
-  m_extPolygon.setBinding([&] {
-    auto points = m_extPoints.value();
-    auto start_point = points.first();
-    points.append(start_point);
-    return QPolygonF(points);
-  });
+  __setup_helper_properties();
 }
 
-void OctagonShapeHelper::dumpInfo() const {
+void QoolBoxShapeControl::dumpInfo() const {
   AbstractShapeHelper::dumpInfo();
   xDebugQ << "设定信息：";
   m_settings.value()->dumpInfo();
@@ -87,7 +49,7 @@ void OctagonShapeHelper::dumpInfo() const {
           << "BL" << safeBL() << "BR" << safeBR();
 }
 
-bool OctagonShapeHelper::contains(const QPointF& point) const {
+bool QoolBoxShapeControl::contains(const QPointF& point) const {
   const auto x = point.x();
   const auto y = point.y();
   const bool in_bound = AbstractShapeHelper::contains(point);
@@ -104,7 +66,7 @@ bool OctagonShapeHelper::contains(const QPointF& point) const {
   return true;
 }
 
-void OctagonShapeHelper::__setup_reference_values() {
+void QoolBoxShapeControl::__setup_reference_values() {
 #define SHORT_EDGE bindable_shortEdge().value()
   m_safeTL.setBinding([&] {
     const qreal x =
@@ -151,7 +113,7 @@ void OctagonShapeHelper::__setup_reference_values() {
 
 } //__setup_reference_values
 
-void OctagonShapeHelper::__connect_points() {
+void QoolBoxShapeControl::__connect_points() {
 #define CONNECT_P(_N_)                                                 \
   m_##_N_.setBinding(                                                  \
     [&] { return QPointF(m_##_N_##x.value(), m_##_N_##y.value()); });
@@ -162,7 +124,7 @@ void OctagonShapeHelper::__connect_points() {
 #undef CONNECT_P
 }
 
-void OctagonShapeHelper::__setup_ext_points() {
+void QoolBoxShapeControl::__setup_ext_points() {
 #define W bindable_width().value()
 #define H bindable_height().value()
   m_extTLx.setBinding(
@@ -196,7 +158,7 @@ void OctagonShapeHelper::__setup_ext_points() {
 #undef H
 }
 
-void OctagonShapeHelper::__setup_int_points() {
+void QoolBoxShapeControl::__setup_int_points() {
 #define W bindable_width().value()
 #define H bindable_height().value()
 #define DEF_COMMON const auto border = m_safeBorderWidth.value();
@@ -339,6 +301,57 @@ void OctagonShapeHelper::__setup_int_points() {
 #undef DEF_SHRINK
 #undef H
 #undef W
+}
+
+void QoolBoxShapeControl::__setup_helper_properties() {
+  m_offsetX.setBinding([&] {
+    return bindable_settings().value()->bindable_offsetX().value();
+  });
+  m_offsetY.setBinding([&] {
+    return bindable_settings().value()->bindable_offsetY().value();
+  });
+
+  m_intOffsetX.setBinding([&] {
+    return bindable_settings().value()->bindable_intOffsetX().value();
+  });
+  m_intOffsetY.setBinding([&] {
+    return bindable_settings().value()->bindable_intOffsetY().value();
+  });
+
+  m_intPoints.setBinding([&] {
+    return QList<QPointF> { m_intTL.value(), m_intTR.value(),
+      m_intRT.value(), m_intRB.value(), m_intBR.value(),
+      m_intBL.value(), m_intLB.value(), m_intLT.value() };
+  });
+
+  m_extPoints.setBinding([&] {
+    return QList<QPointF> { m_extTL.value(), m_extTR.value(),
+      m_extRT.value(), m_extRB.value(), m_extBR.value(),
+      m_extBL.value(), m_extLB.value(), m_extLT.value() };
+  });
+
+  m_intPolygon.setBinding([&] {
+    auto points = m_intPoints.value();
+    auto start_point = points.first();
+    points.append(start_point);
+    return QPolygonF(points);
+  });
+
+  m_extPolygon.setBinding([&] {
+    auto points = m_extPoints.value();
+    auto start_point = points.first();
+    points.append(start_point);
+    return QPolygonF(points);
+  });
+
+  m_topSpace.setBinding(
+    [&] { return qMax(m_safeTL.value(), m_safeTR.value()); });
+  m_bottomSpace.setBinding(
+    [&] { return qMax(m_safeBL.value(), m_safeBR.value()); });
+  m_leftSpace.setBinding(
+    [&] { return qMax(m_safeTL.value(), m_safeBL.value()); });
+  m_rightSpace.setBinding(
+    [&] { return qMax(m_safeTR.value(), m_safeBR.value()); });
 }
 
 QOOL_NS_END

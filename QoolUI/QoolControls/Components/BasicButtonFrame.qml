@@ -15,7 +15,7 @@ T.AbstractButton {
     }
     readonly property alias titleLoader: titleLoader
 
-    property OctagonSettings backgroundSettings: OctagonSettings {
+    property QoolBoxSettings backgroundSettings: QoolBoxSettings {
         cutSize: Style.controlCutSize
         borderWidth: Style.controlBorderWidth
         borderColor: root.borderColor
@@ -39,19 +39,37 @@ T.AbstractButton {
 
     SpaceHelper {
         id: spacer
+
+        readonly property real topCutSpace: Math.max(
+                                                root.backgroundSettings.cutSizeTL,
+                                                root.backgroundSettings.cutSiztTR)
+        readonly property real bottomCutSpace: Math.max(
+                                                   root.backgroundSettings.cutSizeBL,
+                                                   root.backgroundSettings.cutSizeBR)
+        readonly property real leftCutSpace: Math.max(
+                                                 root.backgroundSettings.cutSizeTL,
+                                                 root.backgroundSettings.cutSizeBL)
+        readonly property real rightCutSpace: Math.max(
+                                                  root.backgroundSettings.cutSizeTR,
+                                                  root.backgroundSettings.cutSizeBR)
+
         readonly property real headerSpace: {
             if (!root.showTitle)
                 return 0
             return Math.max(titleLoader.height + titleLoader.anchors.topMargin,
-                            root.backgroundSettings.cutSize)
+                            topCutSpace)
         }
+
         readonly property real implicitTopPadding: root.topInset + root.backgroundSettings.borderWidth + spacer.headerSpace
         readonly property real implicitLeftPadding: root.leftInset
                                                     + root.backgroundSettings.borderWidth
+                                                    + (root.showTitle ? 0 : leftCutSpace)
         readonly property real implicitRightPadding: root.rightInset
                                                      + root.backgroundSettings.borderWidth
+                                                     + (root.showTitle ? 0 : rightCutSpace)
         readonly property real implicitBottomPadding: root.bottomInset
                                                       + root.backgroundSettings.borderWidth
+                                                      + (root.showTitle ? bottomCutSpace : 0)
     }
 
     topPadding: spacer.implicitTopPadding + contentTopSpacing

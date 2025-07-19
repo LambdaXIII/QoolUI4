@@ -13,10 +13,8 @@ Item {
     property color color: Style.negative
 
     property bool rounded: false
-    property OctagonSettings settings: parent?.backgroundSettings
+    property QoolBoxSettings settings: parent?.backgroundSettings
                                        ?? internalSettings
-
-    property alias round:baseBox.round
 
     z: 90
     anchors {
@@ -30,16 +28,20 @@ Item {
     opacity: parent.enabled ? 0 : 1
     BasicNumberBehavior on opacity {}
 
-    OctagonSettings {
+    QoolBoxSettings {
         id: internalSettings
     }
 
     QoolBox {
         id: baseBox
         settings {
-            cutSizes: root.settings.cutSizes
+            cutSizeTL: root.settings.cutSizeTL
+            cutSizeTR: root.settings.cutSizeTR
+            cutSizeBL: root.settings.cutSizeBL
+            cutSizeBR: root.settings.cutSizeBR
             borderWidth: root.settings.borderWidth
             borderColor: root.color
+            curved: root.settings.curved
         }
         fillItem: barView
         anchors.fill: parent

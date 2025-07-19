@@ -45,7 +45,7 @@ BasicPage {
                     offsetX: control.offsetX
                     offsetY: control.offsetY
                 }
-                round: control.rounded
+                curved: control.rounded
             }
 
             z: -1

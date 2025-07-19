@@ -17,6 +17,8 @@ QoolWindow {
 
     Style.theme: "midnight"
 
+    toolBar: MainWindowToolBar {}
+
     content: SplitView {
         PageListView {
             id: tocView
@@ -30,11 +32,4 @@ QoolWindow {
             page_url: tocView.current_url
         }
     } //content
-
-    // backgroundSettings.borderWidth: 1
-
-    // QoolWindowHud {
-    //     window: root
-    // }
-    Component.onCompleted: Qore.test()
 }

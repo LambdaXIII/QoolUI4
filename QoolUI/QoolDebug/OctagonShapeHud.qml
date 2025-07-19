@@ -9,9 +9,9 @@ Item {
     property bool showIntPoints: true
     property bool showExtPoints: true
 
-    readonly property OctagonShapeHelper controller: shape?.control ?? internalController
+    readonly property QoolBoxShapeControl controller: shape?.control ?? internalController
 
-    OctagonShapeHelper {
+    QoolBoxShapeControl {
         id: internalController
     }
 

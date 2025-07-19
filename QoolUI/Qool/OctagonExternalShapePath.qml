@@ -4,7 +4,7 @@ import Qool
 
 ShapePath {
     id: strokeShape
-    property OctagonShapeHelper control
+    property QoolBoxShapeControl control
 
     joinStyle: ShapePath.BevelJoin
     pathHints: ShapePath.PahtLinear | ShapePath.PathNonOverlappingControlPointTriangles

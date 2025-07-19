@@ -21,7 +21,7 @@ class MsgChannel {
   QML_CONSTRUCTIBLE_VALUE
 public:
   MsgChannel();
-  Q_INVOKABLE explicit MsgChannel(QAnyStringView name);
+  Q_INVOKABLE MsgChannel(const QByteArray& name);
   MsgChannel(const MsgChannel& other);
   MsgChannel(MsgChannel&& other);
   MsgChannel& operator=(const MsgChannel& other);
@@ -42,30 +42,8 @@ public:
 
 private:
   static QSet<QByteArray> m_symbols;
-  static QByteArray symbolify(QByteArrayView code);
+  static QByteArray symbolify(const QByteArray& code);
   QByteArray m_data;
-};
-
-class MsgChannelSet: public QSet<MsgChannel> {
-  Q_GADGET
-  QML_VALUE_TYPE(msgchannelset)
-  QML_CONSTRUCTIBLE_VALUE
-public:
-  MsgChannelSet();
-  Q_INVOKABLE explicit MsgChannelSet(const QStringList& codes);
-  Q_INVOKABLE explicit MsgChannelSet(const QByteArrayList& codes);
-  Q_INVOKABLE explicit MsgChannelSet(const QString& code);
-  explicit MsgChannelSet(std::initializer_list<QAnyStringView> codes);
-  explicit MsgChannelSet(const QSet<QString>& codes);
-  explicit MsgChannelSet(const QSet<QByteArray>& codes);
-
-  operator QStringList() const;
-  operator QList<QByteArray>() const;
-
-  QString encode() const;
-  static MsgChannelSet decode(QAnyStringView string);
-
-  static MsgChannelSet all();
 };
 
 QOOL_NS_END

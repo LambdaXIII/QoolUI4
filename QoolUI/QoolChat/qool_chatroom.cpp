@@ -22,7 +22,7 @@ void ChatRoom::postMessage(const Message& message) {
 }
 
 void ChatRoom::postMessage(const QString& channels, Message message) {
-  message << MsgChannelSet(channels);
+  message.addChannel(channels);
   postMessage(message);
 }
 

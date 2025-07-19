@@ -4,43 +4,26 @@ import Qool
 Item {
     id: root
 
-    property OctagonSettings settings: OctagonSettings {
-        cutSize: Style.controlCutSize
+    property QoolBoxSettings settings: QoolBoxSettings {
         borderWidth: Style.controlBorderWidth
         borderColor: Style.accent
         fillColor: Style.dark
+        curved: false
     }
     property alias cutSize: root.settings.cutSize
+    property alias curved: root.settings.curved
 
     property Item fillItem: null
 
     readonly property alias shape: loader.item
-    property OctagonShapeHelper control: OctagonShapeHelper {
+    property QoolBoxShapeControl control: QoolBoxShapeControl {
         settings: root.settings
     }
 
-    property bool round: false
-
     property bool animatingHint: false
-
-    enum ImplShapes {
-        Oct,
-        RoundedOct,
-        Rect
-    }
 
     SmartObject {
         id: pCtrl
-
-        readonly property int selectedShape: {
-            if (!root.fillItem) {
-                if (root.round)
-                    return QoolBox.Rect
-                if (root.cutSizes === 0)
-                    return QoolBox.Rect
-            }
-            return root.round ? RoundedOct : QoolBox.Oct
-        }
 
         Component {
             id: boxShape
@@ -63,7 +46,7 @@ Item {
         anchors.fill: parent
         sourceComponent: {
             if (root.animatingHint == false) {
-                let cond1 = !root.fillItem && root.round
+                let cond1 = !root.fillItem && root.curved
                 const half = Math.min(root.width, root.height) / 2
                 let cond2 = root.settings.cutSizeTL <= half
                     && root.settings.cutSizeTR <= half
@@ -76,7 +59,7 @@ Item {
                 if (cond1 && (cond2 || cond3))
                     return rectShape
             }
-            return root.round ? roundShape : boxShape
+            return root.curved ? roundShape : boxShape
         }
     }
 

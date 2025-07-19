@@ -1,131 +1,108 @@
-file(GLOB QOOL_INTERNAL_QML_FILES "${CMAKE_CURRENT_SOURCE_DIR}/_private/*.qml")
+file(GLOB QOOL_INTERNAL_QML_FILES "_private/*.qml")
 set_source_files_properties(
-  ${QOOL_INTERNAL_QML_FILES} PROPERTIES QT_QML_INTERNAL_TYPE TRUE
-)
-set_source_files_properties(
-  Qore.qml QoolConstants.qml PixelFont.qml PROPERTIES QT_QML_SINGLETON_TYPE
-                                                      TRUE
+  ${QOOL_INTERNAL_QML_FILES}
+PROPERTIES
+  QT_QML_INTERNAL_TYPE TRUE
 )
 
-find_package(Qt6 REQUIRED COMPONENTS Core)
-
-qt_add_qml_module(
-  Qool
-  URI
-  Qool
-  VERSION
-  ${QOOLUI_VERSION_QML}
-  NAMESPACE
-  ${QOOL_NS}
-  QML_FILES
+set_source_files_properties(
   Qore.qml
-  QML_FILES
-  QML_FILES
+  QoolConstants.qml
   PixelFont.qml
+PROPERTIES
+QT_QML_SINGLETON_TYPE TRUE
+)
+
+qt_add_qml_module(Qool
+  URI Qool
+  VERSION ${QOOLUI_VERSION_QML}
+  NAMESPACE ${QOOL_NS}
+
   QML_FILES
-  _private/QoolWindowCloseButton.qml
-  QML_FILES
+
+  _private/OctagonRectangleShape.qml
   _private/QoolWindowBG.qml
-  QML_FILES
+  _private/QoolWindowCloseButton.qml
   _private/QoolWindowTitleItem.qml
+
+  QML_FILES Qore.qml
+  QML_FILES PixelFont.qml
+
   SOURCES
-  utils/qool_smartobj.h
-  utils/qool_smartobj.cpp
-  SOURCES
-  utils/qool_singleton.h
-  utils/qool_singleton.cpp
-  SOURCES
-  utils/qool_extension_positions.h
-  utils/qool_extension_positions.cpp
-  SOURCES
-  shapehelper/qool_octagonsettings.h
-  shapehelper/qool_octagonsettings.cpp
-  SOURCES
-  shapehelper/qool_abstractshapehelper.h
-  shapehelper/qool_abstractshapehelper.cpp
-  SOURCES
-  shapehelper/qool_octagonshapehelper.h
-  shapehelper/qool_octagonshapehelper.cpp
-  SOURCES
-  shapehelper/qool_shapehelper.h
-  shapehelper/qool_shapehelper.cpp
-  QML_FILES
-  OctagonShape.qml
-  SOURCES
-  shapehelper/gadgets/qool_shapehelpergadget.h
-  shapehelper/gadgets/qool_shapehelpergadget.cpp
-  SOURCES
+
   datatypes/qool_vector.h
   datatypes/qool_vector.cpp
-  SOURCES
-  shapehelper/gadgets/qool_shapehelpergadget_circle.h
-  shapehelper/gadgets/qool_shapehelpergadget_circle.cpp
-  SOURCES
   datatypes/qool_polar2d.h
   datatypes/qool_polar2d.cpp
-  SOURCES
-  shapehelper/qool_octagoncontainmentmasker.h
-  shapehelper/qool_octagoncontainmentmasker.cpp
-  QML_FILES
-  OctagonRoundedShape.qml
-  QML_FILES
-  QoolBox.qml
-  QML_FILES
-  DragMoveArea.qml
-  QML_FILES
-  BasicColorBehavior.qml
-  BasicNumberBehavior.qml
-  QML_FILES
-  PositionLocker.qml
-  QML_FILES
-  QoolWindowBasic.qml
-  QoolWindow.qml
-  QML_FILES
-  DummyItem.qml
-  QML_FILES
-  QoolPalette.qml
-  SOURCES
+
+  utils/qool_smartobj.h
+  utils/qool_smartobj.cpp
+  utils/qool_singleton.h
+  utils/qool_singleton.cpp
+  utils/qool_extension_positions.h
+  utils/qool_extension_positions.cpp
   utils/qool_literals.h
-  SOURCES
   utils/qool_spacehelper.h
   utils/qool_spacehelper.cpp
-  QML_FILES
-  QML_FILES
-  OctagonInternalShapePath.qml
-  QML_FILES
-  OctagonExternalShapePath.qml
-  QML_FILES
-  OctagonRoundedExternalShapePath.qml
-  QML_FILES
-  OctagonRoundedInternalShapePath.qml
-  QML_FILES
-  QML_FILES
-  SOURCES
   utils/qool_numberranger.h
   utils/qool_numberranger.cpp
-  SOURCES
-  style/qool_style.h
-  style/qool_style.cpp
-  SOURCES
-  style/qool_theme.h
-  style/qool_theme.cpp
-  SOURCES
-  style/qool_theme_database.h
-  style/qool_theme_database.cpp
-  SOURCES
-  style/qool_system_theme.h
-  style/qool_system_theme.cpp
-  SOURCES
-  style/qool_stylegroupagent.h
-  style/qool_stylegroupagent.cpp
-  SOURCES
   utils/qool_itemtracker.h
   utils/qool_itemtracker.cpp
-  SOURCES
   utils/qool_geoutils.h
   utils/qool_geoutils.cpp
+
+  shapehelper/qool_qoolbox_settings.h
+  shapehelper/qool_qoolbox_settings.cpp
+
+  shapehelper/qool_abstractshapehelper.h
+  shapehelper/qool_abstractshapehelper.cpp
+
+  shapehelper/qool_qoolbox_shape_control.h
+  shapehelper/qool_qoolbox_shape_control.cpp
+
+  shapehelper/qool_shapehelper.h
+  shapehelper/qool_shapehelper.cpp
+
+  shapehelper/gadgets/qool_shapehelpergadget.h
+  shapehelper/gadgets/qool_shapehelpergadget.cpp
+
+  shapehelper/gadgets/qool_shapehelpergadget_circle.h
+  shapehelper/gadgets/qool_shapehelpergadget_circle.cpp
+
+  shapehelper/qool_octagoncontainmentmasker.h
+  shapehelper/qool_octagoncontainmentmasker.cpp
+
+  style/qool_style.h
+  style/qool_style.cpp
+  style/qool_theme.h
+  style/qool_theme.cpp
+  style/qool_theme_database.h
+  style/qool_theme_database.cpp
+  style/qool_system_theme.h
+  style/qool_system_theme.cpp
+  style/qool_stylegroupagent.h
+  style/qool_stylegroupagent.cpp
+
   QML_FILES
-  _private/OctagonRectangleShape.qml
+
+  OctagonShape.qml
+  OctagonRoundedShape.qml
+  QoolBox.qml
+  DragMoveArea.qml
+  BasicColorBehavior.qml
+  BasicNumberBehavior.qml
+  BasicTextBehavior.qml
+  PositionLocker.qml
+  QoolWindowBasic.qml
+  QoolWindow.qml
+  DummyItem.qml
+  QoolPalette.qml
+  OctagonInternalShapePath.qml
+  OctagonExternalShapePath.qml
+  OctagonRoundedExternalShapePath.qml
+  OctagonRoundedInternalShapePath.qml
+  Floater.qml
+
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)

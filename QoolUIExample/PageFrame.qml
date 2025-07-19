@@ -4,8 +4,11 @@ import QtQuick.Controls
 import Qool.Controls
 import Qool.Controls.Components
 import Qool
+import Qool.Chat
+import "pages/components"
+import Qool.Debug
 
-BasicControlFrame {
+BasicControl {
     id: root
 
     property url page_url
@@ -22,7 +25,8 @@ BasicControlFrame {
         property string note
     }
 
-    titleComponent: ColumnLayout {
+    label: ColumnLayout {
+        spacing: 0
         BasicBigTitleText {
             text: pCtrl.title
             Layout.alignment: Qt.AlignRight
@@ -33,14 +37,12 @@ BasicControlFrame {
             text: pCtrl.note
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             Layout.alignment: Qt.AlignRight
-            Layout.preferredWidth: Math.min(parent.width, implicitWidth)
+            Layout.maximumWidth: root.contentItem.width
             rightPadding: 6
-            leftPadding: 6
         }
     }
 
-    contentSpacing: 5
-
+    contentPadding: 6
     contentItem: Flickable {
         id: main
 
@@ -63,8 +65,16 @@ BasicControlFrame {
                 root.pageLoaded()
                 main.contentY = 0
             }
+            onStatusChanged: tipPanel.hide()
         }
     } //contentItem
+
+    QoolTipPanel {
+        id: tipPanel
+        parent: main
+        maximumWidth: parent.width / 2
+        maximumHeight: parent.height
+    }
 
     Popup {
         id: loadingBar

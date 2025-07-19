@@ -1,4 +1,25 @@
 
+
+
+project(QoolUI
+VERSION ${QOOLUI_VERSION_FULL}
+LANGUAGES CXX
+)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(
+  Qt6 6.8
+  COMPONENTS Core Quick QuickControls2 Concurrent Xml LinguistTools
+  REQUIRED
+)
+
+qt_standard_project_setup(
+  REQUIRES 6.8
+  I18N_TRANSLATED_LANGUAGES zh en
+)
+
 configure_file(includes/qoolns.hpp.config includes/qoolns.hpp)
 configure_file(includes/qoolversion.hpp.config includes/qoolversion.hpp)
 
