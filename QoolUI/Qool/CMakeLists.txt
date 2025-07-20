@@ -1,7 +1,7 @@
 file(GLOB QOOL_INTERNAL_QML_FILES "_private/*.qml")
 set_source_files_properties(
   ${QOOL_INTERNAL_QML_FILES}
-PROPERTIES
+  PROPERTIES
   QT_QML_INTERNAL_TYPE TRUE
 )
 
@@ -9,8 +9,8 @@ set_source_files_properties(
   Qore.qml
   QoolConstants.qml
   PixelFont.qml
-PROPERTIES
-QT_QML_SINGLETON_TYPE TRUE
+  PROPERTIES
+  QT_QML_SINGLETON_TYPE TRUE
 )
 
 qt_add_qml_module(Qool
@@ -50,6 +50,8 @@ qt_add_qml_module(Qool
   utils/qool_itemtracker.cpp
   utils/qool_geoutils.h
   utils/qool_geoutils.cpp
+  utils/qool_random_hsv_color_generator.h
+  utils/qool_random_hsv_color_generator.cpp
 
   shapehelper/qool_qoolbox_settings.h
   shapehelper/qool_qoolbox_settings.cpp
@@ -111,11 +113,11 @@ qt_add_resources(Qool "qoolui_assets" PREFIX "/qoolui" FILES ${QOOL_ASSETS})
 set_target_properties(
   Qool
   PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER org.qoolui
-             MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-             MACOSX_BUNDLE_SHORT_VERSION_STRING
-             ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-             MACOSX_BUNDLE TRUE
-             WIN32_EXECUTABLE TRUE
+  MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+  MACOSX_BUNDLE_SHORT_VERSION_STRING
+  ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+  MACOSX_BUNDLE TRUE
+  WIN32_EXECUTABLE TRUE
 )
 
 target_compile_definitions(
