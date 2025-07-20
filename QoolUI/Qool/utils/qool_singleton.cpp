@@ -55,7 +55,7 @@ void QoolSingleton::test() {
   auto plugins = PluginLoader<TestObject>::loadInstances();
   for (auto iter = plugins.constBegin(); iter != plugins.constEnd();
     ++iter) {
-    xDebugQ << iter.key() << iter.value()->value();
+    xDebugQ << iter.key() << iter.value().instance;
   }
 }
 

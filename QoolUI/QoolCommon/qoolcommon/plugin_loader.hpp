@@ -134,7 +134,41 @@ public:
 
 template <typename Interface>
 struct PluginLoader {
-  using InstanceMap = QMultiHash<QString, Interface*>;
+  struct InstanceInfo {
+    int priority;
+    QString name;
+    QString description;
+    Interface* instance;
+  };
+  using InstanceMap = QMultiHash<QString, InstanceInfo>;
+
+  static inline std::optional<InstanceInfo> loadInstance(
+    QPluginLoader* loader) {
+    auto ins_obj = loader->instance();
+    if (! ins_obj) {
+      xWarning << xDBGToken("QoolUIPluginLoader")
+               << "Failed loading qoolplugin:" << xDBGRed
+               << loader->fileName() << xDBGYellow
+               << "set QT_DEBUG_PLUGINS to 1 to debug plugins."
+               << xDBGReset;
+      return std::nullopt;
+    }
+
+    auto ins_interface = qobject_cast<Interface*>(ins_obj);
+    if (ins_interface == nullptr) {
+      loader->unload();
+      return std::nullopt;
+    }
+
+    InstanceInfo info;
+    info.instance = ins_interface;
+    info.name = QOOL_NS::pluginMetadata(*loader, "name").toString();
+    info.description =
+      QOOL_NS::pluginMetadata(*loader, "description").toString();
+    info.priority =
+      QOOL_NS::pluginMetadata(*loader, "priority").toInt();
+    return { info };
+  }
 
   static inline InstanceMap loadInstances() {
     QOOL_NS::PluginScanner scanner(QOOL_PLUGIN_DIR);
@@ -148,31 +182,17 @@ struct PluginLoader {
       QScopedPointer<QPluginLoader> loader { new QPluginLoader(
         pluginPath) };
 
-      auto ins_object = loader->instance();
-
-      if (! ins_object)
-        xWarning << xDBGToken("QoolUIPluginLoader")
-                 << "Failed loading qoolplugin:" << xDBGRed
-                 << loader->fileName() << xDBGYellow
-                 << "set QT_DEBUG_PLUGINS to 1 to debug plugins."
-                 << xDBGReset;
-
-      Interface* ins_interface = qobject_cast<Interface*>(ins_object);
-      if (ins_interface == nullptr) {
-        loader->unload();
+      auto info = loadInstance(loader.data());
+      if (! info.has_value())
         continue;
-      }
 
-      QString plugin_name =
-        QOOL_NS::pluginMetadata(*loader, "name").toString();
-      if (plugin_name.isEmpty())
-        plugin_name = QFileInfo(pluginPath).baseName();
-      result.insert(plugin_name, ins_interface);
+      auto i = info.value();
+      result.insert(i.name, i);
 
       xInfo << xDBGToken("QoolUIPluginLoader")
             << "Found qoolplugin:" << xDBGGreen << loader->fileName()
-            << xDBGReset << "loaded as" << xDBGBlue << plugin_name
-            << xDBGYellow << ins_interface << xDBGReset;
+            << xDBGReset << "loaded as" << xDBGBlue << info->name
+            << xDBGYellow << info->instance << xDBGReset;
     }
 
     return result;
