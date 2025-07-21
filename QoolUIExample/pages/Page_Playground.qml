@@ -4,6 +4,7 @@ import QtQuick.Shapes
 import Qool.Controls.Components
 import Qool.Controls
 import Qool.Chat
+import Qool.File
 
 BasicPage {
     id: root

@@ -1,5 +1,6 @@
 #include "qool_fileicon_db.h"
 
+#include "qool_fileicon_imageprovider.h"
 #include "qoolcommon/debug.hpp"
 #include "qoolcommon/plugin_loader.hpp"
 
@@ -61,9 +62,8 @@ QUrl FileIconDB::requrestUrl(
 }
 
 QUrl FileIconDB::iconUrl(const QUrl& fileUrl) const {
-  static const QString url_pattern = QStringLiteral("image://%1/%2");
-  return fileUrl;
-  // TODO
+  return FileIconImageProvider::compileUrl(
+    fileUrl.toString(QUrl::PreferLocalFile));
 }
 
 void FileIconDB::auto_install_providers() {
