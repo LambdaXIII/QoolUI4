@@ -1,5 +1,6 @@
 
 find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_add_qml_module(QoolFile
     URI Qool.File
@@ -10,6 +11,7 @@ qt_add_qml_module(QoolFile
 
     SOURCES qool_fileinfo_db.h qool_fileinfo_db.cpp
     SOURCES qool_fileinfo.h qool_fileinfo.cpp
+    SOURCES qool_fileicon_db.h qool_fileicon_db.cpp
 
 
 )
@@ -28,6 +30,7 @@ target_link_libraries(QoolFile
     PRIVATE Qt6::Quick
     PRIVATE QoolCommon
 )
+target_link_libraries(QoolFile PRIVATE Qt6::Core)
 target_link_libraries(QoolFile PRIVATE Qt6::Core)
 
 target_include_directories(QoolFile

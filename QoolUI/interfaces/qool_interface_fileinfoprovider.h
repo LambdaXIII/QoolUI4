@@ -19,6 +19,7 @@ QOOL_NS_END
 
 #define QOOL_FILEINFOPROVIDER_IID                                      \
   "com.qoolui.fileinfoprovider.interface"
+
 Q_DECLARE_INTERFACE(
   QOOL_NS::FileInfoProvider, QOOL_FILEINFOPROVIDER_IID)
 
