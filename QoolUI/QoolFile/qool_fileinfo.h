@@ -13,6 +13,9 @@
 
 QOOL_NS_BEGIN
 
+class FileInfo;
+size_t qHash(const FileInfo& info, size_t seed) noexcept;
+
 class FileInfo {
   Q_GADGET
   QML_VALUE_TYPE(fileinfo)
@@ -38,6 +41,8 @@ public:
   Q_INVOKABLE operator QVariantMap() const;
 
   Q_INVOKABLE bool isValid() const;
+
+  // friend size_t qHash(const FileInfo& info, size_t seed) noexcept;
 
 private:
   QVariantMap m_data;
@@ -65,8 +70,14 @@ private:
   QOOL_FOREACH_3(__HANDLE__, lastModified, lastRead, birthTime)
 #undef __HANDLE__
 
+  DECL(qint64, size)
+  DECL(QUrl, url)
+  DECL(QUrl, iconUrl)
+
 #undef DECL
 };
+
+using FileInfoList = QList<FileInfo>;
 
 QOOL_NS_END
 

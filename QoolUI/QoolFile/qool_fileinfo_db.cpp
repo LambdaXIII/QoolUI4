@@ -1,5 +1,6 @@
 #include "qool_fileinfo_db.h"
 
+#include "qool_fileicon_imageprovider.h"
 #include "qoolcommon/debug.hpp"
 #include "qoolcommon/macro_foreach.hpp"
 #include "qoolcommon/plugin_loader.hpp"
@@ -78,9 +79,12 @@ QVariantMap FileInfoDB::generateCommonInfo(const QUrl& fileUrl) {
     isSymbolicLink,
     isWritable,
     exists)
-  QOOL_FOREACH_4(
-    _COPY, symLinkTarget, readSymLink, isBundle, bundleName)
+  QOOL_FOREACH_5(
+    _COPY, symLinkTarget, readSymLink, isBundle, bundleName, size)
 #undef _COPY
+  result["url"] = QUrl::fromLocalFile(info.absoluteFilePath());
+  result["iconUrl"] =
+    FileIconImageProvider::compileUrl(info.absoluteFilePath());
   return result;
 }
 

@@ -6,6 +6,13 @@
 
 QOOL_NS_BEGIN
 
+size_t qHash(const FileInfo& info, size_t seed) noexcept {
+  static const QString token { QStringLiteral("qoolfileinfo") };
+  seed = qHashMulti(seed, token, info.absoluteFilePath());
+  seed = qHashMulti(seed, info.birthTime(), info.lastModified());
+  return seed;
+}
+
 FileInfo::FileInfo(const QUrl& fileUrl) {
   m_data = FileInfoDB::instance()->getFileInfo(fileUrl);
 }
@@ -41,7 +48,9 @@ FileInfo& FileInfo::operator=(FileInfo&& other) {
 }
 
 bool FileInfo::operator==(const FileInfo& other) const {
-  return m_data == other.m_data;
+  return absoluteFilePath() == other.absoluteFilePath()
+         && birthTime() == other.birthTime()
+         && lastModified() == other.lastModified();
 }
 
 bool FileInfo::operator!=(const FileInfo& other) const {
@@ -85,6 +94,10 @@ QOOL_FOREACH_5(
 #define __HANDLE__(N) IMPL(QDateTime, N)
 QOOL_FOREACH_3(__HANDLE__, lastModified, lastRead, birthTime)
 #undef __HANDLE__
+
+IMPL(qint64, size)
+IMPL(QUrl, url)
+IMPL(QUrl, iconUrl)
 
 #undef IMPL
 
