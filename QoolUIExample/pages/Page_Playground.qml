@@ -3,7 +3,6 @@ import Qool
 import QtQuick.Shapes
 import Qool.Controls.Components
 import Qool.Controls
-import Qool.Chat
 import Qool.File
 
 BasicPage {
@@ -12,37 +11,9 @@ BasicPage {
     title: qsTr("试炼场")
     note: qsTr("测试一些东西……")
 
-    property qoolmessage m: "Greetings!"
-
-    ChatRoom {
-        id: room
-        // name: "A1"
-        Beeper {
-            id: beeper
-            onMessageRecieved: console.log("r1")
-            MessageLogger {
-                id: logger
-                onMessageRecieved: {
-                    console.log(length)
-                }
-            }
-        }
-    }
-
-    BasicButton {
-        text: "SEND TEXT"
-        onClicked: {
-            console.log(Style.papaWords)
-        }
-    }
-
-    ProgressBar {
-        id: bar
-
-        anchors.centerIn: parent
-        width: 200
-        height: 20
-
-        value: 0.8
+    FileDropper {
+        id: dropper
+        pattern: ".zip .jpg"
+        onAccepted: urls => console.log("accepted", urls)
     }
 }

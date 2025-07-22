@@ -104,6 +104,7 @@ qt_add_qml_module(Qool
   OctagonRoundedExternalShapePath.qml
   OctagonRoundedInternalShapePath.qml
   Floater.qml
+  CutSizeBinding.qml
 
 )
 

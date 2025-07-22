@@ -5,6 +5,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_add_qml_module(QoolFile
     URI Qool.File
@@ -24,7 +25,10 @@ qt_add_qml_module(QoolFile
     SOURCES qool_fileicon_imageprovider.h qool_fileicon_imageprovider.cpp
     SOURCES qool_fileplugin.h qool_fileplugin.cpp
     SOURCES qool_fileinfolist_model.h qool_fileinfolist_model.cpp
-    SOURCES qool_filepathchecker.h qool_filepathchecker.cpp
+    SOURCES
+    QML_FILES FileDropper.qml
+    QML_FILES
+    SOURCES qool_urlchecker.h qool_urlchecker.cpp
 )
 
 # target_sources(QoolFilePlugin
@@ -47,6 +51,7 @@ target_link_libraries(QoolFile
     PRIVATE Qt6::Quick
     PRIVATE QoolCommon
 )
+target_link_libraries(QoolFile PRIVATE Qt6::Core)
 target_link_libraries(QoolFile PRIVATE Qt6::Core)
 target_link_libraries(QoolFile PRIVATE Qt6::Core)
 target_link_libraries(QoolFile PRIVATE Qt6::Core)
