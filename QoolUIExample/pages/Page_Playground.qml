@@ -14,6 +14,9 @@ BasicPage {
     FileDropper {
         id: dropper
         pattern: ".zip .jpg"
-        onAccepted: urls => console.log("accepted", urls)
+        onAccepted: urls => {
+                        console.log("accepted", urls);
+                        dropper.Style.dumpInfo();
+                    }
     }
 }
