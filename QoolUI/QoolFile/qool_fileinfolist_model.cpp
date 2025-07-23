@@ -114,7 +114,8 @@ void FileInfoListModel::insert(
   beginInsertRows({}, position, position + len - 1);
   for (int i = 0; i < len; i++) {
     const qsizetype index = position + 1;
-    fileInfos()->insert(index, infos.at(i));
+    const qsizetype safe_index = qBound(0, index, fileInfos()->size());
+    fileInfos()->insert(safe_index, infos.at(i));
     indexes << index;
   }
   endInsertRows();
@@ -279,8 +280,9 @@ QList<qsizetype> FileInfoListModel::move(
   QList<qsizetype> new_indexes;
   beginInsertRows({}, target_row, target_row + took_infos.length() - 1);
   for (int i = 0; i < took_infos.length(); i++) {
-    int t = target_row + i;
-    fileInfos()->insert(t, took_infos.at(i));
+    const qsizetype t = target_row + i;
+    const qsizetype safe_t = qBound(0, t, fileInfos()->size());
+    fileInfos()->insert(safe_t, took_infos.at(i));
     new_indexes << t;
   }
   endInsertRows();

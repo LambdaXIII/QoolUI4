@@ -13,8 +13,17 @@ BasicPage {
 
     BasicControl {
 
-        contentItem: FileInfoListView {
-            allowDirectInsertion: true
+        contentItem: Item {
+            FileInfoListView {
+                allowDirectInsertion: true
+                width: parent.width
+                height: parent.height - toolBar.height
+            }
+
+            FileInfoListViewToolBar {
+                id: toolBar
+                width: parent.width
+            }
         }
         width: 400
         height: 600

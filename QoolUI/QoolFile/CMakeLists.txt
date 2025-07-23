@@ -29,7 +29,7 @@ qt_add_qml_module(QoolFile
     QML_FILES FileDropper.qml
     QML_FILES
     SOURCES qool_urlchecker.h qool_urlchecker.cpp
-    QML_FILES FilInfoViewToolBar.qml
+    QML_FILES FileInfoListViewToolBar.qml
     QML_FILES FileInfoListView.qml
     QML_FILES BasicFileInfoDisplay.qml
     QML_FILES FileInfoDelegate.qml
