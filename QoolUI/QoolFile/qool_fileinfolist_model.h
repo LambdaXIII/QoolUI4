@@ -65,7 +65,8 @@ public:
   Q_INVOKABLE qsizetype move(qsizetype from, qsizetype to);
   Q_INVOKABLE QList<qsizetype> move(
     const QList<qsizetype>& rows, qsizetype to);
-  Q_INVOKABLE QList<qsizetype> move(const FileInfo& info, qsizetype to);
+  // Q_INVOKABLE QList<qsizetype> move(const FileInfo& info, qsizetype
+  // to);
 
   Q_INVOKABLE FileInfo infoAt(qsizetype index) const;
   Q_INVOKABLE FileInfoList infos(QList<qsizetype> indexes = {});

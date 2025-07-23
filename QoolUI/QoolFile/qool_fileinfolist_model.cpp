@@ -287,15 +287,15 @@ QList<qsizetype> FileInfoListModel::move(
   return new_indexes;
 }
 
-QList<qsizetype> FileInfoListModel::move(
-  const FileInfo& info, qsizetype to) {
-  const auto total = fileInfos()->length();
-  if (total <= 0)
-    return {};
-  LOCK_DATA;
-  auto indexes = tools::find_all_indexes(info, *fileInfos());
-  return move(indexes, to);
-}
+// QList<qsizetype> FileInfoListModel::move(
+//   const FileInfo& info, qsizetype to) {
+//   const auto total = fileInfos()->length();
+//   if (total <= 0)
+//     return {};
+//   LOCK_DATA;
+//   auto indexes = tools::find_all_indexes(info, *fileInfos());
+//   return move(indexes, to);
+// }
 
 FileInfo FileInfoListModel::infoAt(qsizetype index) const {
   if (fileInfos()->isEmpty())

@@ -41,7 +41,6 @@ ListView {
         selectionModel: root.selectionModel
         fileInfoListModel: root.fileInfoListModel
         fileInfoDisplay: root.fileInfoDisplay
-        width: parent.width
     }
 
     BasicDecorativeText {

@@ -18,6 +18,8 @@ Control {
 
     readonly property bool checked: pCtrl.checked
 
+    width: parent?.width ?? ListView?.contentWidth ?? implicitWidth
+
     SmartObject {
         id: pCtrl
 
@@ -63,17 +65,17 @@ Control {
         property bool held
         pressAndHoldInterval: 200
         onPressAndHold: {
-            selectionModel.multiSelectRow(root.index, true);
+            root.selectionModel.multiSelectRow(root.index, true);
             held = true;
         }
         onReleased: held = false
         onClicked: ev => {
                        if (ev.modifiers & Qt.ShiftModifier) {
-                           selectionModel.rangeSelectRow(root.index);
+                           root.selectionModel.rangeSelectRow(root.index);
                        } else if (ev.modifiers & Qt.ControlModifier) {
-                           selectionModel.multiSelectRow(root.index);
+                           root.selectionModel.multiSelectRow(root.index);
                        } else {
-                           selectionModel.toggleRow(root.index);
+                           root.selectionModel.toggleRow(root.index);
                        }
                    }
         drag.target: mouseArea.held ? parent : undefined
@@ -97,16 +99,17 @@ Control {
                        const source = ev.source as FileInfoDelegate;
                        const targetIndex = isOnTop ? root.index : root.index + 1;
                        if (source) {
-                           let from = selectionModel.selectedRows();
+                           let from = root.selectionModel.selectedRows();
                            if (from.length === 0) {
-                               fileInfoListModel.move(source.index, targetIndex);
+                               root.fileInfoListModel.move(source.index, targetIndex);
                            } else {
                                from.push(source.index);
-                               let ix = fileInfoListModel.move(from, targetIndex);
-                               selectionModel.selectRows(ix);
+                               let new_rows = root.fileInfoListModel.move(from,
+                                                                          targetIndex);
+                               root.selectionModel.selectRows(new_rows);
                            }
                        } else if (allowDirectInsertion && ev.hasUrls) {
-                           fileInfoListModel.insert(ev.urls, targetIndex);
+                           root.fileInfoListModel.insert(targetIndex, ev.urls);
                        }
                    }
 
