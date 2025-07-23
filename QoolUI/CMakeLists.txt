@@ -45,6 +45,7 @@ target_include_directories(QoolIncludes
 add_subdirectory(QoolCommon)
 
 add_subdirectory(Qool)
+add_subdirectory(QoolModels)
 add_subdirectory(QoolControls)
 add_subdirectory(QoolChat)
 add_subdirectory(QoolFile)
