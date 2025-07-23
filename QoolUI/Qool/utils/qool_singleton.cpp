@@ -51,6 +51,14 @@ QList<int> QoolSingleton::intRange(
   return result;
 }
 
+int QoolSingleton::bound(int min, int value, int max) {
+  return qBound(min, value, max);
+}
+
+double QoolSingleton::bound(double min, double value, double max) {
+  return qBound(min, value, max);
+}
+
 void QoolSingleton::test() {
   auto plugins = PluginLoader<TestObject>::loadInstances();
   for (auto iter = plugins.constBegin(); iter != plugins.constEnd();

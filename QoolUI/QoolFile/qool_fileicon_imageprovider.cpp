@@ -40,7 +40,7 @@ QString FileIconImageProvider::schema() {
 }
 
 QUrl FileIconImageProvider::compileUrl(QAnyStringView filePath) {
-  static const QString url_pattern { QStringLiteral("image:/%1/%2") };
+  static const QString url_pattern { QStringLiteral("image://%1/%2") };
   return { url_pattern.arg(schema(), filePath.toString()) };
 }
 

@@ -19,7 +19,7 @@ QHash<int, QByteArray> FileInfoListModel::roleNames() const {
   static QHash<int, QByteArray> names;
   if (names.isEmpty()) {
     names.insert(QAbstractListModel::roleNames());
-    names[FileInfoRole] = "fileinfo";
+    names[FileInfoRole] = "fileInfo";
     names[AbsoluteFilePathRole] = "absoluteFilePath";
     names[UrlRole] = "url";
     names[IsFileRole] = "isFile";
@@ -132,7 +132,14 @@ void FileInfoListModel::append(const FileInfo& info) {
 
 void FileInfoListModel::append(const FileInfoList& infos) {
   const auto pos = fileInfos()->length();
-  insert(pos, infos);
+  beginInsertRows({}, pos, pos + infos.length() - 1);
+  fileInfos()->append(infos);
+  endInsertRows();
+
+  QList<qsizetype> indexes;
+  for (int i = 0; i < infos.length(); i++)
+    indexes << pos + i;
+  emit fileInfosInserted(indexes);
 }
 
 void FileInfoListModel::removeAt(qsizetype index) {

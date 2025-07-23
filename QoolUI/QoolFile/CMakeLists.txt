@@ -31,6 +31,8 @@ qt_add_qml_module(QoolFile
     SOURCES qool_urlchecker.h qool_urlchecker.cpp
     QML_FILES FilInfoViewToolBar.qml
     QML_FILES FileInfoListView.qml
+    QML_FILES BasicFileInfoDisplay.qml
+    QML_FILES FileInfoDelegate.qml
 )
 
 # target_sources(QoolFilePlugin

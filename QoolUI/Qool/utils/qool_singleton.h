@@ -43,6 +43,9 @@ public:
   Q_INVOKABLE static QList<int> intRange(
     int from, int to, bool rightEdgeIncluded = false);
 
+  Q_INVOKABLE static int bound(int min, int value, int max);
+  Q_INVOKABLE static double bound(double min, double value, double max);
+
   Q_INVOKABLE void test();
 };
 

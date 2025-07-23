@@ -11,12 +11,12 @@ BasicPage {
     title: qsTr("试炼场")
     note: qsTr("测试一些东西……")
 
-    FileDropper {
-        id: dropper
-        pattern: ".zip .jpg"
-        onAccepted: urls => {
-                        console.log("accepted", urls);
-                        dropper.Style.dumpInfo();
-                    }
+    BasicControl {
+
+        contentItem: FileInfoListView {
+            allowDirectInsertion: true
+        }
+        width: 400
+        height: 600
     }
 }

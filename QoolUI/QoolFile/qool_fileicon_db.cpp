@@ -13,6 +13,7 @@ QOOL_SIMPLE_SINGLETON_QT_IMPL(FileIconDB)
 FileIconDB::FileIconDB()
   : QObject(nullptr) {
   auto_install_providers();
+  xInfoQ << "initialized with" << m_providers.count() << "providers.";
 }
 
 FileIconDB::~FileIconDB() {
