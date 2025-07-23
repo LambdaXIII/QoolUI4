@@ -15,16 +15,22 @@ BasicPage {
 
         contentItem: Item {
             FileInfoListView {
+                id: view
                 allowDirectInsertion: true
                 width: parent.width
-                height: parent.height - toolBar.height
+                height: parent.height - bar.height
             }
 
             FileInfoListViewToolBar {
-                id: toolBar
+                id: bar
+                target: view
                 width: parent.width
+                y: view.height
             }
         }
+
+        padding: 5
+
         width: 400
         height: 600
     }

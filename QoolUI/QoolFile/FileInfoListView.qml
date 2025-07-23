@@ -91,7 +91,15 @@ ListView {
         fileInfoListModel.remove(rows);
     }
 
-    function length() {
-        return fileInfoListModel.rowCount();
+    function sortFileInfos() {
+        fileInfoListModel.sortInfos(false);
+    }
+
+    function arrangeFileInfos() {
+        fileInfoListModel.sortInfos(true);
+    }
+
+    function removeDuplicates() {
+        fileInfoListModel.removeDuplicates();
     }
 }

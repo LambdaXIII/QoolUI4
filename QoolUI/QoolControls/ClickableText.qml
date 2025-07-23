@@ -25,10 +25,10 @@ T.AbstractButton {
         text: root.text
         color: {
             if (root.down)
-                return Style.highlight
+                return Style.highlight;
             if (root.checked)
-                return Style.highlightedText
-            return Style.buttonText
+                return Style.highlightedText;
+            return Style.buttonText;
         }
         horizontalAlignment: Qt.AlignHCenter
         verticalAlignment: Qt.AlignVCenter
@@ -39,9 +39,12 @@ T.AbstractButton {
             id: bar
             visible: root.showBar
             alignment: root.horizontalAlignment
-            color: (root.checked
-                    || root.down) ? Style.highlight : Style.buttonText
-            percentage: (root.down || root.hovered || root.checked) ? 1 : 0
+            color: (root.checked || root.down) ? Style.highlight : Style.buttonText
+            percentage: {
+                if (!root.enabled)
+                    return 0;
+                return (root.down || root.hovered || root.checked) ? 1 : 0;
+            }
             width: parent.width
             height: root.checked ? parent.height : root.barHeight
             y: parent.height - height

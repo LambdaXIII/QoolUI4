@@ -191,13 +191,13 @@ void FileInfoListModel::remove(QList<qsizetype> indexes) {
   take(indexes);
 }
 
-void FileInfoListModel::remove(const FileInfo& info) {
-  if (fileInfos()->isEmpty())
-    return;
-  LOCK_DATA
-  auto indexes = tools::find_all_indexes(info, *fileInfos());
-  remove(indexes);
-}
+// void FileInfoListModel::remove(const FileInfo& info) {
+//   if (fileInfos()->isEmpty())
+//     return;
+//   LOCK_DATA
+//   auto indexes = tools::find_all_indexes(info, *fileInfos());
+//   remove(indexes);
+// }
 
 FileInfo FileInfoListModel::takeAt(qsizetype index) {
   const auto total = fileInfos()->length();
@@ -389,6 +389,22 @@ void FileInfoListModel::removeFiles() {
   auto indexes =
     tools::find_all_indexes_if<FileInfo>(pred, *fileInfos());
   remove(indexes);
+}
+
+void FileInfoListModel::removeDuplicates() {
+  if (fileInfos()->isEmpty())
+    return;
+  LOCK_DATA
+  QList<qsizetype> dupIndexes;
+  QSet<FileInfo> existed;
+  for (int i = 0; i < fileInfos()->length(); i++) {
+    const auto& info = fileInfos()->at(i);
+    if (existed.contains(info))
+      dupIndexes << i;
+    else
+      existed << info;
+  }
+  remove(dupIndexes);
 }
 
 bool FileInfoListModel::isEmpty() const {

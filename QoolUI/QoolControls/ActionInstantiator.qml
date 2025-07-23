@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 
-Instantiator {
+Repeater {
     id: root
 
     default property list<Action> actions

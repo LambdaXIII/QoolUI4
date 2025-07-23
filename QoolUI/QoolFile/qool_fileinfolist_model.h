@@ -57,7 +57,7 @@ public:
   Q_INVOKABLE void removeAt(qsizetype index);
   Q_INVOKABLE void removeRange(qsizetype first, qsizetype last);
   Q_INVOKABLE void remove(QList<qsizetype> indexes);
-  Q_INVOKABLE void remove(const FileInfo& info);
+  // Q_INVOKABLE void remove(const FileInfo& info);
 
   Q_INVOKABLE FileInfo takeAt(qsizetype index);
   Q_INVOKABLE FileInfoList take(QList<qsizetype> indexes);
@@ -75,6 +75,7 @@ public:
   Q_INVOKABLE void sortInfos(bool removeDups = true);
   Q_INVOKABLE void removeDirs();
   Q_INVOKABLE void removeFiles();
+  Q_INVOKABLE void removeDuplicates();
 
   Q_INVOKABLE bool isEmpty() const;
   Q_INVOKABLE void clear();
