@@ -6,14 +6,13 @@ import Qool.Controls
 QoolControl {
     id: root
 
-    property alias pattern: checker.pattern
-    property alias patternBehavior: checker.patternBehavior
+    property alias pattern: dropZone.pattern
+    property alias patternBehavior: dropZone.patternBehavior
+    property alias acceptDirs: dropZone.acceptDirs
+    property alias acceptFiles: dropZone.acceptFiles
 
-    property alias acceptDirs: checker.acceptDirs
-    property alias acceptFiles: checker.acceptFiles
-
-    readonly property bool containsDrag: zone.containsDrag
-    readonly property bool isAcceptable: zone.isAcceptable
+    readonly property bool containsDrag: dropZone.containsDrag
+    readonly property bool containsAcceptable: dropZone.containsAcceptable
 
     signal accepted(var urls)
 
@@ -25,41 +24,24 @@ QoolControl {
         clip: true
     }
 
-    UrlChecker {
-        id: checker
-    }
-
     QtObject {
         id: pCtrl
-        property color indicatorColor: root.Style.highlight
-        property real indicatorOpacity: zone.containsDrag ? 1 : 0
+        property color indicatorColor: {
+            if (dropZone.containsAcceptable)
+                return root.Style.positive
+            if (dropZone.containsDrag)
+                return root.Style.negative
+            return root.Style.highlight
+        }
+        property real indicatorOpacity: dropZone.containsDrag ? 1 : 0
     }
 
-    DropArea {
-        id: zone
-        enabled: root.enabled
+    FileDropArea {
+        id: dropZone
+        parent: root.background
+        containmentMask: root.background
         anchors.fill: parent
-        z: 50
-        containmentMask: root.containmentMask
-
-        property bool isAcceptable: false
-
-        onEntered: e => {
-                       pCtrl.indicatorColor = root.Style.highlight;
-                       zone.isAcceptable = checker.containsAcceptableUrls(e.urls);
-                       pCtrl.indicatorColor = zone.isAcceptable ? root.Style.positive :
-                                                                  root.Style.negative;
-                   }
-
-        onExited: e => {
-                      zone.isAcceptable = false;
-                  }
-        onDropped: e => {
-                       if (!zone.isAcceptable)
-                       return;
-                       let accepted_urls = checker.acceptableUrls(e.urls);
-                       root.accepted(accepted_urls);
-                   }
+        onAccepted: urls => root.accepted(urls)
     }
 
     QoolBox {

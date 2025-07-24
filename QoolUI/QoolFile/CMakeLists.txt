@@ -33,6 +33,7 @@ qt_add_qml_module(QoolFile
     QML_FILES FileInfoListView.qml
     QML_FILES BasicFileInfoDisplay.qml
     QML_FILES FileInfoDelegate.qml
+    QML_FILES FileDropArea.qml
 )
 
 # target_sources(QoolFilePlugin

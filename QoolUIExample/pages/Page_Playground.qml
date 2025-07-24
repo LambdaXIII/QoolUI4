@@ -12,17 +12,15 @@ BasicPage {
     title: qsTr("试炼场")
     note: qsTr("测试一些东西……")
 
-    BasicControl {
+    FileDropper {
 
         contentItem: Item {
             FileInfoListView {
                 id: view
                 clip: true
-                allowDirectInsertion: true
+                // allowDirectInsertion: true
                 width: parent.width
                 height: parent.height - bar.height
-
-                // ScrollIndicator.vertical: ScrollIndicator {}
                 ScrollBar.vertical: ScrollBar {}
             }
 
@@ -37,6 +35,8 @@ BasicPage {
         padding: 5
 
         width: 400
-        height: 600
+        height: 400
+
+        onAccepted: urls => view.fileInfoListModel.append(urls)
     }
 }

@@ -14,8 +14,6 @@ Control {
 
     property Component fileInfoDisplay: BasicFileInfoDisplay {}
 
-    property bool allowDirectInsertion: false
-
     readonly property bool checked: pCtrl.checked
 
     width: parent?.width ?? ListView?.contentWidth ?? implicitWidth
@@ -23,7 +21,8 @@ Control {
     SmartObject {
         id: pCtrl
 
-        readonly property color inserterColor: Qt.alpha(root.Style.positive, 0.8)
+        readonly property color inserterColor: Qt.alpha(root.Style.positive,
+                                                        0.8)
         readonly property real inserterSplitPos: 0.6
 
         property bool checked: root.selectionModel?.isRowSelected(root.index)
@@ -32,7 +31,7 @@ Control {
         Connections {
             target: root.selectionModel
             function onSelectionChanged() {
-                pCtrl.checked = root.selectionModel.isRowSelected(root.index);
+                pCtrl.checked = root.selectionModel.isRowSelected(root.index)
             }
         }
     }
@@ -65,17 +64,17 @@ Control {
         property bool held
         pressAndHoldInterval: 200
         onPressAndHold: {
-            root.selectionModel.multiSelectRow(root.index, true);
-            held = true;
+            root.selectionModel.multiSelectRow(root.index, true)
+            held = true
         }
         onReleased: held = false
         onClicked: ev => {
                        if (ev.modifiers & Qt.ShiftModifier) {
-                           root.selectionModel.rangeSelectRow(root.index);
+                           root.selectionModel.rangeSelectRow(root.index)
                        } else if (ev.modifiers & Qt.ControlModifier) {
-                           root.selectionModel.multiSelectRow(root.index);
+                           root.selectionModel.multiSelectRow(root.index)
                        } else {
-                           root.selectionModel.toggleRow(root.index);
+                           root.selectionModel.toggleRow(root.index)
                        }
                    }
         drag.target: mouseArea.held ? parent : undefined
@@ -86,30 +85,33 @@ Control {
         id: dropZone
         anchors.fill: parent
         z: 50
-        readonly property bool isOnTop: containsDrag && drag.y <= height
-                                        * pCtrl.inserterSplitPos && acceptable
-        readonly property bool isOnBottom: containsDrag && drag.y > height
-                                           * pCtrl.inserterSplitPos && acceptable
+        readonly property bool isOnTop: containsDrag
+                                        && drag.y <= height * pCtrl.inserterSplitPos
+                                        && acceptable
+        readonly property bool isOnBottom: containsDrag
+                                           && drag.y > height * pCtrl.inserterSplitPos
+                                           && acceptable
         readonly property bool acceptable: drag.source != root
 
         onDropped: ev => {
                        if (!acceptable) {
-                           return;
+                           return
                        }
-                       const source = ev.source as FileInfoDelegate;
-                       const targetIndex = isOnTop ? root.index : root.index + 1;
+                       const source = ev.source as FileInfoDelegate
+                       const targetIndex = isOnTop ? root.index : root.index + 1
                        if (source) {
-                           let from = root.selectionModel.selectedRows();
+                           let from = root.selectionModel.selectedRows()
                            if (from.length === 0) {
-                               root.fileInfoListModel.move(source.index, targetIndex);
+                               root.fileInfoListModel.move(source.index,
+                                                           targetIndex)
                            } else {
-                               from.push(source.index);
-                               let new_rows = root.fileInfoListModel.move(from,
-                                                                          targetIndex);
-                               root.selectionModel.selectRows(new_rows);
+                               from.push(source.index)
+                               let new_rows = root.fileInfoListModel.move(
+                                   from, targetIndex)
+                               root.selectionModel.selectRows(new_rows)
                            }
-                       } else if (allowDirectInsertion && ev.hasUrls) {
-                           root.fileInfoListModel.insert(targetIndex, ev.urls);
+                       } else if (ev.hasUrls) {
+                           root.fileInfoListModel.insert(targetIndex, ev.urls)
                        }
                    }
 
@@ -152,5 +154,4 @@ Control {
             BasicNumberBehavior on opacity {}
         }
     } //dropZone
-
 }
