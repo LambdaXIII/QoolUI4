@@ -32,7 +32,7 @@ FileDropper {
 
         BasicDecorativeText {
             text: qsTr("拖动到这里即可添加文件")
-            anchors.centerIn: parent
+            anchors.centerIn: view
             visible: view.count === 0
             z: -20
             opacity: 0.5

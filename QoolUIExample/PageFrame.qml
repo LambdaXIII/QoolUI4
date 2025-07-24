@@ -6,7 +6,6 @@ import Qool.Controls.Components
 import Qool
 import Qool.Chat
 import "pages/components"
-import Qool.Debug
 
 BasicControl {
     id: root
@@ -52,6 +51,8 @@ BasicControl {
 
         contentWidth: width
         contentHeight: pageLoader.height
+
+        ScrollBar.vertical: ScrollBar {}
 
         Loader {
             id: pageLoader

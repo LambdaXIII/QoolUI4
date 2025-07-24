@@ -9,12 +9,12 @@ T.ScrollBar {
 
     readonly property bool showIndicator: {
         if (root.policy == ScrollBar.AlwaysOn)
-            return true
-        return root.active && root.size < 1.0
+            return true;
+        return root.active && root.size < 1.0;
     }
 
     readonly property real scrollPosition: {
-        return Qore.remap(root.position, 0, 1 - root.size)
+        return Qore.remap(root.position, 0, 1 - root.size);
     }
 
     QtObject {
@@ -41,10 +41,16 @@ T.ScrollBar {
                 color: indicator.color
             }
             opacity: {
+                if (root.hovered || root.pressed)
+                    return pCtrl.visualOpacity;
+                if (root.size > 0.5)
+                    return 0;
                 if (root.policy === ScrollBar.AlwaysOn)
-                    return (root.hovered
-                            || root.pressed) ? indicator.opacity : 0
-                return indicator.opacity
+                    return 0;
+                return pCtrl.visualOpacity;
+            }
+            BasicNumberBehavior on opacity {
+                duration: root.Style.movementDuration
             }
         }
     }
