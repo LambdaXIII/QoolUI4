@@ -45,7 +45,7 @@
     <page>
         <title>文件</title>
         <note>处理本地文件相关的组件</note>
-        <page>Page_File.qml</page>
+        <page>Page_QoolFile.qml</page>
     </page>
 
     <page>
