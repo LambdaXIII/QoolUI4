@@ -13,7 +13,7 @@ Control {
     property bool checked: false
 
     hoverEnabled: true
-    padding: 5
+    padding: 2
 
     QtObject {
         id: pCtrl
@@ -24,7 +24,7 @@ Control {
                 return root.Style.highlightedText;
             if (root.hovered)
                 return root.Style.highlight;
-            return root.Style.buttonText;
+            return root.Style.text;
         }
 
         property color bgColor: {
@@ -40,6 +40,7 @@ Control {
     }
 
     contentItem: RowLayout {
+        spacing: 4
         Image {
             id: iconImg
             source: root.fileInfo.iconUrl
@@ -55,7 +56,7 @@ Control {
             Layout.fillWidth: true
             verticalAlignment: Text.AlignHCenter
             horizontalAlignment: Text.AlignLeft
-            font.pixelSize: root.Style.textSize
+            font.pixelSize: root.Style.controlTextSize
         }
     }
 

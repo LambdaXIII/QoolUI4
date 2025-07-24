@@ -2,6 +2,7 @@
 
 #include "qool_interface_test.h"
 #include "qoolcommon/debug.hpp"
+#include "qoolcommon/math/utils.hpp"
 #include "qoolcommon/plugin_loader.hpp"
 
 QOOL_NS_BEGIN
@@ -51,12 +52,16 @@ QList<int> QoolSingleton::intRange(
   return result;
 }
 
-int QoolSingleton::bound(int min, int value, int max) {
-  return qBound(min, value, max);
+qreal QoolSingleton::remap(qreal value,
+  qreal sourceMin,
+  qreal sourceMax,
+  qreal targetMin,
+  qreal targetMax) {
+  return math::remap(value, sourceMin, sourceMax, targetMin, targetMax);
 }
 
-double QoolSingleton::bound(double min, double value, double max) {
-  return qBound(min, value, max);
+qreal QoolSingleton::bound(qreal min, qreal value, qreal max) {
+  return math::auto_bound(min, value, max);
 }
 
 void QoolSingleton::test() {

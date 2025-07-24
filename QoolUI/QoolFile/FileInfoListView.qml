@@ -21,8 +21,8 @@ ListView {
     readonly property bool containsSelection: pCtrl.containsSelection
     readonly property FileInfoListModel fileInfoListModel: model
 
+    acceptedButtons: Qt.NoButton
     boundsBehavior: Flickable.DragOverBounds
-
     model: FileInfoListModel {}
 
     SmartObject {

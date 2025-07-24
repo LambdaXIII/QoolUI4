@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import Qool
 import QtQuick.Shapes
 import Qool.Controls.Components
@@ -16,9 +17,13 @@ BasicPage {
         contentItem: Item {
             FileInfoListView {
                 id: view
+                clip: true
                 allowDirectInsertion: true
                 width: parent.width
                 height: parent.height - bar.height
+
+                // ScrollIndicator.vertical: ScrollIndicator {}
+                ScrollBar.vertical: ScrollBar {}
             }
 
             FileInfoListViewToolBar {
