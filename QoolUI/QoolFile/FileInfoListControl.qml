@@ -20,7 +20,10 @@ FileDropper {
             clip: true
             width: parent.width
             height: parent.height - bar.height
-            ScrollBar.vertical: ScrollBar {}
+            ScrollIndicator.vertical: ScrollIndicator {}
+            // ScrollBar.vertical: ScrollBar {
+            //     policy: ScrollBar.AlwaysOn
+            // }
         }
 
         FileInfoListViewToolBar {
