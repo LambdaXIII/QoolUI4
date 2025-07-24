@@ -14,8 +14,11 @@ qt_add_plugin(
   qool_xml_theme_loader_impl.h
   qool_xml_theme_loader_impl.cpp)
 
-qt_add_resources(qool_themeloader_default "qool_themes" PREFIX "/qoolui/themes"
-                 FILES midnight.xml)
+qt_add_resources(qool_themeloader_default "qool_themes"
+  PREFIX "/qoolui/themes"
+  FILES
+    midnight.xml
+)
 
 # target_sources(qool_themeloader_default)
 

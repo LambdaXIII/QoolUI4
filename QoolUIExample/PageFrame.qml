@@ -59,11 +59,11 @@ BasicControl {
             width: main.contentWidth
             source: root.page_url
             onLoaded: {
-                pCtrl.title = item.title
-                pCtrl.note = item.note
-                item.viewBox = main
-                root.pageLoaded()
-                main.contentY = 0
+                pCtrl.title = item.title;
+                pCtrl.note = item.note;
+                item.viewBox = main;
+                root.pageLoaded();
+                main.contentY = 0;
             }
             onStatusChanged: tipPanel.hide()
         }
@@ -96,14 +96,14 @@ BasicControl {
         target: pageLoader
         function onLoaded() {
             // if (pageLoader.status != Loader.Loading)
-            loadingBar.visible = false
+            loadingBar.visible = false;
         }
     }
 
     Connections {
         target: root
         function onPage_urlChanged() {
-            loadingBar.visible = true
+            loadingBar.visible = true;
         }
     }
 }

@@ -20,6 +20,8 @@ qt_add_qml_module(QoolControls
     QML_FILES ToolButton.qml
     QML_FILES QoolControl.qml
     QML_FILES QoolButton.qml
+    QML_FILES ActionInstantiator.qml
+    QML_FILES ScrollBar.qml
 
 
 
