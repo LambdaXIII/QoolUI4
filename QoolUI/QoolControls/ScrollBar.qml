@@ -9,12 +9,12 @@ T.ScrollBar {
 
     readonly property bool showIndicator: {
         if (root.policy == ScrollBar.AlwaysOn)
-            return true;
-        return root.active && root.size < 1.0;
+            return true
+        return root.active && root.size < 1.0
     }
 
     readonly property real scrollPosition: {
-        return Qore.remap(root.position, 0, 1 - root.size);
+        return Qore.remap(root.position, 0, 1 - root.size)
     }
 
     contentItem: Rectangle {
@@ -42,7 +42,7 @@ T.ScrollBar {
 
         Floater {
             content: BasicLabel {
-                text: Qore.floatString(root.scrollPosition * 100, 2, true)
+                text: Qore.floatString(root.scrollPosition * 100, 2, true) + "%"
                 color: indicator.color
             }
 
