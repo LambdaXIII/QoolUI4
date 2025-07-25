@@ -5,6 +5,9 @@ qt_add_qml_module(QoolModels
     NAMESPACE ${QOOL_NS}
 
     SOURCES qool_multirowselectionmodel.h qool_multirowselectionmodel.cpp
+    SOURCES
+    QML_FILES
+    SOURCES qool_objectpropertylistmodel.h qool_objectpropertylistmodel.cpp
 
 
 )
