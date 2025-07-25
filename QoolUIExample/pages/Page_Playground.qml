@@ -1,3 +1,5 @@
+pragma ValueTypeBehavior: Addressable
+
 import QtQuick
 import QtQuick.Controls
 import Qool
@@ -13,4 +15,10 @@ BasicPage {
     note: qsTr("测试一些东西……")
 
     FileInfoListControl {}
+
+    Component.onCompleted: {
+        let a = "c:/windows";
+        let b = a as fileinfo;
+        console.log(b);
+    }
 }
