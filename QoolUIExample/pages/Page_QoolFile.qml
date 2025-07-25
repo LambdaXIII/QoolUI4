@@ -40,5 +40,16 @@ BasicPage {
                 text: qsTrId("qooltip-filedropper")
             }
         }
+
+        FileInfoListControl {
+            id: infoControl
+            title: qsTr("文件列表控件")
+            width: 400
+            height: 600
+            QoolTip {
+                //% "介绍文件列表控件
+                text: qsTrId("qooltip-fileinfolistcontrol")
+            }
+        }
     }
 }
