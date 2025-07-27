@@ -7,6 +7,7 @@ import QtQuick.Shapes
 import Qool.Controls.Components
 import Qool.Controls
 import Qool.File
+import Qool.Models
 
 BasicPage {
     id: root
@@ -14,11 +15,48 @@ BasicPage {
     title: qsTr("试炼场")
     note: qsTr("测试一些东西……")
 
-    FileInfoListControl {}
-
-    Component.onCompleted: {
-        let a = "c:/windows";
-        let b = a as fileinfo;
-        console.log(b);
+    ComboBox {
+        id: box
+        model: ListModel {
+            ListElement {
+                display: "first"
+                value: 1
+            }
+            ListElement {
+                display: "second"
+                value: 2
+            }
+            ListElement {
+                display: "third"
+                value: 3
+            }
+            ListElement {
+                display: "third"
+                value: 3
+            }
+            ListElement {
+                display: "third"
+                value: 3
+            }
+            ListElement {
+                display: "third"
+                value: 3
+            }
+            ListElement {
+                display: "third"
+                value: 3
+            }
+            ListElement {
+                display: "third"
+                value: 3
+            }
+            ListElement {
+                display: "third"
+                value: 3
+            }
+        }
+        textRole: "display"
+        valueRole: "value"
+        onCurrentIndexChanged: console.log(currentValue)
     }
 }

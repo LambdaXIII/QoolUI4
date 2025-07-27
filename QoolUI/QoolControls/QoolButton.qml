@@ -44,11 +44,4 @@ BasicButton {
         property: "borderColor"
         value: root.Style.highlight
     }
-
-    // Binding {
-    //     when: !root.enabled
-    //     target: root.backgroundSettings
-    //     property: "borderColor"
-    //     value: root.Style.negative
-    // }
 }

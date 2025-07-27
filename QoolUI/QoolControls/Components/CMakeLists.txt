@@ -11,7 +11,7 @@ qt_add_qml_module(QoolControlsComponents
     QML_FILES ControlHighlightCover.qml
     QML_FILES ControlLockedCover.qml
     QML_FILES
-    QML_FILES BasicButtonFrame.qml
+    QML_FILES
     QML_FILES BasicButtonText.qml
     QML_FILES PaPaWall.qml
     QML_FILES ControlPressedCover.qml
@@ -26,6 +26,8 @@ qt_add_qml_module(QoolControlsComponents
     QML_FILES BasicControl.qml
     QML_FILES BasicButton.qml
     QML_FILES
+    QML_FILES BasicItemDelegate.qml
+    QML_FILES IndexIndicator.qml
     # QML_FILES VerticalScroller.qml
 
 )

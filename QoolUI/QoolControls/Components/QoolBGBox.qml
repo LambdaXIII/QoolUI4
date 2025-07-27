@@ -23,8 +23,8 @@ QoolBox {
         id: dummyTitle
         x: root.settings.borderWidth + root.control.leftSpace
         y: root.settings.borderWidth
-        width: root.width - root.settings.borderWidth * 2
-               - root.control.leftSpace - root.control.rightSpace
+        width: root.width - root.settings.borderWidth * 2 - root.control.leftSpace
+               - root.control.rightSpace
         implicitHeight: root.control.topSpace - root.settings.borderWidth
     }
 
@@ -37,12 +37,24 @@ QoolBox {
         dummyTitle.height: root.label.height
     }
 
-    readonly property real topSpace: dummyTitle.height + root.settings.borderWidth
-    readonly property real leftSpace: root.control.leftSpace + root.settings.borderWidth
-    readonly property real rightSpace: root.control.rightSpace + root.settings.borderWidth
-    readonly property real bottomSpace: root.control.bottomSpace + root.settings.borderWidth
+    readonly property real topSpace: {
+        let t = root.label.visible ? dummyTitle.height : 0;
+        return t + root.settings.borderWidth;
+    }
+    readonly property real leftSpace: {
+        let left = root.label.visible ? 0 : root.control.leftSpace;
+        return left + root.settings.borderWidth;
+    }
+    readonly property real rightSpace: {
+        let right = root.label.visible ? 0 : root.control.rightSpace;
+        return right + root.settings.borderWidth;
+    }
 
-    implicitHeight: root.settings.borderWidth * 2 + root.control.topSpace + root.control.bottomSpace
+    readonly property real bottomSpace: root.control.bottomSpace
+                                        + root.settings.borderWidth
+
+    implicitHeight: root.settings.borderWidth * 2 + root.control.topSpace
+                    + root.control.bottomSpace
     implicitWidth: root.settings.borderWidth * 2 + root.control.leftSpace
                    + root.control.rightSpace + root.label?.implicitWidth ?? 0
 }
