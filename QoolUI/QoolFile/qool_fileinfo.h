@@ -23,10 +23,11 @@ class FileInfo {
 public:
   FileInfo() = default;
 
-  Q_INVOKABLE explicit FileInfo(const QUrl& fileUrl);
-  Q_INVOKABLE explicit FileInfo(const QString& filePath);
-  FileInfo(const QFileInfo& info);
+  Q_INVOKABLE FileInfo(const QUrl& fileUrl);
+  Q_INVOKABLE FileInfo(const QString& filePath);
   Q_INVOKABLE FileInfo(const QVariantMap& data);
+
+  FileInfo(const QFileInfo& info);
 
   FileInfo(const FileInfo& other);
   FileInfo(FileInfo&& other);

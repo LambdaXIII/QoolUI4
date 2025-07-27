@@ -74,6 +74,23 @@ inline N remap(
   return t_left + t_vdistance;
 }
 
+template <typename N>
+inline N cycle_in_range(N min, N value, N max) {
+  const N left = std::min(min, max);
+  const N right = std::max(min, max);
+  if (left == right)
+    return left;
+  if (left <= value && value <= max)
+    return value;
+
+  const N range = right - left;
+  const N distance = value - left;
+  N mod = std::fmod(distance, range);
+  if (mod < 0)
+    mod += distance;
+  return left + mod;
+}
+
 } // namespace math
 
 QOOL_NS_END

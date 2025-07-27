@@ -20,7 +20,10 @@ FileDropper {
             clip: true
             width: parent.width
             height: parent.height - bar.height
-            ScrollBar.vertical: ScrollBar {}
+            ScrollIndicator.vertical: ScrollIndicator {}
+            // ScrollBar.vertical: ScrollBar {
+            //     policy: ScrollBar.AlwaysOn
+            // }
         }
 
         FileInfoListViewToolBar {
@@ -32,7 +35,7 @@ FileDropper {
 
         BasicDecorativeText {
             text: qsTr("拖动到这里即可添加文件")
-            anchors.centerIn: parent
+            anchors.centerIn: view
             visible: view.count === 0
             z: -20
             opacity: 0.5

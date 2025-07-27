@@ -106,6 +106,7 @@ qt_add_qml_module(Qool
   Floater.qml
   CutSizeBinding.qml
   QML_FILES BasicLabel.qml
+  QML_FILES DelayTimer.qml
 
 )
 

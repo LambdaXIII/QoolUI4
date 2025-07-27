@@ -33,8 +33,8 @@ T.Control {
 
     topPadding: topInset + bgbox.topSpace + spacer.topPadding
     bottomPadding: bottomInset + bgbox.bottomSpace + spacer.bottomPadding
-    leftPadding: leftInset + spacer.leftPadding
-    rightPadding: rightInset + spacer.rightPadding
+    leftPadding: leftInset + bgbox.leftSpace + spacer.leftPadding
+    rightPadding: rightInset + bgbox.rightSpace + spacer.rightPadding
 
     implicitWidth: {
         const w1 = leftInset + implicitBackgroundWidth + rightInset;

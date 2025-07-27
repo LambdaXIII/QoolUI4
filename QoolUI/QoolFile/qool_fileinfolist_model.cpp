@@ -339,11 +339,26 @@ void FileInfoListModel::sortInfos(bool removeDups) {
     return;
   LOCK_DATA
 
+  FileInfoList dirs, files;
+
+  for (const auto& info : std::as_const(*fileInfos()))
+    if (info.isDir())
+      dirs << info;
+    else
+      files << info;
+
+  static const auto comp = [](const FileInfo& a, const FileInfo& b) {
+    return a.absoluteFilePath() < b.absoluteFilePath();
+  };
+
+  std::stable_sort(dirs.begin(), dirs.end(), comp);
+  std::stable_sort(files.begin(), files.end(), comp);
+
   beginResetModel();
-  std::stable_sort(fileInfos()->begin(), fileInfos()->end(),
-    [](const FileInfo& a, const FileInfo& b) {
-      return a.absoluteFilePath() < b.absoluteFilePath();
-    });
+
+  fileInfos()->clear();
+  fileInfos()->append(dirs);
+  fileInfos()->append(files);
 
   if (removeDups) {
     QSet<FileInfo> dups;
