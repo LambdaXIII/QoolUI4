@@ -131,7 +131,8 @@ void ThemeDatabase::auto_install_themes() {
 
   for (auto iter = plugins.constBegin(); iter != plugins.constEnd();
     ++iter) {
-    const QList<ThemeLoader::Package> themes = iter.value()->themes();
+    const QList<ThemeLoader::Package> themes =
+      iter.value().instance->themes();
     xDebugQ << "Plugin" << xDBGGreen << iter.key() << xDBGReset
             << "provides" << xDBGYellow << themes.length() << xDBGReset
             << "theme(s).";

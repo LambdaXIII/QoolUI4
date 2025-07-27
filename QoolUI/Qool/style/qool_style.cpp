@@ -58,6 +58,24 @@ void Style::resetTheme() {
   }
 }
 
+void Style::dumpInfo() const {
+  xDebugQ << xDBGYellow "Theme:" xDBGBlue << theme() << xDBGReset;
+  xDebugQ << xDBGYellow "Parent:" xDBGBlue << parent() << xDBGReset;
+
+  QList<QQuickAttachedPropertyPropagator*> parents;
+  QQuickAttachedPropertyPropagator* item = attachedParent();
+  while (item) {
+    parents << item;
+    item = item->attachedParent();
+  }
+
+  xDebugQ << xDBGYellow "AttachedParents:" xDBGPink << xDBGList(parents)
+          << xDBGReset;
+  xDebugQ << xDBGYellow "AttachedChildren:" xDBGPink
+          << xDBGList(attachedChildren()) << xDBGReset;
+  xDebugQ << xDBGYellow "Properties:" xDBGReset << xDBGQPropertyList;
+}
+
 void Style::__setup_properties() {
   m_currentAgent.setBinding([&] {
     const bool p_enabled =
@@ -127,6 +145,8 @@ void Style::attachedParentChange(
 void Style::inherit(Style* other) {
   Q_ASSERT(other);
   Qt::beginPropertyUpdateGroup();
+  m_currentTheme = other->m_currentTheme;
+  emit themeChanged();
   m_active->inherit(other->m_active);
   m_inactive->inherit(other->m_inactive);
   m_disabled->inherit(other->m_disabled);

@@ -1,2 +1,3 @@
 add_subdirectory(testplugin)
 add_subdirectory(themeloader)
+add_subdirectory(fileiconprovider)

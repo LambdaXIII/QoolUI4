@@ -39,6 +39,8 @@ public:
   void resetTheme();
   Q_SIGNAL void themeChanged();
 
+  Q_INVOKABLE void dumpInfo() const;
+
 protected:
   Q_PROPERTY(QString theme READ theme WRITE setTheme RESET resetTheme
       NOTIFY themeChanged)

@@ -104,11 +104,17 @@ qt_add_qml_module(Qool
   OctagonRoundedExternalShapePath.qml
   OctagonRoundedInternalShapePath.qml
   Floater.qml
+  CutSizeBinding.qml
+  QML_FILES BasicLabel.qml
 
 )
 
 qoolui_scan_assets_to(QOOL_ASSETS)
-qt_add_resources(Qool "qoolui_assets" PREFIX "/qoolui" FILES ${QOOL_ASSETS})
+qt_add_resources(Qool "qoolui_assets"
+  PREFIX "/qoolui/assets"
+  BASE "assets"
+  FILES ${QOOL_ASSETS}
+)
 
 set_target_properties(
   Qool
