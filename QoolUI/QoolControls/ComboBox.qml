@@ -73,13 +73,12 @@ T.ComboBox {
         elide: Text.ElideRight
     }
 
-    delegate: ClickableText {
+    delegate: BasicItemDelegate {
         required property var model
         required property int index
         width: root.width
         text: model[root.textRole]
-        // checked: root.highlightedIndex === index
-        checked: root.currentIndex === index
+        highlighted: root.highlightedIndex === index
     }
 
     popup: Popup {
@@ -109,4 +108,21 @@ T.ComboBox {
     }
 
     containmentMask: background
+    hoverEnabled: true
+
+    ControlPressedCover {
+        visible: root.pressed
+        highColor: Style.highlight
+        lowColor: Style.highlightedText
+    }
+
+    ControlHighlightCover {
+        highColor: Style.highlight
+        lowColor: Style.highlightedText
+        opacity: (root.enabled && root.hovered) ? 1 : 0
+    }
+
+    ControlLockedCover {
+        color: Style.negative
+    }
 }
