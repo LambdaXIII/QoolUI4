@@ -107,6 +107,61 @@ BasicPage {
             }
         }
 
+        SectionBar {}
+
+        BasicControl {
+            title: qsTr("成组的按钮")
+            ButtonGroup {
+                id: bGroup
+            }
+            contentPadding: 4
+            contentItem: ColumnLayout {
+                spacing: 5
+                BasicBigTitleText {
+                    id: groupTitle
+                    text: qsTr("已选定按钮%1").arg(bGroup.checkedButton.objectName)
+                    BasicTextBehavior on text {}
+                }
+
+                Button {
+                    objectName: "CheckButton1"
+                    text: qsTr("选项1")
+                    checked: true
+                    ButtonGroup.group: bGroup
+                    checkable: true
+                    Layout.fillWidth: true
+                }
+                Button {
+                    objectName: "CheckButton2"
+                    text: qsTr("选项2")
+                    ButtonGroup.group: bGroup
+                    checkable: true
+                    Layout.fillWidth: true
+                }
+                QoolButton {
+                    objectName: "CheckButton3"
+                    title: qsTr("QoolButton也可以的")
+                    text: qsTr("选项3")
+                    ButtonGroup.group: bGroup
+                    checkable: true
+                    Layout.fillWidth: true
+                }
+                QoolButton {
+                    objectName: "CheckButton4"
+                    title: qsTr("这也行")
+                    text: qsTr("选项4")
+                    flat: true
+                    ButtonGroup.group: bGroup
+                    checkable: true
+                    Layout.fillWidth: true
+                }
+            }
+            QoolTip {
+                //% "介绍这些按钮与ButtonGroup的兼容情况
+                text: qsTrId("qooltip-buttongroup-support")
+            }
+        }
+
         ExampleBasicButton {
             implicitWidth: 400
             implicitHeight: 250
