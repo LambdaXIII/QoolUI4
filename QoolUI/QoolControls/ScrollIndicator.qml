@@ -32,7 +32,6 @@ T.ScrollIndicator {
     }
 
     onScrollPositionChanged: delayer.restart()
-    onVisualSizeChanged: delayer.restart()
 
     contentItem: Rectangle {
         id: indicator
@@ -47,7 +46,7 @@ T.ScrollIndicator {
 
     Binding {
         when: !root.horizontal
-        indicator.implicitWidth: 4
+        indicator.implicitWidth: 2
         indicator.implicitHeight: 100
         root.leftPadding: 2
         root.rightPadding: 2
@@ -55,7 +54,7 @@ T.ScrollIndicator {
     Binding {
         when: root.horizontal
         indicator.implicitWidth: 100
-        indicator.implicitHeight: 4
+        indicator.implicitHeight: 2
         root.topPadding: 2
         root.bottomPadding: 2
     }
