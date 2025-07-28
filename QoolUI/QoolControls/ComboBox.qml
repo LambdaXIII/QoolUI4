@@ -36,6 +36,9 @@ T.ComboBox {
         id: bgbox
         implicitHeight: 35
         implicitWidth: 100
+        opacity: (root.flat && !root.hovered && !root.popup.visible &&
+                  !textField.activeFocus) ? 0 : 1
+        BasicNumberBehavior on opacity {}
     }
 
     topPadding: topInset + bgbox.topSpace + spacer.topPadding
@@ -57,20 +60,39 @@ T.ComboBox {
     indicator: IndexIndicator {
         currentIndex: root.currentIndex
         model: root.model
-        x: root.width - width - root.rightPadding
+        x: {
+            if (root.mirrored)
+                return root.leftPadding;
+            else
+                return root.width - width - root.rightPadding;
+        }
+
         y: root.topPadding
         height: root.height - root.topPadding - root.bottomPadding
         BasicNumberBehavior on currentIndex {}
     }
 
-    contentItem: BasicButtonText {
-        leftPadding: 0
-        rightPadding: root.indicator.width + root.spacing
+    contentItem: BasicTextField {
+        id: textField
+        readonly property real indicatorPadding: root.indicator.width + root.spacing
+        leftPadding: root.mirrored ? indicatorPadding : 0
+        rightPadding: root.mirrored ? 0 : indicatorPadding
+        topPadding: 6 - root.padding
+        bottomPadding: 6 - root.padding
 
-        text: root.displayText
+        text: root.editable ? root.editText : root.displayText
         font: root.font
-        color: root.Style.buttonText
-        elide: Text.ElideRight
+
+        enabled: root.editable
+        autoScroll: root.editable
+        readOnly: root.down
+        inputMethodHints: root.inputMethodHints
+        validator: root.validator
+        selectByMouse: root.selectTextByMouse
+
+        color: root.editable ? root.Style.text : root.Style.buttonText
+
+        horizontalAlignment: Text.AlignHCenter
     }
 
     delegate: BasicItemDelegate {

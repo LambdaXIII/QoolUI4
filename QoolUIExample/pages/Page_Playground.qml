@@ -57,5 +57,8 @@ BasicPage {
         textRole: "display"
         valueRole: "value"
         onCurrentIndexChanged: console.log(currentValue)
+        editable: true
+        selectTextByMouse: true
+        flat: true
     }
 }
