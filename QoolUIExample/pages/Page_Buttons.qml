@@ -107,7 +107,9 @@ BasicPage {
             }
         }
 
-        SectionBar {}
+        SectionBar {
+            width: root.width
+        }
 
         BasicControl {
             title: qsTr("成组的按钮")
@@ -159,7 +161,12 @@ BasicPage {
             QoolTip {
                 //% "介绍这些按钮与ButtonGroup的兼容情况
                 text: qsTrId("qooltip-buttongroup-support")
+                z: -1
             }
+        }
+
+        SectionBar {
+            width: root.width
         }
 
         ExampleBasicButton {
