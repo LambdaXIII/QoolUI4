@@ -3,7 +3,6 @@ import Qool
 import Qool.File
 import Qool.Controls
 import Qool.Controls.Components
-import Qool.Models
 
 FileDropper {
     id: root

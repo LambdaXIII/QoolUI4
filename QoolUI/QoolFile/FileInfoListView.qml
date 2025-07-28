@@ -3,7 +3,6 @@ import QtQuick.Controls
 import Qool
 import Qool.Controls
 import Qool.Controls.Components
-import Qool.Models
 
 import Qool.File
 

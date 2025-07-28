@@ -2,10 +2,6 @@ set_source_files_properties(
   GlobalChatRoom.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE
 )
 
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-
 qt_add_qml_module(QoolChat
   URI Qool.Chat
   VERSION ${QOOLUI_VERSION_QML}
@@ -44,11 +40,11 @@ qt_add_qml_module(QoolChat
 set_target_properties(
   QoolChat
   PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER org.qoolui.chat
-             MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-             MACOSX_BUNDLE_SHORT_VERSION_STRING
-             ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-             MACOSX_BUNDLE TRUE
-             WIN32_EXECUTABLE TRUE
+  MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+  MACOSX_BUNDLE_SHORT_VERSION_STRING
+  ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+  MACOSX_BUNDLE TRUE
+  WIN32_EXECUTABLE TRUE
 )
 
 target_compile_definitions(

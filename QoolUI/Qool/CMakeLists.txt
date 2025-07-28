@@ -30,6 +30,14 @@ qt_add_qml_module(Qool
 
   SOURCES
 
+  qore/qool_singleton.h
+  qore/qool_singleton.cpp
+  qore/qool_extension_positions.h
+  qore/qool_extension_positions.cpp
+  qore/qool_literals.h
+  qore/qool_geoutils.h
+  qore/qool_geoutils.cpp
+
   datatypes/qool_vector.h
   datatypes/qool_vector.cpp
   datatypes/qool_polar2d.h
@@ -37,19 +45,12 @@ qt_add_qml_module(Qool
 
   utils/qool_smartobj.h
   utils/qool_smartobj.cpp
-  utils/qool_singleton.h
-  utils/qool_singleton.cpp
-  utils/qool_extension_positions.h
-  utils/qool_extension_positions.cpp
-  utils/qool_literals.h
   utils/qool_spacehelper.h
   utils/qool_spacehelper.cpp
   utils/qool_numberranger.h
   utils/qool_numberranger.cpp
   utils/qool_itemtracker.h
   utils/qool_itemtracker.cpp
-  utils/qool_geoutils.h
-  utils/qool_geoutils.cpp
   utils/qool_random_hsv_color_generator.h
   utils/qool_random_hsv_color_generator.cpp
 
@@ -84,6 +85,9 @@ qt_add_qml_module(Qool
   style/qool_system_theme.cpp
   style/qool_stylegroupagent.h
   style/qool_stylegroupagent.cpp
+
+  models/qool_multirowselectionmodel.h
+  models/qool_multirowselectionmodel.cpp
 
   QML_FILES
 
@@ -137,10 +141,6 @@ target_link_libraries(
   PRIVATE QoolCommon
 )
 target_link_libraries(Qool PRIVATE Qt6::Core Qt6::QuickControls2)
-target_link_libraries(Qool PRIVATE Qt6::Core)
-target_link_libraries(Qool PRIVATE Qt6::Core)
-target_link_libraries(Qool PRIVATE Qt6::Core)
-target_link_libraries(Qool PRIVATE Qt6::Core)
 
 target_include_directories(
   Qool
@@ -150,6 +150,8 @@ target_include_directories(
   PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/datatypes"
   PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/style"
   PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/utils"
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/qore"
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/models"
 )
 
 # add_subdirectory(HandyControls)

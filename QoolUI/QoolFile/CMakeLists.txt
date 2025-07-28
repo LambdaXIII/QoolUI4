@@ -1,11 +1,4 @@
 
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_add_qml_module(QoolFile
     URI Qool.File
@@ -25,10 +18,9 @@ qt_add_qml_module(QoolFile
     SOURCES qool_fileicon_imageprovider.h qool_fileicon_imageprovider.cpp
     SOURCES qool_fileplugin.h qool_fileplugin.cpp
     SOURCES qool_fileinfolist_model.h qool_fileinfolist_model.cpp
-    SOURCES
-    QML_FILES FileDropper.qml
-    QML_FILES
     SOURCES qool_urlchecker.h qool_urlchecker.cpp
+
+    QML_FILES FileDropper.qml
     QML_FILES FileInfoListViewToolBar.qml
     QML_FILES FileInfoListView.qml
     QML_FILES BasicFileInfoDisplay.qml
@@ -37,12 +29,6 @@ qt_add_qml_module(QoolFile
     QML_FILES FileInfoListControl.qml
     QML_FILES SimpleFileItem.qml
 )
-
-# target_sources(QoolFilePlugin
-# PUBLIC
-#     qool_fileplugin.h qool_fileplugin.cpp
-# )
-
 
 set_target_properties(QoolFile PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER org.qoolui.file
@@ -55,16 +41,9 @@ set_target_properties(QoolFile PROPERTIES
 target_compile_definitions(QoolFile
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(QoolFile
-    PRIVATE Qt6::Quick
+    PRIVATE Qt6::Quick Qt6::Core
     PRIVATE QoolCommon
 )
-target_link_libraries(QoolFile PRIVATE Qt6::Core)
-target_link_libraries(QoolFile PRIVATE Qt6::Core)
-target_link_libraries(QoolFile PRIVATE Qt6::Core)
-target_link_libraries(QoolFile PRIVATE Qt6::Core)
-target_link_libraries(QoolFile PRIVATE Qt6::Core)
-target_link_libraries(QoolFile PRIVATE Qt6::Core)
-target_link_libraries(QoolFile PRIVATE Qt6::Core)
 
 target_include_directories(QoolFile
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}

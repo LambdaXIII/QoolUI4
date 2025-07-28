@@ -7,7 +7,6 @@ import QtQuick.Shapes
 import Qool.Controls.Components
 import Qool.Controls
 import Qool.File
-import Qool.Models
 
 BasicPage {
     id: root

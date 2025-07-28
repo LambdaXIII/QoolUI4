@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Controls
 import Qool
 import Qool.File
-import Qool.Models
 
 Control {
     id: root
