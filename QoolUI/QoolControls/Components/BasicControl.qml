@@ -14,17 +14,16 @@ T.Control {
     property alias contentLeftPadding: spacer.leftPadding
     property alias contentRightPadding: spacer.rightPadding
 
-    property alias backgroundSettings: bgbox.settings
-
-    backgroundSettings {
+    property QoolBoxSettings backgroundSettings: QoolBoxSettings {
+        cutSizeTL: Style.controlCutSize
         borderWidth: Style.controlBorderWidth
         borderColor: Style.controlBorderColor
         fillColor: Style.controlBackgroundColor
-        cutSizeTL: Style.controlCutSize
     }
 
     background: QoolBGBox {
         id: bgbox
+        settings: root.backgroundSettings
     }
 
     SpaceHelper {

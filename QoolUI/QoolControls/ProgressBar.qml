@@ -26,8 +26,7 @@ T.ProgressBar {
             borderWidth: root.settings.borderWidth
             borderColor: root.settings.borderColor
             fillColor: Style.dark
-            cutSize: root.radius
-            cutSizesLocked: true
+            cutSizes: root.radius
         }
     }
 
@@ -78,8 +77,7 @@ T.ProgressBar {
                 borderWidth: root.settings.borderWidth
                 borderColor: root.settings.borderColor
                 fillColor: Style.highlight
-                cutSize: root.radius
-                cutSizesLocked: true
+                cutSizes: root.radius
             }
             fillItem: face
         }
@@ -87,21 +85,20 @@ T.ProgressBar {
 
     SmartObject {
         id: pCtrl
-        readonly property real visualWidth: (mainItem.width - root.radius) * root.visualPosition
+        readonly property real visualWidth: (mainItem.width - root.radius)
+                                            * root.visualPosition
         readonly property real visualX: {
             switch (root.horizontalAlignment) {
             case Qt.AlignLeft:
-                return 0
+                return 0;
             case Qt.AlignRight:
-                return mainItem.width - visualWidth
+                return mainItem.width - visualWidth;
             default:
-                return (mainItem.width - visualWidth) / 2
+                return (mainItem.width - visualWidth) / 2;
             }
         }
 
-        readonly property real indeterminateWidth: Math.min(
-                                                       200,
-                                                       mainItem.width * 0.35)
+        readonly property real indeterminateWidth: Math.min(200, mainItem.width * 0.35)
         property bool visualBindingEnabled: !root.indeterminate
         Binding {
             when: pCtrl.visualBindingEnabled
@@ -121,9 +118,9 @@ T.ProgressBar {
         ParallelAnimation {
             id: indeterminateIn
             onStarted: {
-                pCtrl.visualBindingEnabled = false
+                pCtrl.visualBindingEnabled = false;
                 if (!root.Style.animationEnabled)
-                    complete()
+                    complete();
             }
             NumberAnimation {
                 target: progressShape.control
@@ -144,7 +141,7 @@ T.ProgressBar {
             id: indeterminateOut
             onStarted: {
                 if (!root.Style.animationEnabled)
-                    complete()
+                    complete();
             }
 
             onFinished: pCtrl.visualBindingEnabled = true
@@ -194,26 +191,26 @@ T.ProgressBar {
         }
 
         function startIndeterminate() {
-            indeterminateIn.start()
-            indeterminateLoop.start()
+            indeterminateIn.start();
+            indeterminateLoop.start();
         }
 
         function stopIndeterminate() {
-            indeterminateLoop.stop()
-            indeterminateOut.start()
+            indeterminateLoop.stop();
+            indeterminateOut.start();
         }
 
         function check_indeterminate() {
             if (root.indeterminate)
-                startIndeterminate()
+                startIndeterminate();
             else
-                stopIndeterminate()
+                stopIndeterminate();
         }
 
         Connections {
             target: root
             function onIndeterminateChanged() {
-                pCtrl.check_indeterminate()
+                pCtrl.check_indeterminate();
             }
         }
     }

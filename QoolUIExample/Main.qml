@@ -32,4 +32,5 @@ QoolWindow {
             page_url: tocView.current_url
         }
     } //content
+
 }

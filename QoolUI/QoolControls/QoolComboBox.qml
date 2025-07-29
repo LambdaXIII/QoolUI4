@@ -17,12 +17,13 @@ T.ComboBox {
     property alias contentLeftPadding: spacer.leftPadding
     property alias contentRightPadding: spacer.rightPadding
 
-    property QoolBoxSettings backgroundSettings: QoolBoxSettings {
+    property alias backgroundSettings: bgbox.settings
+
+    backgroundSettings {
         borderWidth: Style.controlBorderWidth
         borderColor: Style.controlBorderColor
         fillColor: Style.controlBackgroundColor
-        cutSizes: Style.buttonCutSize
-        curved: true
+        cutSizeTL: Style.controlCutSize
     }
 
     font.pixelSize: Style.controlTextSize
@@ -33,7 +34,6 @@ T.ComboBox {
 
     background: QoolBGBox {
         id: bgbox
-        settings: root.backgroundSettings
         implicitHeight: 35
         implicitWidth: 100
         opacity: (root.flat && !root.hovered && !root.popup.visible &&
@@ -77,8 +77,8 @@ T.ComboBox {
         readonly property real indicatorPadding: root.indicator.width + root.spacing
         leftPadding: root.mirrored ? indicatorPadding : 0
         rightPadding: root.mirrored ? 0 : indicatorPadding
-        // topPadding: 6 - root.padding
-        // bottomPadding: 6 - root.padding
+        topPadding: 6 - root.padding
+        bottomPadding: 6 - root.padding
 
         text: root.editable ? root.editText : root.displayText
         font: root.font

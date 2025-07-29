@@ -13,52 +13,54 @@ BasicPage {
 
     title: qsTr("试炼场")
     note: qsTr("测试一些东西……")
-
-    ComboBox {
-        id: box
-        model: ListModel {
-            ListElement {
-                display: "first"
-                value: 1
+    Column {
+        ComboBox {
+            id: box
+            model: ListModel {
+                ListElement {
+                    display: "first"
+                    value: 1
+                }
+                ListElement {
+                    display: "second"
+                    value: 2
+                }
+                ListElement {
+                    display: "third"
+                    value: 3
+                }
+                ListElement {
+                    display: "third"
+                    value: 3
+                }
+                ListElement {
+                    display: "third"
+                    value: 3
+                }
+                ListElement {
+                    display: "third"
+                    value: 3
+                }
+                ListElement {
+                    display: "third"
+                    value: 3
+                }
+                ListElement {
+                    display: "third"
+                    value: 3
+                }
+                ListElement {
+                    display: "third"
+                    value: 3
+                }
             }
-            ListElement {
-                display: "second"
-                value: 2
-            }
-            ListElement {
-                display: "third"
-                value: 3
-            }
-            ListElement {
-                display: "third"
-                value: 3
-            }
-            ListElement {
-                display: "third"
-                value: 3
-            }
-            ListElement {
-                display: "third"
-                value: 3
-            }
-            ListElement {
-                display: "third"
-                value: 3
-            }
-            ListElement {
-                display: "third"
-                value: 3
-            }
-            ListElement {
-                display: "third"
-                value: 3
-            }
+            textRole: "display"
+            valueRole: "value"
+            onCurrentIndexChanged: console.log(currentValue)
+            // editable: true
+            selectTextByMouse: true
+            // flat: true
+            // backgroundSettings.cutSizeTL: 30
         }
-        textRole: "display"
-        valueRole: "value"
-        onCurrentIndexChanged: console.log(currentValue)
-        editable: true
-        selectTextByMouse: true
-        flat: true
     }
 }

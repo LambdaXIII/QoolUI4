@@ -12,11 +12,11 @@ QoolBox {
         color: root.settings.borderColor
     }
 
-    settings {
+    settings: QoolBoxSettings {
         borderWidth: Style.controlBorderWidth
         borderColor: Style.controlBorderColor
         fillColor: Style.controlBackgroundColor
-        cutSize: Style.controlCutSize
+        cutSizeTL: Style.controlCutSize
     }
 
     Item {
@@ -50,8 +50,10 @@ QoolBox {
         return right + root.settings.borderWidth;
     }
 
-    readonly property real bottomSpace: root.control.bottomSpace
-                                        + root.settings.borderWidth
+    readonly property real bottomSpace: {
+        let b = root.label.visible ? root.control.bottomSpace : 0;
+        return b + root.settings.borderWidth;
+    }
 
     implicitHeight: root.settings.borderWidth * 2 + root.control.topSpace
                     + root.control.bottomSpace

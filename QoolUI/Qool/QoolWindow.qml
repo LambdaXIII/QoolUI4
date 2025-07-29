@@ -23,14 +23,14 @@ QoolWindowBasic {
     Loader {
         id: closeButtonLoader
         sourceComponent: QoolWindowCloseButton {
-            windowCutSize: root.backgroundSettings.cutSize
+            windowCutSize: root.backgroundSettings.cutSizeTL
             onClicked: root.close()
             visible: root.active
         }
         active: root.showCloseButton
     }
 
-    property Item titleItem: QoolWindowTitleItem {
+    property Item label: QoolWindowTitleItem {
         text: root.title
     }
     property Item toolBar: Item {}
@@ -50,35 +50,36 @@ QoolWindowBasic {
     DummyItem {
         id: dummyTitleItem
         objectName: "dummyTitle"
-        width: root.titleItem.implicitWidth
+        width: root.label.implicitWidth
         height: {
-            const prefered_height = root.titleItem.implicitHeight
-            const min_height = root.backgroundSettings.cutSize - y
-            return Math.max(prefered_height, min_height)
+            const prefered_height = root.label.implicitHeight;
+            const min_height = root.backgroundSettings.cutSizeTL - y;
+            return Math.max(prefered_height, min_height);
         }
         x: root.width - (root.edgeSpacing + root.backgroundSettings.borderWidth) - width
         y: root.edgeSpacing + root.backgroundSettings.borderWidth
         Binding {
-            when: root.titleItem
-            root.titleItem.x: dummyTitleItem.x
-            root.titleItem.y: dummyTitleItem.y
-            root.titleItem.width: dummyTitleItem.width
-            root.titleItem.height: dummyTitleItem.height
-            root.titleItem.parent: root.contentItem
+            when: root.label
+            root.label.x: dummyTitleItem.x
+            root.label.y: dummyTitleItem.y
+            root.label.width: dummyTitleItem.width
+            root.label.height: dummyTitleItem.height
+            root.label.parent: root.contentItem
         }
     } //dummyTitleItem
 
     DummyItem {
         id: dummyToolBar
         objectName: "dummyToolBar"
-        x: root.backgroundSettings.cutSize + root.elementSpacing
+        x: root.backgroundSettings.cutSizeTL + root.elementSpacing
         y: root.edgeSpacing + root.backgroundSettings.borderWidth
         width: root.width - dummyToolBar.x - root.elementSpacing - dummyTitleItem.x
         height: {
-            const prefered_height = dummyTitleItem.height
-            const preffered_min_height = root.backgroundSettings.cutSize - dummyToolBar.y
-            return Math.max(root.toolBar.implicitHeight,
-                            Math.min(prefered_height, preffered_min_height))
+            const prefered_height = dummyTitleItem.height;
+            const preffered_min_height = root.backgroundSettings.cutSizeTL
+            - dummyToolBar.y;
+            return Math.max(root.toolBar.implicitHeight, Math.min(prefered_height,
+                                                                  preffered_min_height));
         }
         Binding {
             when: root.toolBar
@@ -94,11 +95,12 @@ QoolWindowBasic {
         id: dummyHeader
         objectName: "dummyHeader"
         x: root.leftPadding + root.edgeSpacing + root.backgroundSettings.borderWidth
-        y: dummyToolBar.y + dummyToolBar.height + Math.max(
-               root.elementSpacing,
-               root.edgeSpacing + root.backgroundSettings.borderWidth)
-        width: root.width - root.leftPadding
-               - (root.edgeSpacing + root.backgroundSettings.borderWidth) * 2 - root.rightPadding
+        y: dummyToolBar.y + dummyToolBar.height + Math.max(root.elementSpacing,
+                                                           root.edgeSpacing
+                                                           + root.backgroundSettings.borderWidth)
+        width: root.width - root.leftPadding - (root.edgeSpacing
+                                                + root.backgroundSettings.borderWidth)
+               * 2 - root.rightPadding
         height: root.header?.height ?? 0
         Binding {
             when: root.header
@@ -115,15 +117,16 @@ QoolWindowBasic {
         objectName: "dummyFooter"
         x: root.leftPadding + (root.edgeSpacing + root.backgroundSettings.borderWidth)
            + root.backgroundSettings.cutSizeBL
-        y: root.height - (root.edgeSpacing + root.backgroundSettings.borderWidth) - height
-        width: root.width - root.leftPadding
-               - (root.edgeSpacing + root.backgroundSettings.borderWidth) * 2 - root.rightPadding
-               - root.backgroundSettings.cutSizeBL - root.backgroundSettings.cutSizeBR
+        y: root.height - (root.edgeSpacing + root.backgroundSettings.borderWidth)
+           - height
+        width: root.width - root.leftPadding - (root.edgeSpacing
+                                                + root.backgroundSettings.borderWidth)
+               * 2 - root.rightPadding - root.backgroundSettings.cutSizeBL
+               - root.backgroundSettings.cutSizeBR
         height: {
-            const preferred_height = root.footer?.implicitHeight ?? 0
-            return Math.max(preferred_height,
-                            root.backgroundSettings.cutSizeBL,
-                            root.backgroundSettings.cutSizeBR)
+            const preferred_height = root.footer?.implicitHeight ?? 0;
+            return Math.max(preferred_height, root.backgroundSettings.cutSizeBL,
+                            root.backgroundSettings.cutSizeBR);
         }
         Binding {
             when: root.footer
@@ -140,8 +143,9 @@ QoolWindowBasic {
         objectName: "dummyContent"
         x: root.leftPadding + root.edgeSpacing + root.backgroundSettings.borderWidth
         y: dummyHeader.y + dummyHeader.height + root.elementSpacing
-        width: root.width - root.leftPadding
-               - (root.edgeSpacing + root.backgroundSettings.borderWidth) * 2 - root.rightPadding
+        width: root.width - root.leftPadding - (root.edgeSpacing
+                                                + root.backgroundSettings.borderWidth)
+               * 2 - root.rightPadding
         height: dummyFooter.y - y - root.elementSpacing
         Binding {
             when: root.content

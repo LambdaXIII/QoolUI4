@@ -8,17 +8,14 @@ Item {
         borderWidth: Style.controlBorderWidth
         borderColor: Style.accent
         fillColor: Style.dark
-        curved: false
     }
-    property alias cutSize: root.settings.cutSize
+    property alias cutSize: root.settings.cutSizeTL
     property alias curved: root.settings.curved
 
     property Item fillItem: null
 
     readonly property alias shape: loader.item
-    property QoolBoxShapeControl control: QoolBoxShapeControl {
-        settings: root.settings
-    }
+    readonly property alias control: pCtrl.control
 
     property bool animatingHint: false
 
@@ -38,6 +35,10 @@ Item {
         Component {
             id: rectShape
             OctagonRectangleShape {}
+        }
+
+        property QoolBoxShapeControl control: QoolBoxShapeControl {
+            settings: root.settings
         }
     }
 
@@ -76,7 +77,7 @@ Item {
     }
     Binding {
         when: loader.status === Loader.Ready
-        target: root
+        target: pCtrl
         property: "control"
         value: loader.item.control
     }

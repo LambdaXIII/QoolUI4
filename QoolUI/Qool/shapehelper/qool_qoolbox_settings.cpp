@@ -1,7 +1,6 @@
 #include "qool_qoolbox_settings.h"
 
 #include "qoolcommon/debug.hpp"
-#include "qoolcommon/macro_foreach.hpp"
 
 #include <QRegularExpression>
 
@@ -9,30 +8,25 @@ QOOL_NS_BEGIN
 
 QoolBoxSettings::QoolBoxSettings(QObject* parent)
   : QObject { parent } {
-  m_cutSizes.fill(0);
-  m_offsetX.setValue(0);
-  m_offsetY.setValue(0);
-  m_intOffsetX.setValue(0);
-  m_intOffsetY.setValue(0);
+  QOOL_PROPERTY_BINDABLE_INIT_VALUE(offsetX, 0);
+  QOOL_PROPERTY_BINDABLE_INIT_VALUE(offsetY, 0);
+  QOOL_PROPERTY_BINDABLE_INIT_VALUE(intOffsetX, 0);
+  QOOL_PROPERTY_BINDABLE_INIT_VALUE(intOffsetY, 0);
   QOOL_PROPERTY_BINDABLE_INIT_VALUE(borderWidth, 0);
   QOOL_PROPERTY_BINDABLE_INIT_VALUE(borderColor, Qt::red);
   QOOL_PROPERTY_BINDABLE_INIT_VALUE(fillColor, Qt::yellow);
 
-  connect(this, SIGNAL(cutSizesLockedChanged()), this,
-    SLOT(notify_all_cutSizes_changed()));
+  m_isAllCutSizesEquals.setBinding([&] {
+    const auto tl = m_cutSizeTL.value();
+    const auto tr = m_cutSizeTR.value();
+    const auto bl = m_cutSizeBL.value();
+    const auto br = m_cutSizeBR.value();
+    return tl == tr && tl == bl && tl == br;
+  });
 }
 
 void QoolBoxSettings::dumpInfo() const {
   xDebugQ << "Properties:" << xDBGQPropertyList;
-}
-
-void QoolBoxSettings::notify_all_cutSizes_changed() {
-  Qt::beginPropertyUpdateGroup();
-  emit cutSizeTLChanged();
-  emit cutSizeTRChanged();
-  emit cutSizeBLChanged();
-  emit cutSizeBRChanged();
-  Qt::endPropertyUpdateGroup();
 }
 
 void QoolBoxSettings::set_sizes(qreal x) {
@@ -42,10 +36,11 @@ void QoolBoxSettings::set_sizes(qreal x) {
 void QoolBoxSettings::set_sizes(
   qreal tl, qreal tr, qreal br, qreal bl) {
   Qt::beginPropertyUpdateGroup();
-  set_cutSizeTL(tl);
-  set_cutSizeTR(tr);
-  set_cutSizeBL(bl);
-  set_cutSizeBR(br);
+  remove_cutSize_bindings();
+  m_cutSizeTL.setValue(tl);
+  m_cutSizeTR.setValue(tr);
+  m_cutSizeBL.setValue(bl);
+  m_cutSizeBR.setValue(br);
   Qt::endPropertyUpdateGroup();
 }
 
@@ -60,14 +55,15 @@ void QoolBoxSettings::set_sizes(
   }
 
   Qt::beginPropertyUpdateGroup();
+  remove_cutSize_bindings();
   if (numbers.size() > 0 && numbers[0].has_value())
-    set_cutSizeTL(numbers[0].value());
+    m_cutSizeTL.setValue(numbers[0].value());
   if (numbers.size() > 1 && numbers[1].has_value())
-    set_cutSizeTR(numbers[1].value());
+    m_cutSizeTR.setValue(numbers[1].value());
   if (numbers.size() > 2 && numbers[2].has_value())
-    set_cutSizeBR(numbers[2].value());
+    m_cutSizeBR.setValue(numbers[2].value());
   if (numbers.size() > 3 && numbers[3].has_value())
-    set_cutSizeBL(numbers[3].value());
+    m_cutSizeBL.setValue(numbers[3].value());
   Qt::endPropertyUpdateGroup();
 }
 
@@ -100,20 +96,21 @@ void QoolBoxSettings::set_sizes(const QString& x) {
   set_sizes(numbers);
 }
 
-QVariant QoolBoxSettings::cutSizes() const {
-  static const auto all_equals = [&] {
-    return m_cutSizes[0] == m_cutSizes[1]
-           && m_cutSizes[0] == m_cutSizes[2]
-           && m_cutSizes[0] == m_cutSizes[3];
-  };
+void QoolBoxSettings::remove_cutSize_bindings() {
+  m_cutSizeTL.takeBinding();
+  m_cutSizeTR.takeBinding();
+  m_cutSizeBL.takeBinding();
+  m_cutSizeBR.takeBinding();
+}
 
-  if (m_cutSizesLocked || all_equals())
+QVariant QoolBoxSettings::cutSizes() const {
+  const auto all_equals = m_isAllCutSizesEquals.value();
+  if (all_equals)
     return QVariant::fromValue<qreal>(cutSizeTL());
 
-  QStringList sizes {};
-  std::transform(m_cutSizes.cbegin(), m_cutSizes.cend(),
-    std::back_inserter(sizes),
-    [&](qreal x) { return QString::number(x); });
+  QStringList sizes;
+  sizes << QString::number(cutSizeTL()) << QString::number(cutSizeTR())
+        << QString::number(cutSizeBR()) << QString::number(cutSizeBL());
   return sizes.join(' ');
 }
 
@@ -136,62 +133,6 @@ void QoolBoxSettings::set_cutSizes(const QVariant& sizes_var) {
     const auto x = sizes_var.toString();
     set_sizes(x);
   }
-}
-
-bool QoolBoxSettings::cutSizesLocked() const {
-  return m_cutSizesLocked;
-}
-void QoolBoxSettings::set_cutSizesLocked(const bool& x) {
-  if (m_cutSizesLocked == x)
-    return;
-  m_cutSizesLocked = x;
-  emit cutSizesLockedChanged();
-}
-
-constexpr int TL_INDEX = 0;
-constexpr int TR_INDEX = 1;
-constexpr int BR_INDEX = 2;
-constexpr int BL_INDEX = 3;
-
-#define IMPL(N)                                                        \
-  qreal QoolBoxSettings::cutSize##N() const {                          \
-    if (m_cutSizesLocked)                                              \
-      return m_cutSizes[TL_INDEX];                                     \
-    return m_cutSizes[N##_INDEX];                                      \
-  }                                                                    \
-  void QoolBoxSettings::set_cutSize##N(qreal x) {                      \
-    const auto old = cutSize##N();                                     \
-    if (old == x)                                                      \
-      return;                                                          \
-    m_cutSizes[N##_INDEX] = x;                                         \
-    if (! m_cutSizesLocked)                                            \
-      emit cutSize##N##Changed();                                      \
-  }                                                                    \
-  QBindable<qreal> QoolBoxSettings::bindable_cutSize##N() {            \
-    return QBindable<qreal>(this, "cutSize" #N);                       \
-  }
-
-QOOL_FOREACH_3(IMPL, TR, BL, BR)
-
-#undef IMPL
-
-qreal QoolBoxSettings::cutSizeTL() const {
-  return m_cutSizes[TL_INDEX];
-}
-
-void QoolBoxSettings::set_cutSizeTL(qreal x) {
-  const auto old = cutSizeTL();
-  if (old == x)
-    return;
-  m_cutSizes[TL_INDEX] = x;
-  if (m_cutSizesLocked)
-    notify_all_cutSizes_changed();
-  else
-    emit cutSizeTLChanged();
-}
-
-QBindable<qreal> QoolBoxSettings::bindable_cutSizeTL() {
-  return QBindable<qreal>(this, "cutSizeTL");
 }
 
 QOOL_NS_END

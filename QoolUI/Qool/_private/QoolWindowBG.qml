@@ -22,16 +22,17 @@ QoolBox {
     signal wannaResizeBottomRightCorner(real dx, real dy)
     signal wannaREsizeTopLeftCorner(real dx, real dy)
 
-    settings {
-        cutSize: Style.windowCutSize
-        borderWidth: Style.windowBorderWidth
-        borderColor: Style.accent
-        fillColor: Style.window
+    settings: QoolBoxSettings {
+        cutSizeTL: root.Style.windowCutSize
+        borderWidth: root.Style.windowBorderWidth
+        borderColor: root.Style.accent
+        fillColor: root.Style.window
     }
 
     QtObject {
         id: pCtrl
-        readonly property real resizerSize: Math.max(root.resizerSize, root.settings.borderWidth)
+        readonly property real resizerSize: Math.max(root.resizerSize,
+                                                     root.settings.borderWidth)
         property bool isResizing: false
         function resizeWindow(dx, dy, dw, dh) {
             if (!root.autoBind)
@@ -70,11 +71,11 @@ QoolBox {
             console.debug("window move fallback:", res);
         }
         onWannaMove: (dx, dy) => {
-            root.wannaMove(dx, dy);
-            if (!fallback)
-                return;
-            pCtrl.resizeWindow(dx, dy, 0, 0);
-        }
+                         root.wannaMove(dx, dy);
+                         if (!fallback)
+                         return;
+                         pCtrl.resizeWindow(dx, dy, 0, 0);
+                     }
         // propagateComposedEvents: true
         // preventStealing: false
     }
@@ -97,11 +98,11 @@ QoolBox {
             console.debug("window resize right edge fallback:", res);
         }
         onWannaMove: (dx, dy) => {
-            root.wannaResizeRightEdge(dx);
-            if (!fallback)
-                return;
-            pCtrl.resizeWindow(0, 0, dx, 0);
-        }
+                         root.wannaResizeRightEdge(dx);
+                         if (!fallback)
+                         return;
+                         pCtrl.resizeWindow(0, 0, dx, 0);
+                     }
     }
 
     DragMoveArea {
@@ -121,11 +122,11 @@ QoolBox {
             console.debug("window resize left edge fallback:", res);
         }
         onWannaMove: (dx, dy) => {
-            root.wannaResizeLeftEdge(dx);
-            if (!fallback)
-                return;
-            pCtrl.resizeWindow(0, 0, 0, dy);
-        }
+                         root.wannaResizeLeftEdge(dx);
+                         if (!fallback)
+                         return;
+                         pCtrl.resizeWindow(0, 0, 0, dy);
+                     }
     }
 
     DragMoveArea {
@@ -146,11 +147,11 @@ QoolBox {
             console.debug("window resize top edge fallback:", res);
         }
         onWannaMove: (dx, dy) => {
-            root.wannaResizeTopEdge(dy);
-            if (!fallback)
-                return;
-            pCtrl.resizeWindow(0, 0 - dy, 0, dy);
-        }
+                         root.wannaResizeTopEdge(dy);
+                         if (!fallback)
+                         return;
+                         pCtrl.resizeWindow(0, 0 - dy, 0, dy);
+                     }
     }
 
     DragMoveArea {
@@ -172,11 +173,11 @@ QoolBox {
             console.debug("window resize bottom edge fallback:", res);
         }
         onWannaMove: (dx, dy) => {
-            root.wannaResizeBottomEdge(dy);
-            if (!fallback)
-                return;
-            pCtrl.resizeWindow(0, 0, 0, dy);
-        }
+                         root.wannaResizeBottomEdge(dy);
+                         if (!fallback)
+                         return;
+                         pCtrl.resizeWindow(0, 0, 0, dy);
+                     }
     }
 
     DragMoveArea {
@@ -197,11 +198,11 @@ QoolBox {
             console.debug("window resize top right corner fallback:", res);
         }
         onWannaMove: (dx, dy) => {
-            root.wannaResizeTopRightCorner(dx, dy);
-            if (!fallback)
-                return;
-            pCtrl.resizeWindow(0, 0 - dy, dx, dy);
-        }
+                         root.wannaResizeTopRightCorner(dx, dy);
+                         if (!fallback)
+                         return;
+                         pCtrl.resizeWindow(0, 0 - dy, dx, dy);
+                     }
     }
 
     DragMoveArea {
@@ -223,11 +224,11 @@ QoolBox {
             console.debug("window resize bottom right corner fallback:", res);
         }
         onWannaMove: (dx, dy) => {
-            root.wannaResizeBottomRightCorner(dx, dy);
-            if (!fallback)
-                return;
-            pCtrl.resizeWindow(0, 0, dx, dy);
-        }
+                         root.wannaResizeBottomRightCorner(dx, dy);
+                         if (!fallback)
+                         return;
+                         pCtrl.resizeWindow(0, 0, dx, dy);
+                     }
     }
 
     DragMoveArea {
@@ -248,11 +249,11 @@ QoolBox {
             console.debug("window resize bottom left corner fallback:", res);
         }
         onWannaMove: (dx, dy) => {
-            root.wannaResizeBottomLeftCorner(dx, dy);
-            if (!fallback)
-                return;
-            pCtrl.resizeWindow(0 - dx, 0, dx, dy);
-        }
+                         root.wannaResizeBottomLeftCorner(dx, dy);
+                         if (!fallback)
+                         return;
+                         pCtrl.resizeWindow(0 - dx, 0, dx, dy);
+                     }
     }
 
     DragMoveArea {
@@ -273,10 +274,10 @@ QoolBox {
             console.debug("window resize top left corner fallback:", res);
         }
         onWannaMove: (dx, dy) => {
-            root.wannaREsizeTopLeftCorner(dx, dy);
-            if (!fallback)
-                return;
-            pCtrl.resizeWindow(0 - dx, 0 - dy, dx, dy);
-        }
+                         root.wannaREsizeTopLeftCorner(dx, dy);
+                         if (!fallback)
+                         return;
+                         pCtrl.resizeWindow(0 - dx, 0 - dy, dx, dy);
+                     }
     }
 }

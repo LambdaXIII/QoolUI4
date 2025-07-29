@@ -2,7 +2,6 @@
 #define QOOL_QOOLBOX_SETTINGS_H
 
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
-#include "qoolcommon/macro_foreach.hpp"
 #include "qoolcommon/property_macros_for_qobject_declonly.hpp"
 #include "qoolns.hpp"
 
@@ -23,35 +22,23 @@ public:
   Q_INVOKABLE void dumpInfo() const;
 
 private:
-  std::array<qreal, 4> m_cutSizes;
-  bool m_cutSizesLocked { false };
-  Q_SLOT void notify_all_cutSizes_changed();
   void set_sizes(qreal x);
   void set_sizes(qreal tl, qreal tr, qreal br, qreal bl);
   void set_sizes(const std::vector<std::optional<qreal>>& numbers);
   void set_sizes(const QVariantList& list);
   void set_sizes(const QString& x);
+  void remove_cutSize_bindings();
 
-  Q_PROPERTY(qreal cutSize READ cutSizeTL WRITE set_cutSizeTL NOTIFY
-      cutSizeTLChanged)
-
-#define DECL(N)                                                        \
-public:                                                                \
-  qreal cutSize##N() const;                                            \
-  void set_cutSize##N(qreal x);                                        \
-  Q_SIGNAL void cutSize##N##Changed();                                 \
-  QBindable<qreal> bindable_cutSize##N();                              \
-                                                                       \
-private:                                                               \
-  Q_PROPERTY(qreal cutSize##N READ cutSize##N WRITE                    \
-      set_cutSize##N NOTIFY cutSize##N##Changed)
-
-  QOOL_FOREACH_4(DECL, TL, TR, BL, BR)
-
-#undef DECL
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+    QoolBoxSettings, qreal, cutSizeTL)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+    QoolBoxSettings, qreal, cutSizeTR)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+    QoolBoxSettings, qreal, cutSizeBL)
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+    QoolBoxSettings, qreal, cutSizeBR)
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QVariant, cutSizes)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(bool, cutSizesLocked)
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
     QoolBoxSettings, qreal, borderWidth)
@@ -71,6 +58,9 @@ private:                                                               \
 
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
     QoolBoxSettings, bool, curved)
+
+  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+    QoolBoxSettings, bool, isAllCutSizesEquals)
 };
 
 QOOL_NS_END
