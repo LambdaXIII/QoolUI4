@@ -33,4 +33,8 @@ QoolWindow {
         }
     } //content
 
+    Component.onCompleted: {
+        root.Style.dumpInfo()
+    }
+
 }

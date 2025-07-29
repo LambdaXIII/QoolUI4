@@ -39,31 +39,31 @@ Item {
     }
 
     function refresh() {
-        const word_index = Math.floor(Math.random() * root.words.length)
-        highWord.text = root.words[word_index]
+        const word_index = Math.floor(Math.random() * root.words.length);
+        highWord.text = root.words[word_index];
 
         if (!highWord.text)
-            return
+            return;
+        const v_offset = root.height * 0.75 * (Math.random() - 0.5);
+        const h_offset = root.width * 0.75 * (Math.random() - 0.5);
+        highWord.anchors.verticalCenterOffset = v_offset;
+        highWord.anchors.horizontalCenterOffset = h_offset;
 
-        const v_offset = root.height * 0.75 * (Math.random() - 0.5)
-        const h_offset = root.width * 0.75 * (Math.random() - 0.5)
-        highWord.anchors.verticalCenterOffset = v_offset
-        highWord.anchors.horizontalCenterOffset = h_offset
-
-        let words_factor = 1
+        let words_factor = 1;
         if (root.textSizeMode === PaPaWall.RespectFontSize) {
-            words_factor = Math.random() + 1
+            words_factor = Math.random() + 1;
         } else {
-            let ref_edge = root.textSizeMode
-                === PaPaWall.LargetTextSize ? Math.max(root.width,
-                                                       root.height) : Math.min(
-                                                  root.width, root.height)
-            const words_w = highWord.implicitWidth
-            const words_rand_w = ref_edge * (Math.random() + 0.8)
-            words_factor = words_rand_w / words_w
+            let ref_edge = root.textSizeMode === PaPaWall.LargetTextSize ? Math.max(
+                                                                               root.width,
+                                                                               root.height) :
+                                                                           Math.min(root.width,
+                                                                                    root.height);
+            const words_w = highWord.implicitWidth;
+            const words_rand_w = ref_edge * (Math.random() + 0.8);
+            words_factor = words_rand_w / words_w;
         }
-        highWord.scale = words_factor
+        highWord.scale = words_factor;
 
-        highWord.rotation = (Math.random() * 90) - 45
+        highWord.rotation = (Math.random() * 90) - 45;
     }
 }

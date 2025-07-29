@@ -13,6 +13,8 @@ set_source_files_properties(
   QT_QML_SINGLETON_TYPE TRUE
 )
 
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
 qt_add_qml_module(Qool
   URI Qool
   VERSION ${QOOLUI_VERSION_QML}
@@ -111,6 +113,7 @@ qt_add_qml_module(Qool
   CutSizeBinding.qml
   QML_FILES BasicLabel.qml
   QML_FILES DelayTimer.qml
+  # SOURCES style/qool_styleinternal.h style/qool_styleinternal.cpp
 
 )
 
@@ -141,6 +144,7 @@ target_link_libraries(
   PRIVATE QoolCommon
 )
 target_link_libraries(Qool PRIVATE Qt6::Core Qt6::QuickControls2)
+target_link_libraries(Qool PRIVATE Qt6::Core)
 
 target_include_directories(
   Qool

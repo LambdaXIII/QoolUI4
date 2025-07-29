@@ -1,59 +1,40 @@
-#ifndef QOOL_STYLE_H
-#define QOOL_STYLE_H
+#ifndef QOOL_STYLEINTERNAL_H
+#define QOOL_STYLEINTERNAL_H
 
-#include "qool_itemtracker.h"
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/macro_foreach.hpp"
-#include "qoolcommon/property_macros_for_qobject.hpp"
-#include "qoolcommon/property_macros_for_qobject_declonly.hpp"
 #include "qoolns.hpp"
 
 #include <QBindable>
 #include <QColor>
 #include <QObject>
 #include <QQmlEngine>
-#include <QQuickAttachedPropertyPropagator>
-#include <QQuickItem>
-
-Q_MOC_INCLUDE("qool_stylegroupagent.h")
 
 QOOL_NS_BEGIN
-class StyleGroupAgent;
-class Style: public QQuickAttachedPropertyPropagator {
+
+class StyleInternal: public QObject {
   Q_OBJECT
   QML_ELEMENT
-  QML_ATTACHED(QOOL_NS::Style)
-
 public:
-  explicit Style(QObject* parent = nullptr);
-  Q_INVOKABLE void dumpInfo() const;
-  static Style* qmlAttachedProperties(QObject* object);
+  explicit StyleInternal(QObject* parent = nullptr);
 
-protected:
-  ItemTracker* m_itemTracker;
-  std::optional<QString> m_theme;
-  bool m_animationEnabled { true };
-  QOOL_BINDABLE_MEMBER(Style, StyleGroupAgent*, currentAgent)
-
-  void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
-    QQuickAttachedPropertyPropagator* oldParent) override;
-
-  void setup_properties();
-  Style* parentStyle() const;
-
-  /********** PROPERTIES *********/
-
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, active, nullptr)
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(
-    StyleGroupAgent*, inactive, nullptr)
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(
-    StyleGroupAgent*, disabled, nullptr)
-
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QString, theme)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(bool, animationEnabled)
+#define DECL_ONE(T, N)                                                 \
+public:                                                                \
+  T N() const;                                                         \
+  void set_##N(const T&);                                              \
+  QBindable<T> bindable_##N();                                         \
+  Q_SIGNAL void N##Changed();                                          \
+                                                                       \
+private:                                                               \
+  T m_##N;                                                             \
+  bool m_##N##_customed { false };                                     \
+  Q_PROPERTY(                                                          \
+    T N READ N WRITE set_##N NOTIFY N##Changed BINDABLE bindable_##N)
 
 #define DECL(T, N)                                                     \
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE_DECL(Style, T, N)
+  DECL_ONE(T, active_##N)                                              \
+  DECL_ONE(T, inactive_##N)                                            \
+  DECL_ONE(T, disabled_##N)
 
 #define __HANDLE__(N) DECL(QColor, N)
   QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, red, maroon,
@@ -89,8 +70,9 @@ protected:
   DECL(QStringList, papaWords)
 
 #undef DECL
+#undef DECL_ONE
 };
 
 QOOL_NS_END
 
-#endif // QOOL_STYLE_H
+#endif // QOOL_STYLEINTERNAL_H

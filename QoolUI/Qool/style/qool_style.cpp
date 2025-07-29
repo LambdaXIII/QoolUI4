@@ -17,45 +17,11 @@ Style::Style(QObject* parent)
   m_inactive = new StyleGroupAgent(this);
   m_disabled = new StyleGroupAgent(this);
 
-  __setup_properties();
+  setup_properties();
 
-  // connect(this, &Style::animationEnabledChanged, this,
-  //   &Style::__propagate_animationEnabled);
-
-  setTheme("system");
+  set_theme("system");
 
   initialize();
-}
-
-Style::~Style() {
-}
-
-Style* Style::qmlAttachedProperties(QObject* object) {
-  return new Style(object);
-}
-
-QString Style::theme() const {
-  return m_currentTheme.name();
-}
-
-void Style::setTheme(const QString& name) {
-  m_currentTheme = ThemeDatabase::instance()->theme(name);
-  __spread_theme_values();
-  __propagate_theme();
-  emit themeChanged();
-}
-
-void Style::resetTheme() {
-  auto a = qobject_cast<Style*>(attachedParent());
-  if (a) {
-    Qt::beginPropertyUpdateGroup();
-    m_currentTheme = a->m_currentTheme;
-    emit themeChanged();
-    m_active->inherit(a->m_active);
-    m_inactive->inherit(a->m_inactive);
-    m_disabled->inherit(a->m_disabled);
-    Qt::endPropertyUpdateGroup();
-  }
 }
 
 void Style::dumpInfo() const {
@@ -76,7 +42,25 @@ void Style::dumpInfo() const {
   xDebugQ << xDBGYellow "Properties:" xDBGReset << xDBGQPropertyList;
 }
 
-void Style::__setup_properties() {
+Style* Style::qmlAttachedProperties(QObject* object) {
+  return new Style(object);
+}
+
+void Style::attachedParentChange(
+  QQuickAttachedPropertyPropagator* newParent,
+  QQuickAttachedPropertyPropagator* oldParent) {
+  Q_UNUSED(oldParent)
+  Style* style = qobject_cast<Style*>(newParent);
+  if (style == nullptr)
+    return;
+  Qt::beginPropertyUpdateGroup();
+  m_active->attachTo(style->m_active);
+  m_inactive->attachTo(style->m_inactive);
+  m_disabled->attachTo(style->m_disabled);
+  Qt::endPropertyUpdateGroup();
+}
+
+void Style::setup_properties() {
   m_currentAgent.setBinding([&] {
     const bool p_enabled =
       m_itemTracker->bindable_itemEnabled().value();
@@ -124,114 +108,97 @@ void Style::__setup_properties() {
 #undef __HANDLE__
 }
 
-void Style::__spread_theme_values() {
+Style* Style::parentStyle() const {
+  return qobject_cast<Style*>(attachedParent());
+}
+
+QString Style::theme() const {
+  if (m_theme.has_value())
+    return m_theme.value();
+  auto p = parentStyle();
+  if (p)
+    return p->theme();
+  return {};
+}
+
+void Style::set_theme(const QString& theme) {
+  const auto old = this->theme();
+  if (theme == old)
+    return;
+  m_theme.emplace(theme);
+  const auto t = ThemeDatabase::instance()->theme(theme);
   Qt::beginPropertyUpdateGroup();
-  m_active->setData(m_currentTheme.flatMap(Theme::Active));
-  m_inactive->setData(m_currentTheme.flatMap(Theme::Inactive));
-  m_disabled->setData(m_currentTheme.flatMap(Theme::Disabled));
+  m_active->setValues(t.flatMap(Theme::Active));
+  m_inactive->setValues(t.flatMap(Theme::Inactive));
+  m_disabled->setValues(t.flatMap(Theme::Disabled));
   Qt::endPropertyUpdateGroup();
-}
-
-void Style::attachedParentChange(
-  QQuickAttachedPropertyPropagator* newParent,
-  QQuickAttachedPropertyPropagator* oldParent) {
-  disconnect(oldParent);
-  Style* style = qobject_cast<Style*>(newParent);
-  if (style) {
-    inherit(style);
-  }
-}
-
-void Style::inherit(Style* other) {
-  Q_ASSERT(other);
-  Qt::beginPropertyUpdateGroup();
-  m_currentTheme = other->m_currentTheme;
   emit themeChanged();
-  m_active->inherit(other->m_active);
-  m_inactive->inherit(other->m_inactive);
-  m_disabled->inherit(other->m_disabled);
-  __copy_values(other);
-  __inherit_animationEnabled(other);
-  Qt::endPropertyUpdateGroup();
-  __propagate_theme();
-}
-
-void Style::__propagate_theme() {
-  const auto childs = attachedChildren();
-  for (const auto& child : childs) {
-    auto style = qobject_cast<Style*>(child);
-    if (! style)
-      continue;
-    style->inherit(this);
-  }
-}
-
-void Style::__copy_values(Style* other) {
-  Q_ASSERT(other);
-#define __HANDLE__(N)                                                  \
-  if (! m_##N.hasBinding())                                            \
-    m_##N.setValue(other->N());
-
-  QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, red, maroon,
-    yellow, olive, lime, green)
-  QOOL_FOREACH_10(__HANDLE__, aqua, cyan, teal, blue, navy, fuchsia,
-    purple, orange, brown, pink)
-  QOOL_FOREACH_3(__HANDLE__, positive, negative, warning)
-  QOOL_FOREACH_3(
-    __HANDLE__, controlBackgroundColor, controlBorderColor, infoColor)
-  QOOL_FOREACH_10(__HANDLE__, accent, light, midlight, dark, mid,
-    shadow, highlight, highlightedText, link, linkVisited)
-  QOOL_FOREACH_10(__HANDLE__, text, base, alternateBase, window,
-    windowText, button, buttonText, placeholderText, toolTipBase,
-    toolTipText)
-
-  QOOL_FOREACH_8(__HANDLE__, textSize, titleTextSize, toolTipTextSize,
-    importantTextSize, decorativeTextSize, controlTitleTextSize,
-    controlTextSize, windowTitleTextSize)
-
-  QOOL_FOREACH_3(
-    __HANDLE__, instantDuration, transitionDuration, movementDuration)
-  QOOL_FOREACH_5(__HANDLE__, menuCutSize, buttonCutSize, controlCutSize,
-    windowCutSize, dialogCutSize)
-  QOOL_FOREACH_3(__HANDLE__, controlBorderWidth, windowBorderWidth,
-    dialogBorderWidth)
-  QOOL_FOREACH_2(__HANDLE__, windowElementSpacing, windowEdgeSpacing)
-
-  __HANDLE__(papaWords)
-
-#undef __HANDLE__
 }
 
 bool Style::animationEnabled() const {
   return m_animationEnabled;
 }
 
-void Style::__inherit_animationEnabled(Style* other) {
-  if (! other)
-    return;
-  if (m_animationEnabledCustomed
-      || m_animationEnabled == other->m_animationEnabled)
-    return;
-  m_animationEnabled = other->m_animationEnabled;
-  emit animationEnabledChanged();
-}
-
-void Style::__propagate_animationEnabled() {
-  const auto childs = attachedChildren();
-  for (const auto& child : childs) {
-    Style* a = qobject_cast<Style*>(child);
-    if (a)
-      a->__inherit_animationEnabled(this);
-  }
-}
-
 void Style::set_animationEnabled(const bool& x) {
   if (m_animationEnabled == x)
     return;
   m_animationEnabled = x;
-  m_animationEnabledCustomed = true;
-  __propagate_animationEnabled();
+  Qt::beginPropertyUpdateGroup();
+  const auto childs = attachedChildren();
+  for (const auto& child : childs) {
+    Style* c = qobject_cast<Style*>(child);
+    if (c)
+      c->set_animationEnabled(x);
+  }
+  Qt::endPropertyUpdateGroup();
   emit animationEnabledChanged();
 }
+
+#define IMPL(T, N)                                                     \
+  T Style::N() const {                                                 \
+    return m_##N.value();                                              \
+  }                                                                    \
+  void Style::set_##N(const T& x) {                                    \
+    Qt::beginPropertyUpdateGroup();                                    \
+    m_active->set_##N(x);                                              \
+    m_inactive->set_##N(x);                                            \
+    m_disabled->set_##N(x);                                            \
+    Qt::endPropertyUpdateGroup();                                      \
+  }
+
+#define __HANDLE__(N) IMPL(QColor, N)
+QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, red, maroon,
+  yellow, olive, lime, green)
+QOOL_FOREACH_10(__HANDLE__, aqua, cyan, teal, blue, navy, fuchsia,
+  purple, orange, brown, pink)
+QOOL_FOREACH_3(__HANDLE__, positive, negative, warning)
+QOOL_FOREACH_3(
+  __HANDLE__, controlBackgroundColor, controlBorderColor, infoColor)
+QOOL_FOREACH_10(__HANDLE__, accent, light, midlight, dark, mid, shadow,
+  highlight, highlightedText, link, linkVisited)
+QOOL_FOREACH_10(__HANDLE__, text, base, alternateBase, window,
+  windowText, button, buttonText, placeholderText, toolTipBase,
+  toolTipText)
+#undef __HANDLE__
+
+#define __HANDLE__(N) IMPL(int, N)
+QOOL_FOREACH_8(__HANDLE__, textSize, titleTextSize, toolTipTextSize,
+  importantTextSize, decorativeTextSize, controlTitleTextSize,
+  controlTextSize, windowTitleTextSize)
+#undef __HANDLE__
+
+#define __HANDLE__(N) IMPL(qreal, N)
+QOOL_FOREACH_3(
+  __HANDLE__, instantDuration, transitionDuration, movementDuration)
+QOOL_FOREACH_5(__HANDLE__, menuCutSize, buttonCutSize, controlCutSize,
+  windowCutSize, dialogCutSize)
+QOOL_FOREACH_3(
+  __HANDLE__, controlBorderWidth, windowBorderWidth, dialogBorderWidth)
+QOOL_FOREACH_2(__HANDLE__, windowElementSpacing, windowEdgeSpacing)
+#undef __HANDLE__
+
+IMPL(QStringList, papaWords)
+
+#undef IMPL
 
 QOOL_NS_END
