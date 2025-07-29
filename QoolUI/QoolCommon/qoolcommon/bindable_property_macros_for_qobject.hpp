@@ -34,7 +34,7 @@ public:                                                                \
     return _QL_MEMBER_NAME_(_N_).value();                              \
   }                                                                    \
   _QL_PROPERTY_SETTER_SIGNATURE_(_T_, _N_) {                           \
-    _QL_MEMBER_NAME_(_N_) = _QL_NEW_VALUE_(_N_);                       \
+    _QL_MEMBER_NAME_(_N_).setValue(_QL_NEW_VALUE_(_N_));               \
   }                                                                    \
   _QL_STANDARD_BINDABLE_GETTER_(_T_, _N_)                              \
 _QL_PRIVATE_SCOPE_:                                                    \
