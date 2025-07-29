@@ -14,6 +14,17 @@ BasicPage {
     title: qsTr("试炼场")
     note: qsTr("测试一些东西……")
     Column {
+        QoolBox {
+            width: 400
+            height: 300
+            settings {
+                cutSizeTL: 30
+                cutSizeTR: 10
+                cutSizeBL: 40
+                cutSizeBR: 5
+            }
+        }
+
         ComboBox {
             id: box
             model: ListModel {
@@ -56,11 +67,14 @@ BasicPage {
             }
             textRole: "display"
             valueRole: "value"
-            onCurrentIndexChanged: console.log(currentValue)
+
             // editable: true
             selectTextByMouse: true
             // flat: true
             // backgroundSettings.cutSizeTL: 30
+            onCurrentIndexChanged: {
+                box.Style.dumpInfo();
+            }
         }
     }
 }

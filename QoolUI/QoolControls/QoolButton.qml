@@ -7,13 +7,13 @@ BasicButton {
 
     ControlPressedCover {
         visible: root.down
-        highColor: Style.highlight
-        lowColor: Style.highlightedText
+        highColor: root.Style.highlight
+        lowColor: root.Style.highlightedText
     }
 
     ControlHighlightCover {
-        highColor: Style.highlight
-        lowColor: Style.highlightedText
+        highColor: root.Style.highlight
+        lowColor: root.Style.highlightedText
         opacity: root.highlighted || (root.enabled && root.hovered) ? 1 : 0
     }
 

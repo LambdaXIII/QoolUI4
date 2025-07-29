@@ -2,6 +2,7 @@
 #define QOOL_STYLE_H
 
 #include "qool_itemtracker.h"
+#include "qool_theme.h"
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/macro_foreach.hpp"
 #include "qoolcommon/property_macros_for_qobject.hpp"
@@ -23,34 +24,55 @@ class Style: public QQuickAttachedPropertyPropagator {
   Q_OBJECT
   QML_ELEMENT
   QML_ATTACHED(QOOL_NS::Style)
+  QML_UNCREATABLE("")
 
 public:
   explicit Style(QObject* parent = nullptr);
-  Q_INVOKABLE void dumpInfo() const;
+  ~Style();
+
   static Style* qmlAttachedProperties(QObject* object);
+  Q_INVOKABLE void dumpInfo() const;
+  Q_INVOKABLE void dumpAllChildren() const;
+
+  enum Groups {
+    Active = Theme::Active,
+    Inactive = Theme::Inactive,
+    Disabled = Theme::Disabled
+  };
+
+  QVariant get_value(
+    int group, const QString& key, const QVariant& defValue = {}) const;
+  bool set_value(int group, const QString& key, const QVariant& value);
+  Q_SIGNAL void valueChanged(int group, QString key);
+  void mark_modified(int group, const QString& key);
 
 protected:
   ItemTracker* m_itemTracker;
-  std::optional<QString> m_theme;
-  bool m_animationEnabled { true };
-  QOOL_BINDABLE_MEMBER(Style, StyleGroupAgent*, currentAgent)
+  QVariantMap m_activeData, m_inactiveData, m_disabledData;
+  QMap<QString, bool> m_activeModified, m_inactiveModified,
+    m_disabledModified;
+  bool m_animationEnabled;
+
+  QOOL_BINDABLE_MEMBER(Style, Groups, currentGroup);
+  void initialize_data();
+  // void setup_properties();
+  void propagate_theme();
+  void inherit(Style* other);
+  Q_SLOT void when_themeChanged();
+  Q_SLOT void check_changes(int group, QString key);
+  Q_SLOT void when_curentGroupChanged();
+
+  QList<QQuickAttachedPropertyPropagator*> find_children() const;
 
   void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
     QQuickAttachedPropertyPropagator* oldParent) override;
 
-  void setup_properties();
-  Style* parentStyle() const;
-
-  /********** PROPERTIES *********/
-
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, active, nullptr)
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(
-    StyleGroupAgent*, inactive, nullptr)
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(
-    StyleGroupAgent*, disabled, nullptr)
-
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QString, theme)
+  /****** PROPERTIES ******/
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(QString, theme, )
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(bool, animationEnabled)
+  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, active, )
+  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, inactive, )
+  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, disabled, )
 
 #define DECL(T, N)                                                     \
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE_DECL(Style, T, N)

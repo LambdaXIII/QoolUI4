@@ -15,10 +15,10 @@ T.Control {
     property alias contentRightPadding: spacer.rightPadding
 
     property QoolBoxSettings backgroundSettings: QoolBoxSettings {
-        cutSizeTL: Style.controlCutSize
-        borderWidth: Style.controlBorderWidth
-        borderColor: Style.controlBorderColor
-        fillColor: Style.controlBackgroundColor
+        cutSizeTL: root.Style.controlCutSize
+        borderWidth: root.Style.controlBorderWidth
+        borderColor: root.Style.controlBorderColor
+        fillColor: root.Style.controlBackgroundColor
     }
 
     background: QoolBGBox {

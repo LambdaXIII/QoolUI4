@@ -10,11 +10,11 @@ T.ProgressBar {
     value: 0.5
 
     readonly property QoolBoxSettings settings: QoolBoxSettings {
-        borderWidth: Style.controlBorderWidth
-        borderColor: Style.mid
+        borderWidth: root.Style.controlBorderWidth
+        borderColor: root.Style.mid
     }
 
-    property int cycleDuration: Style.movementDuration * 2
+    property int cycleDuration: root.Style.movementDuration * 2
     property int horizontalAlignment: Qt.AlignLeft
 
     property real radius: Math.floor(height / 2)
@@ -25,7 +25,7 @@ T.ProgressBar {
         settings {
             borderWidth: root.settings.borderWidth
             borderColor: root.settings.borderColor
-            fillColor: Style.dark
+            fillColor: root.Style.dark
             cutSizes: root.radius
         }
     }
@@ -49,11 +49,11 @@ T.ProgressBar {
                 y2: face.height
                 GradientStop {
                     position: 0
-                    color: Qt.lighter(Style.active.highlight, 1.5)
+                    color: Qt.lighter(root.Style.active.highlight, 1.5)
                 }
                 GradientStop {
                     position: 1
-                    color: Qt.darker(Style.active.highlight, 1.5)
+                    color: Qt.darker(root.Style.active.highlight, 1.5)
                 }
             }
         }
@@ -76,7 +76,7 @@ T.ProgressBar {
             settings {
                 borderWidth: root.settings.borderWidth
                 borderColor: root.settings.borderColor
-                fillColor: Style.highlight
+                fillColor: root.Style.highlight
                 cutSizes: root.radius
             }
             fillItem: face
@@ -126,14 +126,14 @@ T.ProgressBar {
                 target: progressShape.control
                 property: "width"
                 to: pCtrl.indeterminateWidth
-                duration: Style.transitionDuration
+                duration: root.Style.transitionDuration
                 easing.type: Easing.OutBack
             }
             NumberAnimation {
                 target: progressShape.control
                 property: "offsetX"
                 to: 0
-                duration: Style.transitionDuration
+                duration: root.Style.transitionDuration
                 easing.type: Easing.OutBack
             }
         }
@@ -149,7 +149,7 @@ T.ProgressBar {
                 target: progressShape.control
                 property: "width"
                 to: pCtrl.visualWidth
-                duration: Style.transitionDuration
+                duration: root.Style.transitionDuration
                 easing.type: Easing.OutBack
             }
             NumberAnimation {
@@ -184,7 +184,7 @@ T.ProgressBar {
             target: progressShape.control
             property: "offsetX"
             to: pCtrl.visualX
-            duration: Style.transitionDuration
+            duration: root.Style.transitionDuration
             easing.type: Easing.OutBack
             onStarted: pCtrl.visualBindingEnabled = false
             onFinished: pCtrl.visualBindingEnabled = true

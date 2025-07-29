@@ -8,10 +8,10 @@ Window {
 
     property alias background: bgShape
     property QoolBoxSettings backgroundSettings: QoolBoxSettings {
-        cutSizeTL: Style.windowCutSize
-        borderWidth: Style.windowBorderWidth
-        borderColor: Style.accent
-        fillColor: Style.window
+        cutSizeTL: root.Style.windowCutSize
+        borderWidth: root.Style.windowBorderWidth
+        borderColor: root.Style.accent
+        fillColor: root.Style.window
     }
 
     visible: true

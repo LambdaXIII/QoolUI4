@@ -18,10 +18,10 @@ T.ComboBox {
     property alias contentRightPadding: spacer.rightPadding
 
     property QoolBoxSettings backgroundSettings: QoolBoxSettings {
-        borderWidth: Style.controlBorderWidth
-        borderColor: Style.controlBorderColor
-        fillColor: Style.controlBackgroundColor
-        cutSizes: Style.buttonCutSize
+        borderWidth: root.Style.controlBorderWidth
+        borderColor: root.Style.controlBorderColor
+        fillColor: root.Style.controlBackgroundColor
+        cutSizes: root.Style.buttonCutSize
         curved: true
     }
 
@@ -134,17 +134,17 @@ T.ComboBox {
 
     ControlPressedCover {
         visible: root.pressed
-        highColor: Style.highlight
-        lowColor: Style.highlightedText
+        highColor: root.Style.highlight
+        lowColor: root.Style.highlightedText
     }
 
     ControlHighlightCover {
-        highColor: Style.highlight
-        lowColor: Style.highlightedText
+        highColor: root.Style.highlight
+        lowColor: root.Style.highlightedText
         opacity: (root.enabled && root.hovered) ? 1 : 0
     }
 
     ControlLockedCover {
-        color: Style.negative
+        color: root.Style.negative
     }
 }

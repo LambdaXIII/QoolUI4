@@ -18,10 +18,10 @@ T.AbstractButton {
     property alias contentRightPadding: spacer.rightPadding
 
     property QoolBoxSettings backgroundSettings: QoolBoxSettings {
-        borderWidth: Style.controlBorderWidth
-        borderColor: Style.controlBorderColor
-        fillColor: Style.controlBackgroundColor
-        cutSizeTL: Style.controlCutSize
+        borderWidth: root.Style.controlBorderWidth
+        borderColor: root.Style.controlBorderColor
+        fillColor: root.Style.controlBackgroundColor
+        cutSizeTL: root.Style.controlCutSize
     }
     property Item backgroundFillItem
 

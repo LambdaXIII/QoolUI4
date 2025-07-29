@@ -3,6 +3,7 @@
 
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/macro_foreach.hpp"
+#include "qoolcommon/property_macros_for_qobject_declonly.hpp"
 #include "qoolns.hpp"
 
 #include <QColor>
@@ -18,36 +19,16 @@ class StyleGroupAgent: public QObject {
   Q_OBJECT
   QML_ANONYMOUS
 public:
-  explicit StyleGroupAgent(Style* parent = nullptr);
-
-  void setValues(const QVariantMap& values);
-  QVariantMap flatMap() const;
-
-  void attachTo(StyleGroupAgent* other);
+  explicit StyleGroupAgent(int group, Style* parent);
 
 protected:
-  QVariantMap m_values, m_defaultValues;
-  QMap<QString, bool> m_modified;
-  StyleGroupAgent* m_parentAgent { nullptr };
+  int m_group;
+  Style* m_parentStyle;
+  Q_SLOT void when_parentValueChanged(int group, QString key);
 
-  void connectTo(StyleGroupAgent* other);
+  /****** PROPERTIES ******/
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
-    StyleGroupAgent, Style*, parentStyle)
-
-  /********** PROPERTIES ***********/
-
-#define DECL(T, N)                                                     \
-public:                                                                \
-  T N() const;                                                         \
-  void set_##N(const T& v);                                            \
-  QBindable<T> bindable_##N();                                         \
-  void reset_##N();                                                    \
-  Q_SIGNAL void N##Changed(T);                                         \
-                                                                       \
-private:                                                               \
-  Q_SLOT void update_##N##_from_parent(const T&);                      \
-  Q_PROPERTY(T N READ N WRITE set_##N RESET reset_##N NOTIFY N##Changed)
+#define DECL(T, N) QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(T, N)
 
 #define __HANDLE__(N) DECL(QColor, N)
   QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, red, maroon,

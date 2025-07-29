@@ -108,5 +108,6 @@
         <color property="text" copy="text" darker="1.8"/>
         <color property="windowText" copy="text" darker="1.8"/>
         <color property="buttonText" copy="text" darker="1.8"/>
+        <color property="controlBorderColor" copy="disabled"/>
     </disabled>
 </qooltheme>

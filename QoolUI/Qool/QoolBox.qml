@@ -5,9 +5,9 @@ Item {
     id: root
 
     property QoolBoxSettings settings: QoolBoxSettings {
-        borderWidth: Style.controlBorderWidth
-        borderColor: Style.accent
-        fillColor: Style.dark
+        borderWidth: root.Style.controlBorderWidth
+        borderColor: root.Style.accent
+        fillColor: root.Style.dark
     }
     property alias cutSize: root.settings.cutSizeTL
     property alias curved: root.settings.curved
