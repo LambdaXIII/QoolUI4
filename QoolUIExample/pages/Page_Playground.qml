@@ -75,7 +75,7 @@ BasicPage {
             valueRole: "value"
 
             // editable: true
-            selectTextByMouse: true
+            // selectTextByMouse: true
             // flat: true
             // backgroundSettings.cutSizeTL: 30
             onCurrentIndexChanged: {

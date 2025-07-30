@@ -5,7 +5,7 @@ import QtQuick.Layouts
 T.Control {
     id: root
 
-    property int currentIndex: 0
+    property int currentIndex: -1
 
     property real implicitDelegateWidth: 4
     property real implicitDelegateHeight: 4
