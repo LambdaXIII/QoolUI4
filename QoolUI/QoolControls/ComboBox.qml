@@ -70,6 +70,8 @@ T.ComboBox {
         y: root.topPadding
         height: root.height - root.topPadding - root.bottomPadding
         BasicNumberBehavior on currentIndex {}
+        // topPadding: textField.topPadding
+        // bottomPadding: textField.bottomPadding
     }
 
     contentItem: BasicTextField {
@@ -77,8 +79,6 @@ T.ComboBox {
         readonly property real indicatorPadding: root.indicator.width + root.spacing
         leftPadding: root.mirrored ? indicatorPadding : 0
         rightPadding: root.mirrored ? 0 : indicatorPadding
-        // topPadding: 6 - root.padding
-        // bottomPadding: 6 - root.padding
 
         text: root.editable ? root.editText : root.displayText
         font: root.font
