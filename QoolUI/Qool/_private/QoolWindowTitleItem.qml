@@ -4,7 +4,7 @@ import Qool
 
 Text {
     id: root
-    color: Window.window.active ? palette.accent : palette.windowText
+    color: Style.accent
     font.pointSize: Style.windowTitleTextSize
     horizontalAlignment: Text.AlignRight
     verticalAlignment: Text.AlignVCenter

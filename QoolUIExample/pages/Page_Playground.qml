@@ -13,16 +13,22 @@ BasicPage {
 
     title: qsTr("试炼场")
     note: qsTr("测试一些东西……")
+
     Column {
-        QoolBox {
-            width: 400
-            height: 300
-            settings {
-                cutSizeTL: 30
-                cutSizeTR: 10
-                cutSizeBL: 40
-                cutSizeBR: 5
+        Button {
+            id: tbtn
+            text: "11111"
+            checkable: true
+            onClicked: {
+                console.log(root.Style.active.accent, root.Style.inactive.accent,
+                            root.Style.disabled.accent);
             }
+        }
+
+        ProgressBar {
+            width: 400
+            height: 20
+            indeterminate: tbtn.checked
         }
 
         ComboBox {

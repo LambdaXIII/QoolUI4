@@ -9,10 +9,15 @@ QOOL_NS_BEGIN
 
 ItemTracker::ItemTracker(QObject* parent)
   : QObject { parent } {
-  connect(this, SIGNAL(targetChanged()), this, SLOT(update_item()));
-  connect(this, SIGNAL(targetChanged()), this, SLOT(update_window()));
-  connect(this, SIGNAL(itemChanged()), this, SLOT(setup_item()));
-  connect(this, SIGNAL(windowChanged()), this, SLOT(setup_window()));
+  connect(this, &ItemTracker::targetChanged, this, [&] {
+    update_item();
+    update_window();
+  });
+
+  connect(
+    this, &ItemTracker::itemChanged, this, &ItemTracker::setup_item);
+  connect(this, &ItemTracker::windowChanged, this,
+    &ItemTracker::setup_window);
 }
 
 void ItemTracker::update_item() {
@@ -63,7 +68,8 @@ void ItemTracker::setup_window() {
 
 void ItemTracker::update_item_properties() {
   auto i = m_item.value();
-  m_itemEnabled = i ? i->isEnabled() : true;
+  bool _enabled = (i == nullptr) || i->isEnabled();
+  m_itemEnabled.setValue(_enabled);
 }
 
 void ItemTracker::update_window_properties() {

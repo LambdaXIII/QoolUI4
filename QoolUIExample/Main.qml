@@ -15,7 +15,7 @@ QoolWindow {
     visible: true
     title: qsTr("Hello, Qool World!")
 
-    // Style.theme: "midnight"
+    Style.theme: "midnight"
 
     toolBar: MainWindowToolBar {}
 
@@ -31,15 +31,15 @@ QoolWindow {
         ToolButton {
             text: "DEBUG"
             onClicked: {
-                console.log(pageFrame.Style.controlBorderColor,
-                            pageFrame.backgroundSettings.borderColor);
-                console.log(root.Style.window, root.backgroundSettings.fillColor);
+                console.log(root.backgroundSettings.borderColor,
+                            root.Style.active.accent, root.Style.inactive.accent,
+                            root.Style.disabled.accent);
             }
         }
         ToolButton {
             text: "DEBUG2"
             onClicked: {
-                root.Style.dumpAllChildren();
+                root.Style.dumpInfo();
             }
         }
     }

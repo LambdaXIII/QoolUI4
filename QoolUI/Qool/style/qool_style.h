@@ -28,7 +28,6 @@ class Style: public QQuickAttachedPropertyPropagator {
 
 public:
   explicit Style(QObject* parent = nullptr);
-  ~Style();
 
   static Style* qmlAttachedProperties(QObject* object);
   Q_INVOKABLE void dumpInfo() const;
@@ -67,6 +66,8 @@ protected:
   void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
     QQuickAttachedPropertyPropagator* oldParent) override;
 
+  bool eventFilter(QObject* object, QEvent* event) override;
+
   /****** PROPERTIES ******/
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(QString, theme, )
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(bool, animationEnabled)
@@ -74,8 +75,7 @@ protected:
   QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, inactive, )
   QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, disabled, )
 
-#define DECL(T, N)                                                     \
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE_DECL(Style, T, N)
+#define DECL(T, N) QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(T, N)
 
 #define __HANDLE__(N) DECL(QColor, N)
   QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, red, maroon,

@@ -20,8 +20,9 @@ Style::Style(QObject* parent)
 
   m_itemTracker->set_target(parent);
   m_currentGroup.setBinding([&] {
+    const auto item = m_itemTracker->bindable_item().value();
     const bool enabled = m_itemTracker->bindable_itemEnabled().value();
-    if (! enabled)
+    if (item && ! enabled)
       return Disabled;
     const bool active = m_itemTracker->bindable_windowActived().value();
     if (! active)
@@ -34,11 +35,9 @@ Style::Style(QObject* parent)
   connect(this, &Style::valueChanged, this, &Style::check_changes);
   connect(this, &Style::themeChanged, this, &Style::when_themeChanged);
 
-  initialize();
-}
+  installEventFilter(this);
 
-Style::~Style() {
-  m_itemTracker->deleteLater();
+  initialize();
 }
 
 Style* Style::qmlAttachedProperties(QObject* object) {
@@ -55,7 +54,10 @@ void Style::dumpInfo() const {
     parents << item;
     item = item->attachedParent();
   }
-
+  xDebugQ << xDBGYellow "tracking item" xDBGReset
+          << m_itemTracker->item();
+  xDebugQ << xDBGYellow "tracking window" xDBGReset
+          << m_itemTracker->window();
   xDebugQ << xDBGYellow "AttachedParents:" xDBGPink << xDBGList(parents)
           << xDBGReset;
   xDebugQ << xDBGYellow "AttachedChildren:" xDBGPink
@@ -67,6 +69,9 @@ void Style::dumpInfo() const {
           << xDBGList(m_inactiveModified.keys());
   xDebugQ << xDBGYellow "Modified Disabled Values" xDBGReset
           << xDBGList(m_disabledModified.keys());
+
+  if (m_activeData == m_inactiveData && m_activeData == m_disabledData)
+    xWarningQ << xDBGRed "All Groups are equal!" xDBGReset;
 }
 
 void Style::dumpAllChildren() const {
@@ -134,62 +139,14 @@ void Style::initialize_data() {
   m_disabledData = SystemTheme::instance()->flatMap(Theme::Disabled);
 }
 
-// void Style::setup_properties() {
-// #define SETUP(T, N) \
-//   m_##N.setBinding([&] { \
-//     const int group = m_currentGroup.value(); \
-//     return get_value(group, #N).value<T>(); \
-//   });
-
-// #define __HANDLE__(N) SETUP(QColor, N)
-//   QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, red,
-//   maroon,
-//     yellow, olive, lime, green)
-//   QOOL_FOREACH_10(__HANDLE__, aqua, cyan, teal, blue, navy, fuchsia,
-//     purple, orange, brown, pink)
-//   QOOL_FOREACH_3(__HANDLE__, positive, negative, warning)
-//   QOOL_FOREACH_3(
-//     __HANDLE__, controlBackgroundColor, controlBorderColor,
-//     infoColor)
-//   QOOL_FOREACH_10(__HANDLE__, accent, light, midlight, dark, mid,
-//     shadow, highlight, highlightedText, link, linkVisited)
-//   QOOL_FOREACH_10(__HANDLE__, text, base, alternateBase, window,
-//     windowText, button, buttonText, placeholderText, toolTipBase,
-//     toolTipText)
-// #undef __HANDLE__
-
-// #define __HANDLE__(N) SETUP(int, N)
-//   QOOL_FOREACH_8(__HANDLE__, textSize, titleTextSize,
-//   toolTipTextSize,
-//     importantTextSize, decorativeTextSize, controlTitleTextSize,
-//     controlTextSize, windowTitleTextSize)
-// #undef __HANDLE__
-
-// #define __HANDLE__(N) SETUP(qreal, N)
-//   QOOL_FOREACH_3(
-//     __HANDLE__, instantDuration, transitionDuration,
-//     movementDuration)
-//   QOOL_FOREACH_5(__HANDLE__, menuCutSize, buttonCutSize,
-//   controlCutSize,
-//     windowCutSize, dialogCutSize)
-//   QOOL_FOREACH_3(__HANDLE__, controlBorderWidth, windowBorderWidth,
-//     dialogBorderWidth)
-//   QOOL_FOREACH_2(__HANDLE__, windowElementSpacing, windowEdgeSpacing)
-// #undef __HANDLE__
-
-//   SETUP(QStringList, papaWords)
-
-// #undef SETUP
-// }
-
 void Style::propagate_theme() {
   const auto childs = attachedChildren();
   if (childs.isEmpty())
     return;
 
-  xInfoQ << "Propagating theme from" xDBGGreen << this
-         << xDBGReset "to" xDBGRed << childs.length()
-         << xDBGReset "children.";
+  // xInfoQ << "Propagating theme from" xDBGGreen << this
+  //        << xDBGReset "to" xDBGRed << childs.length()
+  //        << xDBGReset "children.";
 
   for (const auto& child : childs) {
     Style* style = qobject_cast<Style*>(child);
@@ -231,13 +188,8 @@ void Style::inherit(Style* other) {
 
   Qt::endPropertyUpdateGroup();
 
-  // m_activeData = other->m_activeData;
-  // m_inactiveData = other->m_inactiveData;
-  // m_disabledData = other->m_disabledData;
-  // when_curentGroupChanged();
-
-  xInfoQ << "Inherited from" xDBGGreen << other
-         << xDBGReset "to" xDBGRed << this << xDBGReset;
+  // xInfoQ << "Inherited from" xDBGGreen << other
+  //        << xDBGReset "to" xDBGRed << this << xDBGReset;
 
   propagate_theme();
 }
@@ -256,7 +208,7 @@ void Style::when_themeChanged() {
     if (! m)
       set_value(Active, iter.key(), iter.value());
   }
-  const auto inactive_values = t.flatMap(Theme::Active);
+  const auto inactive_values = t.flatMap(Theme::Inactive);
   for (auto iter = inactive_values.constBegin();
     iter != inactive_values.constEnd();
     ++iter) {
@@ -264,7 +216,7 @@ void Style::when_themeChanged() {
     if (! m)
       set_value(Inactive, iter.key(), iter.value());
   }
-  const auto disabled_values = t.flatMap(Theme::Active);
+  const auto disabled_values = t.flatMap(Theme::Disabled);
   for (auto iter = disabled_values.constBegin();
     iter != disabled_values.constEnd();
     ++iter) {
@@ -281,7 +233,7 @@ void Style::check_changes(int group, QString key) {
     return;
 #define __SET__(T, N)                                                  \
   if (key == QStringLiteral(#N))                                       \
-    m_##N = get_value(group, key).value<T>();
+    emit N##Changed();
 
 #define __HANDLE__(N) __SET__(QColor, N)
   QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, red, maroon,
@@ -320,9 +272,12 @@ void Style::check_changes(int group, QString key) {
 
 void Style::when_curentGroupChanged() {
   const Groups group = m_currentGroup.value();
-  xInfoQ << "Group changed:" xDBGYellow << group << xDBGReset;
+
+  // xInfoQ << "Group changed:" xDBGYellow << group << xDBGReset;
+
   Qt::beginPropertyUpdateGroup();
-#define SETUP(T, N) m_##N = get_value(group, #N).value<T>();
+
+#define SETUP(T, N) emit N##Changed();
 
 #define __HANDLE__(N) SETUP(QColor, N)
   QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, red, maroon,
@@ -382,6 +337,15 @@ void Style::attachedParentChange(
     inherit(style);
 }
 
+bool Style::eventFilter(QObject* object, QEvent* event) {
+  if (object != this)
+    return false;
+  if (event->type() == QEvent::ParentChange) {
+    m_itemTracker->set_target(object->parent());
+  }
+  return QObject::eventFilter(object, event);
+}
+
 bool Style::animationEnabled() const {
   return m_animationEnabled;
 }
@@ -401,7 +365,8 @@ void Style::set_animationEnabled(const bool& x) {
 
 #define IMPL(T, N)                                                     \
   T Style::N() const {                                                 \
-    return m_##N.value();                                              \
+    const auto group = m_currentGroup.value();                         \
+    return get_value(group, #N).value<T>();                            \
   }                                                                    \
   void Style::set_##N(const T& v) {                                    \
     static const QString key { QStringLiteral(#N) };                   \

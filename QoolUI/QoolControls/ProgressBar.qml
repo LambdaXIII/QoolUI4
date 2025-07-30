@@ -9,15 +9,20 @@ T.ProgressBar {
 
     value: 0.5
 
-    readonly property QoolBoxSettings settings: QoolBoxSettings {
-        borderWidth: root.Style.controlBorderWidth
-        borderColor: root.Style.mid
-    }
-
     property int cycleDuration: root.Style.movementDuration * 2
     property int horizontalAlignment: Qt.AlignLeft
 
     property real radius: Math.floor(height / 2)
+
+    property color highlightColor: Style.active.highlight
+    property color alternateHighlightColor: Qt.alpha(highlightColor, 0.2)
+    property color borderColor: Style.active.mid
+    property color backgroundColor: Style.active.dark
+
+    readonly property QoolBoxSettings settings: QoolBoxSettings {
+        borderWidth: root.Style.controlBorderWidth
+        borderColor: root.Style.mid
+    }
 
     background: OctagonRoundedShape {
         implicitWidth: 100
@@ -25,7 +30,7 @@ T.ProgressBar {
         settings {
             borderWidth: root.settings.borderWidth
             borderColor: root.settings.borderColor
-            fillColor: root.Style.dark
+            fillColor: root.backgroundColor
             cutSizes: root.radius
         }
     }
@@ -49,11 +54,11 @@ T.ProgressBar {
                 y2: face.height
                 GradientStop {
                     position: 0
-                    color: Qt.lighter(root.Style.active.highlight, 1.5)
+                    color: root.highlightColor
                 }
                 GradientStop {
                     position: 1
-                    color: Qt.darker(root.Style.active.highlight, 1.5)
+                    color: root.alternateHighlightColor
                 }
             }
         }
@@ -76,7 +81,7 @@ T.ProgressBar {
             settings {
                 borderWidth: root.settings.borderWidth
                 borderColor: root.settings.borderColor
-                fillColor: root.Style.highlight
+                // fillColor: root.highlightColor
                 cutSizes: root.radius
             }
             fillItem: face
