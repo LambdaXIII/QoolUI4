@@ -17,6 +17,9 @@ T.ComboBox {
     property alias contentLeftPadding: spacer.leftPadding
     property alias contentRightPadding: spacer.rightPadding
 
+    property int horizontalAlignment: Text.AlignHCenter
+    property int verticalAlignment: Text.AlignVCenter
+
     property QoolBoxSettings backgroundSettings: QoolBoxSettings {
         borderWidth: root.Style.controlBorderWidth
         borderColor: root.Style.controlBorderColor
@@ -36,8 +39,8 @@ T.ComboBox {
         settings: root.backgroundSettings
         implicitHeight: 35
         implicitWidth: 100
-        opacity: (root.flat && !root.hovered && !root.popup.visible &&
-                  !textField.activeFocus) ? 0 : 1
+        opacity: (root.flat && !root.hovered && !root.popup.visible
+                  && !textField.activeFocus) ? 0 : 1
         BasicNumberBehavior on opacity {}
     }
 
@@ -47,14 +50,14 @@ T.ComboBox {
     rightPadding: rightInset + bgbox.rightSpace + spacer.rightPadding
 
     implicitWidth: {
-        let w1 = leftPadding + implicitContentWidth + rightPadding;
-        let w2 = leftInset + implicitBackgroundWidth + rightInset;
-        return Math.max(w1, w2);
+        let w1 = leftPadding + implicitContentWidth + rightPadding
+        let w2 = leftInset + implicitBackgroundWidth + rightInset
+        return Math.max(w1, w2)
     }
     implicitHeight: {
-        let h1 = topPadding + implicitContentHeight + bottomPadding;
-        let h2 = topInset + implicitBackgroundHeight + bottomInset;
-        return Math.max(h1, h2);
+        let h1 = topPadding + implicitContentHeight + bottomPadding
+        let h2 = topInset + implicitBackgroundHeight + bottomInset
+        return Math.max(h1, h2)
     }
 
     indicator: IndexIndicator {
@@ -62,37 +65,58 @@ T.ComboBox {
         model: root.model
         x: {
             if (root.mirrored)
-                return root.leftPadding;
+                return root.contentItem.x
             else
-                return root.width - width - root.rightPadding;
+                return root.contentItem.x + root.contentItem.width - width
         }
 
-        y: root.topPadding
-        height: root.height - root.topPadding - root.bottomPadding
+        y: root.contentItem.y
+        height: root.contentItem.height
         BasicNumberBehavior on currentIndex {}
-        // topPadding: textField.topPadding
-        // bottomPadding: textField.bottomPadding
     }
 
-    contentItem: BasicTextField {
-        id: textField
+    contentItem: Item {
+        id: contentContainer
+        implicitWidth: simpleText.implicitWidth
+        implicitHeight: simpleText.implicitHeight
         readonly property real indicatorPadding: root.indicator.width + root.spacing
-        leftPadding: root.mirrored ? indicatorPadding : 0
-        rightPadding: root.mirrored ? 0 : indicatorPadding
+        Text {
+            id: simpleText
+            text: root.displayText
+            font: root.font
+            enabled: root.enabled
+            color: root.Style.buttonText
+            horizontalAlignment: root.horizontalAlignment
+            verticalAlignment: root.verticalAlignment
+            anchors.fill: parent
 
-        text: root.editable ? root.editText : root.displayText
-        font: root.font
+            leftPadding: root.mirrored ? contentContainer.indicatorPadding : 0
+            rightPadding: root.mirrored ? 0 : contentContainer.indicatorPadding
+            visible: !root.editable
+            BasicTextBehavior on text {}
+        }
+        Loader {
+            anchors.fill: parent
+            active: root.editable
+            sourceComponent: BasicTextField {
+                text: root.editable ? root.editText : root.displayText
+                font: root.font
 
-        enabled: root.editable
-        autoScroll: root.editable
-        readOnly: root.down
-        inputMethodHints: root.inputMethodHints
-        validator: root.validator
-        selectByMouse: root.selectTextByMouse
+                enabled: root.enabled && root.editable
+                autoScroll: root.editable
+                readOnly: root.down
+                inputMethodHints: root.inputMethodHints
+                validator: root.validator
+                selectByMouse: root.selectTextByMouse
 
-        color: root.editable ? root.Style.text : root.Style.buttonText
+                color: root.editable ? root.Style.text : root.Style.buttonText
 
-        horizontalAlignment: Text.AlignHCenter
+                horizontalAlignment: root.horizontalAlignment
+                verticalAlignment: root.verticalAlignment
+                leftPadding: root.mirrored ? contentContainer.indicatorPadding : 0
+                rightPadding: root.mirrored ? 0 : contentContainer.indicatorPadding
+            }
+        }
     }
 
     delegate: BasicItemDelegate {
@@ -106,8 +130,9 @@ T.ComboBox {
     popup: Popup {
         y: root.height - 1
         width: root.width
-        height: Math.min(contentItem.implicitHeight + topPadding + bottomPadding,
-                         root.Window.height - topMargin - bottomMargin)
+        height: Math.min(
+                    contentItem.implicitHeight + topPadding + bottomPadding,
+                    root.Window.height - topMargin - bottomMargin)
         topPadding: 4
         bottomPadding: 4
         leftPadding: 1
