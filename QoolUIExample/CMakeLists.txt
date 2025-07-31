@@ -46,6 +46,7 @@ qt_add_qml_module(appQoolUIExample
   QML_FILES pages/components/SectionBar.qml
   QML_FILES pages/components/ExampleBasicButton.qml
   QML_FILES pages/Page_QoolFile.qml
+  QML_FILES pages/Page_InputControls.qml
 )
 
 qoolui_scan_assets_to(appQoolUIExample)

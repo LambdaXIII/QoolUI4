@@ -1,10 +1,9 @@
 #ifndef QOOL_STYLEGROUPAGENT_H
 #define QOOL_STYLEGROUPAGENT_H
 
-#include "qool_theme.h"
 #include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/macro_foreach.hpp"
-#include "qoolcommon/property_macros_for_qobject.hpp"
+#include "qoolcommon/property_macros_for_qobject_declonly.hpp"
 #include "qoolns.hpp"
 
 #include <QColor>
@@ -18,38 +17,18 @@ QOOL_NS_BEGIN
 class Style;
 class StyleGroupAgent: public QObject {
   Q_OBJECT
-  // QML_ELEMENT
   QML_ANONYMOUS
 public:
-  explicit StyleGroupAgent(Style* parent = nullptr);
-  void setData(const QVariantMap& data);
-
-  void setParentStyle(Style* s);
-  Style* parentStyle() const;
-
-  void inherit(StyleGroupAgent* other);
+  explicit StyleGroupAgent(int group, Style* parent);
 
 protected:
-  QVariantMap m_data;
+  int m_group;
   Style* m_parentStyle;
-  bool m_customed { false };
+  Q_SLOT void when_parentValueChanged(int group, QString key);
 
-  /********** PROPERTIES ***********/
+  /****** PROPERTIES ******/
 
-#define DECL(T, N)                                                     \
-public:                                                                \
-  T N() const;                                                         \
-  void set_##N(const T& v);                                            \
-  QBindable<T> bindable_##N();                                         \
-  void reset_##N();                                                    \
-  Q_SIGNAL void N##Changed();                                          \
-                                                                       \
-private:                                                               \
-  bool m_##N##Customed { false };                                      \
-  Q_OBJECT_BINDABLE_PROPERTY(                                          \
-    StyleGroupAgent, T, m_##N, &StyleGroupAgent::N##Changed)           \
-  Q_PROPERTY(T N READ N WRITE set_##N RESET reset_##N NOTIFY           \
-      N##Changed BINDABLE bindable_##N)
+#define DECL(T, N) QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(T, N)
 
 #define __HANDLE__(N) DECL(QColor, N)
   QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, red, maroon,

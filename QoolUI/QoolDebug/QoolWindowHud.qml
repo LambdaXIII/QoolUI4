@@ -18,7 +18,7 @@ SmartObject {
         id: titleItem
         name: "titleItem"
         anchors.fill: parent
-        parent: root.window.titleItem
+        parent: root.window.label
         color: root.color
         showPosition: false
         showSize: false

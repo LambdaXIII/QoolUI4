@@ -19,6 +19,12 @@
     </page>
 
     <page>
+        <title>标准输入控件</title>
+        <note>重新实现的标准输入控件</note>
+        <page>Page_InputControls.qml</page>
+    </page>
+
+    <page>
         <title>基础按钮2</title>
         <note>一些更酷的按钮！</note>
         <page>Page_Buttons2.qml</page>

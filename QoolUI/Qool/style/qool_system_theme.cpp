@@ -32,7 +32,7 @@ SystemTheme::SystemTheme()
   CONSTANTS(qreal, controlBorderWidth, 1)
   CONSTANTS(int, controlTitleTextSize, 10)
   CONSTANTS(int, controlTextSize, 12)
-  CONSTANTS(qreal, windowCutSize, 35)
+  CONSTANTS(qreal, windowCutSize, 30) // is different with midnight
   CONSTANTS(qreal, windowElementSpacing, 5)
   CONSTANTS(qreal, windowEdgeSpacing, 5)
   CONSTANTS(int, windowTitleTextSize, 14)

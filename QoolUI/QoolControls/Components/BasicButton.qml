@@ -17,12 +17,18 @@ T.AbstractButton {
     property alias contentLeftPadding: spacer.leftPadding
     property alias contentRightPadding: spacer.rightPadding
 
-    property alias backgroundSettings: bgbox.settings
-    property alias backgroundFillItem: bgbox.fillItem
+    property QoolBoxSettings backgroundSettings: QoolBoxSettings {
+        borderWidth: root.Style.controlBorderWidth
+        borderColor: root.Style.controlBorderColor
+        fillColor: root.Style.controlBackgroundColor
+        cutSizeTL: root.Style.controlCutSize
+    }
+    property Item backgroundFillItem
 
     background: QoolBGBox {
         id: bgbox
         settings: root.backgroundSettings
+        fillItem: root.backgroundFillItem
     }
 
     SpaceHelper {

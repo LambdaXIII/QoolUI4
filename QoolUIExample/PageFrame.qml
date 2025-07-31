@@ -81,6 +81,7 @@ BasicControl {
         id: loadingBar
         contentItem: ProgressBar {
             value: pageLoader.progress
+            highlightColor: root.Style.accent
             radius: 0
         }
         padding: 0

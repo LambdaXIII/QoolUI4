@@ -1,12 +1,18 @@
 import QtQuick
 import QtQuick.Window
 import "_private"
+import Qool
 
 Window {
     id: root
 
     property alias background: bgShape
-    property alias backgroundSettings: bgShape.settings
+    property QoolBoxSettings backgroundSettings: QoolBoxSettings {
+        cutSizeTL: root.Style.windowCutSize
+        borderWidth: root.Style.windowBorderWidth
+        borderColor: root.Style.accent
+        fillColor: root.Style.window
+    }
 
     visible: true
     minimumWidth: 200
@@ -16,5 +22,6 @@ Window {
     color: "transparent"
     QoolWindowBG {
         id: bgShape
+        settings: root.backgroundSettings
     }
 }

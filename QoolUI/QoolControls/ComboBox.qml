@@ -17,13 +17,19 @@ T.ComboBox {
     property alias contentLeftPadding: spacer.leftPadding
     property alias contentRightPadding: spacer.rightPadding
 
-    property alias backgroundSettings: bgbox.settings
+    property int horizontalAlignment: Text.AlignHCenter
+    property int verticalAlignment: Text.AlignVCenter
 
-    backgroundSettings {
-        borderWidth: Style.controlBorderWidth
-        borderColor: Style.controlBorderColor
-        fillColor: Style.controlBackgroundColor
-        cutSizeTL: Style.controlCutSize
+    property int popupDirection: Qore.Covered
+    property real popupOffsetX: 0
+    property real popupOffsetY: 0
+
+    property QoolBoxSettings backgroundSettings: QoolBoxSettings {
+        borderWidth: root.Style.controlBorderWidth
+        borderColor: root.Style.controlBorderColor
+        fillColor: root.Style.controlBackgroundColor
+        cutSizes: root.Style.buttonCutSize
+        curved: true
     }
 
     font.pixelSize: Style.controlTextSize
@@ -34,8 +40,12 @@ T.ComboBox {
 
     background: QoolBGBox {
         id: bgbox
+        settings: root.backgroundSettings
         implicitHeight: 35
         implicitWidth: 100
+        opacity: (root.flat && !root.hovered && !root.popup.visible
+                  && !textField.activeFocus) ? 0 : 1
+        BasicNumberBehavior on opacity {}
     }
 
     topPadding: topInset + bgbox.topSpace + spacer.topPadding
@@ -44,33 +54,75 @@ T.ComboBox {
     rightPadding: rightInset + bgbox.rightSpace + spacer.rightPadding
 
     implicitWidth: {
-        let w1 = leftPadding + implicitContentWidth + rightPadding;
-        let w2 = leftInset + implicitBackgroundWidth + rightInset;
-        return Math.max(w1, w2);
+        let w1 = leftPadding + implicitContentWidth + rightPadding
+        let w2 = leftInset + implicitBackgroundWidth + rightInset
+        return Math.max(w1, w2)
     }
     implicitHeight: {
-        let h1 = topPadding + implicitContentHeight + bottomPadding;
-        let h2 = topInset + implicitBackgroundHeight + bottomInset;
-        return Math.max(h1, h2);
+        let h1 = topPadding + implicitContentHeight + bottomPadding
+        let h2 = topInset + implicitBackgroundHeight + bottomInset
+        return Math.max(h1, h2)
     }
 
     indicator: IndexIndicator {
         currentIndex: root.currentIndex
         model: root.model
-        x: root.width - width - root.rightPadding
-        y: root.topPadding
-        height: root.height - root.topPadding - root.bottomPadding
+        x: {
+            if (root.mirrored)
+                return root.contentItem.x
+            else
+                return root.contentItem.x + root.contentItem.width - width
+        }
+
+        y: root.contentItem.y
+        height: root.contentItem.height
         BasicNumberBehavior on currentIndex {}
     }
 
-    contentItem: BasicButtonText {
-        leftPadding: 0
-        rightPadding: root.indicator.width + root.spacing
+    contentItem: Item {
+        id: contentContainer
+        implicitWidth: simpleText.implicitWidth
+        implicitHeight: simpleText.implicitHeight
+        readonly property real indicatorPadding: root.indicator.width + root.spacing
+        Text {
+            id: simpleText
+            text: root.displayText
+            font: root.font
+            enabled: root.enabled
+            color: root.Style.buttonText
+            horizontalAlignment: root.horizontalAlignment
+            verticalAlignment: root.verticalAlignment
+            anchors.fill: parent
 
-        text: root.displayText
-        font: root.font
-        color: root.Style.buttonText
-        elide: Text.ElideRight
+            leftPadding: root.mirrored ? contentContainer.indicatorPadding : 0
+            rightPadding: root.mirrored ? 0 : contentContainer.indicatorPadding
+            visible: !root.editable
+            BasicTextBehavior on text {}
+        }
+        Loader {
+            anchors.fill: parent
+            active: root.editable
+            sourceComponent: BasicTextField {
+                text: root.editable ? root.editText : root.displayText
+                font: root.font
+
+                enabled: root.enabled && root.editable
+                autoScroll: root.editable
+                readOnly: root.down
+                inputMethodHints: root.inputMethodHints
+                validator: root.validator
+                selectByMouse: root.selectTextByMouse
+
+                color: root.editable ? root.Style.text : root.Style.buttonText
+
+                horizontalAlignment: root.horizontalAlignment
+                verticalAlignment: root.verticalAlignment
+
+                readonly property real extraPadding: activeFocus ? 10 : 0
+                leftPadding: root.mirrored ? contentContainer.indicatorPadding + extraPadding : 0
+                rightPadding: root.mirrored ? 0 : contentContainer.indicatorPadding + extraPadding
+            }
+        }
     }
 
     delegate: BasicItemDelegate {
@@ -82,10 +134,22 @@ T.ComboBox {
     }
 
     popup: Popup {
-        y: root.height - 1
+        readonly property real implicitY: {
+            switch (root.popupDirection) {
+            case Qore.Below:
+                return root.height - root.backgroundSettings.borderWidth
+            case Qore.Above:
+                return 0 - height + root.backgroundSettings.borderWidth
+            }
+            return 0
+        }
+        x: 0 + root.popupOffsetX
+        y: implicitY + root.popupOffsetY
+
         width: root.width
-        height: Math.min(contentItem.implicitHeight + topPadding + bottomPadding,
+        height: Math.min(topPadding + implicitContentHeight + bottomPadding,
                          root.Window.height - topMargin - bottomMargin)
+
         topPadding: 4
         bottomPadding: 4
         leftPadding: 1
@@ -100,10 +164,8 @@ T.ComboBox {
             Q.ScrollIndicator.vertical: Q.ScrollIndicator {}
         }
 
-        background: Rectangle {
-            border.width: root.backgroundSettings.borderWidth
-            border.color: root.backgroundSettings.borderColor
-            color: root.backgroundSettings.fillColor
+        background: QoolBox {
+            settings: root.backgroundSettings
         }
     }
 
@@ -112,17 +174,17 @@ T.ComboBox {
 
     ControlPressedCover {
         visible: root.pressed
-        highColor: Style.highlight
-        lowColor: Style.highlightedText
+        highColor: root.Style.highlight
+        lowColor: root.Style.highlightedText
     }
 
     ControlHighlightCover {
-        highColor: Style.highlight
-        lowColor: Style.highlightedText
+        highColor: root.Style.highlight
+        lowColor: root.Style.highlightedText
         opacity: (root.enabled && root.hovered) ? 1 : 0
     }
 
     ControlLockedCover {
-        color: Style.negative
+        color: root.Style.negative
     }
 }

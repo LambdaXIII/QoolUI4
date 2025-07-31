@@ -24,49 +24,60 @@ class Style: public QQuickAttachedPropertyPropagator {
   Q_OBJECT
   QML_ELEMENT
   QML_ATTACHED(QOOL_NS::Style)
-  QML_UNCREATABLE(
-    "It's an attached item. Creating directly is forbidden.")
+  QML_UNCREATABLE("")
 
 public:
   explicit Style(QObject* parent = nullptr);
-  virtual ~Style();
-  // Q_INVOKABLE void dumpInfo() const;
 
   static Style* qmlAttachedProperties(QObject* object);
-
-  QString theme() const;
-  void setTheme(const QString& theme);
-  void resetTheme();
-  Q_SIGNAL void themeChanged();
-
   Q_INVOKABLE void dumpInfo() const;
+  Q_INVOKABLE void dumpAllChildren() const;
+
+  enum Groups {
+    Active = Theme::Active,
+    Inactive = Theme::Inactive,
+    Disabled = Theme::Disabled
+  };
+
+  QVariant get_value(
+    int group, const QString& key, const QVariant& defValue = {}) const;
+  bool set_value(int group, const QString& key, const QVariant& value);
+  Q_SIGNAL void valueChanged(int group, QString key);
+  void mark_modified(int group, const QString& key);
 
 protected:
-  Q_PROPERTY(QString theme READ theme WRITE setTheme RESET resetTheme
-      NOTIFY themeChanged)
-  Theme m_currentTheme;
-  // bool m_explicitCustomed { false };
   ItemTracker* m_itemTracker;
-  void __setup_properties();
-  void __spread_theme_values();
-  QOOL_BINDABLE_MEMBER(Style, StyleGroupAgent*, currentAgent)
+  QVariantMap m_activeData, m_inactiveData, m_disabledData;
+  QMap<QString, bool> m_activeModified, m_inactiveModified,
+    m_disabledModified;
+  bool m_animationEnabled;
+
+  QOOL_BINDABLE_MEMBER(Style, Groups, currentGroup);
+  void initialize_data();
+  // void setup_properties();
+  void propagate_theme();
+  void inherit(Style* other);
+  Q_SLOT void when_themeChanged();
+  Q_SLOT void check_changes(int group, QString key);
+  Q_SLOT void when_curentGroupChanged();
+
+  QList<QQuickAttachedPropertyPropagator*> find_children() const;
 
   void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
     QQuickAttachedPropertyPropagator* oldParent) override;
-  void inherit(Style* other);
-  void __propagate_theme();
-  void __copy_values(Style* other);
 
-  /********** PROPERTIES *********/
+  bool eventFilter(QObject* object, QEvent* event) override;
 
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, active, nullptr)
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(
-    StyleGroupAgent*, inactive, nullptr)
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(
-    StyleGroupAgent*, disabled, nullptr)
+  // void manually_attach_to_parentStyle();
 
-#define DECL(T, N)                                                     \
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(Style, T, N)
+  /****** PROPERTIES ******/
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(QString, theme, )
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(bool, animationEnabled)
+  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, active, )
+  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, inactive, )
+  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, disabled, )
+
+#define DECL(T, N) QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(T, N)
 
 #define __HANDLE__(N) DECL(QColor, N)
   QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, red, maroon,
@@ -102,13 +113,6 @@ protected:
   DECL(QStringList, papaWords)
 
 #undef DECL
-
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(bool, animationEnabled)
-protected:
-  bool m_animationEnabledCustomed { false };
-  bool m_animationEnabled { true };
-  void __inherit_animationEnabled(Style* other);
-  void __propagate_animationEnabled();
 };
 
 QOOL_NS_END

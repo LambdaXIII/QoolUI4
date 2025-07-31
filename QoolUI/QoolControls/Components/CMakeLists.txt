@@ -28,6 +28,10 @@ qt_add_qml_module(QoolControlsComponents
     QML_FILES
     QML_FILES BasicItemDelegate.qml
     QML_FILES IndexIndicator.qml
+    QML_FILES BasicTextField.qml
+    QML_FILES
+    QML_FILES
+    QML_FILES
     # QML_FILES VerticalScroller.qml
 
 )

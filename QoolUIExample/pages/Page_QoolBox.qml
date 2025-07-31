@@ -41,7 +41,6 @@ BasicPage {
                     cutSizeBR: control.cutSizeBR
                     fillColor: control.fillColor
                     borderColor: control.borderColor
-                    cutSizesLocked: control.lockCorners
                     offsetX: control.offsetX
                     offsetY: control.offsetY
                 }

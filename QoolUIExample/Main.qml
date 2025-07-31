@@ -19,6 +19,31 @@ QoolWindow {
 
     toolBar: MainWindowToolBar {}
 
+    header: Row {
+        ToolButton {
+            text: "CHANGE"
+            onClicked: {
+                root.Style.theme = root.Style.theme === "system" ? "midnight" : "system"
+                pageFrame.Style.theme = root.Style.theme
+            }
+        }
+        ToolButton {
+            text: "DEBUG"
+            onClicked: {
+                console.log(root.backgroundSettings.borderColor,
+                            root.Style.active.accent,
+                            root.Style.inactive.accent,
+                            root.Style.disabled.accent)
+            }
+        }
+        ToolButton {
+            text: "DEBUG2"
+            onClicked: {
+                root.Style.dumpInfo()
+            }
+        }
+    }
+
     content: SplitView {
         PageListView {
             id: tocView
@@ -27,9 +52,14 @@ QoolWindow {
             SplitView.fillHeight: true
         }
         PageFrame {
+            id: pageFrame
             SplitView.fillWidth: true
             SplitView.fillHeight: true
             page_url: tocView.current_url
         }
     } //content
+
+    Component.onCompleted: {
+        root.Style.dumpInfo()
+    }
 }
