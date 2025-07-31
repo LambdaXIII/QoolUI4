@@ -38,6 +38,8 @@ Style::Style(QObject* parent)
   installEventFilter(this);
 
   initialize();
+  // if (! attachedParent())
+  //   manually_attach_to_parentStyle();
 }
 
 Style* Style::qmlAttachedProperties(QObject* object) {
@@ -345,6 +347,26 @@ bool Style::eventFilter(QObject* object, QEvent* event) {
   }
   return QObject::eventFilter(object, event);
 }
+
+// void Style::manually_attach_to_parentStyle() {
+//   QObject* object = parent();
+//   auto* old_parent = attachedParent();
+//   Style* new_parent = nullptr;
+//   while (object) {
+//     QObject* attached =
+//       qmlAttachedPropertiesObject<Style>(object, false);
+//     new_parent = qobject_cast<Style*>(attached);
+//     if (new_parent)
+//       break;
+//     object = object->parent();
+//   }
+//   if (new_parent) {
+//     xDebugQ << "Manually attaching to" << new_parent;
+//     QQuickAttachedPropertyPropagator::attachedParentChange(
+//       new_parent, old_parent);
+//     inherit(new_parent);
+//   }
+// }
 
 bool Style::animationEnabled() const {
   return m_animationEnabled;

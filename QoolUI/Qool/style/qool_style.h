@@ -68,6 +68,8 @@ protected:
 
   bool eventFilter(QObject* object, QEvent* event) override;
 
+  // void manually_attach_to_parentStyle();
+
   /****** PROPERTIES ******/
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(QString, theme, )
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(bool, animationEnabled)
