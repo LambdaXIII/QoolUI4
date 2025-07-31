@@ -20,6 +20,10 @@ T.ComboBox {
     property int horizontalAlignment: Text.AlignHCenter
     property int verticalAlignment: Text.AlignVCenter
 
+    property int popupDirection: Qore.Covered
+    property real popupOffsetX: 0
+    property real popupOffsetY: 0
+
     property QoolBoxSettings backgroundSettings: QoolBoxSettings {
         borderWidth: root.Style.controlBorderWidth
         borderColor: root.Style.controlBorderColor
@@ -113,8 +117,10 @@ T.ComboBox {
 
                 horizontalAlignment: root.horizontalAlignment
                 verticalAlignment: root.verticalAlignment
-                leftPadding: root.mirrored ? contentContainer.indicatorPadding : 0
-                rightPadding: root.mirrored ? 0 : contentContainer.indicatorPadding
+
+                readonly property real extraPadding: activeFocus ? 10 : 0
+                leftPadding: root.mirrored ? contentContainer.indicatorPadding + extraPadding : 0
+                rightPadding: root.mirrored ? 0 : contentContainer.indicatorPadding + extraPadding
             }
         }
     }
@@ -128,11 +134,22 @@ T.ComboBox {
     }
 
     popup: Popup {
-        y: root.height - 1
+        readonly property real implicitY: {
+            switch (root.popupDirection) {
+            case Qore.Below:
+                return root.height - root.backgroundSettings.borderWidth
+            case Qore.Above:
+                return 0 - height + root.backgroundSettings.borderWidth
+            }
+            return 0
+        }
+        x: 0 + root.popupOffsetX
+        y: implicitY + root.popupOffsetY
+
         width: root.width
-        height: Math.min(
-                    contentItem.implicitHeight + topPadding + bottomPadding,
-                    root.Window.height - topMargin - bottomMargin)
+        height: Math.min(topPadding + implicitContentHeight + bottomPadding,
+                         root.Window.height - topMargin - bottomMargin)
+
         topPadding: 4
         bottomPadding: 4
         leftPadding: 1
@@ -147,10 +164,8 @@ T.ComboBox {
             Q.ScrollIndicator.vertical: Q.ScrollIndicator {}
         }
 
-        background: Rectangle {
-            border.width: root.backgroundSettings.borderWidth
-            border.color: root.backgroundSettings.borderColor
-            color: root.backgroundSettings.fillColor
+        background: QoolBox {
+            settings: root.backgroundSettings
         }
     }
 

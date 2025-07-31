@@ -13,7 +13,8 @@ namespace QoolLiterals {
 Q_NAMESPACE
 
 enum Positions {
-  TopLeft = 10,
+  Center = 0,
+  TopLeft,
   TopCenter,
   TopRight,
   LeftTop,
@@ -24,10 +25,12 @@ enum Positions {
   BottomRight,
   RightTop,
   RightCenter,
-  RightBottom,
-  Center
+  RightBottom
 };
 Q_ENUM_NS(Positions)
+
+enum PopupDirections { Above = -1, Covered = 0, Below = 1 };
+Q_ENUM_NS(PopupDirections)
 
 } // namespace QoolLiterals
 QOOL_NS_END

@@ -23,23 +23,23 @@ QoolWindow {
         ToolButton {
             text: "CHANGE"
             onClicked: {
-                root.Style.theme = root.Style.theme === "system" ? "midnight" :
-                                                                   "system";
-                pageFrame.Style.theme = root.Style.theme;
+                root.Style.theme = root.Style.theme === "system" ? "midnight" : "system"
+                pageFrame.Style.theme = root.Style.theme
             }
         }
         ToolButton {
             text: "DEBUG"
             onClicked: {
                 console.log(root.backgroundSettings.borderColor,
-                            root.Style.active.accent, root.Style.inactive.accent,
-                            root.Style.disabled.accent);
+                            root.Style.active.accent,
+                            root.Style.inactive.accent,
+                            root.Style.disabled.accent)
             }
         }
         ToolButton {
             text: "DEBUG2"
             onClicked: {
-                root.Style.dumpInfo();
+                root.Style.dumpInfo()
             }
         }
     }
@@ -60,6 +60,6 @@ QoolWindow {
     } //content
 
     Component.onCompleted: {
-        root.Style.dumpInfo();
+        root.Style.dumpInfo()
     }
 }

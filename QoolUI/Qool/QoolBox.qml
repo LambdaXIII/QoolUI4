@@ -47,18 +47,20 @@ Item {
         anchors.fill: parent
         sourceComponent: {
             if (root.animatingHint == false) {
-                let cond1 = !root.fillItem && root.curved;
-                const half = Math.min(root.width, root.height) / 2;
-                let cond2 = root.settings.cutSizeTL <= half && root.settings.cutSizeTR
-                    <= half && root.settings.cutSizeBL <= half
-                    && root.settings.cutSizeBR <= half;
-                let cond3 = root.settings.cutSizeTL === 0 && root.settings.cutSizeTR
-                    === 0 && root.settings.cutSizeBL === 0 && root.settings.cutSizeBR
-                    === 0;
+                let cond1 = !root.fillItem && root.curved
+                const half = Math.min(root.width, root.height) / 2
+                let cond2 = root.settings.cutSizeTL <= half
+                    && root.settings.cutSizeTR <= half
+                    && root.settings.cutSizeBL <= half
+                    && root.settings.cutSizeBR <= half
+                let cond3 = root.settings.cutSizeTL === 0
+                    && root.settings.cutSizeTR === 0
+                    && root.settings.cutSizeBL === 0
+                    && root.settings.cutSizeBR === 0
                 if (cond1 && (cond2 || cond3))
-                    return rectShape;
+                    return rectShape
             }
-            return root.curved ? roundShape : boxShape;
+            return root.curved ? roundShape : boxShape
         }
     }
 
@@ -76,7 +78,7 @@ Item {
         value: root.fillItem
     }
     Binding {
-        when: loader.status === Loader.Ready
+        when: loader.status === Loader.Ready && loader.item.control
         target: pCtrl
         property: "control"
         value: loader.item.control
