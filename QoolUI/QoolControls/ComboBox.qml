@@ -43,8 +43,8 @@ T.ComboBox {
         settings: root.backgroundSettings
         implicitHeight: 35
         implicitWidth: 100
-        opacity: (root.flat && !root.hovered && !root.popup.visible
-                  && !textField.activeFocus) ? 0 : 1
+        opacity: (root.flat && !root.hovered && !root.popup.visible &&
+                  !textField.activeFocus) ? 0 : 1
         BasicNumberBehavior on opacity {}
     }
 
@@ -54,14 +54,14 @@ T.ComboBox {
     rightPadding: rightInset + bgbox.rightSpace + spacer.rightPadding
 
     implicitWidth: {
-        let w1 = leftPadding + implicitContentWidth + rightPadding
-        let w2 = leftInset + implicitBackgroundWidth + rightInset
-        return Math.max(w1, w2)
+        let w1 = leftPadding + implicitContentWidth + rightPadding;
+        let w2 = leftInset + implicitBackgroundWidth + rightInset;
+        return Math.max(w1, w2);
     }
     implicitHeight: {
-        let h1 = topPadding + implicitContentHeight + bottomPadding
-        let h2 = topInset + implicitBackgroundHeight + bottomInset
-        return Math.max(h1, h2)
+        let h1 = topPadding + implicitContentHeight + bottomPadding;
+        let h2 = topInset + implicitBackgroundHeight + bottomInset;
+        return Math.max(h1, h2);
     }
 
     indicator: IndexIndicator {
@@ -69,9 +69,9 @@ T.ComboBox {
         model: root.model
         x: {
             if (root.mirrored)
-                return root.contentItem.x
+                return root.contentItem.x;
             else
-                return root.contentItem.x + root.contentItem.width - width
+                return root.contentItem.x + root.contentItem.width - width;
         }
 
         y: root.contentItem.y
@@ -119,8 +119,10 @@ T.ComboBox {
                 verticalAlignment: root.verticalAlignment
 
                 readonly property real extraPadding: activeFocus ? 10 : 0
-                leftPadding: root.mirrored ? contentContainer.indicatorPadding + extraPadding : 0
-                rightPadding: root.mirrored ? 0 : contentContainer.indicatorPadding + extraPadding
+                leftPadding: root.mirrored ? contentContainer.indicatorPadding
+                                             + extraPadding : 0
+                rightPadding: root.mirrored ? 0 : contentContainer.indicatorPadding
+                                              + extraPadding
             }
         }
     }
@@ -131,17 +133,18 @@ T.ComboBox {
         width: root.width
         text: model[root.textRole]
         highlighted: root.highlightedIndex === index
+        Style.follow: root.Style
     }
 
     popup: Popup {
         readonly property real implicitY: {
             switch (root.popupDirection) {
             case Qore.Below:
-                return root.height - root.backgroundSettings.borderWidth
+                return root.height - root.backgroundSettings.borderWidth;
             case Qore.Above:
-                return 0 - height + root.backgroundSettings.borderWidth
+                return 0 - height + root.backgroundSettings.borderWidth;
             }
-            return 0
+            return 0;
         }
         x: 0 + root.popupOffsetX
         y: implicitY + root.popupOffsetY

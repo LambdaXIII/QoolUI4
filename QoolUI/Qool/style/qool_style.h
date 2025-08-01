@@ -42,8 +42,11 @@ public:
   QVariant get_value(
     int group, const QString& key, const QVariant& defValue = {}) const;
   bool set_value(int group, const QString& key, const QVariant& value);
+
   Q_SIGNAL void valueChanged(int group, QString key);
+
   void mark_modified(int group, const QString& key);
+  bool is_modified(int group, const QString& key) const;
 
 protected:
   ItemTracker* m_itemTracker;
@@ -54,7 +57,6 @@ protected:
 
   QOOL_BINDABLE_MEMBER(Style, Groups, currentGroup);
   void initialize_data();
-  // void setup_properties();
   void propagate_theme();
   void inherit(Style* other);
   Q_SLOT void when_themeChanged();
@@ -68,7 +70,8 @@ protected:
 
   bool eventFilter(QObject* object, QEvent* event) override;
 
-  // void manually_attach_to_parentStyle();
+  Style* m_follow { nullptr };
+  Q_SLOT void follow_value(int group, QString key);
 
   /****** PROPERTIES ******/
   QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(QString, theme, )
@@ -76,6 +79,7 @@ protected:
   QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, active, )
   QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, inactive, )
   QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, disabled, )
+  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(Style*, follow)
 
 #define DECL(T, N) QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(T, N)
 
