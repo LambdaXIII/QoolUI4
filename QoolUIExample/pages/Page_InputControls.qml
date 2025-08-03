@@ -14,8 +14,8 @@ BasicPage {
 
     implicitHeight: cc.implicitHeight
 
-    readonly property list<string> listModel1: [qsTr("小明"), qsTr("小李"), qsTr(
-            "大美"), qsTr("笨笨")]
+    readonly property list<string> listModel1: [qsTr("小明"), qsTr("小李"), qsTr("大美"), qsTr(
+            "笨笨")]
 
     ListModel {
         id: listModel2
@@ -84,5 +84,11 @@ BasicPage {
                 text: qsTrId("qooltip-combobox-customed")
             }
         }
+
+        SectionBar {
+            width: parent.width
+        }
+
+        Dial {}
     } //cc
 }
