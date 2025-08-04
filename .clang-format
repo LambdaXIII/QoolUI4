@@ -177,8 +177,8 @@ KeepEmptyLines:
   AtStartOfFile: false
 LambdaBodyIndentation: Signature
 LineEnding: DeriveLF
-# MacroBlockBegin: _BEGIN$
-# MacroBlockEnd: _END$
+MacroBlockBegin: ""
+MacroBlockEnd: ""
 MainIncludeChar: Quote
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: None
@@ -204,8 +204,8 @@ PointerAlignment: Left
 QualifierAlignment: Leave
 ReferenceAlignment: Left
 ReflowComments: true
-RemoveBracesLLVM: true
-RemoveParentheses: Leave
+RemoveBracesLLVM: false
+RemoveParentheses: MultipleParentheses
 RemoveSemicolon: true
 RequiresClausePosition: OwnLine
 RequiresExpressionIndentation: OuterScope
