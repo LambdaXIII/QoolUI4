@@ -1,0 +1,49 @@
+#ifndef QOOL_VECTOR2D_H
+#define QOOL_VECTOR2D_H
+
+#include "qoolcommon/compare_delegate.hpp"
+#include "qoolcommon/property_macros_for_qgadget.hpp"
+#include "qoolns.hpp"
+#include <QObject>
+#include <QPointF>
+#include <QQmlEngine>
+#include <QVector2D>
+
+QOOL_NS_BEGIN
+
+class Vector2D {
+  Q_GADGET
+  QML_VALUE_TYPE("qoolvector")
+  QML_CONSTRUCTIBLE_VALUE
+public:
+  Vector2D() = default;
+  Vector2D(const QPointF& from, const QPointF& to);
+  Q_INVOKABLE Vector2D(const QVector2D& vector);
+
+  static Vector2D fromVector(const QVector2D vector, const QPointF& from = {});
+  static Vector2D fromWayPoints(const QList<QPointF>& wayPoints);
+  static Vector2D fromVectors(const QList<QVector2D>& vectors);
+
+  Vector2D(const Vector2D& other);
+  Vector2D(Vector2D&& other);
+
+  Vector2D& operator=(const Vector2D& other);
+  Vector2D& operator=(Vector2D&& other);
+
+  operator QPointF() const;
+  operator QVector2D() const;
+  operator qreal() const;
+
+  bool isZero() const;
+
+  QOOL_PROPERTY_WRITABLE(QPointF, from, )
+  QOOL_PROPERTY_WRITABLE(QVector2D, vector, )
+  QOOL_PROPERTY_WRITABLE_DECL(QPointF, to)
+  QOOL_PROPERTY_WRITABLE_DECL(qreal, length)
+};
+
+QOOL_EQUAL_COMPARE_DECL(Vector2D)
+
+QOOL_NS_END
+
+#endif // QOOL_VECTOR2D_H

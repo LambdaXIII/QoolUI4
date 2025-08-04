@@ -13,19 +13,6 @@ QoolSingleton::QoolSingleton(QObject* parent)
   , m_geo { new GeoUtils(this) } {
 }
 
-Vector QoolSingleton::vector(qreal xpos, qreal ypos) {
-  return Vector(xpos, ypos);
-}
-
-Vector QoolSingleton::vector(
-  qreal fromx, qreal fromy, qreal tox, qreal toy) {
-  return Vector(QPointF(fromx, fromy), QPointF(tox, toy));
-}
-
-Vector QoolSingleton::vector(const QPointF& from, const QPointF to) {
-  return Vector(from, to);
-}
-
 Polar2D QoolSingleton::polar2d(qreal radius, qreal angle) {
   return Polar2D(radius, angle);
 }

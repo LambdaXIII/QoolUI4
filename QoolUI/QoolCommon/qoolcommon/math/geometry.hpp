@@ -125,6 +125,13 @@ inline std::pair<float, float> xy_from_polar(float r, float a) {
   return { x, y };
 }
 
+/** 求三角形斜边 **/
+inline float hypotenuse(float leg1, float leg2) {
+  const float leg1_p = std::pow(leg1, 2);
+  const float leg2_p = std::pow(leg2, 2);
+  return std::sqrt(leg1_p + leg2_p);
+}
+
 }; // namespace math
 
 QOOL_NS_END

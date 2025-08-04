@@ -14,6 +14,7 @@ set_source_files_properties(
 )
 
 find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_add_qml_module(Qool
   URI Qool
@@ -40,8 +41,8 @@ qt_add_qml_module(Qool
   qore/qool_geoutils.h
   qore/qool_geoutils.cpp
 
-  datatypes/qool_vector.h
-  datatypes/qool_vector.cpp
+
+
   datatypes/qool_polar2d.h
   datatypes/qool_polar2d.cpp
 
@@ -113,6 +114,7 @@ qt_add_qml_module(Qool
   CutSizeBinding.qml
   QML_FILES BasicLabel.qml
   QML_FILES DelayTimer.qml
+  SOURCES datatypes/qool_vector2d.h datatypes/qool_vector2d.cpp
   # SOURCES style/qool_styleinternal.h style/qool_styleinternal.cpp
 
 )
@@ -144,6 +146,7 @@ target_link_libraries(
   PRIVATE QoolCommon
 )
 target_link_libraries(Qool PRIVATE Qt6::Core Qt6::QuickControls2)
+target_link_libraries(Qool PRIVATE Qt6::Core)
 target_link_libraries(Qool PRIVATE Qt6::Core)
 
 target_include_directories(
