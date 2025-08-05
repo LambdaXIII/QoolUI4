@@ -64,6 +64,8 @@ Vector2D Vector2D::operator+(const QVector2D& vector) const {
   return result;
 }
 
+QVector2D Vector2D::normalized() const { return m_vector.normalized(); }
+
 Vector2D Vector2D::operator+(qreal extra_length) const {
   qreal new_length = length() + extra_length;
   Vector2D result;
@@ -72,24 +74,42 @@ Vector2D Vector2D::operator+(qreal extra_length) const {
   return result;
 }
 
+Vector2D Vector2D::operator-(qreal extra_length) const {
+  return operator+(-1 * extra_length);
+}
+
+Vector2D Vector2D::operator*(qreal factor) const {
+  Vector2D result;
+  result.m_from = m_from;
+  result.m_vector = m_vector * factor;
+  return result;
+}
+
+Vector2D Vector2D::operator/(qreal divisor) const {
+  Q_ASSERT(divisor != 0);
+  Vector2D result;
+  result.m_from = m_from;
+  result.m_vector = m_vector / divisor;
+  return result;
+}
+
+Vector2D Vector2D::operator-() const {
+  Vector2D result;
+  result.m_from = m_from;
+  result.m_vector = m_vector * -1;
+  return result;
+}
+
+QPointF Vector2D::operator[](qsizetype index) const {
+  if (index == 0) return m_from;
+  if (index == 1) return to();
+  Q_ASSERT(false);
+  return {};
+}
+
 QPointF Vector2D::to() const { return m_from + m_vector.toPointF(); }
 
 qreal Vector2D::length() const { return m_vector.length(); }
-
-void Vector2D::set_length(const qreal& new_length) {
-  const auto old_length = m_vector.length();
-  if (new_length == old_length) return;
-  if (new_length == 0) {
-    m_vector = QVector2D(0, 0);
-    return;
-  }
-  if (old_length == 0) {
-    m_vector = QVector2D(new_length, 0);
-    return;
-  }
-  const qreal factor = new_length / old_length;
-  m_vector *= factor;
-}
 
 int __compare__(const Vector2D& a, const Vector2D& b) {
   if (a.from() == b.from() && a.vector() == b.vector()) return 0;

@@ -41,13 +41,15 @@ public:
 
   Vector2D operator+(qreal extra_length) const;
   Vector2D operator-(qreal extra_length) const;
-  Vector2D operator*(qreal extra_length) const;
-  Vector2D operator/(qreal extra_length) const;
+  Vector2D operator*(qreal factor) const;
+  Vector2D operator/(qreal divisor) const;
 
   Vector2D operator-() const;
 
-  QOOL_PROPERTY_CONSTANT(QPointF, from, )
-  QOOL_PROPERTY_CONSTANT(QVector2D, vector, )
+  QPointF operator[](qsizetype index) const;
+
+  QOOL_PROPERTY_CONSTANT(QPointF, from, QPointF(0, 0))
+  QOOL_PROPERTY_CONSTANT(QVector2D, vector, QVector2D(0, 0))
   QOOL_PROPERTY_CONSTANT_DECL(QPointF, to)
   QOOL_PROPERTY_CONSTANT_DECL(qreal, length)
 };
