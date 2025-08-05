@@ -34,12 +34,22 @@ public:
   operator QVector2D() const;
   operator qreal() const;
 
-  bool isZero() const;
+  Q_INVOKABLE bool isZero() const;
+  Q_INVOKABLE QVector2D normalized() const;
 
-  QOOL_PROPERTY_WRITABLE(QPointF, from, )
-  QOOL_PROPERTY_WRITABLE(QVector2D, vector, )
-  QOOL_PROPERTY_WRITABLE_DECL(QPointF, to)
-  QOOL_PROPERTY_WRITABLE_DECL(qreal, length)
+  Vector2D operator+(const QVector2D& vector) const;
+
+  Vector2D operator+(qreal extra_length) const;
+  Vector2D operator-(qreal extra_length) const;
+  Vector2D operator*(qreal extra_length) const;
+  Vector2D operator/(qreal extra_length) const;
+
+  Vector2D operator-() const;
+
+  QOOL_PROPERTY_CONSTANT(QPointF, from, )
+  QOOL_PROPERTY_CONSTANT(QVector2D, vector, )
+  QOOL_PROPERTY_CONSTANT_DECL(QPointF, to)
+  QOOL_PROPERTY_CONSTANT_DECL(qreal, length)
 };
 
 QOOL_EQUAL_COMPARE_DECL(Vector2D)

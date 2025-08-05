@@ -11,7 +11,7 @@ Vector2D::Vector2D(const QVector2D& vector)
 
 Vector2D Vector2D::fromVector(const QVector2D vector, const QPointF& from) {
   auto result = Vector2D(vector);
-  result.set_from(from);
+  result.m_from = from;
   return result;
 }
 
@@ -57,9 +57,22 @@ bool Vector2D::isZero() const {
   return m_from == QPointF(0, 0) && m_vector == QVector2D(0, 0);
 }
 
-QPointF Vector2D::to() const { return m_from + m_vector.toPointF(); }
+Vector2D Vector2D::operator+(const QVector2D& vector) const {
+  Vector2D result;
+  result.m_from = m_from;
+  result.m_vector = m_vector + vector;
+  return result;
+}
 
-void Vector2D::set_to(const QPointF& x) { m_vector = QVector2D(x - m_from); }
+Vector2D Vector2D::operator+(qreal extra_length) const {
+  qreal new_length = length() + extra_length;
+  Vector2D result;
+  result.m_from = m_from;
+  result.m_vector = normalized() * new_length;
+  return result;
+}
+
+QPointF Vector2D::to() const { return m_from + m_vector.toPointF(); }
 
 qreal Vector2D::length() const { return m_vector.length(); }
 
@@ -78,11 +91,11 @@ void Vector2D::set_length(const qreal& new_length) {
   m_vector *= factor;
 }
 
-QOOL_COMPARE_FUNCTION_IMPL(Vector2D, a, b, {
+int __compare__(const Vector2D& a, const Vector2D& b) {
   if (a.from() == b.from() && a.vector() == b.vector()) return 0;
   return -1;
-})
+}
 
-QOOL_EQUAL_COMPARE_IMPL(Vector2D)
+QOOL_EQUAL_COMPARE_IMPL(Vector2D, __compare__)
 
 QOOL_NS_END
