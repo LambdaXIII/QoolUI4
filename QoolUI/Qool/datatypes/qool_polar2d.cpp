@@ -14,9 +14,15 @@ Polar2D::Polar2D(const QVector2D& vec) {
 Polar2D::Polar2D(const QPointF& from, const QPointF& to)
   : Polar2D{QVector2D(to - from)} { }
 
-Polar2D::Polar2D(qreal radius, qreal radians)
-  : m_radius{radius}
-  , m_radians{radians} { }
+Polar2D::Polar2D(qreal radius, qreal radians) {
+  m_radius = std::abs(radius);
+  m_radians = radians;
+  if (radius < 0) {
+    m_radians += M_PI;
+    // 归一化角度到[-π, π)范围
+    m_radians = std::fmod(m_radians + M_PI, 2 * M_PI) - M_PI;
+  }
+}
 
 Polar2D::Polar2D(const Polar2D& other)
   : m_radius{other.m_radius}
@@ -44,6 +50,8 @@ Polar2D::operator QPointF() const { return vector().toPointF(); }
 
 bool Polar2D::isZero() const { return m_radius == 0; }
 
+Polar2D Polar2D::normalized() const { return Polar2D{1, m_radians}; }
+
 qreal Polar2D::degrees() const { return math::degrees_from_radians(m_radians); }
 
 QVector2D Polar2D::vector() const {
@@ -51,5 +59,12 @@ QVector2D Polar2D::vector() const {
   return {x, y};
 }
 
-QOOL_NS_END
+int __compare__(const Polar2D& a, const Polar2D& b) {
+  if (a.isZero() && b.isZero()) return 0;
+  if (a.radians() == b.radians() && a.radius() == b.radius()) return 0;
+  return -1;
+}
 
+QOOL_EQUAL_COMPARE_IMPL(Polar2D, __compare__)
+
+QOOL_NS_END

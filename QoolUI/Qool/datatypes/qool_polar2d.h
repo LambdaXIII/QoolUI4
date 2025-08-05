@@ -3,6 +3,7 @@
 
 #include "qoolns.hpp"
 
+#include "qoolcommon/compare_delegate.hpp"
 #include "qoolcommon/property_macros_for_qgadget.hpp"
 #include <QObject>
 #include <QPoint>
@@ -35,12 +36,15 @@ public:
   operator QPointF() const;
 
   Q_INVOKABLE bool isZero() const;
+  Q_INVOKABLE Polar2D normalized() const;
 
   QOOL_PROPERTY_CONSTANT(qreal, radius, 0)
   QOOL_PROPERTY_CONSTANT(qreal, radians, 0)
   QOOL_PROPERTY_CONSTANT_DECL(qreal, degrees)
   QOOL_PROPERTY_CONSTANT_DECL(QVector2D, vector)
 };
+
+QOOL_EQUAL_COMPARE_DECL(Polar2D)
 
 QOOL_NS_END
 
