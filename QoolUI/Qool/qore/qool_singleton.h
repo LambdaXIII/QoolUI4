@@ -30,8 +30,8 @@ public:
   explicit QoolSingleton(QObject* parent = nullptr);
   ~QoolSingleton() = default;
 
-  Q_INVOKABLE static Polar2D polar2d(qreal radius, qreal angle);
-  Q_INVOKABLE static Polar2D polar2d(const QVector2D& vector2d);
+  // Q_INVOKABLE static Polar2D polar2d(qreal radius, qreal angle);
+  // Q_INVOKABLE static Polar2D polar2d(const QVector2D& vector2d);
 
   Q_INVOKABLE static QList<int> intRange(
     int from, int to, bool rightEdgeIncluded = false);

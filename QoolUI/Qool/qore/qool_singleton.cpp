@@ -13,13 +13,13 @@ QoolSingleton::QoolSingleton(QObject* parent)
   , m_geo { new GeoUtils(this) } {
 }
 
-Polar2D QoolSingleton::polar2d(qreal radius, qreal angle) {
-  return Polar2D(radius, angle);
-}
+// Polar2D QoolSingleton::polar2d(qreal radius, qreal angle) {
+//   return Polar2D(radius, angle);
+// }
 
-Polar2D QoolSingleton::polar2d(const QVector2D& vector2d) {
-  return Polar2D(vector2d.toPointF());
-}
+// Polar2D QoolSingleton::polar2d(const QVector2D& vector2d) {
+//   return Polar2D(vector2d.toPointF());
+// }
 
 QList<int> QoolSingleton::intRange(
   int from, int to, bool rightEdgeIncluded) {

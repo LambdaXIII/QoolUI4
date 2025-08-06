@@ -67,4 +67,27 @@ int __compare__(const Polar2D& a, const Polar2D& b) {
 
 QOOL_EQUAL_COMPARE_IMPL(Polar2D, __compare__)
 
+Polar2D operator-(const Polar2D& other) {
+  return Polar2D(other.radius() * -1, other.radians());
+}
+
+Polar2D operator+(const Polar2D& a, const Polar2D& b) {
+  return Polar2D(a.vector() + b.vector());
+}
+Polar2D operator-(const Polar2D& a, const Polar2D& b) {
+  return Polar2D(a.vector() - b.vector());
+}
+Polar2D operator+(const Polar2D& a, const QVector2D& vec) {
+  return Polar2D(a.vector() + vec);
+}
+Polar2D operator-(const Polar2D& a, const QVector2D& vec) {
+  return Polar2D(a.vector() - vec);
+}
+Polar2D operator*(const Polar2D& a, qreal r) {
+  return Polar2D(a.radius() + r, a.radians());
+}
+Polar2D operator/(const Polar2D& a, qreal r) {
+  return Polar2D(a.radius() - r, a.radians());
+}
+
 QOOL_NS_END

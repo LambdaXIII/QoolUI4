@@ -46,6 +46,15 @@ public:
 
 QOOL_EQUAL_COMPARE_DECL(Polar2D)
 
+Polar2D operator-(const Polar2D&);
+
+Polar2D operator+(const Polar2D&, const Polar2D&);
+Polar2D operator-(const Polar2D&, const Polar2D&);
+Polar2D operator+(const Polar2D&, const QVector2D&);
+Polar2D operator-(const Polar2D&, const QVector2D&);
+Polar2D operator*(const Polar2D&, qreal);
+Polar2D operator/(const Polar2D&, qreal);
+
 QOOL_NS_END
 
 #endif // QOOL_POLAR2D_H

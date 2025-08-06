@@ -72,8 +72,8 @@ qt_add_qml_module(Qool
   shapehelper/gadgets/qool_shapehelpergadget.h
   shapehelper/gadgets/qool_shapehelpergadget.cpp
 
-  shapehelper/gadgets/qool_shapehelpergadget_circle.h
-  shapehelper/gadgets/qool_shapehelpergadget_circle.cpp
+  # shapehelper/gadgets/qool_shapehelpergadget_circle.h
+  # shapehelper/gadgets/qool_shapehelpergadget_circle.cpp
 
   shapehelper/qool_octagoncontainmentmasker.h
   shapehelper/qool_octagoncontainmentmasker.cpp
