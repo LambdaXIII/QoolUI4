@@ -2,7 +2,7 @@
 #define QOOL_FILEINFO_H
 
 #include "qoolcommon/macro_foreach.hpp"
-#include "qoolcommon/property_macros_for_qgadget.hpp"
+#include "qoolcommon/qgadget_property_macros.hpp"
 #include "qoolns.hpp"
 
 #include <QDateTime>
@@ -48,7 +48,7 @@ public:
 private:
   QVariantMap m_data;
 
-#define DECL(T, N) QOOL_PROPERTY_CONSTANT_DECL(T, N)
+#define DECL(T, N) QGADGET_CONSTANT_PROPERTY_DECLARE(T, N)
 
 #define __HANDLE__(N) DECL(QString, N)
   QOOL_FOREACH_4(__HANDLE__, fileName, filePath, baseName, suffix)

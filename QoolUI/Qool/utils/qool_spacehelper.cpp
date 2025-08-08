@@ -6,32 +6,32 @@ QOOL_NS_BEGIN
 
 SpaceHelper::SpaceHelper(QObject* parent)
   : SmartObject { parent } {
-  QOOL_PROPERTY_BINDABLE_INIT_VALUE(width, 100)
-  QOOL_PROPERTY_BINDABLE_INIT_VALUE(height, 100)
+  QBINDABLE_SET_VALUE(width, 100)
+  QBINDABLE_SET_VALUE(height, 100)
 
-  QOOL_PROPERTY_BINDABLE_INIT_BINDING(contentWidth,
+  QBINDABLE_SET_BINDING(contentWidth,
     [&] { return m_width - m_leftPadding - m_rightPadding; })
-  QOOL_PROPERTY_BINDABLE_INIT_BINDING(contentHeight,
+  QBINDABLE_SET_BINDING(contentHeight,
     [&] { return m_height - m_topPadding - m_bottomPadding; })
-  QOOL_PROPERTY_BINDABLE_INIT_BINDING(backgroundWidth,
+  QBINDABLE_SET_BINDING(backgroundWidth,
     [&] { return m_width - m_leftInset - m_rightInset; })
-  QOOL_PROPERTY_BINDABLE_INIT_BINDING(backgroundHeight,
+  QBINDABLE_SET_BINDING(backgroundHeight,
     [&] { return m_height - m_topInset - m_bottomInset; })
-  QOOL_PROPERTY_BINDABLE_INIT_BINDING(
+  QBINDABLE_SET_BINDING(
     marginWidth, [&] { return m_width + m_leftMargin + m_rightMargin; })
-  QOOL_PROPERTY_BINDABLE_INIT_BINDING(marginHeight,
+  QBINDABLE_SET_BINDING(marginHeight,
     [&] { return m_height + m_topMargin + m_bottomMargin; })
-  QOOL_PROPERTY_BINDABLE_INIT_BINDING(
+  QBINDABLE_SET_BINDING(
     rect, [&] { return QRectF(0, 0, m_width, m_height); })
-  QOOL_PROPERTY_BINDABLE_INIT_BINDING(contentRect, [&] {
+  QBINDABLE_SET_BINDING(contentRect, [&] {
     return QRectF(
       m_leftPadding, m_topPadding, m_contentWidth, m_contentHeight);
   })
-  QOOL_PROPERTY_BINDABLE_INIT_BINDING(backgroundRect, [&] {
+  QBINDABLE_SET_BINDING(backgroundRect, [&] {
     return QRectF(
       m_leftInset, m_topInset, m_backgroundWidth, m_backgroundHeight);
   })
-  QOOL_PROPERTY_BINDABLE_INIT_BINDING(marginRect, [&] {
+  QBINDABLE_SET_BINDING(marginRect, [&] {
     return QRectF(
       0 - m_leftMargin, 0 - m_topMargin, m_marginWidth, m_marginHeight);
   })

@@ -1,9 +1,9 @@
 #ifndef QOOL_STYLEGROUPAGENT_H
 #define QOOL_STYLEGROUPAGENT_H
 
-#include "qoolcommon/bindable_property_macros_for_qobject.hpp"
+#include "qoolcommon/qobject_property_macros.hpp"
 #include "qoolcommon/macro_foreach.hpp"
-#include "qoolcommon/property_macros_for_qobject_declonly.hpp"
+
 #include "qoolns.hpp"
 
 #include <QColor>
@@ -28,7 +28,7 @@ protected:
 
   /****** PROPERTIES ******/
 
-#define DECL(T, N) QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(T, N)
+#define DECL(T, N) QOBJECT_WRITABLE_PROPERTY_DECLARE(T, N)
 
 #define __HANDLE__(N) DECL(QColor, N)
   QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, red, maroon,

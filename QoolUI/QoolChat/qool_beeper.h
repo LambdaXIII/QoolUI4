@@ -2,8 +2,8 @@
 #define QOOL_BEEPER_H
 
 #include "qool_message.h"
-#include "qoolcommon/property_macros_for_qobject.hpp"
-#include "qoolcommon/property_macros_for_qobject_declonly.hpp"
+#include "qoolcommon/qobject_property_macros.hpp"
+
 
 #include <QObject>
 #include <QQmlEngine>
@@ -15,15 +15,14 @@ Q_MOC_INCLUDE("qool_basicbeeperapp.h")
 QOOL_NS_BEGIN
 class BasicBeeperApp;
 class ChatRoom;
-class Beeper: public QObject {
+class Beeper : public QObject {
   Q_OBJECT
   QML_ELEMENT
 
   Q_CLASSINFO("DefaultProperty", "apps")
   QML_LIST_PROPERTY_ASSIGN_BEHAVIOR_REPLACE_IF_NOT_DEFAULT
 
-  Q_PROPERTY(
-    QQmlListProperty<BasicBeeperApp> apps READ __apps CONSTANT FINAL)
+  Q_PROPERTY(QQmlListProperty<BasicBeeperApp> apps READ __apps CONSTANT FINAL)
 
 public:
   explicit Beeper(QObject* parent = nullptr);
@@ -46,13 +45,13 @@ protected:
   QList<BasicBeeperApp*> m_apps;
   QQmlListProperty<BasicBeeperApp> __apps();
   MsgChannelSet m_channels;
-  Q_PROPERTY(QString channel READ channel WRITE set_channel NOTIFY
-      channelsChanged)
-  Q_PROPERTY(MsgChannelSet channels READ channels WRITE set_channels
-      NOTIFY channelsChanged)
+  Q_PROPERTY(
+      QString channel READ channel WRITE set_channel NOTIFY channelsChanged)
+  Q_PROPERTY(MsgChannelSet channels READ channels WRITE set_channels NOTIFY
+          channelsChanged)
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(QByteArray, name, {})
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(ChatRoom*, chatRoom)
+  QOBJECT_WRITABLE_PROPERTY(QByteArray, name, {})
+  QOBJECT_WRITABLE_PROPERTY_DECLARE(ChatRoom*, chatRoom)
 };
 
 QOOL_NS_END

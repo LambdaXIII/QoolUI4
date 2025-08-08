@@ -2,7 +2,7 @@
 #define QOOL_VECTOR2D_H
 
 #include "qoolcommon/compare_delegate.hpp"
-#include "qoolcommon/property_macros_for_qgadget.hpp"
+#include "qoolcommon/qgadget_property_macros.hpp"
 #include "qoolns.hpp"
 #include <QObject>
 #include <QPointF>
@@ -48,10 +48,10 @@ public:
 
   QPointF operator[](qsizetype index) const;
 
-  QOOL_PROPERTY_CONSTANT(QPointF, from, QPointF(0, 0))
-  QOOL_PROPERTY_CONSTANT(QVector2D, vector, QVector2D(0, 0))
-  QOOL_PROPERTY_CONSTANT_DECL(QPointF, to)
-  QOOL_PROPERTY_CONSTANT_DECL(qreal, length)
+  QGADGET_CONSTANT_PROPERTY(QPointF, from, QPointF(0, 0))
+  QGADGET_CONSTANT_PROPERTY(QVector2D, vector, QVector2D(0, 0))
+  QGADGET_CONSTANT_PROPERTY_DECLARE(QPointF, to)
+  QGADGET_CONSTANT_PROPERTY_DECLARE(qreal, length)
 };
 
 QOOL_EQUAL_COMPARE_DECL(Vector2D)

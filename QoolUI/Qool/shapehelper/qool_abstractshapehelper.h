@@ -1,7 +1,7 @@
 #ifndef QOOL_ABSTRACTSHAPEHELPER_H
 #define QOOL_ABSTRACTSHAPEHELPER_H
 
-#include "qoolcommon/bindable_property_macros_for_qobject.hpp"
+#include "qoolcommon/qbindable_property_macros.hpp"
 #include "qoolns.hpp"
 
 #include <QObject>
@@ -12,22 +12,22 @@ QOOL_NS_BEGIN
 class AbstractShapeHelper: public QObject {
   Q_OBJECT
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     AbstractShapeHelper, QQuickItem*, target)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     AbstractShapeHelper, qreal, width)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     AbstractShapeHelper, qreal, height)
 
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     AbstractShapeHelper, qreal, shortEdge)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     AbstractShapeHelper, qreal, longEdge)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     AbstractShapeHelper, qreal, widthHeightRatio)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     AbstractShapeHelper, qreal, halfWidth)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     AbstractShapeHelper, qreal, halfHeight)
 
 public:

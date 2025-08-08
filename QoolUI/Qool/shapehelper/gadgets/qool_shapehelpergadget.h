@@ -2,7 +2,7 @@
 #define QOOL_SHAPEHELPERGADGET_H
 
 #include "qool_shapehelper.h"
-#include "qoolcommon/bindable_property_macros_for_qobject.hpp"
+#include "qoolcommon/qobject_property_macros.hpp"
 #include "qoolns.hpp"
 
 #include <QObject>
@@ -18,15 +18,15 @@ public:
   explicit ShapeHelperGadget(QObject* parent = nullptr);
   virtual ~ShapeHelperGadget() = default;
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     ShapeHelperGadget, ShapeHelper*, shapeHelper)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     ShapeHelperGadget, QQuickItem*, shapeTarget)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     ShapeHelperGadget, qreal, targetWidth)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     ShapeHelperGadget, qreal, targetHeight)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     ShapeHelperGadget, QSizeF, targetSize)
 };
 

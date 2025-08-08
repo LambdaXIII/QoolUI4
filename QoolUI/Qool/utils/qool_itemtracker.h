@@ -1,7 +1,7 @@
 #ifndef QOOL_ITEMTRACKER_H
 #define QOOL_ITEMTRACKER_H
 
-#include "qoolcommon/bindable_property_macros_for_qobject.hpp"
+#include "qoolcommon/qbindable_property_macros.hpp"
 #include "qoolns.hpp"
 
 #include <QObject>
@@ -28,15 +28,15 @@ protected:
   Q_SLOT void update_item_properties();
   Q_SLOT void update_window_properties();
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     ItemTracker, QObject*, target)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     ItemTracker, QQuickItem*, item)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     ItemTracker, QWindow*, window)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     ItemTracker, bool, itemEnabled)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     ItemTracker, bool, windowActived)
 };
 

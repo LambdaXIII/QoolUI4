@@ -3,7 +3,7 @@
 
 #include "qool_abstractshapehelper.h"
 #include "qool_qoolbox_settings.h"
-#include "qoolcommon/bindable_property_macros_for_qobject.hpp"
+// #include "qoolcommon/qobject_property_macros.hpp"
 #include "qoolcommon/macro_foreach.hpp"
 #include "qoolns.hpp"
 
@@ -18,7 +18,7 @@ class QoolBoxShapeControl: public AbstractShapeHelper {
   Q_OBJECT
   QML_ELEMENT
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxShapeControl, QoolBoxSettings*, settings)
 
 public:
@@ -39,26 +39,26 @@ private:
   void __setup_int_points();
   void __setup_helper_properties();
 
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     QoolBoxShapeControl, qreal, safeTR)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     QoolBoxShapeControl, qreal, safeTL)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     QoolBoxShapeControl, qreal, safeBL)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     QoolBoxShapeControl, qreal, safeBR)
 
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     QoolBoxShapeControl, qreal, borderShrinkSize)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     QoolBoxShapeControl, qreal, safeBorderWidth)
 
 #define DECL_POINT(_N_)                                                \
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(                         \
+  QBINDABLE_READONLY_PROPERTY(                         \
     QoolBoxShapeControl, QPointF, _N_)                                 \
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(                         \
+  QBINDABLE_READONLY_PROPERTY(                         \
     QoolBoxShapeControl, qreal, _N_##x)                                \
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(                         \
+  QBINDABLE_READONLY_PROPERTY(                         \
     QoolBoxShapeControl, qreal, _N_##y)
 
   QOOL_FOREACH_8(
@@ -68,27 +68,27 @@ private:
 
 #undef DECL_POINT
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxShapeControl, qreal, offsetX)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxShapeControl, qreal, offsetY)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxShapeControl, qreal, intOffsetX)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxShapeControl, qreal, intOffsetY)
 
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     QoolBoxShapeControl, QPolygonF, intPolygon)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     QoolBoxShapeControl, QPolygonF, extPolygon)
 
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     QoolBoxShapeControl, qreal, topSpace)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     QoolBoxShapeControl, qreal, bottomSpace)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     QoolBoxShapeControl, qreal, leftSpace)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     QoolBoxShapeControl, qreal, rightSpace)
 };
 

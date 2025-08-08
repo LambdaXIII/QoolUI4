@@ -4,7 +4,7 @@
 #include "qoolns.hpp"
 
 #include "qoolcommon/compare_delegate.hpp"
-#include "qoolcommon/property_macros_for_qgadget.hpp"
+#include "qoolcommon/qgadget_property_macros.hpp"
 #include <QObject>
 #include <QPoint>
 #include <QPointF>
@@ -38,10 +38,10 @@ public:
   Q_INVOKABLE bool isZero() const;
   Q_INVOKABLE Polar2D normalized() const;
 
-  QOOL_PROPERTY_CONSTANT(qreal, radius, 0)
-  QOOL_PROPERTY_CONSTANT(qreal, radians, 0)
-  QOOL_PROPERTY_CONSTANT_DECL(qreal, degrees)
-  QOOL_PROPERTY_CONSTANT_DECL(QVector2D, vector)
+  QGADGET_CONSTANT_PROPERTY(qreal, radius, 0)
+  QGADGET_CONSTANT_PROPERTY(qreal, radians, 0)
+  QGADGET_CONSTANT_PROPERTY_DECLARE(qreal, degrees)
+  QGADGET_CONSTANT_PROPERTY_DECLARE(QVector2D, vector)
 };
 
 QOOL_EQUAL_COMPARE_DECL(Polar2D)

@@ -3,6 +3,10 @@
 
 #include <type_traits>
 
+#ifdef _TYPE_TRAITS_
+_TYPE_TRAITS_
+#endif //_TYPE_TRAITS_
+
 #define _QL_PRIVATE_SCOPE_ protected
 #define _QL_MEMBER_NAME_(_N_) m_##_N_
 #define _QL_NEW_VALUE_(_N_) new_##_N_
@@ -16,4 +20,4 @@
 #define _QL_PROPERTY_SETTER_SIGNATURE_(_T_, _N_)                       \
   void set_##_N_(_QL_PARAM_TYPE_(_T_) _QL_NEW_VALUE_(_N_))
 
-#endif // _PROPERTY_HELPERS_HPP
+#endif //_PROPERTY_HELPERS_HPP

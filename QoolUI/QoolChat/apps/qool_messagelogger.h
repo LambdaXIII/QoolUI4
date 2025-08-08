@@ -2,8 +2,8 @@
 #define QOOL_MESSAGELOGGER_H
 
 #include "qool_basicbeeperapp.h"
-#include "qoolcommon/property_macros_for_qobject.hpp"
-#include "qoolcommon/property_macros_for_qobject_declonly.hpp"
+#include "qoolcommon/qobject_property_macros.hpp"
+
 
 #include <QObject>
 #include <QQmlEngine>
@@ -11,7 +11,7 @@
 
 QOOL_NS_BEGIN
 
-class MessageLogger: public BasicBeeperApp {
+class MessageLogger : public BasicBeeperApp {
   Q_OBJECT
   QML_ELEMENT
 public:
@@ -31,11 +31,10 @@ protected:
   QMutex m_mutex;
 
 private:
-  Q_PROPERTY(
-    QList<Message> messages READ messages NOTIFY messagesChanged)
+  Q_PROPERTY(QList<Message> messages READ messages NOTIFY messagesChanged)
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(int, maxLength, 50)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_DECL(int, length)
+  QOBJECT_WRITABLE_PROPERTY(int, maxLength, 50)
+  QOBJECT_READONLY_PROPERTY_DECLARE(int, length)
 };
 
 QOOL_NS_END

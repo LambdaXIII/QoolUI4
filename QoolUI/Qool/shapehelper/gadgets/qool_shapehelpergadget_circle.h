@@ -13,18 +13,18 @@ class ShapeHelperGadget_Circle: public ShapeHelperGadget {
   Q_OBJECT
   QML_NAMED_ELEMENT(CircleGadget)
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     ShapeHelperGadget_Circle, QPointF, center)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     ShapeHelperGadget_Circle, qreal, radius)
 
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     ShapeHelperGadget_Circle, QPointF, topPoint)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     ShapeHelperGadget_Circle, QPointF, bottomPoint)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     ShapeHelperGadget_Circle, QPointF, leftPoint)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     ShapeHelperGadget_Circle, QPointF, rightPoint)
 
 public:

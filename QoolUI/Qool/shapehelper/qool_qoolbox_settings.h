@@ -1,8 +1,8 @@
 #ifndef QOOL_QOOLBOX_SETTINGS_H
 #define QOOL_QOOLBOX_SETTINGS_H
 
-#include "qoolcommon/bindable_property_macros_for_qobject.hpp"
-#include "qoolcommon/property_macros_for_qobject_declonly.hpp"
+#include "qoolcommon/qbindable_property_macros.hpp"
+#include "qoolcommon/qobject_property_macros.hpp"
 #include "qoolns.hpp"
 
 #include <QColor>
@@ -29,37 +29,37 @@ private:
   void set_sizes(const QString& x);
   void remove_cutSize_bindings();
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxSettings, qreal, cutSizeTL)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxSettings, qreal, cutSizeTR)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxSettings, qreal, cutSizeBL)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxSettings, qreal, cutSizeBR)
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QVariant, cutSizes)
+  QOBJECT_WRITABLE_PROPERTY_DECLARE(QVariant, cutSizes)
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxSettings, qreal, borderWidth)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxSettings, QColor, borderColor)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxSettings, QColor, fillColor)
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxSettings, qreal, offsetX)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxSettings, qreal, offsetY)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxSettings, qreal, intOffsetX)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxSettings, qreal, intOffsetY)
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     QoolBoxSettings, bool, curved)
 
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     QoolBoxSettings, bool, isAllCutSizesEquals)
 };
 

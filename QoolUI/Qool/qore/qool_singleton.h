@@ -7,7 +7,7 @@
 #include "qool_polar2d.h"
 #include "qool_smartobj.h"
 
-#include "qoolcommon/property_macros_for_qobject.hpp"
+#include "qoolcommon/qobject_property_macros.hpp"
 #include "qoolns.hpp"
 #include "qoolversion.hpp"
 
@@ -20,11 +20,11 @@ class QoolSingleton: public SmartObject {
   QML_ELEMENT
   QML_EXTENDED_NAMESPACE(QoolLiterals)
 
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(
+  QOBJECT_CONSTANT_PROPERTY(
     QString, version, QOOLUI_VERSION_FULL)
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(
+  QOBJECT_CONSTANT_PROPERTY(
     Extension_Positions*, positions, nullptr)
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(GeoUtils*, geo, nullptr)
+  QOBJECT_CONSTANT_PROPERTY(GeoUtils*, geo, nullptr)
 
 public:
   explicit QoolSingleton(QObject* parent = nullptr);

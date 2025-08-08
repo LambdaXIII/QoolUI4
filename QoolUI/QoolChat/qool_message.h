@@ -2,7 +2,7 @@
 #define QOOL_MESSAGE_H
 
 #include "qool_msgchannelset.h"
-#include "qoolcommon/property_macros_for_qgadget.hpp"
+#include "qoolcommon/qgadget_property_macros.hpp"
 #include "qoolns.hpp"
 
 #include <QDateTime>
@@ -74,11 +74,11 @@ private:
   Q_PROPERTY(QString channel READ channel WRITE set_channel NOTIFY
       channelsChanged)
 
-  QOOL_PROPERTY_WRITABLE_DECL(QString, content)
-  QOOL_PROPERTY_WRITABLE_DECL(QVariantMap, attachments)
-  QOOL_PROPERTY_WRITABLE_DECL(QByteArray, senderID)
-  QOOL_PROPERTY_CONSTANT_DECL(QDateTime, created)
-  QOOL_PROPERTY_CONSTANT_DECL(QByteArray, messageID)
+  QGADGET_WRITABLE_PROPERTY_DECLARE(QString, content)
+  QGADGET_WRITABLE_PROPERTY_DECLARE(QVariantMap, attachments)
+  QGADGET_WRITABLE_PROPERTY_DECLARE(QByteArray, senderID)
+  QGADGET_CONSTANT_PROPERTY_DECLARE(QDateTime, created)
+  QGADGET_CONSTANT_PROPERTY_DECLARE(QByteArray, messageID)
 };
 
 QOOL_NS_END

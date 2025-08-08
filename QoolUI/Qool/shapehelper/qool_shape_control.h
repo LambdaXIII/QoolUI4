@@ -2,7 +2,7 @@
 #define QOOL_SHAPE_CONTROL_H
 
 #include "qool_smartobj.h"
-#include "qoolcommon/bindable_property_macros_for_qobject.hpp"
+#include "qoolcommon/qobject_property_macros.hpp"
 #include "qoolcommon/macro_foreach.hpp"
 #include <QObject>
 

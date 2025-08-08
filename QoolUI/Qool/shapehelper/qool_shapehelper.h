@@ -2,7 +2,7 @@
 #define QOOL_SHAPEHELPER_H
 
 #include "qool_abstractshapehelper.h"
-#include "qoolcommon/bindable_property_macros_for_qobject.hpp"
+#include "qoolcommon/qobject_property_macros.hpp"
 #include "qoolcommon/macro_foreach.hpp"
 #include "qoolns.hpp"
 
@@ -31,7 +31,7 @@ public:
   explicit ShapeHelper(QObject* parent = nullptr);
   Q_INVOKABLE void dumpInfo() const override;
 
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_READONLY_PROPERTY(
     ShapeHelper, QPointF, boundingCenter)
 
 #define DECL_P(NAME)                                                   \
