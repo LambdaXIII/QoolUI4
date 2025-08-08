@@ -57,6 +57,9 @@ qt_add_qml_module(Qool
   utils/qool_random_hsv_color_generator.h
   utils/qool_random_hsv_color_generator.cpp
 
+  shapehelper/qool_shape_control.h
+  shapehelper/qool_shape_control.cpp
+
   shapehelper/qool_qoolbox_settings.h
   shapehelper/qool_qoolbox_settings.cpp
 
