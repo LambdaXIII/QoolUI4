@@ -12,7 +12,7 @@
 
 QOOL_NS_BEGIN
 
-class SmartObject: public QObject {
+class SmartObject : public QObject {
   Q_OBJECT
   QML_ELEMENT
 
@@ -20,9 +20,8 @@ class SmartObject: public QObject {
   QML_LIST_PROPERTY_ASSIGN_BEHAVIOR_APPEND
 
   Q_PROPERTY(
-    QQmlListProperty<QObject> smartItems READ smartItems CONSTANT FINAL)
-  Q_PROPERTY(
-    QObject* parent READ parent WRITE setParent NOTIFY parentChanged)
+      QQmlListProperty<QObject> smartItems READ smartItems CONSTANT FINAL)
+  Q_PROPERTY(QObject* parent READ parent WRITE setParent NOTIFY parentChanged)
 
 public:
   explicit SmartObject(QObject* parent = nullptr);
@@ -31,17 +30,23 @@ public:
   QBindable<QObject*> bindableParent();
 
   Q_SIGNAL void parentChanged();
+  Q_SIGNAL void itemAppended(QObject* child);
+
   Q_INVOKABLE void dumpProperties() const;
 
 protected:
-  bool eventFilter(QObject* obj, QEvent* e) override;
+  virtual bool eventFilter(QObject* obj, QEvent* e) override;
+  virtual void appendChild(QObject* child);
 
 private:
   QObjectList m_items;
   QQmlListProperty<QObject> smartItems();
+  static void __appendFunction(
+      QQmlListProperty<QObject>* property, QObject* item);
+  static qsizetype __countFunction(QQmlListProperty<QObject>* property);
+  static QObject* __atFunction(
+      QQmlListProperty<QObject>* property, qsizetype index);
 };
-
-// TODO: 拆分父对象追踪功能
 
 QOOL_NS_END
 
