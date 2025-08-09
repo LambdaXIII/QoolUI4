@@ -21,13 +21,13 @@ private:                                                         \
   qreal CLASS::NAME##x() const { return m_##NAME##x; }               \
   qreal CLASS::NAME##y() const { return m_##NAME##y; }               \
   QBindable<QPointF> CLASS::bindable_##NAME() {                      \
-    return QBindable<QPointF>(this, "point" #NAME);                  \
+    return QBindable<QPointF>(this, #NAME);                          \
   }                                                                  \
   QBindable<qreal> CLASS::bindable_##NAME##x() {                     \
-    return QBindable<qreal>(this, "point" #NAME "x");                \
+    return QBindable<qreal>(this, #NAME "x");                        \
   }                                                                  \
   QBindable<qreal> CLASS::bindable_##NAME##y() {                     \
-    return QBindable<qreal>(this, "point" #NAME "y");                \
+    return QBindable<qreal>(this, #NAME "y");                        \
   }                                                                  \
   void CLASS::set_##NAME##x(const qreal& v) {                        \
     if (m_##NAME##x == v) return;                                    \
