@@ -29,7 +29,7 @@ public:
 
   QBindable<QObject*> bindableParent();
 
-  Q_SIGNAL void parentChanged();
+  Q_SIGNAL void parentChanged(QObject*);
   Q_SIGNAL void itemAppended(QObject* child);
 
   Q_INVOKABLE void dumpProperties() const;

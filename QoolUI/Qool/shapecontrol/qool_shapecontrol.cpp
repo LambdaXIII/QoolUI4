@@ -1,5 +1,8 @@
 #include "qool_shapecontrol.h"
+#include "qool_shapecontrol_gadget.h"
 #include "qoolcommon/debug.hpp"
+#include "qoolcommon/macro_foreach.hpp"
+
 QOOL_NS_BEGIN
 
 ShapeControl::ShapeControl(QObject* parent)
@@ -17,15 +20,19 @@ void ShapeControl::dumpInfo() const {
 bool ShapeControl::contains(const QPointF& point) const {
   if (m_target) return m_target->boundingRect().contains(point);
   return boundingRect().contains(point);
-  // if (point.x() < x()) return false;
-  // if (point.y() < y()) return false;
-  // if (point.x() > x() + width()) return false;
-  // if (point.y() > y() + height()) return false;
-  // return true;
 }
 
 QBindable<QQuickItem*> ShapeControl::bindable_target() {
   return QBindable<QQuickItem*>(this, "target");
+}
+
+void ShapeControl::appendChild(QObject* child) {
+  SmartObject::appendChild(child);
+  if (auto p_child = qobject_cast<ShapeControlGadget*>(child); p_child) {
+    if (p_child->control() == nullptr) p_child->set_control(this);
+  } else {
+    xInfoQ << xDBGRed << child << xDBGReset "is not a ShapeControlGadget";
+  }
 }
 
 void ShapeControl::setup_properties() {
@@ -47,8 +54,7 @@ void ShapeControl::set_target(QQuickItem* newTarget) {
   if (m_target == newTarget) return;
   if (m_target) {
 #define __HANDLE__(N) m_##N.takeBinding();
-    QOOL_FOREACH_9(__HANDLE__, x, y, width, height, aspectRatio, longEdge,
-        shortEdge, halfWidth, halfHeight)
+    QOOL_FOREACH_4(__HANDLE__, x, y, width, height)
 #undef __HANDLE__
   }
   m_target = newTarget;

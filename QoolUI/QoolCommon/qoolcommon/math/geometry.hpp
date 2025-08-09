@@ -12,6 +12,18 @@ QOOL_NS_BEGIN
 
 namespace math {
 
+struct vec2 {
+  float x, y;
+  vec2(float x, float y)
+    : x(x)
+    , y(y) { }
+  float length() {
+    const float leg1_p = std::pow(x, 2);
+    const float leg2_p = std::pow(y, 2);
+    return std::sqrt(leg1_p + leg2_p);
+  }
+};
+
 /*!
  * \brief 判断点的象限
  *    * 如果点位于原点，则返回0。第一象限包含坐标轴。无法判断时会返回-1

@@ -1,7 +1,7 @@
-#ifndef QOOL_QOOLBOX_SHAPE_CONTROL_H
-#define QOOL_QOOLBOX_SHAPE_CONTROL_H
+#ifndef QOOL_QOOLBOX_SHAPECONTROL_H
+#define QOOL_QOOLBOX_SHAPECONTROL_H
 
-#include "qool_abstractshapehelper.h"
+// #include "qool_abstractshapehelper.h"
 #include "qool_qoolbox_settings.h"
 #include "qool_shapecontrol.h"
 #include "qoolcommon/macro_foreach.hpp"
@@ -74,4 +74,4 @@ private:
 
 QOOL_NS_END
 
-#endif // QOOL_QOOLBOX_SHAPE_CONTROL_H
+#endif // QOOL_QOOLBOX_SHAPECONTROL_H

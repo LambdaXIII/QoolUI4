@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numeric>
 
 QOOL_NS_BEGIN
 
@@ -89,6 +90,10 @@ inline N cycle_in_range(N min, N value, N max) {
   if (mod < 0)
     mod += distance;
   return left + mod;
+}
+
+template<typename N> inline N average(std::initializer_list<N> numbers) {
+  return std::accumulate(numbers.begin(), numbers.end(), 0) / numbers.size();
 }
 
 } // namespace math

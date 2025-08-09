@@ -1,4 +1,4 @@
-#include "qool_qoolbox_shape_control.h"
+#include "qool_qoolbox_shapecontrol.h"
 
 #include "qoolcommon/debug.hpp"
 #include "qoolcommon/math.hpp"

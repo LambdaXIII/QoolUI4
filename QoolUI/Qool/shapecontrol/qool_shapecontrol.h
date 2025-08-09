@@ -2,7 +2,7 @@
 #define QOOL_SHAPECONTROL_H
 
 #include "qool_smartobj.h"
-#include "qoolcommon/macro_foreach.hpp"
+
 #include "qoolcommon/qbindable_property_macros.hpp"
 #include "qoolcommon/qobject_property_macros.hpp"
 #include <QObject>
@@ -24,6 +24,9 @@ public:
   Q_INVOKABLE virtual bool contains(const QPointF& point) const;
 
   QBindable<QQuickItem*> bindable_target();
+
+protected:
+  void appendChild(QObject* child) override;
 
 private:
   QQuickItem* m_target{nullptr};

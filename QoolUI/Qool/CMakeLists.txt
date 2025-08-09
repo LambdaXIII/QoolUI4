@@ -13,8 +13,7 @@ set_source_files_properties(
   QT_QML_SINGLETON_TYPE TRUE
 )
 
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
+
 
 qt_add_qml_module(Qool
   URI Qool
@@ -42,7 +41,8 @@ qt_add_qml_module(Qool
   qore/qool_geoutils.cpp
 
 
-
+  datatypes/qool_vector2d.h
+  datatypes/qool_vector2d.cpp
   datatypes/qool_polar2d.h
   datatypes/qool_polar2d.cpp
 
@@ -57,29 +57,20 @@ qt_add_qml_module(Qool
   utils/qool_random_hsv_color_generator.h
   utils/qool_random_hsv_color_generator.cpp
 
-  shapehelper/qool_shapecontrol.h
-  shapehelper/qool_shapecontrol.cpp
+  shapecontrol/qool_shapecontrol.h
+  shapecontrol/qool_shapecontrol.cpp
+  shapecontrol/qool_qoolbox_settings.h
+  shapecontrol/qool_qoolbox_settings.cpp
+  shapecontrol/qool_shapecontrol_gadget.h
+  shapecontrol/qool_shapecontrol_gadget.cpp
+  shapecontrol/qool_qoolbox_shapecontrol.h
+  shapecontrol/qool_qoolbox_shapecontrol.cpp
 
-  shapehelper/qool_qoolbox_settings.h
-  shapehelper/qool_qoolbox_settings.cpp
+  # shapecontrol/qool_shapehelper.h
+  # shapecontrol/qool_shapehelper.cpp
 
-  shapehelper/qool_abstractshapehelper.h
-  shapehelper/qool_abstractshapehelper.cpp
-
-  shapehelper/qool_qoolbox_shape_control.h
-  shapehelper/qool_qoolbox_shape_control.cpp
-
-  shapehelper/qool_shapehelper.h
-  shapehelper/qool_shapehelper.cpp
-
-  shapehelper/gadgets/qool_shapehelpergadget.h
-  shapehelper/gadgets/qool_shapehelpergadget.cpp
-
-  # shapehelper/gadgets/qool_shapehelpergadget_circle.h
-  # shapehelper/gadgets/qool_shapehelpergadget_circle.cpp
-
-  shapehelper/qool_octagoncontainmentmasker.h
-  shapehelper/qool_octagoncontainmentmasker.cpp
+  shapecontrol/gadgets/qool_shapegadget_triangle.h
+  shapecontrol/gadgets/qool_shapegadget_triangle.cpp
 
   style/qool_style.h
   style/qool_style.cpp
@@ -115,10 +106,11 @@ qt_add_qml_module(Qool
   OctagonRoundedInternalShapePath.qml
   Floater.qml
   CutSizeBinding.qml
-  QML_FILES BasicLabel.qml
-  QML_FILES DelayTimer.qml
-  SOURCES datatypes/qool_vector2d.h datatypes/qool_vector2d.cpp
-  # SOURCES style/qool_styleinternal.h style/qool_styleinternal.cpp
+  BasicLabel.qml
+  DelayTimer.qml
+  SOURCES shapecontrol/gadgets/qool_shape_macros.hpp
+
+
 
 )
 
@@ -149,14 +141,13 @@ target_link_libraries(
   PRIVATE QoolCommon
 )
 target_link_libraries(Qool PRIVATE Qt6::Core Qt6::QuickControls2)
-target_link_libraries(Qool PRIVATE Qt6::Core)
-target_link_libraries(Qool PRIVATE Qt6::Core)
+
 
 target_include_directories(
   Qool
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapehelper"
-  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapehelper/gadgets"
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapecontrol"
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shapecontrol/gadgets"
   PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/datatypes"
   PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/style"
   PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/utils"

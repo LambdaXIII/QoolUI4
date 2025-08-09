@@ -19,9 +19,9 @@ T.Dial {
         border.color: root.Style.alternateBase
         color: root.Style.buttonText
 
-        DialBackground {
-            anchors.fill: parent
-        }
+        // DialBackground {
+        //     anchors.fill: parent
+        // }
     }
 
     handle: Rectangle {

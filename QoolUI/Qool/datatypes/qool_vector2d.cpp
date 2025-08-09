@@ -111,11 +111,18 @@ QPointF Vector2D::to() const { return m_from + m_vector.toPointF(); }
 
 qreal Vector2D::length() const { return m_vector.length(); }
 
+qreal Vector2D::x() const { return m_vector.x(); }
+qreal Vector2D::y() const { return m_vector.y(); }
+
 int __compare__(const Vector2D& a, const Vector2D& b) {
   if (a.from() == b.from() && a.vector() == b.vector()) return 0;
   return -1;
 }
 
 QOOL_EQUAL_COMPARE_IMPL(Vector2D, __compare__)
+
+qreal crossProduct(const Vector2D& a, const Vector2D b) {
+  return a.x() * b.y() - a.y() * b.x();
+}
 
 QOOL_NS_END

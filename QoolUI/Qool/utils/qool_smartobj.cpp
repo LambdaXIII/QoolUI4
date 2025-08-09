@@ -52,8 +52,9 @@ void SmartObject::dumpProperties() const {
 }
 
 bool SmartObject::eventFilter(QObject* obj, QEvent* e) {
-  if (obj == this && e->type() == QEvent::ParentChange) emit parentChanged();
-  return false;
+  if (obj == this && e->type() == QEvent::ParentChange)
+    emit parentChanged(parent());
+  return QObject::eventFilter(obj, e);
 }
 
 QOOL_NS_END

@@ -52,9 +52,13 @@ public:
   QGADGET_CONSTANT_PROPERTY(QVector2D, vector, QVector2D(0, 0))
   QGADGET_CONSTANT_PROPERTY_DECLARE(QPointF, to)
   QGADGET_CONSTANT_PROPERTY_DECLARE(qreal, length)
+  QGADGET_CONSTANT_PROPERTY_DECLARE(qreal, x)
+  QGADGET_CONSTANT_PROPERTY_DECLARE(qreal, y)
 };
 
 QOOL_EQUAL_COMPARE_DECL(Vector2D)
+
+qreal crossProduct(const Vector2D& a, const Vector2D b);
 
 QOOL_NS_END
 
