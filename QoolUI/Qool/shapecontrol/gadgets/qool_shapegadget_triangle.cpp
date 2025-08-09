@@ -63,8 +63,8 @@ bool TriangleGadget::contains(const QPointF& point) const {
   return __is_point_in_triangle(pointA(), pointB(), pointC(), point);
 }
 
-QOOL_IMPL_POINT(TriangleGadget, A)
-QOOL_IMPL_POINT(TriangleGadget, B)
-QOOL_IMPL_POINT(TriangleGadget, C)
+QOOL_IMPL_POINT(TriangleGadget, pointA)
+QOOL_IMPL_POINT(TriangleGadget, pointB)
+QOOL_IMPL_POINT(TriangleGadget, pointC)
 
 QOOL_NS_END

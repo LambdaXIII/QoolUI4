@@ -18,6 +18,7 @@ class Vector2D {
 public:
   Vector2D() = default;
   Vector2D(const QPointF& from, const QPointF& to);
+  Vector2D(const QPointF& from, const QVector2D& vector);
   Q_INVOKABLE Vector2D(const QVector2D& vector);
 
   static Vector2D fromVector(const QVector2D vector, const QPointF& from = {});

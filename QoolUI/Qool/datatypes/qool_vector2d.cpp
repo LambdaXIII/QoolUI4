@@ -6,6 +6,10 @@ Vector2D::Vector2D(const QPointF& from, const QPointF& to)
   : m_from{from}
   , m_vector{to - from} { }
 
+Vector2D::Vector2D(const QPointF& from, const QVector2D& vector)
+  : m_from{from}
+  , m_vector{vector} { }
+
 Vector2D::Vector2D(const QVector2D& vector)
   : m_vector(vector) { }
 

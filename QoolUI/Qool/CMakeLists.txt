@@ -15,6 +15,8 @@ set_source_files_properties(
 
 
 
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
 qt_add_qml_module(Qool
   URI Qool
   VERSION ${QOOLUI_VERSION_QML}
@@ -109,6 +111,7 @@ qt_add_qml_module(Qool
   BasicLabel.qml
   DelayTimer.qml
   SOURCES shapecontrol/gadgets/qool_shape_macros.hpp
+  SOURCES shapecontrol/gadgets/qool_shapegadget_circle.h shapecontrol/gadgets/qool_shapegadget_circle.cpp
 
 
 
@@ -141,6 +144,7 @@ target_link_libraries(
   PRIVATE QoolCommon
 )
 target_link_libraries(Qool PRIVATE Qt6::Core Qt6::QuickControls2)
+target_link_libraries(Qool PRIVATE Qt6::Core)
 
 
 target_include_directories(

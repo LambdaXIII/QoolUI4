@@ -14,9 +14,9 @@ class TriangleGadget : public ShapeControlGadget {
   QML_ELEMENT
   Q_CLASSINFO("ShapeControlGadgetName", "Triangle")
 
-  QOOL_DECL_POINT(A, FINAL)
-  QOOL_DECL_POINT(B, FINAL)
-  QOOL_DECL_POINT(C, FINAL)
+  QOOL_DECL_POINT(pointA, FINAL)
+  QOOL_DECL_POINT(pointB, FINAL)
+  QOOL_DECL_POINT(pointC, FINAL)
 
 public:
   explicit TriangleGadget(QObject* parent = nullptr);
