@@ -3,7 +3,7 @@
 
 #include "qool_abstractshapehelper.h"
 #include "qool_qoolbox_settings.h"
-// #include "qoolcommon/qobject_property_macros.hpp"
+#include "qool_shapecontrol.h"
 #include "qoolcommon/macro_foreach.hpp"
 #include "qoolns.hpp"
 
@@ -14,12 +14,11 @@
 
 QOOL_NS_BEGIN
 
-class QoolBoxShapeControl: public AbstractShapeHelper {
+class QoolBoxShapeControl : public ShapeControl {
   Q_OBJECT
   QML_ELEMENT
 
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxShapeControl, QoolBoxSettings*, settings)
+  QBINDABLE_WRITABLE_PROPERTY(QoolBoxShapeControl, QoolBoxSettings*, settings)
 
 public:
   explicit QoolBoxShapeControl(QObject* parent = nullptr);
@@ -39,57 +38,38 @@ private:
   void __setup_int_points();
   void __setup_helper_properties();
 
-  QBINDABLE_READONLY_PROPERTY(
-    QoolBoxShapeControl, qreal, safeTR)
-  QBINDABLE_READONLY_PROPERTY(
-    QoolBoxShapeControl, qreal, safeTL)
-  QBINDABLE_READONLY_PROPERTY(
-    QoolBoxShapeControl, qreal, safeBL)
-  QBINDABLE_READONLY_PROPERTY(
-    QoolBoxShapeControl, qreal, safeBR)
+  QBINDABLE_READONLY_PROPERTY(QoolBoxShapeControl, qreal, safeTR)
+  QBINDABLE_READONLY_PROPERTY(QoolBoxShapeControl, qreal, safeTL)
+  QBINDABLE_READONLY_PROPERTY(QoolBoxShapeControl, qreal, safeBL)
+  QBINDABLE_READONLY_PROPERTY(QoolBoxShapeControl, qreal, safeBR)
 
-  QBINDABLE_READONLY_PROPERTY(
-    QoolBoxShapeControl, qreal, borderShrinkSize)
-  QBINDABLE_READONLY_PROPERTY(
-    QoolBoxShapeControl, qreal, safeBorderWidth)
+  QBINDABLE_READONLY_PROPERTY(QoolBoxShapeControl, qreal, borderShrinkSize)
+  QBINDABLE_READONLY_PROPERTY(QoolBoxShapeControl, qreal, safeBorderWidth)
 
-#define DECL_POINT(_N_)                                                \
-  QBINDABLE_READONLY_PROPERTY(                         \
-    QoolBoxShapeControl, QPointF, _N_)                                 \
-  QBINDABLE_READONLY_PROPERTY(                         \
-    QoolBoxShapeControl, qreal, _N_##x)                                \
-  QBINDABLE_READONLY_PROPERTY(                         \
-    QoolBoxShapeControl, qreal, _N_##y)
+#define DECL_POINT(_N_)                                           \
+  QBINDABLE_READONLY_PROPERTY(QoolBoxShapeControl, QPointF, _N_)  \
+  QBINDABLE_READONLY_PROPERTY(QoolBoxShapeControl, qreal, _N_##x) \
+  QBINDABLE_READONLY_PROPERTY(QoolBoxShapeControl, qreal, _N_##y)
 
   QOOL_FOREACH_8(
-    DECL_POINT, intTL, intTR, intLT, intLB, intRT, intRB, intBL, intBR)
+      DECL_POINT, intTL, intTR, intLT, intLB, intRT, intRB, intBL, intBR)
   QOOL_FOREACH_8(
-    DECL_POINT, extTL, extTR, extLT, extLB, extRT, extRB, extBL, extBR)
+      DECL_POINT, extTL, extTR, extLT, extLB, extRT, extRB, extBL, extBR)
 
 #undef DECL_POINT
 
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxShapeControl, qreal, offsetX)
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxShapeControl, qreal, offsetY)
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxShapeControl, qreal, intOffsetX)
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxShapeControl, qreal, intOffsetY)
+  QBINDABLE_WRITABLE_PROPERTY(QoolBoxShapeControl, qreal, offsetX)
+  QBINDABLE_WRITABLE_PROPERTY(QoolBoxShapeControl, qreal, offsetY)
+  QBINDABLE_WRITABLE_PROPERTY(QoolBoxShapeControl, qreal, intOffsetX)
+  QBINDABLE_WRITABLE_PROPERTY(QoolBoxShapeControl, qreal, intOffsetY)
 
-  QBINDABLE_READONLY_PROPERTY(
-    QoolBoxShapeControl, QPolygonF, intPolygon)
-  QBINDABLE_READONLY_PROPERTY(
-    QoolBoxShapeControl, QPolygonF, extPolygon)
+  QBINDABLE_READONLY_PROPERTY(QoolBoxShapeControl, QPolygonF, intPolygon)
+  QBINDABLE_READONLY_PROPERTY(QoolBoxShapeControl, QPolygonF, extPolygon)
 
-  QBINDABLE_READONLY_PROPERTY(
-    QoolBoxShapeControl, qreal, topSpace)
-  QBINDABLE_READONLY_PROPERTY(
-    QoolBoxShapeControl, qreal, bottomSpace)
-  QBINDABLE_READONLY_PROPERTY(
-    QoolBoxShapeControl, qreal, leftSpace)
-  QBINDABLE_READONLY_PROPERTY(
-    QoolBoxShapeControl, qreal, rightSpace)
+  QBINDABLE_READONLY_PROPERTY(QoolBoxShapeControl, qreal, topSpace)
+  QBINDABLE_READONLY_PROPERTY(QoolBoxShapeControl, qreal, bottomSpace)
+  QBINDABLE_READONLY_PROPERTY(QoolBoxShapeControl, qreal, leftSpace)
+  QBINDABLE_READONLY_PROPERTY(QoolBoxShapeControl, qreal, rightSpace)
 };
 
 QOOL_NS_END

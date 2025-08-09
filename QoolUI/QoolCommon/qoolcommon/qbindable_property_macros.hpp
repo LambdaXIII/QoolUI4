@@ -5,26 +5,24 @@
 
 #include <QBindable>
 
-#define _QL_BINDABLE_MEMBER_(_C_, _T_, _N_)                            \
-  Q_OBJECT_BINDABLE_PROPERTY(                                          \
-    _C_, _T_, _QL_MEMBER_NAME_(_N_), &_C_::_N_##Changed)
+#define _QL_BINDABLE_MEMBER_(_C_, _T_, _N_)                \
+  Q_OBJECT_BINDABLE_PROPERTY(                              \
+      _C_, _T_, _QL_MEMBER_NAME_(_N_), &_C_::_N_##Changed)
 
-#define _QL_BINDABLE_MEMBER_ARGS_(_C_, _T_, _N_, _D_)                  \
-  Q_OBJECT_BINDABLE_PROPERTY_WITH_ARGS(                                \
-    _C_, _T_, _QL_MEMBER_NAME_(_N_), _D_, &_C_::_N_##Changed)
+#define _QL_BINDABLE_MEMBER_ARGS_(_C_, _T_, _N_, _D_)           \
+  Q_OBJECT_BINDABLE_PROPERTY_WITH_ARGS(                         \
+      _C_, _T_, _QL_MEMBER_NAME_(_N_), _D_, &_C_::_N_##Changed)
 
-#define QOOL_BINDABLE_MEMBER(_C_, _T_, _N_)                            \
-  Q_SIGNAL void _N_##Changed();                                        \
+#define QOOL_BINDABLE_MEMBER(_C_, _T_, _N_) \
+  Q_SIGNAL void _N_##Changed();             \
   _QL_BINDABLE_MEMBER_(_C_, _T_, _N_)
 
-#define _QL_STANDARD_BINDABLE_GETTER_(_T_, _N_)                        \
-  QBindable<_T_> _QL_BINDABLE_NAME_(_N_)() {                           \
-    return { &_QL_MEMBER_NAME_(_N_) };                                 \
-  }
+#define _QL_STANDARD_BINDABLE_GETTER_(_T_, _N_) \
+  QBindable<_T_> _QL_BINDABLE_NAME_(_N_)() { return {&_QL_MEMBER_NAME_(_N_)}; }
 
-#define QOOL_MAKE_PROPERTY_BINDABLE(_T_, _N_)                          \
-  QBindable<_T_> _QL_BINDABLE_NAME_(_N_)() {                           \
-    return QBindable<_T_>(this, #_N_);                                 \
+#define QOOL_MAKE_PROPERTY_BINDABLE(_T_, _N_) \
+  QBindable<_T_> _QL_BINDABLE_NAME_(_N_)() {  \
+    return QBindable<_T_>(this, #_N_);        \
   }
 
 #define QBINDABLE_WRITABLE_PROPERTY(_C_, _T_, _N_, ...)                    \
