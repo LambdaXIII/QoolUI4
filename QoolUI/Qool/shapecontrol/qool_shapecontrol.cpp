@@ -42,6 +42,8 @@ void ShapeControl::setup_properties() {
     const qreal h = height();
     return h == 0 ? -1 : width() / height();
   });
+  QBINDABLE_SET_BINDING(center,
+      [&] { return QPointF(m_halfWidth.value(), m_halfHeight.value()); });
   QBINDABLE_SET_BINDING(halfWidth, [&] { return width() / 2; });
   QBINDABLE_SET_BINDING(halfHeight, [&] { return height() / 2; });
   QBINDABLE_SET_BINDING(

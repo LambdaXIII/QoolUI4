@@ -4,7 +4,7 @@
 #include "qool_extension_positions.h"
 #include "qool_geoutils.h"
 #include "qool_literals.h"
-#include "qool_polar2d.h"
+// #include "qool_polar2d.h"
 #include "qool_smartobj.h"
 
 #include "qoolcommon/qobject_property_macros.hpp"

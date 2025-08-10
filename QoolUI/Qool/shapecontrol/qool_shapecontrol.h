@@ -41,6 +41,7 @@ private:
   QBINDABLE_READONLY_PROPERTY(ShapeControl, qreal, longEdge, FINAL)
   QBINDABLE_READONLY_PROPERTY(ShapeControl, qreal, shortEdge, FINAL)
   QBINDABLE_READONLY_PROPERTY(ShapeControl, qreal, aspectRatio, FINAL)
+  QBINDABLE_READONLY_PROPERTY(ShapeControl, QPointF, center, FINAL)
   QBINDABLE_READONLY_PROPERTY(ShapeControl, qreal, halfWidth, FINAL)
   QBINDABLE_READONLY_PROPERTY(ShapeControl, qreal, halfHeight, FINAL)
   QBINDABLE_READONLY_PROPERTY(ShapeControl, QRectF, boundingRect, FINAL)
