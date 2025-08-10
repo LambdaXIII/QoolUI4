@@ -13,27 +13,47 @@ Shape {
     horizontalAlignment: Shape.AlignHCenter
     verticalAlignment: Shape.AlignVCenter
 
+    ShapeControl {
+        id: control
+        property bool useLargeArc: (root.endAngle - root.startAngle) > 180
+        CircleGadget {
+            id: out_circle
+            center: control.center
+            radius: control.shortEdge / 2
+            property point startPos: pointFromAngle(root.startAngle)
+            property point endPos: pointFromAngle(root.endAngle)
+        }
+
+        CircleGadget {
+            id: in_circle
+            center: control.center
+            radius: control.shortEdge / 2 - root.borderWidth
+            property point startPos: pointFromAngle(root.startAngle)
+            property point endPos: pointFromAngle(root.endAngle)
+        }
+    }
+
     ShapePath {
         id: shape
-        startX: pCtrl.startPos.x
-        startY: pCtrl.startPos.y
+        startX: out_circle.startPos.x
+        startY: out_circle.startPos.y
         PathArc {
-            x: pCtrl.endPos.x
-            y: pCtrl.endPos.y
-            useLargeArc: pCtrl.largeRange
+            x: out_circle.endPos.x
+            y: out_circle.endPos.y
+            useLargeArc: control.useLargeArc
         }
         PathLine {
-            x: pCtrl.endPos2.x
-            y: pCtrl.endPos2.y
+            x: in_circle.endPos.x
+            y: in_circle.endPos.y
         }
         PathArc {
-            x: pCtrl.startPos2.x
-            y: pCtrl.startPos2.y
-            useLargeArc: pCtrl.largeRange
+            x: in_circle.startPos.x
+            y: in_circle.startPos.y
+            useLargeArc: control.useLargeArc
         }
         PathLine {
-            x: pCtrl.startPos.x
-            y: pCtrl.startPos.y
+            x: out_circle.startPos.x
+            y: out_circle.startPos.y
         }
         strokeWidth: 0
         fillColor: "cyan"

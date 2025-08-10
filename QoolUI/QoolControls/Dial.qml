@@ -19,9 +19,9 @@ T.Dial {
         border.color: root.Style.alternateBase
         color: root.Style.buttonText
 
-        // DialBackground {
-        //     anchors.fill: parent
-        // }
+        DialBackground {
+            anchors.fill: parent
+        }
     }
 
     handle: Rectangle {
@@ -34,8 +34,7 @@ T.Dial {
         color: Style.alternateBase
         transform: [
             Translate {
-                y: Math.min(root.background.width, root.background.height) * 0.4 * -1
-                   + handleItem.height / 2
+                y: Math.min(root.background.width, root.background.height) * 0.4 * -1 + handleItem.height / 2
             },
             Rotation {
                 angle: root.angle
