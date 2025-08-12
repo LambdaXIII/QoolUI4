@@ -52,7 +52,7 @@ protected:
   ItemTracker* m_itemTracker;
   QVariantMap m_activeData, m_inactiveData, m_disabledData;
   QMap<QString, bool> m_activeModified, m_inactiveModified, m_disabledModified;
-  bool m_animationEnabled;
+  bool m_animationEnabled{true};
 
   QOOL_BINDABLE_MEMBER(Style, Groups, currentGroup);
   void initialize_data();

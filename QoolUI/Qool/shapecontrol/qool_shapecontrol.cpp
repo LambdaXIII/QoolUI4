@@ -1,14 +1,11 @@
 #include "qool_shapecontrol.h"
 #include "qool_shapecontrol_gadget.h"
 #include "qoolcommon/debug.hpp"
-#include "qoolcommon/macro_foreach.hpp"
 
 QOOL_NS_BEGIN
 
 ShapeControl::ShapeControl(QObject* parent)
   : SmartObject(parent) {
-  auto parentItem = qobject_cast<QQuickItem*>(parent);
-  if (parentItem) set_target(parentItem);
   setup_properties();
 }
 
@@ -22,10 +19,6 @@ bool ShapeControl::contains(const QPointF& point) const {
   return boundingRect().contains(point);
 }
 
-QBindable<QQuickItem*> ShapeControl::bindable_target() {
-  return QBindable<QQuickItem*>(this, "target");
-}
-
 void ShapeControl::appendChild(QObject* child) {
   SmartObject::appendChild(child);
   if (auto p_child = qobject_cast<ShapeControlGadget*>(child); p_child) {
@@ -36,6 +29,28 @@ void ShapeControl::appendChild(QObject* child) {
 }
 
 void ShapeControl::setup_properties() {
+  QBINDABLE_SET_BINDING(target, [&] {
+    const auto p = bindableParent().value();
+    return qobject_cast<QQuickItem*>(p);
+  });
+
+  QBINDABLE_SET_BINDING(x, [&] {
+    if (auto t = m_target.value(); t) return t->bindableX().value();
+    return 0.0;
+  });
+  QBINDABLE_SET_BINDING(y, [&] {
+    if (auto t = m_target.value(); t) return t->bindableY().value();
+    return 0.0;
+  });
+  QBINDABLE_SET_BINDING(width, [&] {
+    if (auto t = m_target.value(); t) return t->bindableWidth().value();
+    return 0.0;
+  });
+  QBINDABLE_SET_BINDING(height, [&] {
+    if (auto t = m_target.value(); t) return t->bindableHeight().value();
+    return 0.0;
+  });
+
   QBINDABLE_SET_BINDING(longEdge, [&] { return std::max(width(), height()); });
   QBINDABLE_SET_BINDING(shortEdge, [&] { return std::min(width(), height()); });
   QBINDABLE_SET_BINDING(aspectRatio, [&] {
@@ -48,28 +63,6 @@ void ShapeControl::setup_properties() {
   QBINDABLE_SET_BINDING(halfHeight, [&] { return height() / 2; });
   QBINDABLE_SET_BINDING(
       boundingRect, [&] { return QRectF(x(), y(), width(), height()); });
-}
-
-QQuickItem* ShapeControl::target() const { return m_target; }
-
-void ShapeControl::set_target(QQuickItem* newTarget) {
-  if (m_target == newTarget) return;
-  if (m_target) {
-#define __HANDLE__(N) m_##N.takeBinding();
-    QOOL_FOREACH_4(__HANDLE__, x, y, width, height)
-#undef __HANDLE__
-  }
-  m_target = newTarget;
-
-  if (m_target) {
-#define BIND(N, P) m_##N.setBinding([&] { return m_target->P().value(); });
-    BIND(x, bindableX)
-    BIND(y, bindableY)
-    BIND(width, bindableWidth)
-    BIND(height, bindableHeight)
-#undef BIND
-  }
-  emit targetChanged();
 }
 
 QOOL_NS_END

@@ -4,7 +4,6 @@
 #include "qool_smartobj.h"
 
 #include "qoolcommon/qbindable_property_macros.hpp"
-#include "qoolcommon/qobject_property_macros.hpp"
 #include <QObject>
 
 #include "qoolns.hpp"
@@ -23,16 +22,13 @@ public:
   Q_INVOKABLE virtual void dumpInfo() const;
   Q_INVOKABLE virtual bool contains(const QPointF& point) const;
 
-  QBindable<QQuickItem*> bindable_target();
-
 protected:
   void appendChild(QObject* child) override;
 
 private:
-  QQuickItem* m_target{nullptr};
   void setup_properties();
 
-  QOBJECT_WRITABLE_PROPERTY_DECLARE(QQuickItem*, target, FINAL)
+  QBINDABLE_WRITABLE_PROPERTY(ShapeControl, QQuickItem*, target, FINAL)
   QBINDABLE_WRITABLE_PROPERTY(ShapeControl, qreal, x, FINAL)
   QBINDABLE_WRITABLE_PROPERTY(ShapeControl, qreal, y, FINAL)
   QBINDABLE_WRITABLE_PROPERTY(ShapeControl, qreal, width, FINAL)
