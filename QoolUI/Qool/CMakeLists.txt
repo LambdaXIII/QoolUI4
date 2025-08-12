@@ -13,11 +13,6 @@ set_source_files_properties(
   QT_QML_SINGLETON_TYPE TRUE
 )
 
-
-
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-
 qt_add_qml_module(Qool
   URI Qool
   VERSION ${QOOLUI_VERSION_QML}
@@ -145,9 +140,10 @@ target_link_libraries(
   PRIVATE Qt6::Xml
   PRIVATE QoolCommon
 )
-target_link_libraries(Qool PRIVATE Qt6::Core Qt6::QuickControls2)
-target_link_libraries(Qool PRIVATE Qt6::Core)
-target_link_libraries(Qool PRIVATE Qt6::Core)
+target_link_libraries(Qool
+  PRIVATE Qt6::Core Qt6::QuickControls2
+)
+
 
 
 target_include_directories(

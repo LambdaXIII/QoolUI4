@@ -30,6 +30,7 @@ qt_add_qml_module(QoolDebug
     QML_FILES RectIndicator.qml
     QML_FILES QoolWindowHud.qml
     SOURCES
+    QML_FILES RectResizer.qml
 )
 
 set_target_properties(QoolDebug PROPERTIES
