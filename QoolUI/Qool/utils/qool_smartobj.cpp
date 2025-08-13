@@ -5,7 +5,8 @@
 QOOL_NS_BEGIN
 
 SmartObject::SmartObject(QObject* parent)
-  : QObject{parent} {
+  : QObject{parent}
+  , QQmlParserStatus() {
   installEventFilter(this);
 }
 
@@ -40,7 +41,14 @@ void SmartObject::appendChild(QObject* child) {
   emit itemAppended(child);
 }
 
+void SmartObject::classBegin() { }
+
+void SmartObject::componentComplete() {
+  if (! parent()) emit parentChanged();
+}
+
 void SmartObject::dumpProperties() const {
+  xDebugQ << "Parent:" << parent();
   if (! objectName().isEmpty()) xDebugQ << "Properties in" << objectName();
   auto metaObject = this->metaObject();
   for (int i = metaObject->propertyOffset(); i < metaObject->propertyCount();
@@ -52,8 +60,7 @@ void SmartObject::dumpProperties() const {
 }
 
 bool SmartObject::eventFilter(QObject* obj, QEvent* e) {
-  if (obj == this && e->type() == QEvent::ParentChange)
-    emit parentChanged(parent());
+  if (obj == this && e->type() == QEvent::ParentChange) emit parentChanged();
   return QObject::eventFilter(obj, e);
 }
 

@@ -6,17 +6,22 @@
 #include <QObject>
 #include <QQmlEngine>
 #include <QQmlListProperty>
+#include <QQmlParserStatus>
 #include <QQuickItem>
 #include <QQuickWindow>
 #include <QVariant>
 
 QOOL_NS_BEGIN
 
-class SmartObject : public QObject {
+class SmartObject
+  : public QObject
+  , public QQmlParserStatus {
   Q_OBJECT
+  Q_INTERFACES(QQmlParserStatus)
   QML_ELEMENT
 
   Q_CLASSINFO("DefaultProperty", "smartItems")
+  Q_CLASSINFO("ParentProperty", "parent")
   QML_LIST_PROPERTY_ASSIGN_BEHAVIOR_APPEND
 
   Q_PROPERTY(
@@ -29,7 +34,7 @@ public:
 
   QBindable<QObject*> bindableParent();
 
-  Q_SIGNAL void parentChanged(QObject*);
+  Q_SIGNAL void parentChanged();
   Q_SIGNAL void itemAppended(QObject* child);
 
   Q_INVOKABLE void dumpProperties() const;
@@ -37,6 +42,8 @@ public:
 protected:
   virtual bool eventFilter(QObject* obj, QEvent* e) override;
   virtual void appendChild(QObject* child);
+  virtual void classBegin() override;
+  virtual void componentComplete() override;
 
 private:
   QObjectList m_items;

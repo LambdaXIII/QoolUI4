@@ -22,6 +22,28 @@ BasicPage {
         height: 400
         x: 50
         y: 50
+
+        ShapeControl {
+            id: control
+            CircleGadget {
+                id: circle
+                center: control.center
+                radius: control.shortEdge
+            }
+            property point pA: circle.pointFromAngle(0)
+            property point pB: circle.pointFromAngle(45)
+        }
+
         RectResizer {}
+
+        PointIndicator {
+            point: control.center
+        }
+
+        PointIndicator {
+            point: control.pB
+        }
     }
+
+    Component.onCompleted: control.dumpProperties()
 }

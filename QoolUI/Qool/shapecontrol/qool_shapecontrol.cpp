@@ -28,11 +28,16 @@ void ShapeControl::appendChild(QObject* child) {
   }
 }
 
+void ShapeControl::componentComplete() {
+  SmartObject::componentComplete();
+  set_target(qobject_cast<QQuickItem*>(parent()));
+}
+
 void ShapeControl::setup_properties() {
-  QBINDABLE_SET_BINDING(target, [&] {
-    const auto p = bindableParent().value();
-    return qobject_cast<QQuickItem*>(p);
-  });
+  // QBINDABLE_SET_BINDING(target, [&] {
+  //   const auto p = bindableParent().value();
+  //   return qobject_cast<QQuickItem*>(p);
+  // });
 
   QBINDABLE_SET_BINDING(x, [&] {
     if (auto t = m_target.value(); t) return t->bindableX().value();

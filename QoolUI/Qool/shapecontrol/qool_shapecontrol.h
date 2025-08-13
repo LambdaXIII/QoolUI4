@@ -24,6 +24,7 @@ public:
 
 protected:
   void appendChild(QObject* child) override;
+  void componentComplete() override;
 
 private:
   void setup_properties();
