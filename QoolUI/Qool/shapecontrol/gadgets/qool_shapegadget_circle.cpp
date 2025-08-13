@@ -32,6 +32,12 @@ CircleGadget::CircleGadget(QObject* parent)
       this, &CircleGadget::centerChanged, this, &CircleGadget::circleChanged);
   connect(
       this, &CircleGadget::radiusChanged, this, &CircleGadget::circleChanged);
+
+#define IMPL(ANGLE)                                 \
+  connect(this, &CircleGadget::circleChanged, this, \
+      &CircleGadget::point##ANGLE##Changed);
+  QOOL_FOREACH_8(IMPL, 0, 45, 90, 135, 180, 225, 270, 315)
+#undef IMPL
 }
 
 bool CircleGadget::contains(const QPointF& point) const {
@@ -50,5 +56,19 @@ QPointF CircleGadget::pointFromRadians(qreal radians) const {
 }
 
 QOOL_IMPL_POINT(CircleGadget, center)
+
+#define IMPL(ANGLE)                                          \
+  QPointF CircleGadget::point##ANGLE() const {               \
+    const auto rad = math::radians_from_degrees(ANGLE);      \
+    const Polar2D p(radius(), rad);                          \
+    return Vector2D(center(), p.vector()).to();              \
+  }                                                          \
+  QBindable<QPointF> CircleGadget::bindable_point##ANGLE() { \
+    return QBindable<QPointF>(this, "point" #ANGLE);         \
+  }
+
+QOOL_FOREACH_8(IMPL, 0, 45, 90, 135, 180, 225, 270, 315)
+
+#undef IMPL
 
 QOOL_NS_END

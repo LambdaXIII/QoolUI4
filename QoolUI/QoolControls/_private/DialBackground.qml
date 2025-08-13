@@ -5,57 +5,90 @@ import Qool
 Shape {
     id: root
 
-    property real startAngle
-    property real endAngle
+    property real startAngle: -120
+    property real endAngle: 120
 
-    property real borderWidth: 2
-
-    horizontalAlignment: Shape.AlignHCenter
-    verticalAlignment: Shape.AlignVCenter
+    property real borderWidth: Math.max(4, Math.min(root.width, root.height) * 0.05)
 
     ShapeControl {
         id: control
         property bool useLargeArc: (root.endAngle - root.startAngle) > 180
-        CircleGadget {
-            id: out_circle
-            center: control.center
-            radius: control.shortEdge / 2
-            property point startPos: pointFromAngle(root.startAngle)
-            property point endPos: pointFromAngle(root.endAngle)
-        }
 
         CircleGadget {
-            id: in_circle
-            center: control.center
-            radius: control.shortEdge / 2 - root.borderWidth
-            property point startPos: pointFromAngle(root.startAngle)
-            property point endPos: pointFromAngle(root.endAngle)
+            id: oCircle
+            CirclePoint {
+                id: oStart
+                angle: root.startAngle - 90
+            }
+            CirclePoint {
+                id: oEnd
+                angle: root.endAngle - 90
+            }
+        }
+        CircleGadget {
+            id: iCircle
+            radius: oCircle.radius - root.borderWidth
+            CirclePoint {
+                id: iStart
+                angle: root.startAngle - 90
+            }
+            CirclePoint {
+                id: iEnd
+                angle: root.endAngle - 90
+            }
         }
     }
 
     ShapePath {
         id: shape
-        startX: out_circle.startPos.x
-        startY: out_circle.startPos.y
+        startX: oStart.x
+        startY: oStart.y
         PathArc {
-            x: out_circle.endPos.x
-            y: out_circle.endPos.y
+            x: oEnd.x
+            y: oEnd.y
+            radiusX: oCircle.radius
+            radiusY: oCircle.radius
             useLargeArc: control.useLargeArc
         }
-        PathLine {
-            x: in_circle.endPos.x
-            y: in_circle.endPos.y
+        PathArc {
+            x: iEnd.x
+            y: iEnd.y
+            radiusX: root.borderWidth / 2
+            radiusY: root.borderWidth / 2
         }
         PathArc {
-            x: in_circle.startPos.x
-            y: in_circle.startPos.y
+            x: iStart.x
+            y: iStart.y
+            radiusX: iCircle.radius
+            radiusY: iCircle.radius
+            direction: PathArc.Counterclockwise
             useLargeArc: control.useLargeArc
         }
-        PathLine {
-            x: out_circle.startPos.x
-            y: out_circle.startPos.y
+        PathArc {
+            x: oStart.x
+            y: oStart.y
+            radiusX: root.borderWidth / 2
+            radiusY: root.borderWidth / 2
         }
         strokeWidth: 0
-        fillColor: "cyan"
+        fillGradient: ConicalGradient {
+            id: grad
+            centerX: control.center.x
+            centerY: control.center.y
+            angle: root.startAngle * 1.1 + 90
+            property real endPosition: ((root.endAngle - root.startAngle) * 1.1) / 360
+            GradientStop {
+                position: 0
+                color: "red"
+            }
+            GradientStop {
+                position: grad.endPosition / 2
+                color: "yellow"
+            }
+            GradientStop {
+                position: grad.endPosition
+                color: "green"
+            }
+        }
     }
 }

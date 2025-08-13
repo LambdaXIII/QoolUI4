@@ -21,6 +21,9 @@ T.Dial {
 
         DialBackground {
             anchors.fill: parent
+            startAngle: root.startAngle
+            endAngle: root.endAngle
+            visible: root.pressed
         }
     }
 
@@ -28,13 +31,14 @@ T.Dial {
         id: handleItem
         x: root.background.x + (root.background.width - width) / 2
         y: root.background.y + (root.background.height - height) / 2
-        width: 4
+        width: Math.max(4, Math.min(root.width, root.height) * 0.05)
         height: Math.max(root.background.width * 0.3, 4)
         radius: width / 2
         color: Style.alternateBase
         transform: [
             Translate {
-                y: Math.min(root.background.width, root.background.height) * 0.4 * -1 + handleItem.height / 2
+                y: Math.min(root.background.width, root.background.height) * 0.4 * -1
+                   + handleItem.height / 2
             },
             Rotation {
                 angle: root.angle
