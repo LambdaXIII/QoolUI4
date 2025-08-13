@@ -109,6 +109,7 @@ qt_add_qml_module(Qool
   SOURCES shapecontrol/gadgets/qool_shape_macros.hpp
   SOURCES shapecontrol/gadgets/qool_shapegadget_circle.h shapecontrol/gadgets/qool_shapegadget_circle.cpp
   SOURCES shapecontrol/gadgets/qool_shapegadget_rect.h shapecontrol/gadgets/qool_shapegadget_rect.cpp
+  SOURCES shapecontrol/gadgets/qool_shapegadget_circlepoint.h shapecontrol/gadgets/qool_shapegadget_circlepoint.cpp
 
 
 

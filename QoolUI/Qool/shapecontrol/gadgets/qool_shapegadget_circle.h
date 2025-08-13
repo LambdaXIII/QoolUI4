@@ -21,10 +21,12 @@ public:
   Q_INVOKABLE QPointF pointFromAngle(qreal degrees) const;
   Q_INVOKABLE QPointF pointFromRadians(qreal radians) const;
 
-  QOOL_DECL_POINT(center, FINAL)
-  QBINDABLE_WRITABLE_PROPERTY(CircleGadget, qreal, radius)
+  Q_SIGNAL void circleChanged();
 
-  QBINDABLE_READONLY_PROPERTY(CircleGadget, qreal, area)
+protected:
+  QOOL_DECL_POINT(center, FINAL)
+  QBINDABLE_WRITABLE_PROPERTY(CircleGadget, qreal, radius, FINAL)
+  QBINDABLE_READONLY_PROPERTY(CircleGadget, qreal, area, FINAL)
 };
 
 QOOL_NS_END

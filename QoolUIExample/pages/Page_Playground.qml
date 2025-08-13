@@ -15,6 +15,7 @@ BasicPage {
     note: qsTr("测试一些东西……")
 
     Rectangle {
+        id: r
         color: "transparent"
         border.width: 2
         border.color: "red"
@@ -23,21 +24,38 @@ BasicPage {
         x: 50
         y: 50
 
+        property real startAngle: -45
+        property real endAngle: 45
+
         ShapeControl {
             id: control
             CircleGadget {
                 id: circle
-                center: control.center
-                radius: control.shortEdge
+                CirclePoint {
+                    id: ppa
+                    angle: r.startAngle - 90
+                }
             }
-            property point pA: circle.pointFromAngle(0)
-            property point pB: circle.pointFromAngle(45)
+            property point pA: circle.pointFromAngle(r.startAngle)
+            property point pB: circle.pointFromAngle(r.endAngle)
+            Connections {
+                target: circle
+                function onCircleChanged() {
+                    control.pA = circle.pointFromAngle(r.startAngle - 90);
+                    control.pB = circle.pointFromAngle(r.endAngle - 90);
+                }
+            }
         }
 
         RectResizer {}
 
         PointIndicator {
-            point: control.center
+            point: circle.center
+        }
+
+        PointIndicator {
+            point: ppa.position
+            name: "startPoint"
         }
 
         PointIndicator {
@@ -45,5 +63,8 @@ BasicPage {
         }
     }
 
-    Component.onCompleted: control.dumpProperties()
+    Component.onCompleted: {
+        // console.log(circle.target);
+        console.log(ppa.attachedCircle);
+    }
 }
