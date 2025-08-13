@@ -22,7 +22,7 @@ class SmartObject
 
   Q_CLASSINFO("DefaultProperty", "smartItems")
   Q_CLASSINFO("ParentProperty", "parent")
-  QML_LIST_PROPERTY_ASSIGN_BEHAVIOR_APPEND
+  QML_LIST_PROPERTY_ASSIGN_BEHAVIOR_REPLACE_IF_NOT_DEFAULT
 
   Q_PROPERTY(
       QQmlListProperty<QObject> smartItems READ smartItems CONSTANT FINAL)

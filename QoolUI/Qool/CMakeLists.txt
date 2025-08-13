@@ -13,6 +13,8 @@ set_source_files_properties(
   QT_QML_SINGLETON_TYPE TRUE
 )
 
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
 qt_add_qml_module(Qool
   URI Qool
   VERSION ${QOOLUI_VERSION_QML}
@@ -110,6 +112,7 @@ qt_add_qml_module(Qool
   SOURCES shapecontrol/gadgets/qool_shapegadget_circle.h shapecontrol/gadgets/qool_shapegadget_circle.cpp
   SOURCES shapecontrol/gadgets/qool_shapegadget_rect.h shapecontrol/gadgets/qool_shapegadget_rect.cpp
   SOURCES shapecontrol/gadgets/qool_shapegadget_circlepoint.h shapecontrol/gadgets/qool_shapegadget_circlepoint.cpp
+  SOURCES utils/qool_numbermapper.h utils/qool_numbermapper.cpp
 
 
 
@@ -144,6 +147,7 @@ target_link_libraries(
 target_link_libraries(Qool
   PRIVATE Qt6::Core Qt6::QuickControls2
 )
+target_link_libraries(Qool PRIVATE Qt6::Core)
 
 
 
