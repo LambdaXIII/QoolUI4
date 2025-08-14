@@ -1,0 +1,121 @@
+#include "qool_colormapper.h"
+#include "qoolcommon/math/utils.hpp"
+
+QOOL_NS_BEGIN
+
+ColorMapper::ColorMapper(QObject* parent)
+  : QObject{parent} {
+  connect(this, &ColorMapper::modeChanged, this, &ColorMapper::updateRequested);
+
+#define SETUP(N)                                          \
+  connect(this, &ColorMapper::position##N##Changed, this, \
+      &ColorMapper::color##N##Changed);                   \
+  connect(this, &ColorMapper::updateRequested, this,      \
+      &ColorMapper::color##N##Changed);
+
+  QOOL_FOREACH_10(SETUP, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+
+#undef SETUP
+}
+
+QColor ColorMapper::colorAt(qreal position) const {
+  if (m_stops.isEmpty()) return Qt::white;
+  if (m_stops.length() <= 1) return m_stops.constFirst()->color();
+  auto min = m_stops.constFirst();
+  auto max = m_stops.constFirst();
+  auto left = m_stops.constFirst();
+  auto right = m_stops.constFirst();
+  for (const auto s : m_stops) {
+    const auto p = s->position();
+    if (p < min->position()) min = s;
+    if (p > max->position()) max = s;
+    if (p > left->position() && p <= position) left = s;
+    if (p < right->position() && p >= position) right = s;
+  }
+  if (min->position() == position) return min->color();
+  if (max->position() == position) return max->color();
+  if (left->position() == position) return left->color();
+  if (right->position() == position) return right->color();
+
+  const auto p1 = left->position();
+  const auto p2 = right->position();
+  const auto a = math::remap<qreal>(
+      position, p1, p2, left->color().alphaF(), right->color().alphaF());
+
+#define CHANNEL(NAME)                                                \
+  math::remap<qreal>(position, p1, p2, color1.NAME(), color2.NAME())
+
+  if (m_mode == RGB) {
+    const auto color1 = left->color().toRgb();
+    const auto color2 = right->color().toRgb();
+    const auto r = CHANNEL(redF);
+    const auto g = CHANNEL(greenF);
+    const auto b = CHANNEL(blueF);
+    return QColor::fromRgbF(r, g, b, a);
+  }
+
+  if (m_mode == HSL) {
+    const auto color1 = left->color().toHsl();
+    const auto color2 = right->color().toHsl();
+    const auto h = CHANNEL(hslHueF);
+    const auto s = CHANNEL(hslSaturationF);
+    const auto l = CHANNEL(lightnessF);
+    return QColor::fromHslF(h, s, l, a);
+  }
+
+  if (m_mode == CMYK) {
+    const auto color1 = left->color().toCmyk();
+    const auto color2 = right->color().toCmyk();
+    const auto c = CHANNEL(cyanF);
+    const auto m = CHANNEL(magentaF);
+    const auto y = CHANNEL(yellowF);
+    const auto k = CHANNEL(blackF);
+    return QColor::fromCmykF(c, m, y, k, a);
+  }
+
+  const auto color1 = left->color().toHsv();
+  const auto color2 = right->color().toHsv();
+  const auto h = CHANNEL(hsvHueF);
+  const auto s = CHANNEL(hsvSaturationF);
+  const auto v = CHANNEL(valueF);
+  return QColor::fromHsvF(h, s, v, a);
+}
+
+QQmlListProperty<ColorMapperStop> ColorMapper::stopList() {
+  return {this, nullptr, __appendFunction, __countFunction, nullptr, nullptr,
+    nullptr, __removeLastFunction};
+}
+
+void ColorMapper::__appendFunction(
+    QQmlListProperty<ColorMapperStop>* property, ColorMapperStop* stop) {
+  auto self = qobject_cast<ColorMapper*>(property->object);
+  self->m_stops.append(stop);
+  connect(stop, &ColorMapperStop::positionChanged, self,
+      &ColorMapper::updateRequested);
+  connect(stop, &ColorMapperStop::colorChanged, self,
+      &ColorMapper::updateRequested);
+  emit self->updateRequested();
+}
+
+void ColorMapper::__removeLastFunction(
+    QQmlListProperty<ColorMapperStop>* property) {
+  auto self = qobject_cast<ColorMapper*>(property->object);
+  if (self->m_stops.isEmpty()) return;
+  auto stop = self->m_stops.takeLast();
+  self->disconnect(stop);
+  emit self->updateRequested();
+}
+
+qsizetype ColorMapper::__countFunction(
+    QQmlListProperty<ColorMapperStop>* property) {
+  auto self = qobject_cast<ColorMapper*>(property->object);
+  return self->m_stops.length();
+}
+
+#define IMPL(N)                                                           \
+  QColor ColorMapper::color##N() const { return colorAt(position##N()); }
+
+QOOL_FOREACH_10(IMPL, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+#undef IMPL
+
+QOOL_NS_END

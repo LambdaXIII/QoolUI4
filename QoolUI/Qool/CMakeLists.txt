@@ -14,6 +14,7 @@ set_source_files_properties(
 )
 
 find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_add_qml_module(Qool
   URI Qool
@@ -113,6 +114,7 @@ qt_add_qml_module(Qool
   SOURCES shapecontrol/gadgets/qool_shapegadget_rect.h shapecontrol/gadgets/qool_shapegadget_rect.cpp
   SOURCES shapecontrol/gadgets/qool_shapegadget_circlepoint.h shapecontrol/gadgets/qool_shapegadget_circlepoint.cpp
   SOURCES utils/qool_numbermapper.h utils/qool_numbermapper.cpp
+  SOURCES utils/qool_colormapper.h utils/qool_colormapper.cpp
 
 
 
@@ -147,6 +149,7 @@ target_link_libraries(
 target_link_libraries(Qool
   PRIVATE Qt6::Core Qt6::QuickControls2
 )
+target_link_libraries(Qool PRIVATE Qt6::Core)
 target_link_libraries(Qool PRIVATE Qt6::Core)
 
 
