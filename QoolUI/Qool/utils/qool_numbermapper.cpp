@@ -5,12 +5,20 @@ QOOL_NS_BEGIN
 
 NumberMapperStop::NumberMapperStop(QObject* parent)
   : QObject(parent) {
-  QBINDABLE_SET_VALUE(position, 0);
-  QBINDABLE_SET_VALUE(value, 0);
 }
 
 NumberMapper::NumberMapper(QObject* parent)
-  : QObject{parent} { }
+  : QObject{parent} {
+#define SETUP(N)                                           \
+  connect(this, &NumberMapper::position##N##Changed, this, \
+      &NumberMapper::value##N##Changed);                   \
+  connect(this, &NumberMapper::stopsChanged, this,         \
+      &NumberMapper::value##N##Changed);
+
+  QOOL_FOREACH_10(SETUP, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+
+#undef SETUP
+}
 
 qreal NumberMapper::valueAt(qreal position) const {
   if (m_stops.isEmpty()) return 0;
@@ -72,5 +80,11 @@ qsizetype NumberMapper::__countFunction(
   auto self = qobject_cast<NumberMapper*>(property->object);
   return self->m_stops.length();
 }
+
+#define IMPL(N)                                                           \
+  qreal NumberMapper::value##N() const { return valueAt(position##N()); }
+
+QOOL_FOREACH_10(IMPL, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+#undef IMPL
 
 QOOL_NS_END

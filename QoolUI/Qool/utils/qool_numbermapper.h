@@ -1,7 +1,8 @@
 #ifndef QOOL_NUMBERMAPPER_H
 #define QOOL_NUMBERMAPPER_H
 
-#include "qoolcommon/qbindable_property_macros.hpp"
+#include "qoolcommon/macro_foreach.hpp"
+#include "qoolcommon/qobject_property_macros.hpp"
 #include <QObject>
 #include <QQmlEngine>
 
@@ -15,8 +16,8 @@ class NumberMapperStop : public QObject {
 public:
   explicit NumberMapperStop(QObject* parent = nullptr);
 
-  QBINDABLE_WRITABLE_PROPERTY(NumberMapperStop, qreal, position, FINAL)
-  QBINDABLE_WRITABLE_PROPERTY(NumberMapperStop, qreal, value, FINAL)
+  QOBJECT_WRITABLE_PROPERTY(qreal, position, 0, FINAL)
+  QOBJECT_WRITABLE_PROPERTY(qreal, value, 0, FINAL)
 };
 
 class NumberMapper : public QObject {
@@ -42,6 +43,13 @@ protected:
       QQmlListProperty<NumberMapperStop>* property);
   static qsizetype __countFunction(
       QQmlListProperty<NumberMapperStop>* property);
+
+#define DECL(N)                                           \
+  QOBJECT_WRITABLE_PROPERTY(qreal, position##N, (N / 10)) \
+  QOBJECT_READONLY_PROPERTY_DECLARE(qreal, value##N)
+
+  QOOL_FOREACH_10(DECL, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+#undef DECL
 };
 
 QOOL_NS_END
