@@ -10,6 +10,10 @@ Shape {
 
     property real borderWidth: Math.max(4, Math.min(root.width, root.height) * 0.05)
 
+    property color lowColor: "green"
+    property color midColor: "yellow"
+    property color highColor: "red"
+
     ShapeControl {
         id: control
         property bool useLargeArc: (root.endAngle - root.startAngle) > 180
@@ -79,15 +83,15 @@ Shape {
             property real endPosition: ((root.endAngle - root.startAngle) * 1.1) / 360
             GradientStop {
                 position: 0
-                color: "red"
+                color: root.highColor
             }
             GradientStop {
                 position: grad.endPosition / 2
-                color: "yellow"
+                color: root.midColor
             }
             GradientStop {
                 position: grad.endPosition
-                color: "green"
+                color: root.lowColor
             }
         }
     }

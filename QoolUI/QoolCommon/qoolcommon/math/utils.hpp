@@ -45,34 +45,33 @@ inline N set_precision(N number, P precision) {
   return static_cast<N>(rounded);
 }
 
-template <typename N>
-inline N remap(
-  N value, N sourceMin, N sourceMax, N targetMin, N targetMax) {
-  const N s_left = std::min(sourceMin, sourceMax);
-  const N s_right = std::max(sourceMin, sourceMax);
-  const N t_left = std::min(targetMin, targetMax);
-  const N t_right = std::max(targetMin, targetMax);
-
-  if (s_left == t_left && s_right == t_right)
-    return value;
-
-  const N s_total = s_right - s_left;
-  const N t_total = t_right - t_left;
-  value = auto_bound(s_left, value, s_right);
-  const N s_vdistance = value - s_left;
-
-  N t_vdistance;
-  if (s_total == t_total)
-    t_vdistance = s_vdistance;
-  else if (s_vdistance == 0)
-    t_vdistance = 0;
-  else if (s_vdistance == s_total)
-    t_vdistance = t_total;
-  else {
-    const N ratio = t_total / s_total;
-    t_vdistance = s_vdistance * ratio;
+/**
+ * @brief 将输入值从输入范围线性映射到目标范围。
+ *    * 支持任意数值类型的输入和输出范围。该函数使用浮点中间计算以确保精度，
+ * 最终结果转换为目标类型。适用于整型、浮点型等多种类型组合。
+ *    * @tparam T 输入值和输入范围的类型
+ * @tparam U 输出范围的类型
+ * @param input 输入值
+ * @param in_min 输入范围的最小值
+ * @param in_max 输入范围的最大值
+ * @param out_min 目标范围的最小值
+ * @param out_max 目标范围的最大值
+ * @return 映射后的结果，类型为 U
+ */
+template<typename T, typename U>
+U remap(T input, T in_min, T in_max, U out_min, U out_max) {
+  if (in_min == in_max) {
+    return out_min; // 避免除以零，返回目标范围最小值
   }
-  return t_left + t_vdistance;
+
+  // 转换为 double 进行浮点运算，避免整数除法误差
+  double input_diff = static_cast<double>(input) - static_cast<double>(in_min);
+  double in_range = static_cast<double>(in_max) - static_cast<double>(in_min);
+  double out_range =
+      static_cast<double>(out_max) - static_cast<double>(out_min);
+  double scaled = (input_diff / in_range) * out_range;
+
+  return static_cast<U>(scaled + static_cast<double>(out_min));
 }
 
 template <typename N>

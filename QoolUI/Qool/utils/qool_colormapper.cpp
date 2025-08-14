@@ -1,5 +1,6 @@
 #include "qool_colormapper.h"
 #include "qoolcommon/math/utils.hpp"
+#include <algorithm>
 
 QOOL_NS_BEGIN
 
@@ -42,8 +43,10 @@ QColor ColorMapper::colorAt(qreal position) const {
   const auto a = math::remap<qreal>(
       position, p1, p2, left->color().alphaF(), right->color().alphaF());
 
-#define CHANNEL(NAME)                                                \
-  math::remap<qreal>(position, p1, p2, color1.NAME(), color2.NAME())
+#define CHANNEL(NAME)                                             \
+  std::clamp(math::remap<qreal, qreal>(                           \
+                 position, p1, p2, color1.NAME(), color2.NAME()), \
+      0.0, 1.0)
 
   if (m_mode == RGB) {
     const auto color1 = left->color().toRgb();
@@ -79,6 +82,8 @@ QColor ColorMapper::colorAt(qreal position) const {
   const auto s = CHANNEL(hsvSaturationF);
   const auto v = CHANNEL(valueF);
   return QColor::fromHsvF(h, s, v, a);
+
+#undef CHANNEL
 }
 
 QQmlListProperty<ColorMapperStop> ColorMapper::stopList() {
