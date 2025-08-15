@@ -22,26 +22,46 @@ ColorMapper::ColorMapper(QObject* parent)
 QColor ColorMapper::colorAt(qreal position) const {
   if (m_stops.isEmpty()) return Qt::white;
   if (m_stops.length() <= 1) return m_stops.constFirst()->color();
-  auto min = m_stops.constFirst();
-  auto max = m_stops.constFirst();
-  auto left = m_stops.constFirst();
-  auto right = m_stops.constFirst();
-  for (const auto s : m_stops) {
-    const auto p = s->position();
-    if (p < min->position()) min = s;
-    if (p > max->position()) max = s;
-    if (p > left->position() && p <= position) left = s;
-    if (p < right->position() && p >= position) right = s;
-  }
-  if (min->position() == position) return min->color();
-  if (max->position() == position) return max->color();
-  if (left->position() == position) return left->color();
-  if (right->position() == position) return right->color();
 
-  const auto p1 = left->position();
-  const auto p2 = right->position();
+  // auto min = m_stops.constFirst();
+  // auto max = m_stops.constFirst();
+  // auto left = m_stops.constFirst();
+  // auto right = m_stops.constFirst();
+  // for (const auto s : m_stops) {
+  //   const auto p = s->position();
+  //   if (p < min->position()) min = s;
+  //   if (p > max->position()) max = s;
+  //   if (p > left->position() && p <= position) left = s;
+  //   if (p < right->position() && p >= position) right = s;
+  // }
+  // if (min->position() == position) return min->color();
+  // if (max->position() == position) return max->color();
+  // if (left->position() == position) return (*left)->color();
+  // if (right->position() == position) return (*right)->color();
+
+  auto stops = m_stops;
+  std::stable_sort(
+      stops.begin(), stops.end(), [](ColorMapperStop* a, ColorMapperStop* b) {
+        return a->position() < b->position();
+      });
+
+  if (position == stops.constFirst()->position())
+    return stops.constFirst()->color();
+  if (position == stops.constLast()->position())
+    return stops.constLast()->color();
+
+  auto left = std::find_if(stops.cbegin(), stops.cend(),
+      [&](ColorMapperStop* s) { return s->position() <= position; });
+  if ((*left)->position() == position) return (*left)->color();
+
+  auto right = std::find_if(stops.crbegin(), stops.crend(),
+      [&](ColorMapperStop* s) { return s->position() >= position; });
+  if ((*right)->position() == position) return (*right)->color();
+
+  const auto p1 = (*left)->position();
+  const auto p2 = (*right)->position();
   const auto a = math::remap<qreal>(
-      position, p1, p2, left->color().alphaF(), right->color().alphaF());
+      position, p1, p2, (*left)->color().alphaF(), (*right)->color().alphaF());
 
 #define CHANNEL(NAME)                                             \
   std::clamp(math::remap<qreal, qreal>(                           \
@@ -49,8 +69,8 @@ QColor ColorMapper::colorAt(qreal position) const {
       0.0, 1.0)
 
   if (m_mode == RGB) {
-    const auto color1 = left->color().toRgb();
-    const auto color2 = right->color().toRgb();
+    const auto color1 = (*left)->color().toRgb();
+    const auto color2 = (*right)->color().toRgb();
     const auto r = CHANNEL(redF);
     const auto g = CHANNEL(greenF);
     const auto b = CHANNEL(blueF);
@@ -58,8 +78,8 @@ QColor ColorMapper::colorAt(qreal position) const {
   }
 
   if (m_mode == HSL) {
-    const auto color1 = left->color().toHsl();
-    const auto color2 = right->color().toHsl();
+    const auto color1 = (*left)->color().toHsl();
+    const auto color2 = (*right)->color().toHsl();
     const auto h = CHANNEL(hslHueF);
     const auto s = CHANNEL(hslSaturationF);
     const auto l = CHANNEL(lightnessF);
@@ -67,8 +87,8 @@ QColor ColorMapper::colorAt(qreal position) const {
   }
 
   if (m_mode == CMYK) {
-    const auto color1 = left->color().toCmyk();
-    const auto color2 = right->color().toCmyk();
+    const auto color1 = (*left)->color().toCmyk();
+    const auto color2 = (*right)->color().toCmyk();
     const auto c = CHANNEL(cyanF);
     const auto m = CHANNEL(magentaF);
     const auto y = CHANNEL(yellowF);
@@ -76,8 +96,8 @@ QColor ColorMapper::colorAt(qreal position) const {
     return QColor::fromCmykF(c, m, y, k, a);
   }
 
-  const auto color1 = left->color().toHsv();
-  const auto color2 = right->color().toHsv();
+  const auto color1 = (*left)->color().toHsv();
+  const auto color2 = (*right)->color().toHsv();
   const auto h = CHANNEL(hsvHueF);
   const auto s = CHANNEL(hsvSaturationF);
   const auto v = CHANNEL(valueF);
