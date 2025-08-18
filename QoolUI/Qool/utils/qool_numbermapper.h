@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QQmlEngine>
 
+#include "qoolcommon/lazy_cache.hpp"
 #include "qoolns.hpp"
 
 QOOL_NS_BEGIN
@@ -43,6 +44,7 @@ protected:
       QQmlListProperty<NumberMapperStop>* property);
   static qsizetype __countFunction(
       QQmlListProperty<NumberMapperStop>* property);
+  LazyCache<QList<NumberMapperStop*>> m_sortedStops;
 
 #define DECL(N)                                           \
   QOBJECT_WRITABLE_PROPERTY(qreal, position##N, (N / 10)) \
