@@ -50,11 +50,11 @@ QColor ColorMapper::colorAt(qreal position) const {
   if (position == stops.constLast()->position())
     return stops.constLast()->color();
 
-  auto left = std::find_if(stops.cbegin(), stops.cend(),
+  auto left = std::find_if(stops.crbegin(), stops.crend(),
       [&](ColorMapperStop* s) { return s->position() <= position; });
   if ((*left)->position() == position) return (*left)->color();
 
-  auto right = std::find_if(stops.crbegin(), stops.crend(),
+  auto right = std::find_if(stops.cbegin(), stops.cend(),
       [&](ColorMapperStop* s) { return s->position() >= position; });
   if ((*right)->position() == position) return (*right)->color();
 

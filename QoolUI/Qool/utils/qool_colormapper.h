@@ -43,7 +43,7 @@ protected:
   static void __removeLastFunction(QQmlListProperty<ColorMapperStop>* property);
   static qsizetype __countFunction(QQmlListProperty<ColorMapperStop>* property);
 
-  QOBJECT_WRITABLE_PROPERTY(Modes, mode, HSV, FINAL)
+  QOBJECT_WRITABLE_PROPERTY(Modes, mode, RGB, FINAL)
 
 #define DECL(N)                                           \
   QOBJECT_WRITABLE_PROPERTY(qreal, position##N, (N / 10)) \
