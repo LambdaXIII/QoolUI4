@@ -3,7 +3,6 @@
 
 #include "qoolns.hpp"
 #include <functional>
-#include <memory>
 #include <mutex>
 #include <optional>
 
@@ -34,29 +33,33 @@ public:
   }
 
   void setValue(const T& value) {
-    std::lock_guard locker(m_mutex);
+    std::lock_guard locker(*m_mutex);
     *m_data = value;
     m_dirty = false;
   }
 
   T value() const {
     if (m_dirty) {
-      std::lock_guard locker(m_mutex);
+      std::lock_guard locker(*m_mutex);
       if (m_dirty) *m_data = m_updater();
     }
     return *m_data;
   }
 
   void update() {
-    std::lock_guard locker(m_mutex);
+    std::lock_guard locker(*m_mutex);
     *m_data = m_updater();
     m_dirty = false;
   }
 
   void setUpdater(std::function<T()> updater) {
-    if (updater == m_updater) return;
-    std::lock_guard locker(m_mutex);
+    std::lock_guard locker(*m_mutex);
     m_updater = updater;
+    m_dirty = true;
+  }
+
+  void markDirty() {
+    std::lock_guard locker(*m_mutex);
     m_dirty = true;
   }
 };

@@ -1,6 +1,7 @@
 #ifndef QOOL_COLORMAPPER_H
 #define QOOL_COLORMAPPER_H
 
+#include "qoolcommon/lazy_cache.hpp"
 #include "qoolcommon/macro_foreach.hpp"
 #include "qoolcommon/qobject_property_macros.hpp"
 #include "qoolns.hpp"
@@ -42,6 +43,8 @@ protected:
       QQmlListProperty<ColorMapperStop>* property, ColorMapperStop* stop);
   static void __removeLastFunction(QQmlListProperty<ColorMapperStop>* property);
   static qsizetype __countFunction(QQmlListProperty<ColorMapperStop>* property);
+
+  LazyCache<QList<ColorMapperStop*>> m_sortedStops;
 
   QOBJECT_WRITABLE_PROPERTY(Modes, mode, RGB, FINAL)
 

@@ -17,33 +17,22 @@ ColorMapper::ColorMapper(QObject* parent)
   QOOL_FOREACH_10(SETUP, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 
 #undef SETUP
+
+  m_sortedStops.setUpdater([&] {
+    auto stops = m_stops;
+    std::stable_sort(
+        stops.begin(), stops.end(), [](ColorMapperStop* a, ColorMapperStop* b) {
+          return a->position() < b->position();
+        });
+    return stops;
+  });
 }
 
 QColor ColorMapper::colorAt(qreal position) const {
   if (m_stops.isEmpty()) return Qt::white;
   if (m_stops.length() <= 1) return m_stops.constFirst()->color();
 
-  // auto min = m_stops.constFirst();
-  // auto max = m_stops.constFirst();
-  // auto left = m_stops.constFirst();
-  // auto right = m_stops.constFirst();
-  // for (const auto s : m_stops) {
-  //   const auto p = s->position();
-  //   if (p < min->position()) min = s;
-  //   if (p > max->position()) max = s;
-  //   if (p > left->position() && p <= position) left = s;
-  //   if (p < right->position() && p >= position) right = s;
-  // }
-  // if (min->position() == position) return min->color();
-  // if (max->position() == position) return max->color();
-  // if (left->position() == position) return (*left)->color();
-  // if (right->position() == position) return (*right)->color();
-
-  auto stops = m_stops;
-  std::stable_sort(
-      stops.begin(), stops.end(), [](ColorMapperStop* a, ColorMapperStop* b) {
-        return a->position() < b->position();
-      });
+  auto stops = m_sortedStops.value();
 
   if (position == stops.constFirst()->position())
     return stops.constFirst()->color();
@@ -115,6 +104,7 @@ void ColorMapper::__appendFunction(
     QQmlListProperty<ColorMapperStop>* property, ColorMapperStop* stop) {
   auto self = qobject_cast<ColorMapper*>(property->object);
   self->m_stops.append(stop);
+  self->m_sortedStops.markDirty();
   connect(stop, &ColorMapperStop::positionChanged, self,
       &ColorMapper::updateRequested);
   connect(stop, &ColorMapperStop::colorChanged, self,
@@ -128,6 +118,7 @@ void ColorMapper::__removeLastFunction(
   if (self->m_stops.isEmpty()) return;
   auto stop = self->m_stops.takeLast();
   self->disconnect(stop);
+  self->m_sortedStops.markDirty();
   emit self->updateRequested();
 }
 
