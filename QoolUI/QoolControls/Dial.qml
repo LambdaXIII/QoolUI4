@@ -63,8 +63,9 @@ T.Dial {
         color: root.Style.buttonText
         transform: [
             Translate {
-                y: Math.min(root.background.width, root.background.height) * 0.4 * -1
-                   + handleItem.height / 2
+                y: Math.min(
+                       root.background.width,
+                       root.background.height) * 0.4 * -1 + handleItem.height / 2
             },
             Rotation {
                 angle: root.angle

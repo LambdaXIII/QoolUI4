@@ -8,7 +8,8 @@ Shape {
     property real startAngle: -120
     property real endAngle: 120
 
-    property real borderWidth: Math.max(4, Math.min(root.width, root.height) * 0.05)
+    property real borderWidth: Math.max(4, Math.min(root.width,
+                                                    root.height) * 0.05)
 
     property color lowColor: "green"
     property color midColor: "yellow"
@@ -79,10 +80,10 @@ Shape {
             id: grad
             centerX: control.center.x
             centerY: control.center.y
-            angle: root.startAngle * 1.1 + 90
-            property real endPosition: ((root.endAngle - root.startAngle) * 1.1) / 360
+            angle: 90 - root.endAngle - 10
+            property real endPosition: (root.endAngle - root.startAngle) / 360
             GradientStop {
-                position: 0
+                position: 0 + 10 / 360
                 color: root.highColor
             }
             GradientStop {

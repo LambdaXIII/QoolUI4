@@ -18,10 +18,10 @@ BasicPage {
         id: d
         width: 300
         height: 300
-        // startAngle: -45
-        // endAngle: 45
 
-        onPositionChanged: console.log(position)
+        startAngle: -30
+        endAngle: 100
+        onPositionChanged: console.log(endAngle)
 
         RectResizer {}
     }
