@@ -2,7 +2,8 @@
 #define QOOL_THEME_DATABASE_H
 
 #include "qool_theme.h"
-#include "qoolcommon/property_macros_for_qobject_declonly.hpp"
+
+#include "qoolcommon/qobject_property_macros.hpp"
 #include "qoolcommon/singleton.hpp"
 #include "qoolns.hpp"
 
@@ -59,8 +60,8 @@ protected:
   QMutex* m_mutex;
   void auto_install_themes();
 
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_DECL(QStringList, themes)
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_DECL(int, count)
+  QOBJECT_READONLY_PROPERTY_DECLARE(QStringList, themes)
+  QOBJECT_READONLY_PROPERTY_DECLARE(int, count)
 };
 
 QOOL_NS_END

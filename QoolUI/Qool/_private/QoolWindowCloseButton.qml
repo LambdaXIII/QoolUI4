@@ -17,16 +17,16 @@ AbstractButton {
 
     z: -90
 
-    ShapeHelper {
+    TriangleGadget {
         id: pCtrl
         readonly property real size: root.windowCutSize - root.buttonSpacing
 
-        point0x: 0
-        point0y: 0
-        point1x: size
-        point1y: 0
-        point2x: 0
-        point2y: size
+        pointAx: 0
+        pointAy: 0
+        pointBx: size
+        pointBy: 0
+        pointCx: 0
+        pointCy: size
 
         function contains(p: point): bool {
             if (p.x < 0 || p.x > size || p.y < 0 || p.y > size)
@@ -45,19 +45,19 @@ AbstractButton {
             capStyle: ShapePath.RoundCap
             joinStyle: ShapePath.RoundJoin
 
-            startX: pCtrl.point0x
-            startY: pCtrl.point0y
+            startX: pCtrl.pointAx
+            startY: pCtrl.pointAy
             PathLine {
-                x: pCtrl.point1x
-                y: pCtrl.point1y
+                x: pCtrl.pointBx
+                y: pCtrl.pointBy
             }
             PathLine {
-                x: pCtrl.point2x
-                y: pCtrl.point2y
+                x: pCtrl.pointCx
+                y: pCtrl.pointCy
             }
             PathLine {
-                x: pCtrl.point0x
-                y: pCtrl.point0y
+                x: pCtrl.pointAx
+                y: pCtrl.pointAy
             }
         }
     } //contentItem

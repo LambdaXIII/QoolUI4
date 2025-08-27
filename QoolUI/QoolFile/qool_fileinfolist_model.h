@@ -2,9 +2,10 @@
 #define QOOL_FILEINFOLIST_MODEL_H
 
 #include "qool_fileinfo.h"
-#include "qoolcommon/property_macros_for_qobject_declonly.hpp"
+
 #include "qoolns.hpp"
 
+#include "qoolcommon/qobject_property_macros.hpp"
 #include <QAbstractListModel>
 #include <QObject>
 #include <QQmlEngine>
@@ -89,7 +90,7 @@ protected:
     const QList<qsizetype>& indexes) const;
   QList<qsizetype> validateIndexes(QList<qsizetype> indexes) const;
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(FileInfoList*, fileInfos)
+  QOBJECT_WRITABLE_PROPERTY_DECLARE(FileInfoList*, fileInfos)
 };
 
 QOOL_NS_END

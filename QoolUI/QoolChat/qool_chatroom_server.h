@@ -2,7 +2,7 @@
 #define QOOL_CHATROOM_SERVER_H
 
 #include "qool_message.h"
-#include "qoolcommon/property_macros_for_qobject.hpp"
+#include "qoolcommon/qobject_property_macros.hpp"
 #include "qoolns.hpp"
 
 #include <QObject>
@@ -17,7 +17,7 @@ QOOL_NS_BEGIN
 class Beeper;
 class ChatRoomServer: public QObject {
   Q_OBJECT
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(QString, name, "");
+  QOBJECT_CONSTANT_PROPERTY(QString, name, "");
 
 public:
   explicit ChatRoomServer(

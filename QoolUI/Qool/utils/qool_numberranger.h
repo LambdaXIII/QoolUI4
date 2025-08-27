@@ -2,8 +2,8 @@
 #define QOOL_NUMBERRANGER_H
 
 #include "qool_smartobj.h"
-#include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/macro_foreach.hpp"
+#include "qoolcommon/qbindable_property_macros.hpp"
 
 #include <QObject>
 #include <QQmlEngine>
@@ -37,19 +37,19 @@ private:
 
   void setup_tracking_numbers();
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     NumberRanger, QVariant, bottom)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     NumberRanger, QVariant, top)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     NumberRanger, int, decimals)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     NumberRanger, ValidateModes, validateMode)
 
 #define DECL_V(_N_)                                                    \
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(                         \
+  QBINDABLE_WRITABLE_PROPERTY(                         \
     NumberRanger, QVariant, input##_N_)                                \
-  QOOL_PROPERTY_READONLY_FOR_QOBJECT_BINDABLE(                         \
+  QBINDABLE_READONLY_PROPERTY(                         \
     NumberRanger, QVariant, validated##_N_)
 
   QOOL_FOREACH_10(DECL_V, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)

@@ -1,8 +1,7 @@
 #ifndef QOOL_RANDOM_HSV_COLOR_GENERATOR_H
 #define QOOL_RANDOM_HSV_COLOR_GENERATOR_H
 
-#include "qoolcommon/bindable_property_macros_for_qobject.hpp"
-#include "qoolcommon/property_macros_for_qobject.hpp"
+#include "qoolcommon/qobject_property_macros.hpp"
 #include "qoolns.hpp"
 
 #include <QColor>
@@ -12,7 +11,7 @@
 
 QOOL_NS_BEGIN
 
-class RandomHSVColorGenerator: public QObject {
+class RandomHSVColorGenerator : public QObject {
   Q_OBJECT
   QML_ELEMENT
 
@@ -32,13 +31,13 @@ protected:
   int randomVal() const;
   int randomAlf() const;
 
-#define DECL(N, MIN, MAX, PREF)                                        \
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(qreal, min##N, MIN)               \
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(qreal, max##N, MAX)               \
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(qreal, preferred##N, PREF)        \
-protected:                                                             \
-  int _min##N() const { return qRound(m_min##N * 255); }               \
-  int _max##N() const { return qRound(m_max##N * 255); }               \
+#define DECL(N, MIN, MAX, PREF)                                      \
+  QOBJECT_WRITABLE_PROPERTY(qreal, min##N, MIN)                      \
+  QOBJECT_WRITABLE_PROPERTY(qreal, max##N, MAX)                      \
+  QOBJECT_WRITABLE_PROPERTY(qreal, preferred##N, PREF)               \
+protected:                                                           \
+  int _min##N() const { return qRound(m_min##N * 255); }             \
+  int _max##N() const { return qRound(m_max##N * 255); }             \
   int _preferred##N() const { return qRound(m_preferred##N * 255); }
 
   DECL(Hue, 0, 1, -1)
@@ -48,8 +47,8 @@ protected:                                                             \
 
 #undef DECL
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(QList<QColor>, blackList, )
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(QList<QColor>, whiteList, )
+  QOBJECT_WRITABLE_PROPERTY(QList<QColor>, blackList, )
+  QOBJECT_WRITABLE_PROPERTY(QList<QColor>, whiteList, )
 };
 
 QOOL_NS_END

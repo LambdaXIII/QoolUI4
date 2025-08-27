@@ -1,7 +1,7 @@
 #ifndef QOOL_URLCHECKER_H
 #define QOOL_URLCHECKER_H
 
-#include "qoolcommon/bindable_property_macros_for_qobject.hpp"
+#include "qoolcommon/qbindable_property_macros.hpp"
 #include "qoolns.hpp"
 
 #include <QFileInfo>
@@ -37,13 +37,13 @@ protected:
   QProperty<Checker> m_pathChecker;
   bool checkType(const QFileInfo& info) const;
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     UrlChecker, QString, pattern)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     UrlChecker, PatternBehaviors, patternBehavior)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     UrlChecker, bool, acceptDirs)
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_BINDABLE(
+  QBINDABLE_WRITABLE_PROPERTY(
     UrlChecker, bool, acceptFiles)
 };
 

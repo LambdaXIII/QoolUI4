@@ -12,42 +12,10 @@ QOOL_NS_BEGIN
 
 namespace math {
 
-/*!
- * \brief 判断点的象限
- *    * 如果点位于原点，则返回0。第一象限包含坐标轴。无法判断时会返回-1
- * 。
- *    * \param xpos
- * \param ypos
- * \return
- */
-inline int quadrant(float xpos, float ypos) {
-  if (xpos == 0 && ypos == 0)
-    return 0;
-
-  if (xpos >= 0 && ypos >= 0)
-    // 第一象限
-    return 1;
-
-  if (xpos < 0 && ypos >= 0)
-    // 第二象限
-    return 2;
-
-  if (xpos < 0 && ypos < 0)
-    // 第三象限
-    return 3;
-
-  if (xpos >= 0 && ypos < 0)
-    // 第四象限
-    return 4;
-
-  return -1;
-}
-
 inline float normalize_radians(float rad) {
   static constexpr float circle_rad = M_PI * 2;
   float mod = std::fmod(rad, circle_rad);
-  if (mod < 0)
-    mod += circle_rad;
+  if (mod < 0) mod += circle_rad;
   return mod;
 }
 
@@ -56,25 +24,25 @@ inline float normalize_degrees(float degrees) {
   return std::fmod(degrees, 360.0f);
 }
 
-inline float normalize_degress_180(float degrees) {
+inline float normalize_degrees_180(float degrees) {
   // 规范化到[-180°, 180°)
   float result = normalize_degrees(degrees);
-  return result < -180.0f ? result + 360.0f :
-         result > 180.0f  ? result - 360.0f :
-                            result;
+  return result < -180.0f ? result + 360.0f
+       : result > 180.0f  ? result - 360.0f
+                          : result;
 }
 
 inline std::pair<float, float> vector_from_radians(
-  float length, float radians) {
+    float length, float radians) {
   const float xpos = length * std::cos(radians);
   const float ypos = length * std::sin(radians);
-  return { xpos, ypos };
+  return {xpos, ypos};
 }
 
-inline float vector_radians(float xpos, float ypos) {
-  const float atan = std::atan(ypos / xpos);
-  return std::atan2(ypos, xpos); // 直接计算角度，无需处理象限
-}
+// inline float vector_radians(float xpos, float ypos) {
+//   const float atan = std::atan(ypos / xpos);
+//   return std::atan2(ypos, xpos); // 直接计算角度，无需处理象限
+// }
 
 /*
  * 弧度	角度
@@ -89,40 +57,37 @@ inline float vector_radians(float xpos, float ypos) {
 */
 
 inline float radians_from_degrees(float degrees) {
-  if (is_zero(degrees))
-    return 0;
-  if (is_equal(degrees, 30.0f))
-    return M_PI / 6;
-  if (is_equal(degrees, 45.0f))
-    return M_PI / 4;
-  if (is_equal(degrees, 60.0f))
-    return M_PI / 3;
-  if (is_equal(degrees, 90.0f))
-    return M_PI / 2;
-  if (is_equal(degrees, 180.0f))
-    return M_PI;
-  if (is_equal(degrees, 270.0f))
-    return M_PI * 3 / 2;
-  if (is_equal(degrees, 360.0f))
-    return M_PI * 2;
+  if (is_zero(degrees)) return 0;
+  if (is_equal(degrees, 30.0f)) return M_PI / 6;
+  if (is_equal(degrees, 45.0f)) return M_PI / 4;
+  if (is_equal(degrees, 60.0f)) return M_PI / 3;
+  if (is_equal(degrees, 90.0f)) return M_PI / 2;
+  if (is_equal(degrees, 180.0f)) return M_PI;
+  if (is_equal(degrees, 270.0f)) return M_PI * 3 / 2;
+  if (is_equal(degrees, 360.0f)) return M_PI * 2;
 
   return degrees * (M_PI / 180.0);
 }
 
-inline float degrees_from_radians(float rad) {
-  return rad * 180.0f / M_PI;
-}
+inline float degrees_from_radians(float rad) { return rad * 180.0f / M_PI; }
 
 inline std::pair<float, float> polar_from_xy(float x, float y) {
   float angle = std::atan2(y, x);
   float radius = std::hypot(x, y);
-  return { radius, angle };
+  return {radius, angle};
 }
 
 inline std::pair<float, float> xy_from_polar(float r, float a) {
   float x = r * std::cos(a);
   float y = r * std::sin(a);
-  return { x, y };
+  return {x, y};
+}
+
+/** 求三角形斜边 **/
+inline float hypotenuse(float leg1, float leg2) {
+  const float leg1_p = std::pow(leg1, 2);
+  const float leg2_p = std::pow(leg2, 2);
+  return std::sqrt(leg1_p + leg2_p);
 }
 
 }; // namespace math

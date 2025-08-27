@@ -2,7 +2,8 @@
 #define QOOL_CHATROOM_H
 
 #include "qool_message.h"
-#include "qoolcommon/property_macros_for_qobject_declonly.hpp"
+
+#include "qoolcommon/qobject_property_macros.hpp"
 #include "qoolns.hpp"
 
 #include <QObject>
@@ -26,7 +27,7 @@ class ChatRoom
   Q_PROPERTY(
     QQmlListProperty<Beeper> beepers READ __beepers CONSTANT FINAL)
 
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(QString, name)
+  QOBJECT_WRITABLE_PROPERTY_DECLARE(QString, name)
 
 public:
   explicit ChatRoom(QObject* parent = nullptr);

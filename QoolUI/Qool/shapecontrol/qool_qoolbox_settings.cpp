@@ -8,13 +8,13 @@ QOOL_NS_BEGIN
 
 QoolBoxSettings::QoolBoxSettings(QObject* parent)
   : QObject { parent } {
-  QOOL_PROPERTY_BINDABLE_INIT_VALUE(offsetX, 0);
-  QOOL_PROPERTY_BINDABLE_INIT_VALUE(offsetY, 0);
-  QOOL_PROPERTY_BINDABLE_INIT_VALUE(intOffsetX, 0);
-  QOOL_PROPERTY_BINDABLE_INIT_VALUE(intOffsetY, 0);
-  QOOL_PROPERTY_BINDABLE_INIT_VALUE(borderWidth, 0);
-  QOOL_PROPERTY_BINDABLE_INIT_VALUE(borderColor, Qt::red);
-  QOOL_PROPERTY_BINDABLE_INIT_VALUE(fillColor, Qt::yellow);
+  QBINDABLE_SET_VALUE(offsetX, 0);
+  QBINDABLE_SET_VALUE(offsetY, 0);
+  QBINDABLE_SET_VALUE(intOffsetX, 0);
+  QBINDABLE_SET_VALUE(intOffsetY, 0);
+  QBINDABLE_SET_VALUE(borderWidth, 0);
+  QBINDABLE_SET_VALUE(borderColor, Qt::red);
+  QBINDABLE_SET_VALUE(fillColor, Qt::yellow);
 
   m_isAllCutSizesEquals.setBinding([&] {
     const auto tl = m_cutSizeTL.value();

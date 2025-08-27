@@ -3,10 +3,10 @@
 
 #include "qool_itemtracker.h"
 #include "qool_theme.h"
-#include "qoolcommon/bindable_property_macros_for_qobject.hpp"
 #include "qoolcommon/macro_foreach.hpp"
-#include "qoolcommon/property_macros_for_qobject.hpp"
-#include "qoolcommon/property_macros_for_qobject_declonly.hpp"
+#include "qoolcommon/qbindable_property_macros.hpp"
+#include "qoolcommon/qobject_property_macros.hpp"
+
 #include "qoolns.hpp"
 
 #include <QBindable>
@@ -20,7 +20,7 @@ Q_MOC_INCLUDE("qool_stylegroupagent.h")
 
 QOOL_NS_BEGIN
 class StyleGroupAgent;
-class Style: public QQuickAttachedPropertyPropagator {
+class Style : public QQuickAttachedPropertyPropagator {
   Q_OBJECT
   QML_ELEMENT
   QML_ATTACHED(QOOL_NS::Style)
@@ -40,7 +40,7 @@ public:
   };
 
   QVariant get_value(
-    int group, const QString& key, const QVariant& defValue = {}) const;
+      int group, const QString& key, const QVariant& defValue = {}) const;
   bool set_value(int group, const QString& key, const QVariant& value);
 
   Q_SIGNAL void valueChanged(int group, QString key);
@@ -51,9 +51,8 @@ public:
 protected:
   ItemTracker* m_itemTracker;
   QVariantMap m_activeData, m_inactiveData, m_disabledData;
-  QMap<QString, bool> m_activeModified, m_inactiveModified,
-    m_disabledModified;
-  bool m_animationEnabled;
+  QMap<QString, bool> m_activeModified, m_inactiveModified, m_disabledModified;
+  bool m_animationEnabled{true};
 
   QOOL_BINDABLE_MEMBER(Style, Groups, currentGroup);
   void initialize_data();
@@ -66,51 +65,50 @@ protected:
   QList<QQuickAttachedPropertyPropagator*> find_children() const;
 
   void attachedParentChange(QQuickAttachedPropertyPropagator* newParent,
-    QQuickAttachedPropertyPropagator* oldParent) override;
+      QQuickAttachedPropertyPropagator* oldParent) override;
 
   bool eventFilter(QObject* object, QEvent* event) override;
 
-  Style* m_follow { nullptr };
+  Style* m_follow{nullptr};
   Q_SLOT void follow_value(int group, QString key);
 
   /****** PROPERTIES ******/
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT(QString, theme, )
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(bool, animationEnabled)
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, active, )
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, inactive, )
-  QOOL_PROPERTY_CONSTANT_FOR_QOBJECT(StyleGroupAgent*, disabled, )
-  QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(Style*, follow)
+  QOBJECT_WRITABLE_PROPERTY(QString, theme, )
+  QOBJECT_WRITABLE_PROPERTY_DECLARE(bool, animationEnabled)
+  QOBJECT_CONSTANT_PROPERTY(StyleGroupAgent*, active, )
+  QOBJECT_CONSTANT_PROPERTY(StyleGroupAgent*, inactive, )
+  QOBJECT_CONSTANT_PROPERTY(StyleGroupAgent*, disabled, )
+  QOBJECT_WRITABLE_PROPERTY_DECLARE(Style*, follow)
 
-#define DECL(T, N) QOOL_PROPERTY_WRITABLE_FOR_QOBJECT_DECL(T, N)
+#define DECL(T, N) QOBJECT_WRITABLE_PROPERTY_DECLARE(T, N)
 
 #define __HANDLE__(N) DECL(QColor, N)
-  QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, red, maroon,
-    yellow, olive, lime, green)
-  QOOL_FOREACH_10(__HANDLE__, aqua, cyan, teal, blue, navy, fuchsia,
-    purple, orange, brown, pink)
+  QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, red, maroon, yellow,
+      olive, lime, green)
+  QOOL_FOREACH_10(__HANDLE__, aqua, cyan, teal, blue, navy, fuchsia, purple,
+      orange, brown, pink)
   QOOL_FOREACH_3(__HANDLE__, positive, negative, warning)
   QOOL_FOREACH_3(
-    __HANDLE__, controlBackgroundColor, controlBorderColor, infoColor)
-  QOOL_FOREACH_10(__HANDLE__, accent, light, midlight, dark, mid,
-    shadow, highlight, highlightedText, link, linkVisited)
-  QOOL_FOREACH_10(__HANDLE__, text, base, alternateBase, window,
-    windowText, button, buttonText, placeholderText, toolTipBase,
-    toolTipText)
+      __HANDLE__, controlBackgroundColor, controlBorderColor, infoColor)
+  QOOL_FOREACH_10(__HANDLE__, accent, light, midlight, dark, mid, shadow,
+      highlight, highlightedText, link, linkVisited)
+  QOOL_FOREACH_10(__HANDLE__, text, base, alternateBase, window, windowText,
+      button, buttonText, placeholderText, toolTipBase, toolTipText)
 #undef __HANDLE__
 
 #define __HANDLE__(N) DECL(int, N)
   QOOL_FOREACH_8(__HANDLE__, textSize, titleTextSize, toolTipTextSize,
-    importantTextSize, decorativeTextSize, controlTitleTextSize,
-    controlTextSize, windowTitleTextSize)
+      importantTextSize, decorativeTextSize, controlTitleTextSize,
+      controlTextSize, windowTitleTextSize)
 #undef __HANDLE__
 
 #define __HANDLE__(N) DECL(qreal, N)
   QOOL_FOREACH_3(
-    __HANDLE__, instantDuration, transitionDuration, movementDuration)
+      __HANDLE__, instantDuration, transitionDuration, movementDuration)
   QOOL_FOREACH_5(__HANDLE__, menuCutSize, buttonCutSize, controlCutSize,
-    windowCutSize, dialogCutSize)
-  QOOL_FOREACH_3(__HANDLE__, controlBorderWidth, windowBorderWidth,
-    dialogBorderWidth)
+      windowCutSize, dialogCutSize)
+  QOOL_FOREACH_3(
+      __HANDLE__, controlBorderWidth, windowBorderWidth, dialogBorderWidth)
   QOOL_FOREACH_2(__HANDLE__, windowElementSpacing, windowEdgeSpacing)
 #undef __HANDLE__
 
