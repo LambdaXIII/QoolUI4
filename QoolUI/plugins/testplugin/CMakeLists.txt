@@ -1,7 +1,7 @@
 find_package(Qt6 REQUIRED COMPONENTS Xml)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
-qt_add_plugin(qool_test_plugin SHARED CLASS_NAME "${QOOL_NS}::TestPlugin")
+qt_add_plugin(qool_test_plugin SHARED CLASS_NAME "TestPlugin")
 
 target_link_libraries(qool_test_plugin PRIVATE QoolIncludes Qt6::Core)
 target_sources(qool_test_plugin PRIVATE qool_testplugin.h qool_testplugin.cpp

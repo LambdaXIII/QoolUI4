@@ -14,7 +14,6 @@ set_source_files_properties(
 )
 
 find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_add_qml_module(Qool
   URI Qool
