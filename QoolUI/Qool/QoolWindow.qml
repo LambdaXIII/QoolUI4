@@ -73,7 +73,7 @@ QoolWindowBasic {
         objectName: "dummyToolBar"
         x: root.backgroundSettings.cutSizeTL + root.elementSpacing
         y: root.edgeSpacing + root.backgroundSettings.borderWidth
-        width: root.width - dummyToolBar.x - root.elementSpacing - dummyTitleItem.x
+        width: root.width - dummyToolBar.x - root.elementSpacing - dummyTitleItem.width
         height: {
             const prefered_height = dummyTitleItem.height;
             const preffered_min_height = root.backgroundSettings.cutSizeTL
