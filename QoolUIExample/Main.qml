@@ -19,9 +19,9 @@ QoolWindow {
 
     toolBar: MainWindowToolBar {}
 
-    QoolWindowHud {
-        window: root
-    }
+    // QoolWindowHud {
+    //     window: root
+    // }
 
     header: Row {
         ToolButton {

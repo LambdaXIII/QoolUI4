@@ -7,7 +7,6 @@ import Qool.Controls.Components
 import "components"
 
 BasicPage {
-
     id: root
 
     title: qsTr("酷酷的按钮")
@@ -173,7 +172,7 @@ BasicPage {
             implicitWidth: 400
             implicitHeight: 250
             QoolTip {
-                //% "介绍 BasicButton 货 papa words"
+                //% "介绍 BasicButton 和 papa words"
                 text: qsTrId("qooltip-basicbutton-example")
             }
         }
