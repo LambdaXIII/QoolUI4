@@ -76,7 +76,7 @@ Item {
         value: root.fillItem
     }
     Binding {
-        when: loader.status === Loader.Ready && loader.item?.control
+        when: loader.status === Loader.Ready && loader.item && loader.item.control
         target: pCtrl
         property: "control"
         value: loader.item.control

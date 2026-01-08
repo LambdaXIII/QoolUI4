@@ -18,7 +18,7 @@ Flow {
             if (checked && Qt.uiLanguage !== "zh")
                 Qt.uiLanguage = "zh";
         }
-        text: qsTr("中文")
+        text: "中文"
         ButtonGroup.group: languageGroup
     }
 
@@ -30,7 +30,7 @@ Flow {
             if (checked && Qt.uiLanguage !== "en")
                 Qt.uiLanguage = "en";
         }
-        text: qsTr("英文")
+        text: "English"
         ButtonGroup.group: languageGroup
     }
 
