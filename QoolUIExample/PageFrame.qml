@@ -60,8 +60,8 @@ BasicControl {
             width: main.contentWidth
             source: root.page_url
             onLoaded: {
-                pCtrl.title = item.title;
-                pCtrl.note = item.note;
+                // pCtrl.title = item.title;
+                // pCtrl.note = item.note;
                 item.viewBox = main;
                 root.pageLoaded();
                 main.contentY = 0;
@@ -107,5 +107,12 @@ BasicControl {
         function onPage_urlChanged() {
             loadingBar.visible = true;
         }
+    }
+
+    Binding {
+        when: (!loadingBar.visible) && (pageLoader.item)
+        restoreMode: Binding.RestoreValue
+        pCtrl.title: pageLoader.item.title
+        pCtrl.note: pageLoader.item.note
     }
 }
