@@ -47,7 +47,7 @@ void Beeper::postMessage(const QString& channels, Message message) {
 }
 
 void Beeper::customEvent(QEvent* event) {
-  if (event->type() == MessageEvent::EVENT_TYPE) {
+  if (event->type() == MessageEvent::EVENT_TYPE && m_enabled) {
     auto e = static_cast<MessageEvent*>(event);
     emit messageRecieved(e->message());
     event->setAccepted(true);

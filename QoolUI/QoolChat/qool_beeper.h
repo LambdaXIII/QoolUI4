@@ -52,6 +52,7 @@ protected:
 
   QOBJECT_WRITABLE_PROPERTY(QByteArray, name, {})
   QOBJECT_WRITABLE_PROPERTY_DECLARE(ChatRoom*, chatRoom)
+  QOBJECT_WRITABLE_PROPERTY(bool, enabled, true)
 };
 
 QOOL_NS_END

@@ -75,6 +75,7 @@ BasicControl {
         parent: main
         maximumWidth: parent.width / 2
         maximumHeight: parent.height
+        enabled: pageLoader.item
     }
 
     Popup {
