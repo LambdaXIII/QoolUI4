@@ -29,10 +29,10 @@ qt_add_qml_module(appQoolUIExample
   # IMPORTS Qool
   QML_FILES Main.qml
   QML_FILES pages/Page_QoolBox.qml
-  QML_FILES pages/PaletteSheet.qml
+  QML_FILES
   QML_FILES pages/components/QoolBoxShapeControlPanel.qml
 
-  RESOURCES toc.xml
+  RESOURCES
   QML_FILES PageListModel.qml
   QML_FILES PageListView.qml
   QML_FILES pages/Page_Playground.qml
