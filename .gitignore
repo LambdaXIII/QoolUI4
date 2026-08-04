@@ -81,9 +81,69 @@ CMakeLists.txt.user*
 .uic/
 /build*/
 
+# IDE
 .idea/
 .vscode/
+.qtcreator/
 **/.qmlls.ini
+.vs/
+
+# CMake 个人覆盖与生成物
+CMakeUserPresets.json
+/compile_commands.json
+
+# Windows 系统文件
+Desktop.ini
+
+# QML 编译缓存
+*.qmlc
+*.jsc
+
+# Agent 工具项目级目录（跨工具 skills/规则/记忆）
+.agents/
+.agent/
+.aider/
+.aider-desk/
+.aiassistant/
+.amazonq/
+.amp/
+.antigravity/
+.augment/
+.autohand/
+.bob/
+.claude/
+.claude-plugin/
+.cline/
+.codeartsdoer/
+.codebuddy/
+.codex/
+.commandcode/
+.continue/
+.cortex/
+.crush/
+.cursor/
+.devin/
+.factory/
+.forge/
+.gemini/
+.goose/
+.junie/
+.neovate/
+.opencode/
+.pochi/
+.roo/
+.tabnine/
+.trae/
+.windsurf/
+.zencoder/
+.zed/
+
+# Agent skills 包管理器生成文件
+.skills.json
+skills-lock.json
+
+# AI 代码索引
+.codegraph/
 
 **/_backup/
 **/.cache/

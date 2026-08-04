@@ -9,21 +9,16 @@ set(QOOLUI_VERSION_FULL
 )
 set(QOOLUI_VERSION_QML ${QOOLUI_VERSION_MAJOR}.${QOOLUI_VERSION_MINOR})
 
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(QT_FORCE_CMP0156_TO_VALUE NEW)
-
-
 
 if(NOT DEFINED QOOLUI_QML_PROJECT_SETUP_LOADED)
   include(qool_qml_project_setup.cmake)
 endif()
 
 load_qoolui_standard_options()
-
-
 
 set(CMAKE_INSTALL_PREFIX
     "${CMAKE_BINARY_DIR}/install"
@@ -33,21 +28,21 @@ set(CMAKE_INSTALL_PREFIX
 set(QOOL_NS "qoolui")
 set(QOOL_PLUGIN_DIR "qoolplugins")
 
-
-
-
 project(QoolUIBundle
         VERSION ${QOOLUI_VERSION_FULL}
         LANGUAGES CXX
 )
 
 add_library(
-  GENERAL_HELP INTERFACE EXCLUDE_FROM_ALL
+  QOOL_GENERAL
+  INTERFACE
+  EXCLUDE_FROM_ALL
   .clang-format
   README.md
   qool_qml_project_setup.cmake
   .gitignore
   .cmake-format.py
+  AGENTS.md
 )
 
 add_subdirectory(QoolUI)
