@@ -112,7 +112,13 @@ inline N cycle_in_range(N min, N value, N max) {
 }
 
 template<typename N> inline N average(std::initializer_list<N> numbers) {
-  return std::accumulate(numbers.begin(), numbers.end(), 0) / numbers.size();
+  // 空列表显式返回 N(0)：0/0 在整型下为未定义行为、浮点下为 NaN，
+  // "空集均值 = 0"是调用方依赖的自洽约定。
+  if (numbers.size() == 0)
+    return N(0);
+  // 累加器初始值必须是 N：字面量 0 是 int，浮点列表会因整数除法截断结果。
+  return std::accumulate(numbers.begin(), numbers.end(), N(0))
+    / numbers.size();
 }
 
 } // namespace math

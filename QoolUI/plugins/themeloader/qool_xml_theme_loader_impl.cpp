@@ -12,6 +12,40 @@
 
 QOOL_NS_BEGIN
 
+/*!
+    \class XMLThemeLoaderImpl
+    \brief XML 主题文件的解析实现：把分层主题段求解为五组 QVariantMap。
+
+    \c XMLThemeLoader（门面）的 pimpl 实现体。\c load() 解析 XML 后填充
+    \c metadata、\c constants、\c active、\c inactive、\c disabled、
+    \c custom 六组映射，供门面只读暴露。
+
+    \section1 分层结构（刻意设计）
+    按 \c constants → \c active/inactive/disabled/custom 的顺序分层解析：
+    \c constants 段最先加载，作为全局引用基准；其余四段以
+    \c constants 叠加 \c active 的结果（refValues）为引用基准求解。
+    \c custom 段独立保存，不再并入 \c active——历史实现误写入
+    \c active，导致 custom 映射恒为空。
+
+    \section1 copy 前向引用求解（刻意设计）
+    \c copy 属性可引用同组内后声明的属性（前向引用）。\c has_ref 与
+    \c get_ref 必须查询同一集合：只从已求解的 \c result 与 \c refValues
+    取值，若 \c has_ref 额外命中未求解的 copy 属性，前向引用会取到空值
+    （如 \c decorativeTextSize copy toolTipTextSize 得 0.0）。copy 链经
+    多轮循环求解（上限为属性数的两倍），声明在前的属性先入 \c result，
+    后续轮次自然命中。
+
+    \section1 name 兜底（刻意设计）
+    \c load() 在开头与 \c load_metadata 整体覆盖后各补一次文件名基名：
+    XML 根元素无 \c name 属性时，\c metadata 的 \c name 恒为
+    \c QFileInfo(filename).baseName()，主题名始终可用。
+
+    值类型处理：\c color（\c darker/\c lighter）、\c number（\c add/
+    \c multiply）、\c string（\c prepend/\c append）、\c bool（真值集为
+    \c yes/\c true/\c ok，\c "no" 不在真值集）、\c list 与 \c stringlist
+    按元素求解。
+*/
+
 void XMLThemeLoaderImpl::load(const QString& filename) {
   this->filename = filename;
   this->metadata.insert("name", QFileInfo(this->filename).baseName());
@@ -36,6 +70,10 @@ void XMLThemeLoaderImpl::load(const QString& filename) {
 
   const auto root = doc->documentElement();
   this->metadata = load_metadata(root);
+  // 文件名兜底：load_metadata 整体覆盖 metadata，XML 根元素无 name
+  // 属性时兜底丢失（name 恒为空）——补回
+  if (! this->metadata.contains("name"))
+    this->metadata.insert("name", QFileInfo(this->filename).baseName());
 
   const auto nodes = root.childNodes();
   for (const auto& node : nodes) {
@@ -67,7 +105,9 @@ void XMLThemeLoaderImpl::load(const QString& filename) {
     }
     if (element.tagName() == "custom") {
       const auto loaded_values = load_value_group(element, refValues);
-      this->active.insert(loaded_values);
+      // 原实现误写入 active：<custom> 段被永久并进 active 状态，
+      // 而 custom 映射恒为空（custom 段是为独立定制保留的）
+      this->custom.insert(loaded_values);
       continue;
     }
 
@@ -197,9 +237,13 @@ QVariantMap XMLThemeLoaderImpl::solve_values(
       result.insert(p.name, process_value(p));
   }
 
+  // has_ref 与 get_ref 必须查同一集合：get_ref 只能从 result/refValues
+  // 取值，has_ref 若额外命中 lazyProperties（尚未求解的 copy 属性），
+  // 前向引用（B copy A，A 也是 copy）会取到空值（如 midnight.xml
+  // decorativeTextSize copy toolTipTextSize 得 0.0）。copy 链由多轮
+  // 循环求解：声明在前的属性先入 result，后续轮次自然命中。
   const auto has_ref = [&](const QString& name) {
-    return result.contains(name) || lazyProperties.contains(name)
-           || refValues.contains(name);
+    return result.contains(name) || refValues.contains(name);
   };
   const auto get_ref = [&](const QString& name) -> QVariant {
     if (result.contains(name))
@@ -294,7 +338,8 @@ QVariant XMLThemeLoaderImpl::process_value(
     return QVariant::fromValue(text);
   }
 
-  static const QSet<QString> yes_tags { "yes", "no", "true", "ok" };
+  // "no" 不在真值集：原实现含 "no"，字符串 "no" 会被判定为 true
+  static const QSet<QString> yes_tags { "yes", "true", "ok" };
   if (property.type == "bool") {
     QString t = value.toString().toLower();
     bool result = yes_tags.contains(t);

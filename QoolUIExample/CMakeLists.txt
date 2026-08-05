@@ -28,7 +28,11 @@ qt_add_qml_module(appQoolUIExample
 
   IMPORTS Qool
   IMPORTS Qool.Chat
-  DEPENDENCIES TARGET Qool TARGET QoolChat
+  IMPORTS Qool.Controls
+  IMPORTS Qool.Controls.Components
+  IMPORTS Qool.Debug
+  IMPORTS Qool.File
+  DEPENDENCIES TARGET Qool TARGET QoolChat TARGET QoolControls TARGET QoolControlsComponents TARGET QoolDebug TARGET QoolFile
   QML_FILES Main.qml
   QML_FILES pages/Page_QoolBox.qml
   QML_FILES
@@ -52,7 +56,7 @@ qt_add_qml_module(appQoolUIExample
 )
 
 qoolui_scan_assets_to(appQoolUIExample)
-qt_add_resources(Qool "qoolexample_assets" PREFIX "/qoolexample" FILES
+qt_add_resources(appQoolUIExample "qoolexample_assets" PREFIX "/qoolexample" FILES
   ${QOOL_ASSETS}
 )
 

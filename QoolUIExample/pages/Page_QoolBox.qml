@@ -1,3 +1,10 @@
+// QoolBox 形状（八边形）交互演示页：左侧画布实时渲染 QoolBox，
+// 尺寸/角部裁剪/边框/填充/偏移/圆角全部随右侧控制面板联动，
+// OctagonShapeHud 叠加显示外/内部控制点。
+//
+// 刻意设计（修复说明）：面板的 "Dump信息至控制台" 经 wannaDumpInfo
+// 信号直达 box_shape.control.dumpInfo()——QoolBox 直接暴露 control
+// 属性（QoolBoxShapeControl），无需中间转发层。
 import QtQuick
 import QtQuick.Controls
 import Qool
@@ -54,7 +61,7 @@ BasicPage {
             id: control
             SplitView.fillHeight: true
             SplitView.preferredWidth: implicitWidth
-            onWannaDumpInfo: shape.shapeControl.dumpInfo()
+            onWannaDumpInfo: box_shape.control.dumpInfo()
         }
     } //cc
 }

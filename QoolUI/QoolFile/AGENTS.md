@@ -19,7 +19,7 @@ FileInfoListModel ──配套──▶ FileInfoListView ──配套──▶ F
 
 | 层 | 文件 | 替换接口 |
 |---|---|---|
-| Model | `FileInfoListModel`（C++：QAbstractListModel，QRecursiveMutex 线程安全，13 个 Role） | 用户可自行实现 View 配 Model；Model 亦可用其他 QAbstractListModel |
+| Model | `FileInfoListModel`（C++：QAbstractListModel，单线程契约，13 个 Role） | 用户可自行实现 View 配 Model；Model 亦可用其他 QAbstractListModel |
 | View | `FileInfoListView.qml` | `delegate`（默认 `FileInfoDelegate`）；`fileInfoDisplay` 属性透传给 delegate |
 | Delegate | `FileInfoDelegate.qml` | `fileInfoDisplay`（默认 `BasicFileInfoDisplay`）；行为层（多选/拖放排序/插入）在 Delegate 内，换 Display 不丢行为 |
 | Display | `BasicFileInfoDisplay.qml` | 契约：`checked: bool` + `fileInfo: fileinfo` 属性；内部全部取 `root.Style.*` |
@@ -34,7 +34,7 @@ FileInfoListModel ──配套──▶ FileInfoListView ──配套──▶ F
 
 ## C++ 设施
 
-- `FileInfoListModel`：线程安全列表模型；insert/append/remove/take/move/sort/removeDuplicates 全套操作；`fileInfos` 可写属性；move 支持多行
+- `FileInfoListModel`：单线程列表模型（遵循 Qt 模型线程规范，跨线程访问经 Queued 转发）；insert/append/remove/take/move/sort/removeDuplicates 全套操作；`fileInfos` 可写属性；move 支持多行
 - `FileInfoDB`：QML 单例，QCache 缓存文件信息（QUrl→QVariantMap）；`getFileInfo(url/path)`；经 `FileInfoProvider` 插件接口扩展提供者（autoInstallProviders）
 - `FileIconDB` + 图标 ImageProvider：文件图标体系，可经 fileiconprovider 插件扩展
 - `UrlChecker`：URL 校验

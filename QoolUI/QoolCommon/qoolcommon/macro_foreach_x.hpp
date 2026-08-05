@@ -1,6 +1,12 @@
 #ifndef MACRO_FOREACH_X_HPP
 #define MACRO_FOREACH_X_HPP
 
+// ⚠️ 本文件已弃用（deprecated）：QOOL_MACRO_FOREACH 变参展开体系
+// 不可用（展开行为不稳定）、未完成（仅到 63 参数）、且过度复杂
+// （63 级递归展开难调试难维护）。批量属性生成请使用
+// `macro_foreach.hpp` 的 QOOL_FOREACH_N 体系（N 上限版本，行为确定）。
+// 保留本文件仅因历史引用（勿新增使用者，勿修复其缺陷）。
+
 // 计算参数数量（最多支持64个参数）
 
 #define _QL_COUNT_ARGS_IMPL(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10,   \

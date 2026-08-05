@@ -1,3 +1,13 @@
+// 页面宿主框架：按 page_url 经 Loader 异步装载示例页，提供标题/说明
+// 标签、加载进度条与滚动视口，并承载页内 QoolTipPanel 提示层。
+//
+// 刻意设计：
+// - tipPanel 是 Flickable 的直接子项（视口坐标），滚动内容时不跟随
+//   移动——提示固定在视口右下角，滚动后仍可见；若需提示跟随内容，
+//   应把 parent 改为 pageLoader.item 并补偿 contentY 偏移（勿改回
+//   内容坐标，滚动后提示会滚出视口）。
+// - Loader 加载失败时恢复 loadingBar（否则进度条永久停留）并把标题
+//   置为 "页面加载失败"、附注置为 source，避免页面空白无反馈。
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -66,13 +76,26 @@ BasicControl {
                 root.pageLoaded();
                 main.contentY = 0;
             }
-            onStatusChanged: tipPanel.hide()
+            onStatusChanged: {
+                tipPanel.hide();
+                // 加载失败：恢复 loadingBar（否则进度条永久停留）并
+                // 给出可读错误信息，避免页面空白无反馈
+                if (pageLoader.status === Loader.Error) {
+                    loadingBar.visible = false;
+                    pCtrl.title = qsTr("页面加载失败");
+                    pCtrl.note = pageLoader.source;
+                }
+            }
         }
     } //contentItem
 
     QoolTipPanel {
         id: tipPanel
         parent: main
+        // 刻意设计：tipPanel 是 Flickable 的直接子项（视口坐标），
+        // 滚动内容时不跟随移动——提示固定在视口右下角，滚动后仍可见。
+        // 若需提示跟随内容，应把 parent 改为 pageLoader.item 并补偿
+        // contentY 偏移（不要改回内容坐标——滚动后提示会滚出视口）。
         maximumWidth: parent.width / 2
         maximumHeight: parent.height
         enabled: pageLoader.item

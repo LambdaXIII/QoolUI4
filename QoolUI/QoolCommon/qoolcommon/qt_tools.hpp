@@ -13,6 +13,8 @@ namespace tools {
 
 template <typename T>
 inline T* find_parent(QObject* x) {
+  // 刻意包含自身：从 x 本身开始向上搜索（ItemTracker 等场景需要
+  // "target 就是所需类型"的命中）。若要跳过自身，先 x = x->parent()。
   while (x != nullptr) {
     T* res = qobject_cast<T*>(x);
     if (res != nullptr)
@@ -31,8 +33,11 @@ inline QList<qsizetype> find_all_indexes(
   qsizetype last_pos = 0;
   while (last_pos >= 0) {
     last_pos = list.indexOf(element, last_pos);
-    if (last_pos >= 0)
+    if (last_pos >= 0) {
       indexes << last_pos;
+      // indexOf 的 from 参数包含自身：不 +1 会在同一位置反复命中（死循环）
+      ++last_pos;
+    }
   }
   return indexes;
 }

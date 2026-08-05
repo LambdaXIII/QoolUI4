@@ -188,6 +188,9 @@ QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, ...)
 ### QML 逻辑对象基类
 QML 列表/逻辑容器继承 `SmartObject`（`Qool/utils/qool_smartobj.h`：QQmlParserStatus + DefaultProperty(smartItems)）。需要列表属性时：`Q_CLASSINFO("DefaultProperty", ...)` + `QML_LIST_PROPERTY_ASSIGN_BEHAVIOR_REPLACE_IF_NOT_DEFAULT` + `QQmlListProperty` + `__` 静态回调。
 
+### 模型线程规范
+QAbstractItemModel 子类**遵循 Qt 官方线程规范：不加锁**（QAbstractItemModel 非线程安全，官方约定跨线程访问一律经 Queued 信号/连接转发，由接收线程独占访问）。模型内出现锁是审查红旗——要么无跨线程调用方（锁是死代码，应删除），要么调用方违反线程契约（应改为转发）。单线程契约写入模型类注释（实例：FileInfoListModel 曾用 QRecursiveMutex 全包裹，无任何跨线程调用方，已删除并注明契约）。
+
 ### 调试输出
 统一用 `QoolCommon/qoolcommon/debug.hpp` 宏（带类名 token 与颜色），**禁止裸 qDebug()**：
 - `xDebugQ` / `xInfoQ` / `xWarningQ` / `xCriticalQ` / `xFatalQ`（带 `[类名]` token）
@@ -213,6 +216,8 @@ QML 列表/逻辑容器继承 `SmartObject`（`Qool/utils/qool_smartobj.h`：QQm
 - 交互反馈: `ControlPressedCover` / `ControlHighlightCover` / `ControlLockedCover` 三件套
 - delegate 用 `required property` 接收 model/index；对外状态用 `readonly property` 代理内部 pCtrl
 - 文案一律 `qsTr()`；页面派生 `BasicPage`（required title/note），`SectionBar` 分段，`QoolTip` 内嵌
+- **公开组件默认状态必须自洽**：组件的初始化定义即默认行为，独立使用（无宿主上下文、不设额外属性）时默认状态必须成立——"独立使用场景成立"是设计义务，不是可选项。审查/修复时优先检查默认值、默认结构、默认外观是否自洽（实例：IndexIndicator 的 rows/columns 自引用环、ComboBox editable 场景的 textField 引用）
+- **Debug 工具边界暴露原则**：Qool.Debug 是宿主调试工具集，边界条件（除零、最小尺寸、越界参数）**有意暴露使用问题**——可见的异常行为是功能（误配置时立即发现），静默错误/崩溃才算缺陷。审查 Debug 模块时，边界暴露不按 bug 处理，只有掩盖问题（如静默吞掉）才需要修
 - 块尾注释标记闭合: `}//contentItem`
 
 ### QML 模块注册 (CMake)
@@ -240,6 +245,7 @@ qt_add_qml_module(ModuleName
 - **QoolCommon（仅头文件库）的文档归属自身**：`\namespace`/`\fn` 等 C++ API 文档写 QoolCommon 内的独立 `.qdoc`（如 `qoolcommon/math/utils.qdoc` 承载 math 命名空间），用 `\inmodule QoolCommon` 而非 `\inqmlmodule Qool`——QoolCommon 会被第三方独立消费，文档不得挂靠 Qool 模块
 - 一律不设 `doc/` 目录
 - 刻意设计（非 bug 行为、设计意图）必须用 QDoc 说明，防止后续审查误判（先例：fillItem 替代 CutCornerImage、关闭按钮配件哲学、control 回退值机制）
+- **修复 bug 时必须评估专项注释**：每处修复补"为什么这样改"的代码注释（含被修复缺陷的机制一句话），并评估被误解的 API 是否需补文档说明——修复与专项注释不可分离（先例：锁的取舍——Beeper 加锁/MessageLogger、FileInfoListModel 不加锁均注明原因；注册时机、move 差一、枚举引用修复均带机制注释）
 
 ## 变更记录
 

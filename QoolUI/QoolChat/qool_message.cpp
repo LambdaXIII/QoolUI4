@@ -7,15 +7,58 @@
 #include <QDateTime>
 #include <QUuid>
 
+#include <atomic>
+
 QOOL_NS_BEGIN
 
+/*!
+    \qmlvaluetype qoolmessage
+    \inqmlmodule Qool.Chat
+    \nativetype qoolui::Message
+    \brief 消息值类型：正文 + 附件 + 频道 + 身份（时间戳/ID）。
+
+    Message（QML 侧为 \c qoolmessage）承载一条聊天消息：正文
+    \c content、附件表 \c attachments（键值对）、目标频道
+    \c channels、发送者 \c senderID，以及由系统生成的 \c created /
+    \c messageID 身份字段。可在 QML 中以对象字面量构造
+    （QML_CONSTRUCTIBLE_VALUE）。
+
+    \section1 拷贝生成新身份（刻意设计）
+
+    拷贝构造生成全新的 \c created 与 \c messageID——拷贝得到的
+    Message 是"内容相同但身份不同"的新消息（身份 = 发送时间 +
+    消息 ID）。\c operator== 比较 messageID，故拷贝不相等；需要
+    共享身份的浅拷贝场景（如转发/再发送）同样走该路径，语义即
+    "内容相同、身份不同"。勿当 bug 修。
+
+    \section1 contains 契约（AND + 空集通配）
+
+    \c contains(key) 按 AND 语义全包含判断：key 为逗号分隔清单时
+    要求每项均在附件中；空串/空集 = 通配（恒 true）。用于频道/
+    附件过滤场景，勿按"子串包含"理解。
+
+    \section1 链式 API
+
+    \c attach / \c addChannel / \c removeChannel 等返回自身引用，
+    支持链式调用。与 \l Beeper 的定向 \c postMessage(channels, msg)
+    重载配合，实现"发往指定频道"的便捷发送。
+
+    \note MessageData 是内部实现门面（QSharedData 数据体），不参与
+    公开 API。
+*/
 #define LOCK_DATA QMutexLocker locker(&m_mutex);
 
 QByteArray __generate_id__(const QDateTime& time) {
   static const QString t { QStringLiteral("MESSAGE_%1_%2") };
   const QString timecode =
     time.toString(QStringLiteral("yyyyMMddhhmmsszzz"));
-  const unsigned seed = time.toMSecsSinceEpoch();
+  // 同毫秒多条消息：seed 若直接取时间戳则完全相同，而随机串是
+  // 确定性的——messageID 必然碰撞。混合进程内单调计数器：同毫秒内
+  // seed 随序号递增，跨毫秒由时间戳区分，保证 id 唯一。
+  static std::atomic<quint64> counter { 0 };
+  const quint64 seq = counter.fetch_add(1, std::memory_order_relaxed);
+  const unsigned seed = static_cast<unsigned>(
+    time.toMSecsSinceEpoch() + seq * 2654435761ull);
   const QString random =
     QString::fromStdString(tools::generate_random_string(10, seed));
   return t.arg(timecode, random).toUtf8();
@@ -35,6 +78,11 @@ MessageData::MessageData(const MessageData& other)
   , attachments { other.attachments }
   , channels { other.channels }
   , senderID { other.senderID } {
+  // 刻意设计（勿当 bug 修）：拷贝构造生成全新的 created/messageID——
+  // 拷贝得到的 Message 是"内容相同但身份不同"的新消息（身份 = 发送
+  // 时间 + 消息 ID）。operator== 比较 messageID，故拷贝不相等；
+  // 需要浅拷贝共享身份时请用隐式共享（QSharedDataPointer 拷贝构造
+  // 走本路径——语义即"转发/再发送"）。
 }
 
 bool MessageData::operator==(const MessageData& other) const {
@@ -112,6 +160,9 @@ void Message::set_channels(const MsgChannelSet& x) {
 }
 
 bool Message::contains(const QString& key) const {
+  // 契约（刻意设计）：key 为逗号分隔清单时按 AND 语义全包含判断
+  // （"a,b" 要求 a 与 b 均在附件中）；空串/空集 = 通配（恒 true）。
+  // 用于频道/附件过滤场景，勿按"子串包含"理解。
   return m_data->attachments.contains(key);
 }
 

@@ -36,6 +36,17 @@ public:
     : m_lock { new QReadWriteLock }
     , m_defaults { other.m_defaults }
     , m_currents { other.m_currents } {};
+  DefaultVariantMap& operator=(const DefaultVariantMap& other) {
+    // Rule of Three：类拥有裸指针成员 m_lock，必须显式拷贝赋值——
+    // 隐式赋值会浅拷贝锁指针，导致两实例互锁与析构 double delete。
+    if (this == &other)
+      return *this;
+    QWriteLocker locker(m_lock);
+    QReadLocker other_locker(other.m_lock);
+    m_defaults = other.m_defaults;
+    m_currents = other.m_currents;
+    return *this;
+  }
   virtual ~DefaultVariantMap() {
     if (m_lock)
       delete m_lock;
@@ -168,8 +179,17 @@ public:
   }
 
   QVariantMap::size_type size() const {
+    // contains 是并集语义（defaults 或 currents 任一存在即命中），
+    // size 必须统计并集键数：qMax 会少计"仅存在于另一侧"的键。
+    // 注意不能复用 keys()（其内部再取读锁，QReadWriteLock 不可重入会死锁）。
     QReadLocker locker(m_lock);
-    return qMax(m_currents.size(), m_defaults.size());
+    QSet<QString> all_keys;
+    all_keys.reserve(m_defaults.size() + m_currents.size());
+    for (const auto& k : m_defaults.keys())
+      all_keys << k;
+    for (const auto& k : m_currents.keys())
+      all_keys << k;
+    return all_keys.size();
   }
 
   QStringList keys() const {
