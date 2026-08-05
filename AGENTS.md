@@ -197,8 +197,23 @@ QAbstractItemModel 子类**遵循 Qt 官方线程规范：不加锁**（QAbstrac
 - 颜色 token `xDBGYellow` 等；容器输出 `xDBGVariant` / `xDBGList` / `xDBGMap` / `xDBGQPropertyList`
 
 ### 信号命名
-- 属性变更: `xxxChanged`（宏生成）
-- 动作/请求: 语义短语 `wannaXxx`（如 `wannaSignIn`、`wannaDumpInfo`）
+信号是**瞬时状态变化的宣告**（过去式语义 `somethingHappened`——事件已发生），
+不是"更新动作"的命名：
+- **属性变更**：`xxxChanged`（宏生成——属性宏体系固定
+  `Q_SIGNAL void _N_##Changed()` + setter 相等守卫）。**Changed 语义 =
+  值实际变化才发出**（宏守卫保证，NOTIFY 语义）
+- **更新动作事件**：`xxxUpdated`——**更新/重新设定动作完成即发出，不保证
+  值变化**（无相等守卫，手写信号）。与 Changed 互补：Changed 守卫"值变"、
+  Updated 宣告"动作发生"。典型用例：currentRowUpdated（currentIndex 被
+  重新设定但行可能未变，值相同也须通知）。**判断原则：值变才发 → Changed；
+  动作即发（值可能不变）→ Updated**
+- **瞬时事件**（非属性信号）：过去式短语，如 `beeperSignedIn`、`messageRecieved`
+- **动作/请求**：`wannaXxx`（如 `wannaSignIn`、`wannaMove`）——意图/请求信号，
+  与执行槽成对构成实时接口：`wannaChangeX`（请求）→ `changeX`（执行槽）→
+  `xChanged`（结果通知）
+- **变化汇聚**：多个变更信号汇聚到一个槽 → `when_` 前缀（仓库书写惯例，
+  snake_case）：`[xChanged, yChanged]` → `when_positionChanged`（实例：
+  `when_themeChanged`、`when_parentValueChanged`）
 - 注意 `messageRecieved` 的拼写是**既有 API，勿修正**（多处一致）
 
 ### QML 组件规范
