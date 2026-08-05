@@ -74,13 +74,33 @@ U remap(T input, T in_min, T in_max, U out_min, U out_max) {
   return static_cast<U>(scaled + static_cast<double>(out_min));
 }
 
+/**
+ * 将 \c value 循环折返约束到 [min, max] 区间（模数回绕，非钳制）。
+ *
+ * 与 auto_bound（超界钳制在边界）不同，本函数把区间视为环：
+ * value 超出区间时按模数折回——从 max 一侧继续向外走会绕回 min。
+ * 典型用途：角度归一化（任意角度折返到 [-180°, 180°]）、循环索引
+ * （末位 +1 绕回开头，如 12 点制时钟 12 时 +1 → 1 时）。
+ *
+ * 端点乱序（min > max）时自动取小大为界，语义与 auto_bound 一致，
+ * 区间定义为 [min(min,max), max(min,max)]。
+ *
+ * 算法：① 端点排序得 left/right；② value 落在 [left, right] 内原样
+ * 返回（含两端点）；③ 区间外对 range = right - left 取模折返，
+ * fmod 负余数加 range 修正，保证结果落在 [left, right)。
+ *
+ * 示例（min=0, max=10）：5 → 5；12 → 2；-3 → 7；10 → 10。
+ *
+ * \note N 应为有符号整型或浮点类型：无符号类型下区间外取值与
+ * 负余数修正路径依赖 fmod 的负返回值，为未定义行为。
+ */
 template <typename N>
 inline N cycle_in_range(N min, N value, N max) {
   const N left = std::min(min, max);
   const N right = std::max(min, max);
   if (left == right)
     return left;
-  if (left <= value && value <= max)
+  if (left <= value && value <= right) // 端点已排序，区间内判定须用 right
     return value;
 
   const N range = right - left;

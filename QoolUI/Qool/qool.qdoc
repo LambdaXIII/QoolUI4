@@ -28,9 +28,9 @@
         替代（见 \l OctagonShape）。
     \li 本地图片加载：由 QQuickImageProvider(ForceAsynchronousImageLoading)
         承担。
-    \li 数字工具：bound/remap 等纯函数由 \c qoolui::math 提供（见
-        \l {qoolui-math.html}{math 命名空间}）；计数/区间工具由
-        同目录的 \c math::RangeCounter 承担。
+    \li 数字工具：bound/remap 等纯函数由 \c qoolui::math 提供
+        （QoolCommon 仅头文件库，文档见 QoolCommon 的 math sidecar）；
+        计数/区间工具由 \c math::RangeCounter 承担。
     \endlist
 
     被刻意移除/外移的 V3 功能：QSettings 持久化、JobCenter、StackLocker、
@@ -90,55 +90,6 @@
 
     宿主按此模式自行扩展配件：配件一律挂接窗口本体，不依赖窗口管理
     系统提供。
-*/
-
-/*!
-    \namespace qoolui::math
-    \inqmlmodule Qool
-    \brief 纯函数数值工具集（无状态、无副作用）。
-
-    提供数值比较、边界约束、精度控制、线性映射与区间循环等纯函数。
-    全部为模板，支持整型与浮点混合使用。定义于 QoolCommon
-    （仅头文件库，文档集中于此文件）。
-*/
-
-/*!
-    \fn template <typename N> bool qoolui::math::is_equal(N a, N b, float epsilon)
-    判断 \c a 与 \c b 在 \c epsilon 容差内是否相等。
-
-    两值绝对值均小于 \c epsilon 时视为相等（避免相对误差除零）；
-    否则按相对误差 \c |a-b|/max(|a|,|b|) < \c epsilon 判定。
-*/
-
-/*!
-    \fn template <typename N> bool qoolui::math::is_zero(N a, float epsilon)
-    判断 \c a 的绝对值是否小于 \c epsilon。
-*/
-
-/*!
-    \fn template <typename N> N qoolui::math::auto_bound(N left, N x, N right)
-    将 \c x 约束到 \c left 与 \c right 之间（端点乱序时自动取小大为界）。
-*/
-
-/*!
-    \fn template <typename N, typename P> N qoolui::math::set_precision(N number, P precision)
-    将 \c number 舍入到 \c precision 位小数；\c precision 为 0 时取整。
-*/
-
-/*!
-    \fn template<typename T, typename U> U qoolui::math::remap(T input, T in_min, T in_max, U out_min, U out_max)
-    将 \c input 从输入范围线性映射到输出范围（浮点中间计算，避免整数除法误差）。
-*/
-
-/*!
-    \fn template <typename N> N qoolui::math::cycle_in_range(N min, N value, N max)
-    将 \c value 循环约束到 \c min 与 \c max 之间：区间外取值按模
-    折返（\c fmod 负余数修正为 \c range 偏移），区间内原样返回。
-*/
-
-/*!
-    \fn template<typename N> N qoolui::math::average(std::initializer_list<N> numbers)
-    返回初值列表的算术平均值。
 */
 
 /*!

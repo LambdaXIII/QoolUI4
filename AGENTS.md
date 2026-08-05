@@ -2,59 +2,103 @@
 
 基于 Qt6/QML 的现代化 UI 组件库。
 
+## 仓库定位
+
+QoolUI 是 Qt6/QML UI 组件库（基础设施），供第三方应用消费。所有公开面——QML 类型、`QoolCommon` 与 `interfaces/` 头文件 API——一律假定被第三方消费，**公开即承诺**：仓库内部没有调用方不构成省略文档、跳过稳定性考量或修改/移除 API 的依据（实例：`math::cycle_in_range` 曾因"无内部调用方"被搁置，用户指出其为多种控件的基础设施后修复）。
+
+**暴露形式**：C++ 代码几乎全部私有、**绝不动态导出**；需要暴露的 API 一律通过 QML 引擎类型系统设计（直接注册的 C++ 类型或纯 QML 组件），不提供传统 C++ DLL 调用方式。仅有的 C++ 复用面是 `QoolCommon`（INTERFACE 头文件库）与 `interfaces/`（插件接口头）。
+
+**私有原则**：仓库内 QML 类型默认公开、原则上不设私有；特例必须显式声明（`_private/` 目录 + `QT_QML_INTERNAL_TYPE`），源文件不得与公开 QML 混淆。注意与「暴露形式」区分：那是 C++ 暴露面的层面（几乎全私有、经 QML 暴露），本原则是仓库文件组织的层面。
+
+**接口承诺**：`interfaces/` 插件接口为宽松承诺——接口可能演进，官方插件同步更新，第三方插件需跟随版本。
+
+**示例程序**：QoolUIExample 兼具功能验证 prototype（持续维护，非一次性）、功能展示与宿主使用范例三重角色。
+
+## 模块架构
+
+**交付形态（方向）**：QoolUI 以 4 平台（msvc/mingw/darwin/linux）二进制 QML 模块包交付，每个模块是含 qmldir 的独立目录，宿主可按模块删减、仅 Qool 必备；另附带 Includes/interfaces 头文件与独立 qdoc 文档包。（具体打包方案未定，此处仅记录方向。）
+
+```mermaid
+flowchart TB
+    QoolIncludes["QoolIncludes<br/>(命名空间/版本/插件接口头)"]
+    QoolCommon["QoolCommon<br/>(仅头文件 C++ 模板库, 脱离 Qool 可用)"]
+
+    subgraph Core["核心模块 (必备)"]
+        Qool["Qool<br/>URI: Qool"]
+    end
+
+    subgraph L1["一级子模块 (可选, 只依赖 Qool)"]
+        QoolControls["Qool.Controls<br/>组合层"]
+        QoolControlsComponents["Qool.Controls.Components<br/>基础原件层"]
+        QoolDebug["Qool.Debug<br/>(宿主调试工具集)"]
+        QoolFile["Qool.File"]
+        QoolChat["Qool.Chat"]
+    end
+
+    subgraph Plugins["外部插件 (可选, 接口契约)"]
+        themeloader["themeloader"]
+        fileiconprovider["fileiconprovider"]
+    end
+
+    QoolIncludes --> QoolCommon
+    QoolCommon --> Qool
+    Qool --> QoolControls
+    Qool --> QoolControlsComponents
+    Qool --> QoolDebug
+    Qool --> QoolFile
+    Qool --> QoolChat
+    QoolControls --> QoolControlsComponents
+```
+
+### 分层
+
+| 层 | 模块 | 定位 |
+|---|---|---|
+| 0 | `QoolIncludes` | 命名空间/版本头 + 插件接口（`interfaces/`），INTERFACE target |
+| 1 | `QoolCommon` | 仅头文件 C++ 模板库（属性宏体系/工具/math），脱离 Qool 可用 |
+| 2 | `Qool` | 核心模块：形状/样式/窗口/工具类型，QML 模块唯一必备件 |
+| 3 | 一级子模块 | `Qool.Controls`、`Qool.Chat`、`Qool.File`、`Qool.Debug`——只依赖 Qool |
+| 3a | 一级子模块下层 | `Qool.Controls.Components`——基础原件层，被 `Qool.Controls` 依赖（上下级关系） |
+| 4 | 二级子模块（预留） | 可依赖上级模块（如 `Qool.Controls.Extra` 可依赖 `Qool.Controls`） |
+| 外 | 插件 | `themeloader`/`fileiconprovider`——实现接口、独立于库本体 |
+
+### 依赖约束
+
+- **R1 QoolUI 内部模块间只依赖 Qool**：同级互不依赖，仅上下级可依赖。对宿主而言除 Qool 外皆可选——保证目录级删减时依赖完整（对 Qt 框架模块的依赖不受此限，如 `Qool.Debug` 额外声明 `IMPORTS QtQuick.Dialogs`）
+- **R2 QoolCommon 脱离 Qool 可用**：不依赖 QtQuick，作为纯 C++ 消费面
+- **R3 插件外部化**：接口用纯 Qt 类型（不引用库类型），官方插件仅是参考实现，逻辑与物理上皆可选
+- **R4 基础原件在下层**：`Qool.Controls` 的控件由 `Qool.Controls.Components` 的基础原件组合而成，方向不可逆
+
+### 依赖机制（三场景）
+
+| 场景 | 机制 |
+|---|---|
+| 运行时 | QML import 语句要求模块目录存在于 import path——开发模式构建目录天然满足 |
+| 交付部署 | 部署工具按 qmldir 的 import/depends 行收集依赖目录——由 CMake 的 IMPORTS/DEPENDENCIES 声明生成 |
+| 编译期 AOT | qmlcachegen 需 `DEPENDENCIES TARGET` 注入 import path，缺失则类型回退运行时解析 |
+
+**开发规范**：qmldir 由 Qt 自动生成，开发中不手写；依赖声明一律通过 `qt_add_qml_module` 的 CMake 接口配置。
+
+## QML 模块 URI 映射
+
+| 模块 | URI | 导入示例 |
+|---|---|---|
+| Qool | `Qool` | `import Qool` |
+| QoolControls | `Qool.Controls` | `import Qool.Controls` |
+| QoolControlsComponents | `Qool.Controls.Components` | `import Qool.Controls.Components` |
+| QoolFile | `Qool.File` | `import Qool.File` |
+| QoolChat | `Qool.Chat` | `import Qool.Chat` |
+| QoolDebug | `Qool.Debug` | `import Qool.Debug` |
+
 ## 技术栈
 
 | 项目 | 版本/规范 |
-|------|----------|
+|---|---|
 | Qt | 6.8+ |
 | C++ | C++17 |
 | CMake | 3.30+ |
 | 命名空间 | `qoolui` (宏: `QOOL_NS`) |
 | 版本 | 4.0.0 |
-
-## 模块架构
-
-```mermaid
-flowchart TB
-    QoolCommon["QoolCommon<br/>(仅头文件模板库)"]
-
-    subgraph Core["核心模块"]
-        Qool["Qool<br/>URI: Qool"]
-    end
-
-    subgraph UI["UI 模块"]
-        QoolControls["QoolControls<br/>URI: Qool.Controls"]
-        QoolDebug["QoolDebug<br/>URI: Qool.Debug"]
-    end
-
-    subgraph Feature["功能模块"]
-        QoolFile["QoolFile<br/>URI: Qool.File"]
-        QoolChat["QoolChat<br/>URI: Qool.Chat"]
-    end
-
-    subgraph Plugins["插件 (可选)"]
-        themeloader["themeloader"]
-        fileiconprovider["fileiconprovider"]
-    end
-
-    QoolCommon --> Qool
-    Qool --> QoolControls
-    Qool --> QoolDebug
-    Qool --> QoolFile
-    Qool --> QoolChat
-    Qool --> themeloader
-    Qool --> fileiconprovider
-```
-
-## QML 模块 URI 映射
-
-| 模块 | URI | 导入示例 |
-|------|-----|---------|
-| Qool | `Qool` | `import Qool` |
-| QoolControls | `Qool.Controls` | `import Qool.Controls` |
-| QoolFile | `Qool.File` | `import Qool.File` |
-| QoolChat | `Qool.Chat` | `import Qool.Chat` |
-| QoolDebug | `Qool.Debug` | `import Qool.Debug` |
 
 ## 构建命令
 
@@ -160,13 +204,14 @@ qt_add_qml_module(ModuleName
     URI Qool.Module      # QML 导入 URI
     VERSION ${QOOLUI_VERSION_QML}
     NAMESPACE ${QOOL_NS} # 固定为 qoolui
-    IMPORTS Qool         # 子模块必须声明依赖核心模块
+    IMPORTS Qool         # 声明模块依赖：写入 qmldir import 行（部署收集依据）；编译期静态解析依赖
     QML_FILES ...
     SOURCES ...
 )
 ```
-- QML 单例文件用 CMake 属性注册（而非 QML_SINGLETON 注解）: `set_source_files_properties(Xxx.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)`
+- QML 单例文件用 CMake 属性注册（而非 QML_SINGLETON 注解）: `set_source_files_properties(Xxx.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)`——这是 .qml 文件的通道；C++ 单例的 QML 暴露走 `QML_SINGLETON` 宏（见「单例」节），两者不混用
 - 文件按目录分组列出（如 `apps/xxx.h`），include 目录对应声明
+- 依赖机制见「模块架构 → 依赖机制（三场景）」；qmldir 不手写
 
 ## 文档规范（QDoc）
 
@@ -175,6 +220,7 @@ qt_add_qml_module(ModuleName
 - `.qml` 类型：`\qmltype` 注释块紧贴 `.qml` 文件内类型上方
 - 模块总览（`\qmlmodule`）与组织性文章（`\page`）必须独立 `.qdoc` 文件，放模块根目录（如 `Qool/qool.qdoc`）
 - `.qdoc` 是代码的 sidecar：对应某个代码文件的 `.qdoc` 放在该文件旁边、尽量同名（如 `qool_style.cpp` → `qool_style.qdoc`）
+- **QoolCommon（仅头文件库）的文档归属自身**：`\namespace`/`\fn` 等 C++ API 文档写 QoolCommon 内的独立 `.qdoc`（如 `qoolcommon/math/utils.qdoc` 承载 math 命名空间），用 `\inmodule QoolCommon` 而非 `\inqmlmodule Qool`——QoolCommon 会被第三方独立消费，文档不得挂靠 Qool 模块
 - 一律不设 `doc/` 目录
 - 刻意设计（非 bug 行为、设计意图）必须用 QDoc 说明，防止后续审查误判（先例：fillItem 替代 CutCornerImage、关闭按钮配件哲学、control 回退值机制）
 
@@ -186,11 +232,12 @@ qt_add_qml_module(ModuleName
 ## 核心库瘦身原则
 
 - 只保留通用/轻量/自洽/Qt 生态内能力；特化、有宿主归属、可被 Qt 原生替代的一律外移（V3 对比裁定先例：持久化交宿主、CutCornerImage→Qt 6.8 `ShapePath::fillItem`、图片加载→`QQuickImageProvider`）
+- 本原则是「仓库定位」的推论：作为通用基础设施，特化能力不属于公开承诺范围
 
 ## 已知陷阱
 
-### 1. QML 模块依赖顺序
-子模块必须在 `qt_add_qml_module` 中声明 `IMPORTS Qool`，否则运行时找不到基类组件。
+### 1. QML 模块依赖声明
+运行时解析靠模块目录存在于 import path（开发模式构建目录天然满足）；交付部署时部署工具按 qmldir 的 import/depends 行收集依赖目录（该行由 CMake 的 `IMPORTS`/`DEPENDENCIES` 生成）；编译期 AOT（qmlcachegen）需要 `DEPENDENCIES TARGET` 注入 import path，缺失则类型退化为运行时解析。qmldir 由 Qt 自动生成，开发中不手写，依赖声明一律通过 `qt_add_qml_module` 的 CMake 接口配置。
 
 ### 2. 插件加载路径
 `qoolplugins/` 目录必须与可执行文件同级目录:
@@ -213,8 +260,8 @@ rm -rf build/CMakeCache.txt build/CMakeFiles
 ## 关键文件路径
 
 | 用途 | 路径 |
-|------|------|
-| 项目配置 | [qool_qml_project_setup.cmake](file:///e:/workspace/QoolUI4/qool_qml_project_setup.cmake) |
-| 命名空间定义 | [includes/qoolns.hpp.config](file:///e:/workspace/QoolUI4/QoolUI/includes/qoolns.hpp.config) |
-| 插件接口 | [interfaces/](file:///e:/workspace/QoolUI4/QoolUI/interfaces/) |
-| 变更记录 | [CHANGELOG.md](file:///e:/workspace/QoolUI4/CHANGELOG.md) |
+|---|---|
+| 项目配置 | [qool_qml_project_setup.cmake](file:///d:/workspace/QoolUI4/qool_qml_project_setup.cmake) |
+| 命名空间定义 | [includes/qoolns.hpp.config](file:///d:/workspace/QoolUI4/QoolUI/includes/qoolns.hpp.config) |
+| 插件接口 | [interfaces/](file:///d:/workspace/QoolUI4/QoolUI/interfaces/) |
+| 变更记录 | [CHANGELOG.md](file:///d:/workspace/QoolUI4/CHANGELOG.md) |
