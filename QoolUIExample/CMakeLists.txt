@@ -26,7 +26,9 @@ qt_add_qml_module(appQoolUIExample
   VERSION 1.0
   # RESOURCE_PREFIX /qoolexample
 
-  # IMPORTS Qool
+  IMPORTS Qool
+  IMPORTS Qool.Chat
+  DEPENDENCIES TARGET Qool TARGET QoolChat
   QML_FILES Main.qml
   QML_FILES pages/Page_QoolBox.qml
   QML_FILES

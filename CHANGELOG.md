@@ -14,6 +14,7 @@
 - math::is_equal：零附近相等判定分支 `ab > epsilon` → `<`
 - math::cycle_in_range：负模修正 `mod += distance` → `+= range`
 - CMake：删除 QoolConstants.qml 悬挂引用、重复 `target_link_libraries(Qt6::Core)`、注释残留
+- QoolUIExample：声明 `IMPORTS Qool`/`Qool.Chat` + `DEPENDENCIES TARGET Qool QoolChat`，消除 qmlcachegen AOT 统计中的 `Cannot access value for name ThemeDB/Style`（可执行模块缺少编译期模块依赖，跨模块类型回退运行时解析）
 
 ### 新增
 
