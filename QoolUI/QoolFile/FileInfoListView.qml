@@ -6,6 +6,16 @@ import Qool.Controls.Components
 
 import Qool.File
 
+/*!
+    \qmltype FileInfoListView
+    \inqmlmodule Qool.File
+    \brief 特化于 FileInfoListModel 的多选文件列表视图（多层插拔的 View 层）。
+
+    与 FileInfoListModel 配套的特化视图，内置多选（MultiRowSelectionModel）与
+    排序、去重等列表操作。多层插拔的 View 层：\c delegate 默认
+    FileInfoDelegate，可整体替换；\c fileInfoDisplay 透传给 delegate 内的展示
+    组件（默认 BasicFileInfoDisplay），可只替换展示组件而不丢失 Delegate 行为。
+*/
 ListView {
     id: root
 
