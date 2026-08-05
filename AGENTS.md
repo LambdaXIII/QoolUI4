@@ -1,6 +1,6 @@
-# QoolUI
+# QoolUI4
 
-基于 Qt6/QML 的现代化 UI 组件库。
+基于 Qt6/QML 的现代化 UI 组件库（第 4 代）。
 
 ## 仓库定位
 
@@ -94,11 +94,18 @@ flowchart TB
 
 | 项目 | 版本/规范 |
 |---|---|
-| Qt | 6.8+ |
-| C++ | C++17 |
+| Qt | 最新正式 Release（当前 6.11.1），绝不兼容旧版 |
+| C++ | C++17+（绝不兼容旧版） |
 | CMake | 3.30+ |
+| 第三方依赖 | 无——绝不引入（含 Qt 5 Compatibility Module（Qt5Compat）） |
 | 命名空间 | `qoolui` (宏: `QOOL_NS`) |
 | 版本 | 4.0.0 |
+
+**硬约束：零第三方依赖**。除 Qt6 外绝不引入任何第三方库/模块（含 Qt 5 Compatibility Module（Qt5Compat）等 Qt 官方兼容模块）；绝不兼容 Qt5 或旧版 C++。
+
+**版本跟进**：只跟进 Qt 最新正式 Release，不提前迁移 prerelease/testing；一旦跟进新版，绝不 backport 旧版本功能——旧版 Qt 不可用某功能不构成适配理由（例外仅限设计 bug：问题源于本库自身缺陷时须修复，而非为旧版添加适配）。`find_package` 中的最低版本是 Qt 官方兼容性提示，不随本原则变化。
+
+**容器与算法**：充分使用 STL 容器与算法；Qt 模块内按需选用 Qt 容器（QString/QVariant 等生态必需），但算法尽量用 STL 的——仅当算法为 Qt 容器独有或 STL 不兼容时才用 Qt 算法（Qt 官方同样推荐此做法）。
 
 ## 构建命令
 
