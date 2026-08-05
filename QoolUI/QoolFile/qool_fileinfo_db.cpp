@@ -10,6 +10,28 @@
 
 QOOL_NS_BEGIN
 
+/*!
+    \qmltype FileInfoDB
+    \inqmlmodule Qool.File
+    \nativetype qoolui::FileInfoDB
+    \brief 文件元信息的全局缓存单例（QML 单例，进程级生命周期）。
+
+    以 QUrl 为键、QVariantMap 为值，缓存文件的通用信息（名称、路径、
+    大小、时间戳、类型标志等，见 \c generateCommonInfo）与各
+    FileInfoProvider 插件按优先级补充的信息；\c getFileInfo() 返回
+    值拷贝，可按需多次调用。
+
+    \section1 缓存与失效
+    缓存容量 2000 项，由 QCache 自动淘汰。命中时以磁盘文件的
+    lastModified 时间戳与缓存值比对，文件被修改即重新生成缓存
+    （generateCache），保证返回信息始终新鲜。
+
+    \section1 单线程契约
+    \c getFileInfo() 声明为 const 却会写入 QCache——QCache 非线程
+    安全，调用方必须限定主线程（模型等消费方均为主线程，无需加锁）。
+    防御性判空：QCache 淘汰策略下 object() 可能失效，直接解引用
+    nullptr 是崩溃窗口。
+*/
 QOOL_SIMPLE_SINGLETON_QT_IMPL(FileInfoDB)
 
 FileInfoDB::FileInfoDB()
@@ -28,11 +50,16 @@ QDateTime __lastModified(const QUrl& fileUrl) {
 }
 
 QVariantMap FileInfoDB::getFileInfo(const QUrl& fileUrl) const {
+  // 单线程契约：本方法 const 却写入 QCache（QCache 非线程安全），
+  // 调用方须限定主线程（模型等消费方均为主线程，无需加锁）
   auto cache_info = m_cache->object(fileUrl);
   if (cache_info == nullptr
       || cache_info->value("lastModified") != __lastModified(fileUrl))
     generateCache(fileUrl);
-  return *(m_cache->object(fileUrl));
+  // 防御性判空：QCache 淘汰策略下 object() 可能失效，
+  // 直接解引用 nullptr 是崩溃窗口
+  auto result = m_cache->object(fileUrl);
+  return result ? *result : QVariantMap {};
 }
 
 QVariantMap FileInfoDB::getFileInfo(const QString& filePath) const {

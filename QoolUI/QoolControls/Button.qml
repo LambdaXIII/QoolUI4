@@ -3,6 +3,24 @@ import QtQuick.Templates as T
 import Qool.Controls.Components
 import Qool
 
+/*!
+    \qmltype Button
+    \inqmlmodule Qool.Controls
+    \brief 基于 T.AbstractButton 的 QoolUI 风格按钮。
+
+    \c backgroundSettings（QoolBoxSettings）统一控制背景填充、边框与四角
+    切角；\c highlighted 为只读便捷状态（\c enabled 且 \c hovered），
+    驱动高亮覆盖层显示；\c checked 时背景切换为主题高亮色、文字与边框
+    切换为高亮文字色。
+
+    \section2 flat 属性（刻意设计）
+    \c flat 为 \c true 时按钮背景完全透明（frameOpacity 置 0，无
+    边框无填充），只保留文字与交互反馈层（pressed/hovered 高亮覆盖）。
+    与 Qt Quick Controls 的 flat（去掉主题背景、保留文字悬浮反馈）
+    语义一致，但与 QoolButton（保留描边）的行为差异是刻意的：
+    \c flat 是"彻底无背景"模式，用于工具栏、导航栏等嵌入场景。
+*/
+
 T.AbstractButton {
     id: root
 

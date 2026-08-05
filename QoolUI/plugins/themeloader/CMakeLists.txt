@@ -4,7 +4,7 @@ qt_add_plugin(
   qool_themeloader_default
   SHARED
   CLASS_NAME
-  "${QOOL_NS}::DefaultThemeLoader"
+  "DefaultThemeLoader"
   # PRIVATE
   qool_themeloader_default.h
   qool_themeloader_default.cpp

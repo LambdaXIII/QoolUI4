@@ -1,0 +1,250 @@
+/*!
+    \qmlmodule Qool 4.0
+    \brief Qool 基础模块：形状、样式、窗口与工具类型。
+
+    Qool 是 QoolUI 的核心模块，提供：
+
+    \list
+    \li 形状体系：\l QoolBox（八边形）、\l OctagonShape、\l OctagonRoundedShape
+        ——由 \l QoolBoxShapeControl 数值计算控制点，命中判定走 O(1)
+        线性不等式。
+    \li 样式体系：\l Style 附加属性 + \l Theme 值类型（见 \l {qool-style-system.html}
+        {Style 体系}）。
+    \li 窗口：\l QoolWindow、\l QoolWindowBasic（见 \l {qool-window-parts.html}
+        {QoolWindow 配件哲学}）。
+    \li 工具：\l CutSizeBinding、\l PositionLocker、\l DelayTimer、\l Floater、
+        \l Qore、\l QoolPalette、\l PixelFont 等。
+    \endlist
+
+    \section1 设计原则（核心库瘦身）
+
+    核心库只保留通用、轻量、自洽、Qt 生态内的能力；特化、有宿主归属、
+    可被 Qt 原生替代的一律外移或交由宿主实现：
+
+    \list
+    \li 持久化：组件库不处理主题持久化，宿主在根节点绑定注入（见
+        \l {qool-style-system.html}{Style 体系}）。
+    \li 纹理切角：V3 的 CutCornerImage 由 Qt 6.8 官方 ShapePath::fillItem
+        替代（见 \l OctagonShape）。
+    \li 本地图片加载：由 QQuickImageProvider(ForceAsynchronousImageLoading)
+        承担。
+    \li 数字工具：bound/remap 等纯函数由 \c qoolui::math 提供
+        （QoolCommon 仅头文件库，文档见 QoolCommon 的 math sidecar）；
+        计数/区间工具由 \c math::RangeCounter 承担。
+    \endlist
+
+    被刻意移除/外移的 V3 功能：QSettings 持久化、JobCenter、StackLocker、
+    NumberLimiter/IntegerCounter、ShapeHelper 77 控制点、generate_id、
+    MultiCounter、CutCornerImage、runner_loadlocalimage。
+
+    \section1 QoolBox control 回退值机制
+
+    QoolBox 的 \c control 属性在 \c settings 尚未就绪时保持默认实例
+    （Binding 的 \c when 不成立时属性回退到初始值——初始值不能为
+    null，否则回退即悬空）。因此 \c control 始终非空，形状路径与
+    命中判定可安全引用；宿主不应假定 control 在 settings 就绪前
+    会丢失。
+*/
+
+/*!
+    \page qool-style-system.html
+    \brief Style 体系：附加属性 + 主题值类型的分层设计。
+
+    \section1 分层
+
+    \list 1
+    \li \l Style：QML 附加属性，按控件类型分组（60+ 属性 × 3 组），
+        供 QML 侧统一取用（如 \c root.Style.accent）。
+    \li \l Theme：值类型，携带五组数据（Constants/Active/Inactive/
+        Disabled + 元数据），描述一套完整外观。
+    \li \l SystemTheme / ThemeDatabase：主题来源——系统调色板
+        （Active/Inactive/Disabled 三组真实状态色）与主题数据库。
+    \endlist
+
+    \section1 持久化分层（宿主注入）
+
+    组件库刻意不做主题持久化。宿主在 QML 根节点绑定
+    \c Style.theme 注入主题，构建期一次生效、无闪烁；需要在启动前
+    决策主题的宿主可操作 ThemeDatabase（C++ 侧）预置数据。
+
+    \section1 非 const 接口即宿主注入入口
+
+    Style 的可写属性（60+ 属性 × 3 组）构成与宿主的稳定契约面：
+    这些接口刻意保持非 const，因为组件库不持久化——任何属性都随时
+    可被宿主改写注入。该契约面稳定，不在版本间随意增删。
+
+    \section1 三组语义
+
+    Active/Inactive/Disabled 三组与 QPalette 对齐且刻意保持组间数据
+    不同：窗口激活、失活、控件禁用时分别取用，使 UI 状态色真实反映
+    系统调色板（见 \l SystemTheme）。
+*/
+
+/*!
+    \page qool-window-parts.html
+    \brief QoolWindow 配件哲学：主窗口即形状本体，配件按需显示。
+
+    QoolWindow 本身是 QoolBox 形状本体（八边形外观），标题、关闭按钮
+    等是附加配件。关闭按钮 \c visible: root.active——仅窗口聚焦时显示，
+    这是特色设计而非缺陷：未聚焦窗口保持形状本体纯粹，聚焦后配件浮现。
+
+    宿主按此模式自行扩展配件：配件一律挂接窗口本体，不依赖窗口管理
+    系统提供。
+*/
+
+/*!
+    \qmlproperty Item Qool::ShapeControl::target
+    \brief 几何来源 Item。缺省绑定为父对象（componentComplete 时自动设置）。
+*/
+
+/*!
+    \qmlproperty real Qool::ShapeControl::x
+    \brief 目标几何 x（只读绑定，跟随 target；target 为空时取 0）。
+*/
+
+/*!
+    \qmlproperty real Qool::ShapeControl::y
+    \brief 目标几何 y（只读绑定，跟随 target；target 为空时取 0）。
+*/
+
+/*!
+    \qmlproperty real Qool::ShapeControl::width
+    \brief 目标几何宽（只读绑定，跟随 target）。
+*/
+
+/*!
+    \qmlproperty real Qool::ShapeControl::height
+    \brief 目标几何高（只读绑定，跟随 target）。
+*/
+
+/*!
+    \qmlproperty real Qool::ShapeControl::longEdge
+    \brief 长边（max(width, height)）。
+*/
+
+/*!
+    \qmlproperty real Qool::ShapeControl::shortEdge
+    \brief 短边（min(width, height)）。
+*/
+
+/*!
+    \qmlproperty real Qool::ShapeControl::aspectRatio
+    \brief 宽高比（height 为 0 时取 -1）。
+*/
+
+/*!
+    \qmlproperty point Qool::ShapeControl::center
+    \brief 中心点（halfWidth, halfHeight）。
+*/
+
+/*!
+    \qmlproperty real Qool::ShapeControl::halfWidth
+    \brief 半宽。
+*/
+
+/*!
+    \qmlproperty real Qool::ShapeControl::halfHeight
+    \brief 半高。
+*/
+
+/*!
+    \qmlproperty rect Qool::ShapeControl::boundingRect
+    \brief 外接矩形（x, y, width, height）。
+*/
+
+/*!
+    \qmlproperty QoolBoxSettings Qool::QoolBoxShapeControl::settings
+    \brief 形状外观设置（裁剪尺寸、边框、填充、偏移），驱动全部控制点计算。
+*/
+
+/*!
+    \qmlproperty real Qool::QoolBoxShapeControl::offsetX
+    \brief 外轮廓水平位移；命中判定与外部控制点跟随此值。
+*/
+
+/*!
+    \qmlproperty real Qool::QoolBoxShapeControl::offsetY
+    \brief 外轮廓垂直位移；命中判定与外部控制点跟随此值。
+*/
+
+/*!
+    \qmlproperty real Qool::QoolBoxShapeControl::intOffsetX
+    \brief 内部填充区域水平位移（不影响外轮廓与命中判定）。
+*/
+
+/*!
+    \qmlproperty real Qool::QoolBoxShapeControl::intOffsetY
+    \brief 内部填充区域垂直位移（不影响外轮廓与命中判定）。
+*/
+
+/*!
+    \qmlproperty real Qool::QoolBoxShapeControl::safeTL
+    \brief 左上角安全裁剪尺寸（bound 约束后）。
+*/
+
+/*!
+    \qmlproperty real Qool::QoolBoxShapeControl::safeTR
+    \brief 右上角安全裁剪尺寸（bound 约束后）。
+*/
+
+/*!
+    \qmlproperty real Qool::QoolBoxShapeControl::safeBL
+    \brief 左下角安全裁剪尺寸（bound 约束后）。
+*/
+
+/*!
+    \qmlproperty real Qool::QoolBoxShapeControl::safeBR
+    \brief 右下角安全裁剪尺寸（bound 约束后）。
+*/
+
+/*!
+    \qmlproperty real Qool::QoolBoxShapeControl::safeBorderWidth
+    \brief 安全边框宽度（0 下限约束后）。
+*/
+
+/*!
+    \qmlproperty real Qool::QoolBoxShapeControl::borderShrinkSize
+    \brief 边框内缩尺寸（tan(22.5°) × 边框宽，最小 1.0）。
+*/
+
+/*!
+    \qmlproperty point Qool::QoolBoxShapeControl::intTL
+    \brief 内部左上角点。同族属性：intTR/intLT/intLB/intRT/intRB/intBL/intBR
+    （8 个内部角点，逆时针）与 extTL/extTR/extLT/extLB/extRT/extRB/extBL/extBR
+    （8 个外部角点）；每点另有 \c x/\c y 变体（如 intTLx）。
+*/
+
+/*!
+    \qmlproperty point Qool::QoolBoxShapeControl::extTL
+    \brief 外部左上角点。角点族见 intTL 说明。
+*/
+
+/*!
+    \qmlproperty polygon Qool::QoolBoxShapeControl::intPolygon
+    \brief 内部角点多边形（QPolygonF，按序闭合）。
+*/
+
+/*!
+    \qmlproperty polygon Qool::QoolBoxShapeControl::extPolygon
+    \brief 外部角点多边形（QPolygonF，按序闭合）。
+*/
+
+/*!
+    \qmlproperty real Qool::QoolBoxShapeControl::topSpace
+    \brief 顶部可用空间（供宿主布局 padding 使用）。
+*/
+
+/*!
+    \qmlproperty real Qool::QoolBoxShapeControl::bottomSpace
+    \brief 底部可用空间（供宿主布局 padding 使用）。
+*/
+
+/*!
+    \qmlproperty real Qool::QoolBoxShapeControl::leftSpace
+    \brief 左侧可用空间（供宿主布局 padding 使用）。
+*/
+
+/*!
+    \qmlproperty real Qool::QoolBoxShapeControl::rightSpace
+    \brief 右侧可用空间（供宿主布局 padding 使用）。
+*/

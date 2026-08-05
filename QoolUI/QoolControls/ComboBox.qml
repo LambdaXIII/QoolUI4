@@ -5,6 +5,34 @@ import Qool.Controls.Components
 import Qool.Controls as Q
 import Qool
 
+/*!
+    \qmltype ComboBox
+    \inqmlmodule Qool.Controls
+    \brief 基于 T.ComboBox 的 QoolUI 风格下拉选择框，支持可编辑文本与可配置的弹出方向。
+
+    外观由 \c backgroundSettings（QoolBoxSettings）与内嵌 QoolBGBox 统一提供；
+    \c title/\c label 透传至背景盒，\c contentPadding 系列（含
+    \c contentTop/Bottom/Left/RightPadding）经 SpaceHelper 控制内容内边距；
+    \c horizontalAlignment/\c verticalAlignment 决定显示文本的对齐方式。
+
+    \section2 可编辑模式（editable）
+    非可编辑时显示普通文本（simpleText）；\c editable 为 \c true 时经
+    \c textFieldLoader 按需加载 BasicTextField。加载器使用内联
+    sourceComponent，构成组件边界——内部 id 对外不可见，因此焦点判断
+    必须经 \c textFieldLoader.item?.activeFocus 空安全访问（未加载时为
+    undefined）；QoolComboBox 因 contentItem 直接内联 BasicTextField、
+    无组件边界，可直接引用其 id。
+
+    \section2 弹出方向（popupDirection）
+    \c Qore.Covered（默认）时弹出层覆盖在控件上；\c Qore.Below 时弹出层
+    顶边紧贴控件底边（扣除边框宽度），\c Qore.Above 时弹出层底边紧贴
+    控件顶边。\c popupOffsetX/\c popupOffsetY 提供额外像素偏移。
+
+    \section2 flat 与委托
+    \c flat 且未悬浮、弹出层未打开、文本域未聚焦时背景完全透明。
+    delegate 使用 BasicItemDelegate，经 \c Style.follow 显式跟随控件样式。
+*/
+
 T.ComboBox {
     id: root
 
@@ -43,8 +71,13 @@ T.ComboBox {
         settings: root.backgroundSettings
         implicitHeight: 35
         implicitWidth: 100
+        // 注意：不能给 sourceComponent 内的 BasicTextField 加 id 后直接引用
+        // （内联 sourceComponent 是组件边界，内部 id 对外不可见，会
+        // ReferenceError——QoolComboBox 能直接引用是因为其 contentItem
+        // 直接内联 BasicTextField，无组件边界）。经 textFieldLoader.item
+        // 可空访问 activeFocus，未加载（非 editable）时为 undefined。
         opacity: (root.flat && !root.hovered && !root.popup.visible &&
-                  !textField.activeFocus) ? 0 : 1
+                  !textFieldLoader.item?.activeFocus) ? 0 : 1
         BasicNumberBehavior on opacity {}
     }
 
@@ -100,6 +133,7 @@ T.ComboBox {
             BasicTextBehavior on text {}
         }
         Loader {
+            id: textFieldLoader
             anchors.fill: parent
             active: root.editable
             sourceComponent: BasicTextField {

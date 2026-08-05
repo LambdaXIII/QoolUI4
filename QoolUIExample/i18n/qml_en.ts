@@ -9,34 +9,112 @@
         <translation type="obsolete">This is a button.</translation>
     </message>
     <message id="qooltip-basicbutton">
-        <location filename="../pages/Page_Buttons.qml" line="27"/>
+        <location filename="../pages/Page_Buttons.qml" line="26"/>
         <source>普通按钮的介绍</source>
         <translation type="unfinished"></translation>
     </message>
     <message id="qooltip-basicbutton-extra-properties">
-        <location filename="../pages/Page_Buttons.qml" line="37"/>
-        <location filename="../pages/Page_Buttons.qml" line="47"/>
+        <location filename="../pages/Page_Buttons.qml" line="36"/>
+        <location filename="../pages/Page_Buttons.qml" line="46"/>
         <source>介绍按钮对于 flat 和 highlighted 的支持</source>
         <translation type="unfinished">This is a button.</translation>
     </message>
     <message id="qooltip-qoolbutton">
-        <location filename="../pages/Page_Buttons.qml" line="63"/>
+        <location filename="../pages/Page_Buttons.qml" line="62"/>
         <source>介绍QoolButton</source>
         <translation type="unfinished"></translation>
     </message>
     <message id="qooltip-qoolbutton-extra-properties">
-        <location filename="../pages/Page_Buttons.qml" line="75"/>
+        <location filename="../pages/Page_Buttons.qml" line="74"/>
         <source>QoolButton也可以flat</source>
         <translation type="unfinished"></translation>
     </message>
     <message id="qooltip-qoolbutton-checkable">
-        <location filename="../pages/Page_Buttons.qml" line="89"/>
+        <location filename="../pages/Page_Buttons.qml" line="88"/>
         <source>介绍QoolButton的checkable属性</source>
         <translation type="unfinished"></translation>
     </message>
     <message id="qooltip-qoolbutton-animation">
         <location filename="../pages/Page_Buttons.qml" line="102"/>
         <source>介绍如何控制组件的动画</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="qooltip-buttongroup-support">
+        <location filename="../pages/Page_Buttons.qml" line="162"/>
+        <source>介绍这些按钮与ButtonGroup的兼容情况</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="qooltip-basicbutton-example">
+        <location filename="../pages/Page_Buttons.qml" line="176"/>
+        <source>介绍 BasicButton 和 papa words</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="qooltip-filedropper">
+        <location filename="../pages/Page_QoolFile.qml" line="40"/>
+        <source>介绍FileDropper以及Qool.File的基本原理</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="qooltip-fileinfolistcontrol">
+        <location filename="../pages/Page_QoolFile.qml" line="51"/>
+        <source>介绍文件列表控件</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="qooltip-combobox-normal">
+        <location filename="../pages/Page_InputControls.qml" line="49"/>
+        <source>介绍QoolUI版的ComboBox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="qooltip-combobox-titled">
+        <location filename="../pages/Page_InputControls.qml" line="62"/>
+        <source>QoolUI版的ComboBox可以设置标题</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="qooltip-combobox-customed">
+        <location filename="../pages/Page_InputControls.qml" line="84"/>
+        <source>通过设置背景属性甚至可以恢复QoolControl原本的样式</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ExampleBasicButton</name>
+    <message>
+        <location filename="../pages/components/ExampleBasicButton.qml" line="6"/>
+        <source>自定义的按钮</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/components/ExampleBasicButton.qml" line="10"/>
+        <source>欢迎使用QoolUI!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/components/ExampleBasicButton.qml" line="10"/>
+        <source>我是一块砖！</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/components/ExampleBasicButton.qml" line="10"/>
+        <source>垂死病中惊坐起</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/components/ExampleBasicButton.qml" line="10"/>
+        <source>笑问客从何处来</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/components/ExampleBasicButton.qml" line="11"/>
+        <source>快点我！</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/components/ExampleBasicButton.qml" line="11"/>
+        <source>Look in my eyes!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/components/ExampleBasicButton.qml" line="22"/>
+        <source>点我试试？</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -64,58 +142,58 @@
 <context>
     <name>Page_Buttons</name>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="13"/>
-        <location filename="../pages/Page_Buttons.qml" line="60"/>
+        <location filename="../pages/Page_Buttons.qml" line="12"/>
+        <location filename="../pages/Page_Buttons.qml" line="59"/>
         <source>酷酷的按钮</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="14"/>
+        <location filename="../pages/Page_Buttons.qml" line="13"/>
         <source>QoolUI提供了风格化的按钮</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="24"/>
+        <location filename="../pages/Page_Buttons.qml" line="23"/>
         <source>默认按钮</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="43"/>
+        <location filename="../pages/Page_Buttons.qml" line="42"/>
         <source>可以 Check 的按钮</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="43"/>
+        <location filename="../pages/Page_Buttons.qml" line="42"/>
         <source>已经 Check 的按钮</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="59"/>
+        <location filename="../pages/Page_Buttons.qml" line="58"/>
         <source>这是一个酷酷的按钮</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="70"/>
+        <location filename="../pages/Page_Buttons.qml" line="69"/>
         <source>酷酷的按钮也可以有 flat 模式</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="71"/>
+        <location filename="../pages/Page_Buttons.qml" line="70"/>
         <source>平平无奇的酷酷的按钮</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="83"/>
+        <location filename="../pages/Page_Buttons.qml" line="82"/>
         <source>可以开关的按钮</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="84"/>
+        <location filename="../pages/Page_Buttons.qml" line="83"/>
         <source>动画已启用</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="84"/>
+        <location filename="../pages/Page_Buttons.qml" line="83"/>
         <source>动画已禁用</source>
         <translation type="unfinished"></translation>
     </message>
@@ -130,20 +208,118 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Buttons.qml" line="33"/>
+        <location filename="../pages/Page_Buttons.qml" line="114"/>
+        <source>成组的按钮</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="123"/>
+        <source>已选定按钮%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="129"/>
+        <source>选项1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="137"/>
+        <source>选项2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="144"/>
+        <source>QoolButton也可以的</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="145"/>
+        <source>选项3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="152"/>
+        <source>这也行</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="153"/>
+        <source>选项4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_Buttons.qml" line="32"/>
         <source>标记为 flat 的按钮</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Page_InputControls</name>
+    <message>
+        <location filename="../pages/Page_InputControls.qml" line="12"/>
+        <source>标准输入控件</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_InputControls.qml" line="13"/>
+        <source>Qool.Controls 重写了多种标准输入控件</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_InputControls.qml" line="17"/>
+        <source>小明</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_InputControls.qml" line="17"/>
+        <source>小李</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_InputControls.qml" line="17"/>
+        <source>大美</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_InputControls.qml" line="17"/>
+        <source>笨笨</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_InputControls.qml" line="23"/>
+        <source>正常</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_InputControls.qml" line="27"/>
+        <source>向上</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_InputControls.qml" line="31"/>
+        <source>向下</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_InputControls.qml" line="56"/>
+        <source>你最喜欢的人是？</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_InputControls.qml" line="71"/>
+        <source>设置菜单弹出方向</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Page_Playground</name>
     <message>
-        <location filename="../pages/Page_Playground.qml" line="11"/>
+        <location filename="../pages/Page_Playground.qml" line="14"/>
         <source>试炼场</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pages/Page_Playground.qml" line="12"/>
+        <location filename="../pages/Page_Playground.qml" line="15"/>
         <source>测试一些东西……</source>
         <translation type="unfinished"></translation>
     </message>
@@ -158,6 +334,29 @@
     <message>
         <location filename="../pages/Page_QoolBox.qml" line="11"/>
         <source>酷酷的 Box</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Page_QoolFile</name>
+    <message>
+        <location filename="../pages/Page_QoolFile.qml" line="11"/>
+        <source>Qool.File 模块</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_QoolFile.qml" line="12"/>
+        <source>QoolUI 的 File 模块提供了一些用于与文件系统交互的简单组件</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_QoolFile.qml" line="22"/>
+        <source>可以把文件丢到这里</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../pages/Page_QoolFile.qml" line="46"/>
+        <source>文件列表控件</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

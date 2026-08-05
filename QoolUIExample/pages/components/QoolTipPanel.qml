@@ -7,9 +7,9 @@ Floater {
     id: root
     property string text
     property color color: Style.highlight
-    property color textColor: ThemeDB.recommendForeground(
-                                  root.color, root.Style.buttonText,
-                                  root.Style.highlightedText)
+    property color textColor: ThemeDB.recommendForeground(root.color,
+                                                          root.Style.buttonText,
+                                                          root.Style.highlightedText)
 
     property real maximumWidth: 400
     property real maximumHeight: 400
@@ -48,12 +48,8 @@ Floater {
         topPadding: 5
         bottomPadding: 25
 
-        implicitWidth: Math.max(
-                           20,
-                           leftPadding + implicitContentWidth + rightPadding)
-        implicitHeight: Math.max(
-                            25,
-                            topPadding + implicitContentHeight + bottomPadding)
+        implicitWidth: Math.max(20, leftPadding + implicitContentWidth + rightPadding)
+        implicitHeight: Math.max(25, topPadding + implicitContentHeight + bottomPadding)
 
         hoverEnabled: true
         onHoveredChanged: if (hovered)
@@ -66,12 +62,13 @@ Floater {
         id: beeper
         chatRoom: GlobalChatRoom
         channel: "qooltip"
+        enabled: root.enabled
         onMessageRecieved: msg => {
                                if (msg.content)
-                               showText(msg.content)
+                               showText(msg.content);
 
                                if (msg.contains("color"))
-                               root.color = msg.attachment("color")
+                               root.color = msg.attachment("color");
                            }
     }
 
@@ -79,13 +76,13 @@ Floater {
     y: root.backupPosition ? 0 : (parent.height - height)
 
     function showText(t: string) {
-        root.text = t
-        root.opacity = 1
+        root.text = t;
+        root.opacity = 1;
     }
 
     function hide() {
-        root.text = ""
-        root.opacity = 0
+        root.text = "";
+        root.opacity = 0;
     }
 
     BasicNumberBehavior on opacity {

@@ -113,5 +113,13 @@ Item {
     implicitWidth: content?.implicitWidth ?? 100
     implicitHeight: content?.implicitHeight ?? 100
 
+    // 公开刷新入口：updatePos 仅在"自身 x/y 变化"或"父级 x/y 变化"
+    // 时自动触发（见上方 Connections）。父级被整体平移时（如父级
+    // 经 anchors 跟随祖父移动，自身相对坐标不变），自动触发链断开，
+    // 需要外部显式调用本方法（见 RectResizer 的父级几何监听）。
+    function refresh() {
+        pCtrl.updatePos()
+    }
+
     Component.onCompleted: pCtrl.updatePos()
 }

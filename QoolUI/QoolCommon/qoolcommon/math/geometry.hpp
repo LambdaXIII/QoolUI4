@@ -20,8 +20,12 @@ inline float normalize_radians(float rad) {
 }
 
 inline float normalize_degrees(float degrees) {
-  // 规范化到[0°, 360°)
-  return std::fmod(degrees, 360.0f);
+  // 规范化到 [0°, 360°)。fmod 保留被除数符号（负数得到负余数），
+  // 必须补 360° 归位——与 normalize_radians 的负余数修正语义对称。
+  float mod = std::fmod(degrees, 360.0f);
+  if (mod < 0)
+    mod += 360.0f;
+  return mod;
 }
 
 inline float normalize_degrees_180(float degrees) {

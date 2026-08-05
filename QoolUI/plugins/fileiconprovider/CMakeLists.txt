@@ -1,7 +1,7 @@
 qt_add_plugin(
     qool_fileiconprovider_default
     SHARED
-    CLASS_NAME "${QOOL_NS}::DefaultFileIconProvider"
+    CLASS_NAME "DefaultFileIconProvider"
 
     qool_fileiconprovider_default.h
     qool_fileiconprovider_default.cpp

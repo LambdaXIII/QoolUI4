@@ -7,6 +7,7 @@
 
 #include <QMutex>
 #include <QObject>
+#include <QTimer>
 
 QOOL_NS_BEGIN
 
@@ -22,8 +23,8 @@ protected:
   QMutex m_mutex;
   QThread* m_serverThread;
   QHash<QString, QPointer<ChatRoomServer>> m_servers;
+  QTimer m_purgeTimer;
 
-  Q_SIGNAL void serverPurgingRequested();
   void purgeClosedServers();
 };
 

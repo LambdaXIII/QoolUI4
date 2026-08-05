@@ -26,13 +26,19 @@ qt_add_qml_module(appQoolUIExample
   VERSION 1.0
   # RESOURCE_PREFIX /qoolexample
 
-  # IMPORTS Qool
+  IMPORTS Qool
+  IMPORTS Qool.Chat
+  IMPORTS Qool.Controls
+  IMPORTS Qool.Controls.Components
+  IMPORTS Qool.Debug
+  IMPORTS Qool.File
+  DEPENDENCIES TARGET Qool TARGET QoolChat TARGET QoolControls TARGET QoolControlsComponents TARGET QoolDebug TARGET QoolFile
   QML_FILES Main.qml
   QML_FILES pages/Page_QoolBox.qml
-  QML_FILES pages/PaletteSheet.qml
+  QML_FILES
   QML_FILES pages/components/QoolBoxShapeControlPanel.qml
 
-  RESOURCES toc.xml
+  RESOURCES
   QML_FILES PageListModel.qml
   QML_FILES PageListView.qml
   QML_FILES pages/Page_Playground.qml
@@ -50,7 +56,7 @@ qt_add_qml_module(appQoolUIExample
 )
 
 qoolui_scan_assets_to(appQoolUIExample)
-qt_add_resources(Qool "qoolexample_assets" PREFIX "/qoolexample" FILES
+qt_add_resources(appQoolUIExample "qoolexample_assets" PREFIX "/qoolexample" FILES
   ${QOOL_ASSETS}
 )
 

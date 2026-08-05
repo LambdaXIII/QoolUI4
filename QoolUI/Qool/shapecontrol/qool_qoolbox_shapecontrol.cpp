@@ -7,6 +7,24 @@ QOOLCOMMON_MATH_MARK
 
 QOOL_NS_BEGIN
 
+/*!
+    \qmltype QoolBoxShapeControl
+    \inqmlmodule Qool
+    \nativetype qoolui::QoolBoxShapeControl
+    \brief 八边形（QoolBox）形状控制点计算器。
+
+    由 \l QoolBoxSettings 的角部裁剪尺寸与边框宽度计算八边形
+    外部 8 点（\c ext*）与内部 8 点（\c int*），供形状路径与
+    命中判定使用。\c offsetX/offsetY 平移外轮廓（含命中判定），
+    \c intOffsetX/intOffsetY 仅平移内部填充区域。
+
+    \l {contains()}{contains()} 采用 O(1) 线性不等式判定：先经
+    外接矩形粗判，再对四个切角分别做斜边直线判定。位移 \c offset
+    后判定区跟随平移，与视觉形状一致。
+
+    \note 圆角形态（curved）的数值判定尚未实现，圆角形状的命中
+    判定由 Shape.FillContains 承担。
+*/
 QoolBoxShapeControl::QoolBoxShapeControl(QObject* parent)
   : ShapeControl{parent}
   , m_settings{new QoolBoxSettings(this)} {
@@ -48,9 +66,11 @@ void QoolBoxShapeControl::dumpInfo() const {
 }
 
 bool QoolBoxShapeControl::contains(const QPointF& point) const {
-  const auto x = point.x();
-  const auto y = point.y();
-  const bool in_bound = ShapeControl::contains(point);
+  const QPointF p(point.x() - m_offsetX.value(),
+                  point.y() - m_offsetY.value());
+  const auto x = p.x();
+  const auto y = p.y();
+  const bool in_bound = ShapeControl::contains(p);
   if (! in_bound) return false;
   if (x + y < m_safeTL) return false;
   if (m_width - x + y < m_safeTR) return false;

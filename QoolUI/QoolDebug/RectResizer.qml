@@ -10,9 +10,37 @@ Item {
 
     anchors.fill: parent
 
+    // 手柄（Floater content）渲染在 Overlay 层，位置由 Floater 的
+    // updatePos 计算——它只在"Floater 自身 x/y 变化"或"Floater 的父
+    // （本组件）x/y 变化"时自动触发。本组件经 anchors 跟随 root.parent
+    // 平移时相对坐标不变，自动触发链断开，手柄停留在原地（表现为
+    // "被调对象移动了但手柄框不动"）；缩放时因 Floater.x 绑定（依赖
+    // root.width）重求值而偶然刷新。故监听 root.parent 的几何变化
+    // 统一刷新全部手柄。
+    Connections {
+        target: root.parent
+        function onXChanged() { refreshHandles() }
+        function onYChanged() { refreshHandles() }
+        function onWidthChanged() { refreshHandles() }
+        function onHeightChanged() { refreshHandles() }
+    }
+
+    function refreshHandles() {
+        rightFloater.refresh()
+        leftFloater.refresh()
+        topFloater.refresh()
+        bottomFloater.refresh()
+        topLeftFloater.refresh()
+        bottomRightFloater.refresh()
+    }
+
     Floater {
         id: rightFloater
         content: DragMoveArea {
+            // autoBind 默认 true：拖动会移动 target（parent=Floater），
+            // 与下方 onWannaMove 对 root.parent 的手动调整构成双重驱动
+            // （句柄漂移）。句柄只应经 onWannaMove 生效，故显式关闭。
+            autoBind: false
             width: rightFloater.width
             height: rightFloater.height
             cursorShape: Qt.SizeHorCursor
@@ -33,6 +61,10 @@ Item {
     Floater {
         id: leftFloater
         content: DragMoveArea {
+            // autoBind 默认 true：拖动会移动 target（parent=Floater），
+            // 与下方 onWannaMove 对 root.parent 的手动调整构成双重驱动
+            // （句柄漂移）。句柄只应经 onWannaMove 生效，故显式关闭。
+            autoBind: false
             width: leftFloater.width
             height: leftFloater.height
             cursorShape: Qt.SizeHorCursor
@@ -54,6 +86,10 @@ Item {
     Floater {
         id: topFloater
         content: DragMoveArea {
+            // autoBind 默认 true：拖动会移动 target（parent=Floater），
+            // 与下方 onWannaMove 对 root.parent 的手动调整构成双重驱动
+            // （句柄漂移）。句柄只应经 onWannaMove 生效，故显式关闭。
+            autoBind: false
             width: topFloater.width
             height: topFloater.height
             cursorShape: Qt.SizeVerCursor
@@ -75,6 +111,10 @@ Item {
     Floater {
         id: bottomFloater
         content: DragMoveArea {
+            // autoBind 默认 true：拖动会移动 target（parent=Floater），
+            // 与下方 onWannaMove 对 root.parent 的手动调整构成双重驱动
+            // （句柄漂移）。句柄只应经 onWannaMove 生效，故显式关闭。
+            autoBind: false
             width: bottomFloater.width
             height: bottomFloater.height
             cursorShape: Qt.SizeVerCursor
@@ -95,6 +135,10 @@ Item {
     Floater {
         id: topLeftFloater
         content: DragMoveArea {
+            // autoBind 默认 true：拖动会移动 target（parent=Floater），
+            // 与下方 onWannaMove 对 root.parent 的手动调整构成双重驱动
+            // （句柄漂移）。句柄只应经 onWannaMove 生效，故显式关闭。
+            autoBind: false
             width: topLeftFloater.width
             height: topLeftFloater.height
             cursorShape: Qt.SizeAllCursor
@@ -118,6 +162,10 @@ Item {
     Floater {
         id: bottomRightFloater
         content: DragMoveArea {
+            // autoBind 默认 true：拖动会移动 target（parent=Floater），
+            // 与下方 onWannaMove 对 root.parent 的手动调整构成双重驱动
+            // （句柄漂移）。句柄只应经 onWannaMove 生效，故显式关闭。
+            autoBind: false
             width: bottomRightFloater.width
             height: bottomRightFloater.height
             cursorShape: Qt.SizeFDiagCursor

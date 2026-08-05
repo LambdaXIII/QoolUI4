@@ -1,3 +1,10 @@
+// 按钮演示页：展示 QoolUI 风格按钮——flat/checkable、QoolButton 的
+// 动画开关（Style.animationEnabled）、ButtonGroup 分组兼容以及
+// ExampleBasicButton 示例。
+//
+// 刻意设计（修复说明）：分组标题经 bGroup.checkedButton?.objectName
+// ?? "" 空安全读取——组内无选中项时 checkedButton 为 null，?. 与 ??
+// 兜底为空串，避免绑定表达式崩溃。
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -7,7 +14,6 @@ import Qool.Controls.Components
 import "components"
 
 BasicPage {
-
     id: root
 
     title: qsTr("酷酷的按钮")
@@ -121,7 +127,8 @@ BasicPage {
                 spacing: 5
                 BasicBigTitleText {
                     id: groupTitle
-                    text: qsTr("已选定按钮%1").arg(bGroup.checkedButton.objectName)
+                    text: qsTr("已选定按钮%1").arg(
+                        bGroup.checkedButton?.objectName ?? "")
                     BasicTextBehavior on text {}
                 }
 
@@ -173,7 +180,7 @@ BasicPage {
             implicitWidth: 400
             implicitHeight: 250
             QoolTip {
-                //% "介绍 BasicButton 货 papa words"
+                //% "介绍 BasicButton 和 papa words"
                 text: qsTrId("qooltip-basicbutton-example")
             }
         }

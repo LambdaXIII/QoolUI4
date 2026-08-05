@@ -39,7 +39,6 @@ _QL_PRIVATE_SCOPE_:                                        \
 #define QGADGET_READONLY_PROPERTY_DECLARE(_T_, _N_, ...) \
 public:                                                  \
   _QL_PROPERTY_GETTER_SIGNATURE_(_T_, _N_);              \
-  _QL_PROPERTY_SETTER_SIGNATURE_(_T_, _N_);              \
 _QL_PRIVATE_SCOPE_:                                      \
   Q_PROPERTY(_T_ _N_ READ _N_ __VA_ARGS__)
 

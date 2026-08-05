@@ -27,8 +27,11 @@ public:
   Q_INVOKABLE void clear();
 
 protected:
+  // 为什么不需要锁：消息到达路径全部在主线程（messageRecieved 经
+  // MessageEvent 在主线程派发后由本类槽消费），无任何跨线程调用方，
+  // 锁是死代码。若将来引入跨线程追加，须改为 Queued 转发至本对象
+  // 线程，而非重新加锁。
   QList<Message> m_messages;
-  QMutex m_mutex;
 
 private:
   Q_PROPERTY(QList<Message> messages READ messages NOTIFY messagesChanged)

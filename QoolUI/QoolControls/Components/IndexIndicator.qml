@@ -2,6 +2,25 @@ import QtQuick
 import QtQuick.Templates as T
 import QtQuick.Layouts
 
+/*!
+    \qmltype IndexIndicator
+    \inqmlmodule Qool.Controls.Components
+    \brief 指示当前索引的圆点指示器（ComboBox 等控件的 indicator 用）。
+
+    \c model 提供点位数量，\c currentIndex 高亮对应位（默认 -1 全不高亮）；
+    \c delegate 可整体替换点位外观，默认为 4x4 圆点（高亮色/普通色，
+    高亮位不透明，普通位 0.35 透明度）。\c implicitDelegateWidth/
+    \c implicitDelegateHeight 调整默认点位尺寸。\c orientation 决定排布
+    方向（默认 Qt.Vertical）。
+
+    \section2 单列/单行按 count 排布（刻意设计）
+    纵向（Qt.Vertical）时固定 \c columns 为 1、按 count 向下排布；
+    横向（Qt.Horizontal）时固定 \c rows 为 1、向右排布。此前 rows 曾
+    绑定 grid.height、columns 绑定 grid.width，形成自引用环（高度→行数
+    →高度），绑定循环求值不稳定；固定单列/单行同时保证 delegate
+    行高/列宽自适应，等宽覆盖场景可独立使用。
+*/
+
 T.Control {
     id: root
 
@@ -40,13 +59,18 @@ T.Control {
         Binding {
             when: root.orientation === Qt.Vertical
             grid.flow: Grid.TopToBottom
-            grid.rows: Math.floor(grid.height / root.implicitDelegateHeight)
+            // 固定单列、按 count 向下排布。此前 rows 绑定 grid.height
+            // 形成自引用环（高度→行数→高度），绑定循环求值不稳定；
+            // 单列同时保证 delegate 行高自适应（等宽覆盖场景独立可用）。
+            grid.columns: 1
         }
 
         Binding {
             when: root.orientation === Qt.Horizontal
             grid.flow: Grid.LeftToRight
-            grid.columns: Math.floor(grid.width / root.implicitDelegateWidth)
+            // 固定单行、按 count 向右排布，理由同上（columns 绑定
+            // grid.width 自引用）。
+            grid.rows: 1
         }
     }
 
