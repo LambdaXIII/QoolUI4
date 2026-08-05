@@ -4,6 +4,20 @@
 
 QOOL_NS_BEGIN
 
+/*!
+    \qmltype ShapeControl
+    \inqmlmodule Qool
+    \nativetype qoolui::ShapeControl
+    \brief 形状控制点计算器基类：以 target 的几何为输入派生形状数据。
+
+    绑定 target（QQuickItem）的 x/y/width/height，派生长边、短边、
+    宽高比、中心、半宽半高与外接矩形等基础几何量。具体形状
+    （如 QoolBoxShapeControl 的八边形）在子类中由设置计算控制点。
+
+    \l {contains()}{contains()} 是命中判定的扩展点：基类按外接矩形
+    判定，子类覆写为形状精确判定（数值算法，不依赖路径填充）。
+    C++ 侧扩展通过子类化本类（或 ShapeControlGadget）实现。
+*/
 ShapeControl::ShapeControl(QObject* parent)
   : SmartObject(parent) {
   setup_properties();
@@ -14,6 +28,13 @@ void ShapeControl::dumpInfo() const {
   xDebugQ << "boundingRect: " << boundingRect();
 }
 
+/*!
+    \qmlmethod bool ShapeControl::contains(point)
+    判断 \c point（局部坐标）是否落在形状内。
+
+    基类实现按外接矩形判定；形状子类覆写为精确判定
+    （如 QoolBoxShapeControl 的八边形线性不等式）。
+*/
 bool ShapeControl::contains(const QPointF& point) const {
   if (m_target) return m_target->boundingRect().contains(point);
   return boundingRect().contains(point);

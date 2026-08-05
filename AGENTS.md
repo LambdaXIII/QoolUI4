@@ -168,6 +168,25 @@ qt_add_qml_module(ModuleName
 - QML 单例文件用 CMake 属性注册（而非 QML_SINGLETON 注解）: `set_source_files_properties(Xxx.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)`
 - 文件按目录分组列出（如 `apps/xxx.h`），include 目录对应声明
 
+## 文档规范（QDoc）
+
+- QDoc 注释仅从 `.cpp`/`.qdoc` 文件提取，**头文件不被 QDoc 扫描**——发布头（`qoolns.hpp`、`interfaces/*.h`）禁止 QDoc 注释，只允许普通注释（`//`、`/* */`）
+- C++ QML 类型：类文档（`\qmltype` + `\nativetype`）写在对应 `.cpp`；宏生成属性无代码位置可挂 → 用独立 `\qmlproperty` 注释块，集中到 `Qool/qool.qdoc`
+- `.qml` 类型：`\qmltype` 注释块紧贴 `.qml` 文件内类型上方
+- 模块总览（`\qmlmodule`）与组织性文章（`\page`）必须独立 `.qdoc` 文件，放模块根目录（如 `Qool/qool.qdoc`）
+- `.qdoc` 是代码的 sidecar：对应某个代码文件的 `.qdoc` 放在该文件旁边、尽量同名（如 `qool_style.cpp` → `qool_style.qdoc`）
+- 一律不设 `doc/` 目录
+- 刻意设计（非 bug 行为、设计意图）必须用 QDoc 说明，防止后续审查误判（先例：fillItem 替代 CutCornerImage、关闭按钮配件哲学、control 回退值机制）
+
+## 变更记录
+
+- 每次修改更新 `CHANGELOG.md`（已加入 `QOOL_GENERAL` 目标）
+- 版本号不随常规修改迭代，维持 `4.0.0` 直至正式发布时递增
+
+## 核心库瘦身原则
+
+- 只保留通用/轻量/自洽/Qt 生态内能力；特化、有宿主归属、可被 Qt 原生替代的一律外移（V3 对比裁定先例：持久化交宿主、CutCornerImage→Qt 6.8 `ShapePath::fillItem`、图片加载→`QQuickImageProvider`）
+
 ## 已知陷阱
 
 ### 1. QML 模块依赖顺序
@@ -198,3 +217,4 @@ rm -rf build/CMakeCache.txt build/CMakeFiles
 | 项目配置 | [qool_qml_project_setup.cmake](file:///e:/workspace/QoolUI4/qool_qml_project_setup.cmake) |
 | 命名空间定义 | [includes/qoolns.hpp.config](file:///e:/workspace/QoolUI4/QoolUI/includes/qoolns.hpp.config) |
 | 插件接口 | [interfaces/](file:///e:/workspace/QoolUI4/QoolUI/interfaces/) |
+| 变更记录 | [CHANGELOG.md](file:///e:/workspace/QoolUI4/CHANGELOG.md) |

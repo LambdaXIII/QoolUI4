@@ -7,7 +7,6 @@ set_source_files_properties(
 
 set_source_files_properties(
   Qore.qml
-  QoolConstants.qml
   PixelFont.qml
   PROPERTIES
   QT_QML_SINGLETON_TYPE TRUE
@@ -65,9 +64,8 @@ qt_add_qml_module(Qool
   shapecontrol/qool_shapecontrol_gadget.cpp
   shapecontrol/qool_qoolbox_shapecontrol.h
   shapecontrol/qool_qoolbox_shapecontrol.cpp
-
-  # shapecontrol/qool_shapehelper.h
-  # shapecontrol/qool_shapehelper.cpp
+  shapecontrol/qool_shapecontainmentmask.h
+  shapecontrol/qool_shapecontainmentmask.cpp
 
   shapecontrol/gadgets/qool_shapegadget_triangle.h
   shapecontrol/gadgets/qool_shapegadget_triangle.cpp
@@ -148,8 +146,6 @@ target_link_libraries(
 target_link_libraries(Qool
   PRIVATE Qt6::Core Qt6::QuickControls2
 )
-target_link_libraries(Qool PRIVATE Qt6::Core)
-target_link_libraries(Qool PRIVATE Qt6::Core)
 
 
 
@@ -164,5 +160,3 @@ target_include_directories(
   PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/qore"
   PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/models"
 )
-
-# add_subdirectory(HandyControls)

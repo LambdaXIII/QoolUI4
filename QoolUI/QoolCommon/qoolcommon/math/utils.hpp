@@ -16,7 +16,7 @@ template <typename N>
 inline bool is_equal(N a, N b, float epsilon = M_FUZZY_EPSILON) {
   const auto aa = std::abs(a);
   const auto ab = std::abs(b);
-  if (aa < epsilon && ab > epsilon)
+  if (aa < epsilon && ab < epsilon)
     return true;
   return std::abs(a - b) / std::max(aa, ab) < epsilon;
 }
@@ -87,7 +87,7 @@ inline N cycle_in_range(N min, N value, N max) {
   const N distance = value - left;
   N mod = std::fmod(distance, range);
   if (mod < 0)
-    mod += distance;
+    mod += range;
   return left + mod;
 }
 

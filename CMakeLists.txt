@@ -43,6 +43,7 @@ add_library(
   .gitignore
   .cmake-format.py
   AGENTS.md
+  CHANGELOG.md
 )
 
 add_subdirectory(QoolUI)

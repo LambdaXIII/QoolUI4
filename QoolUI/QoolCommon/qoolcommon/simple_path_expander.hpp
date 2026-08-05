@@ -5,8 +5,8 @@
 #include "qoolns.hpp"
 
 #include <QDir>
+#include <QFileInfo>
 #include <QStringList>
-#include <QfileInfo>
 
 QOOL_NS_BEGIN
 
@@ -33,7 +33,7 @@ struct SimplePathExpander {
   }
 
   inline QFileInfoList entryInfoList(
-    const QStringList& nameFilters = {}) const {
+      const QStringList& nameFilters = {}) const {
     QList<QFileInfo> result;
     const QStringList dir_paths = searchPaths();
     for (const auto& dir_path : dir_paths) {
@@ -42,22 +42,20 @@ struct SimplePathExpander {
     }
 
     std::stable_sort(result.begin(), result.end(),
-      [](const QFileInfo& a, const QFileInfo& b) {
-        return a.absoluteFilePath() < b.absoluteFilePath();
-      });
+        [](const QFileInfo& a, const QFileInfo& b) {
+          return a.absoluteFilePath() < b.absoluteFilePath();
+        });
 
     auto last = std::unique(result.begin(), result.end());
     result.erase(last, result.end());
     return result;
-  };
+  }
 
-  inline QStringList entryList(
-    const QStringList& nameFilters = {}) const {
+  inline QStringList entryList(const QStringList& nameFilters = {}) const {
     QFileInfoList infos = entryInfoList(nameFilters);
     QStringList result;
-    std::transform(infos.cbegin(), infos.cend(),
-      std::back_inserter(result),
-      [&](const QFileInfo& info) { return info.absoluteFilePath(); });
+    std::transform(infos.cbegin(), infos.cend(), std::back_inserter(result),
+        [&](const QFileInfo& info) { return info.absoluteFilePath(); });
     result.shrink_to_fit();
     return result;
   }
