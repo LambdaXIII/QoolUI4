@@ -10,6 +10,30 @@ Item {
 
     anchors.fill: parent
 
+    // 手柄（Floater content）渲染在 Overlay 层，位置由 Floater 的
+    // updatePos 计算——它只在"Floater 自身 x/y 变化"或"Floater 的父
+    // （本组件）x/y 变化"时自动触发。本组件经 anchors 跟随 root.parent
+    // 平移时相对坐标不变，自动触发链断开，手柄停留在原地（表现为
+    // "被调对象移动了但手柄框不动"）；缩放时因 Floater.x 绑定（依赖
+    // root.width）重求值而偶然刷新。故监听 root.parent 的几何变化
+    // 统一刷新全部手柄。
+    Connections {
+        target: root.parent
+        function onXChanged() { refreshHandles() }
+        function onYChanged() { refreshHandles() }
+        function onWidthChanged() { refreshHandles() }
+        function onHeightChanged() { refreshHandles() }
+    }
+
+    function refreshHandles() {
+        rightFloater.refresh()
+        leftFloater.refresh()
+        topFloater.refresh()
+        bottomFloater.refresh()
+        topLeftFloater.refresh()
+        bottomRightFloater.refresh()
+    }
+
     Floater {
         id: rightFloater
         content: DragMoveArea {
