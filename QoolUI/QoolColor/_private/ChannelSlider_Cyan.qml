@@ -20,7 +20,7 @@ ChannelSlider {
 
     property ColorAssistant colorAssistant: ColorAssistant {}
 
-    title: qsTr("CYAN")
+    title: "CYAN"
     channelColor: "cyan"
 
     Binding {

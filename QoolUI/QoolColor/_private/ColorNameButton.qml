@@ -62,6 +62,12 @@ import Qool.Color
 T.AbstractButton {
     id: root
 
+    // 专项注释（缺陷修复）：v3 根为 Qool.Controls.AbstractButton（implicit 自动
+    // 取自 contentItem）；拍平件改根为 T.AbstractButton 后实测（Qt 6.11）
+    // Templates 不传播 contentItem implicit——implicit 恒 0。显式绑定回传。
+    implicitWidth: contentItem.implicitWidth
+    implicitHeight: contentItem.implicitHeight
+
     // 动画总开关：v3 同款传播（父级属性 → Style）。
     property bool animationEnabled: parent?.animationEnabled
                                     ?? Style.animationEnabled
@@ -180,25 +186,31 @@ T.AbstractButton {
     ] //transitions
 
     // ===== 互斥选择（v3 ButtonGroup exclusive 语义拍平）=====
+    // 独占互斥是刻意设计的 UI 模式（v3 ButtonGroup exclusive 语义），
+    // 覆盖全部 checked 变化路径（点击与程序化写入）——防后人当冗余简化。
 
     onClicked: {
         if (root.group) {
-            // 独占组：点击已选中项保持选中（v3 用户不可点击取消）。
-            if (root.checked)
-                return
-            if (root.group.checkedButton && root.group.checkedButton !== root)
-                root.group.checkedButton.checked = false
+            // 独占组：点击已选中项保持选中（checked 已为 true，无变化即无操作）。
+            // 互斥逻辑由 onCheckedChanged 统一承担。
             root.checked = true
-            root.group.checkedButton = root
         } else {
-            // 无组：普通切换按钮（v3 checkable 行为）。
             root.checked = !root.checked
         }
     } //onClicked
 
     onCheckedChanged: {
-        // 程序化取消（deselect）/组内被替换：同步组引用。
-        if (root.group && !root.checked && root.group.checkedButton === root)
+        if (!root.group)
+            return
+        if (root.checked) {
+            // 程序化选中同样走独占互斥（v3 ButtonGroup 对任意 checked 变化
+            // 自动互斥）：先取消旧选中，再更新组引用。
+            if (root.group.checkedButton && root.group.checkedButton !== root)
+                root.group.checkedButton.checked = false
+            root.group.checkedButton = root
+        } else if (root.group.checkedButton === root) {
+            // 程序化取消（deselect）/组内被替换：同步组引用。
             root.group.checkedButton = null
+        }
     } //onCheckedChanged
 }

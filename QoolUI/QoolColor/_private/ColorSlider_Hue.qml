@@ -46,7 +46,7 @@ ColorSlider {
 
     property ColorAssistant colorAssistant: ColorAssistant {}
 
-    title: qsTr("HUE")
+    title: "HUE"
     defaultValue: 0
     value: colorAssistant.hsvHueF
     displayColor: colorAssistant.solidColor

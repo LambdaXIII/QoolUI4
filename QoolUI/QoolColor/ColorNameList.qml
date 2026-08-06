@@ -64,7 +64,7 @@ ColumnLayout {
     property bool animationEnabled: parent?.animationEnabled
                                     ?? Style.animationEnabled
 
-    // 默认状态自洽：默认实例自带默认色，独立使用成立（v3 同构）。
+    // 默认状态自洽：默认实例自带默认色，独立使用即成立（v4 默认自洽原则）。
     property ColorAssistant colorAssistant: ColorAssistant {
         color: Style.highlight
     }

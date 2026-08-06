@@ -1,8 +1,9 @@
 // NOTE(拍平件定位) v3 CycleChoiceButton 的拍平重写件，置于 Qool.Color/_private
 // 而非 v4 Qool.Controls：暂不耦合 v4 Controls（拍平件只被 Color 模块内部消费），
-// 直接以 QtQuick 原语 + Qool 核心类型实现。
 // TODO(将来迁移): 待 Color 模块稳定后，本件扩展为完整控件迁移至 v4 Qool.Controls
 // （届时 Color 切换依赖，废弃本私有版）——见 color-migration-spec §7-7。
+// 迁入 Controls 时字号恢复 v3 buttonTextPixelSize（16px）语义（当前
+// controlTextSize=12 为临时默认，模块内消费方均以 PixelFont.normal 覆盖，无可见影响）。
 //
 // 拍平内容（v3 → 本文件内联）：
 //   - CycleChoiceButton    （循环切换按钮框架，本文件根，T.AbstractButton 原语）
@@ -62,12 +63,14 @@ import Qool.Color
         消费方，故行为不受影响。
     \endlist
 
-    \section2 交互反馈（v3 Control*Cover 的简化等效）
-    v3 的 \c ControlPressedCover（PaPaWall 词墙）/ \c ControlLockedCover
-    （条纹滚动）装饰性效果在 \c import 约束下（仅 QtQuick/Qool）以纯原语
-    半透明覆盖等效实现：按下 → 高亮色覆盖（\c pressedCover，opacity 0.25）；
-    禁用 → 负面色覆盖（\c lockedCover，opacity 0.25）+ 边框变负面色；
-    悬停/选中 → 边框高亮 + 底部渐变淡光。状态反馈保留，装饰渲染简化。
+    \section2 交互反馈（v3 Control*Cover 的简化等效 + 临时件策略）
+    状态反馈即时到位、无过渡动画（临时件策略——动画已按裁定全部移除）。
+    保留以下状态渲染（纯状态绑定，无 Behavior）：
+    \list
+    \li 按下 → 高亮色覆盖（\c pressedCover，opacity 0.25）
+    \li 禁用 → 负面色覆盖（\c lockedCover，opacity 0.25）+ 边框变负面色
+    \li 悬停/选中 → 边框高亮 + 底部渐变淡光
+    \endlist
 
     \section2 showTitle 默认变更（与 v3 的刻意差异）
     v3 \c CycleChoiceButton 默认 \c showTitle: true 且继承占位标题
@@ -92,6 +95,14 @@ import Qool.Color
 
 T.AbstractButton {
     id: root
+
+    // 专项注释（缺陷修复）：v3 CycleChoiceButton 根为 Qool.Controls.Button
+    // （implicit 尺寸自动取自 contentItem）；拍平件改根为 T.AbstractButton 后
+    // 实测（Qt 6.11）Templates 不传播 contentItem implicit——implicit 恒 0，
+    // ColorNameList 中无显式尺寸、分类切换器塌陷不可见。显式绑定回传
+    // （contentItem 内 Text 自带 implicit 80x40，v3 BasicButton 最小按钮尺寸）。
+    implicitWidth: contentItem.implicitWidth
+    implicitHeight: contentItem.implicitHeight
 
     // ===== 数据面（v3 ComboChoiceModel 数组属性内联）=====
 
@@ -153,9 +164,7 @@ T.AbstractButton {
         fillColor: root.bgSettings.color
         borderColor: root._feedbackBorderColor
         curved: false // v3 CutCornerBox 八边形外观
-        BasicColorBehavior on borderColor {
-            enabled: root.Style.animationEnabled
-        }
+        // BasicColorBehavior on borderColor：动画已按临时件策略移除。
     }
 
     readonly property color _feedbackBorderColor: {
@@ -231,20 +240,8 @@ T.AbstractButton {
         horizontalAlignment: root.horizontalAlignment
         verticalAlignment: root.verticalAlignment
 
-        // 切换弹跳动画（v3 BasicText_ButtonContent 的 Behavior on text 等价，
-        // v4 BasicTextBehavior 原生实现）；颜色/透明度渐变为 v3 同款。
-        BasicTextBehavior on text {
-            enabled: root.Style.animationEnabled
-        }
-        BasicColorBehavior on color {
-            duration: root.Style.transitionDuration
-            easing.type: Easing.InOutQuart
-            enabled: root.Style.animationEnabled
-        }
-        BasicNumberBehavior on opacity {
-            duration: root.Style.transitionDuration
-            enabled: root.Style.animationEnabled
-        }
+        // 动画已按临时件策略移除（文字弹跳/颜色渐变/透明度渐变），
+        // 仅保留状态绑定——状态反馈即时到位。（v3 BasicText_ButtonContent → 删除）
     } //mainText
 
     // ===== 背景与反馈层 =====
@@ -281,10 +278,7 @@ T.AbstractButton {
         }
         opacity: root.enabled && root.hovered ? 0.2 : 0
         z: 2
-        BasicNumberBehavior on opacity {
-            duration: root.Style.movementDuration
-            enabled: root.Style.animationEnabled
-        }
+        // BasicNumberBehavior on opacity：动画已按临时件策略移除。
     } //hoverGradient
 
     // 按下覆盖（v3 ControlPressedCover 的简化等效，见类文档）。
@@ -305,9 +299,7 @@ T.AbstractButton {
         }
         opacity: root.down ? 0.25 : 0
         z: 90
-        BasicNumberBehavior on opacity {
-            enabled: root.Style.animationEnabled
-        }
+        // BasicNumberBehavior on opacity：动画已按临时件策略移除。
     } //pressedCover
 
     // 禁用覆盖（v3 ControlLockedCover 的简化等效，见类文档）。
@@ -326,11 +318,8 @@ T.AbstractButton {
             borderWidth: 0
             curved: false
         }
-        opacity: root.enabled ? 0 : 0.25
         z: 90
-        BasicNumberBehavior on opacity {
-            enabled: root.Style.animationEnabled
-        }
+        // BasicNumberBehavior on opacity：动画已按临时件策略移除。
     } //lockedCover
 
     // 标题加载器（v3 BasicButton.titleLoader 同款，默认不激活）。

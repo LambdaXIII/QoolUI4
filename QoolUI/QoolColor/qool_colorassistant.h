@@ -11,10 +11,14 @@
 
 QOOL_NS_BEGIN
 
-// 局部宏：分量属性（int/F 双轨）——getter/setter/信号声明 + 成员。
+// 局部宏：分量属性（int/F 双轨）——Q_PROPERTY 注册 + getter/setter/信号声明 + 成员。
 // 本类属性手写 Q_PROPERTY 而非宏体系（AGENTS「例外」条款）：每个分量 setter
 // 有自定义语义（分量 → set_color 全空间重算 → 全信号），宏体系 setter 为纯
 // 赋值不适用；且派生只读属性共用 colorChanged（多属性共享同一信号）。
+// 专项注释（缺陷修复）：Q_PROPERTY 行曾被遗漏——手写属性时漏注册不产生
+// 编译错误，QML 侧读取得 undefined、写入被丢弃，导致面板分量输入为空、
+// 拖动不生效、光标坐标 NaN 且双向同步守卫（NaN !== NaN 恒 true）自持循环
+// 刷屏 QTransform::translate with NaN。对照 v3 宏展开补齐注册。
 #define XX_PROP_DECLARE(_T_, _N_)                \
 public:                                          \
   Q_SIGNAL void _N_##Changed();                  \
@@ -22,6 +26,8 @@ public:                                          \
   void set_##_N_(_T_ new_##_N_);                 \
                                                  \
 protected:                                       \
+  Q_PROPERTY(_T_ _N_ READ _N_ WRITE set_##_N_    \
+      NOTIFY _N_##Changed)                       \
   void update_##_N_(const _T_& x);               \
   _T_ m_##_N_{ 0 };
 

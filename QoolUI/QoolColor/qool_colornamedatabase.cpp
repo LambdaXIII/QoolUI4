@@ -21,13 +21,13 @@ QOOL_NS_BEGIN
 
     \section1 插件优先级（priority）
 
-    多插件并存时的裁决语义（v4 约定，见 qool-plugin-interfaces 页面）：
-
     \list
     \li \c names() —— 全部 provider 的名称并集（可按 \c category 过滤，
         返回前排序）。
-    \li \c color()/name() —— 从高优先级向低优先级遍历，首个能给出
-        结果（std::optional 有值）的 provider 胜出；全部无结果时
+    \li \c color()/name() —— \b 按 priority 数值升序遍历，首个能给出
+        结果（std::optional 有值）的 provider 胜出——"补充"型裁决
+        （低数值 provider 提供基础色名，高数值 provider 仅补充其未覆盖
+        的查询），\b 并非高优先级覆盖。全部无结果时
         \c color() 返回调用方传入的 \c def（默认白色），\c name()
         返回 \c QColor::name() 的 #RRGGBB/#AARRGGBB 文本。
     \li \c categories() —— 去重后返回，高优先级 provider 的类别在前。
@@ -130,10 +130,10 @@ QStringList ColorNameDatabase::names(const QString& category) const {
 
 QColor ColorNameDatabase::color(
   const QString& name, const QColor& def) const {
-  auto keys = m_providers.keys();
-  std::reverse(keys.begin(), keys.end());
-  for (const auto& key : std::as_const(keys)) {
-    auto c = m_providers.value(key)->color(name);
+  // 升序遍历：priority 小的 provider 先查询，首个命中胜出
+  //（"补充"型裁决：低数值 provider 提供基础色名，高数值仅补充未覆盖的查询）。
+  for (auto* provider : m_providers) {
+    auto c = provider->color(name);
     if (c)
       return decode(c);
   }
@@ -158,10 +158,8 @@ bool ColorNameDatabase::hasColor(const QString& name) const {
 }
 
 QString ColorNameDatabase::name(const QColor& c) const {
-  auto keys = m_providers.keys();
-  std::reverse(keys.begin(), keys.end());
-  for (const auto& key : std::as_const(keys)) {
-    auto n = m_providers.value(key)->name(encode(c));
+  for (auto* p : m_providers) {
+    auto n = p->name(encode(c));
     if (n.has_value())
       return n.value();
   }

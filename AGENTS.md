@@ -242,6 +242,7 @@ QAbstractItemModel 子类**遵循 Qt 官方线程规范：不加锁**（QAbstrac
 - 交互反馈: `ControlPressedCover` / `ControlHighlightCover` / `ControlLockedCover` 三件套
 - delegate 用 `required property` 接收 model/index；对外状态用 `readonly property` 代理内部 pCtrl
 - 文案一律 `qsTr()`；页面派生 `BasicPage`（required title/note），`SectionBar` 分段，`QoolTip` 内嵌
+- **排版文字≠文本**：装饰性排版文字（像素字体标签类，如通道标签 HUE/SATURATION、L/S 字母）是通过 Text 实现的画面元素，其内容、字号、字体、排版配套设计——复刻原样、**不加 qsTr()、不翻译**（是「文案一律 qsTr」的明确例外）。
 - **公开组件默认状态必须自洽**：组件的初始化定义即默认行为，独立使用（无宿主上下文、不设额外属性）时默认状态必须成立——"独立使用场景成立"是设计义务，不是可选项。审查/修复时优先检查默认值、默认结构、默认外观是否自洽（实例：IndexIndicator 的 rows/columns 自引用环、ComboBox editable 场景的 textField 引用）
 - **Debug 工具边界暴露原则**：Qool.Debug 是宿主调试工具集，边界条件（除零、最小尺寸、越界参数）**有意暴露使用问题**——可见的异常行为是功能（误配置时立即发现），静默错误/崩溃才算缺陷。审查 Debug 模块时，边界暴露不按 bug 处理，只有掩盖问题（如静默吞掉）才需要修
 - 块尾注释标记闭合: `}//contentItem`

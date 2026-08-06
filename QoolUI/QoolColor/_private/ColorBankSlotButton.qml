@@ -134,7 +134,7 @@ T.Control {
             propagateComposedEvents: true
             Text {
                 font: PixelFont.normal
-                text: qsTr("L")
+                text: "L"
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 anchors.fill: parent
@@ -159,7 +159,7 @@ T.Control {
             propagateComposedEvents: true
             Text {
                 font: PixelFont.normal
-                text: qsTr("S")
+                text: "S"
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 anchors.fill: parent

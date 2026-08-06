@@ -7,16 +7,17 @@
 // v4 组织：BasicPage + SectionBar 分段 + QoolTip 提示（v3 的 QoolPage/
 // InfoBox/PageSeparateBar 为 v3 组件，v4 无——按 v4 惯例替代）。
 //
-// 刻意设计（提示布局，防误改）：
-// - 四面板交互面均为未开 hoverEnabled 的 InteractingArea（无悬停消费），
-//   覆盖式 QoolTip 不影响拖动/双击重置/输入（QoolTip 接受 Qt.NoButton，
-//   事件穿透）。面板根是 ColumnLayout，锚定子项受布局管理（不确定语义），
-//   故 QoolTip 放在同尺寸 Item 包装层、z: -1：面板自有悬停消费（NumInput
-//   的 IBeam HoverHandler）优先，其余区域提示生效。
+// 刻意设计（QoolTip 布局，防误改）：
+// - 宽度按 v4 页面风格（Page_Buttons 同款）：面板/控件回落自然宽度
+//   （implicitWidth），仅 SectionBar 全宽（width: root.width）。迁移曾把
+//   全部控件设为 width: root.width 填满——与 v4 其他页面不一致，已移除。
+// - QoolTip 是 anchors.fill: parent 的悬停检测层（acceptedButtons: Qt.NoButton，
+//   不拦截点击/拖动），经 GlobalChatRoom 驱动 QoolTipPanel 浮层动态显示。
+// - 面板的 Item 包装层是 QoolTip 的锚点宿主（面板根是 ColumnLayout，
+//   不能直接锚定 MouseArea）；QoolTip 的 z: -1 使面板自有悬停消费
+//   （如 NumInput 的 IBeam 光标）优先。
 // - ColorQuickPicker/ColorNameList/ColorBankPanel 的交互依赖悬停状态
-//   （渐变显隐/列表下划线/L·S 淡入），满覆盖 QoolTip 会遮蔽悬停——
-//   这三处提示挂在分区标题上，组件交互零干扰（v3 InfoBox 的 hover 提示
-//   语义等价迁移）。
+//   （渐变显隐/列表下划线/L·S 淡入），QoolTip 挂在分区标题上、不覆盖组件区域。
 // - ColorEdit/ColorPreviewer 根为 Item 且无悬停消费组件，QoolTip 直接内嵌。
 //
 // 默认色：Component.onCompleted 赋 Style.highlight（v3 照迁）——此时
@@ -49,12 +50,10 @@ BasicPage {
 
     Column {
         id: cc
-        // width: root.width
         spacing: 15
 
         // ---- 快速取色 / 快速输入 / 预览 ----
         GridLayout {
-            width: root.width
             columns: 2
             columnSpacing: 10
             rowSpacing: 15
@@ -105,8 +104,8 @@ BasicPage {
             Connections {
                 target: mainColor
                 function onColorChanged() {
-                    picker.currentColor = mainColor.color
-                    editor.currentColor = mainColor.color
+                    picker.currentColor = mainColor.color;
+                    editor.currentColor = mainColor.color;
                 }
             }
         }
@@ -117,11 +116,10 @@ BasicPage {
 
         // ---- HSV 面板 ----
         Item {
-            width: root.width
+            width: hsvPanel.width
             height: hsvPanel.height
             HSVPanel {
                 id: hsvPanel
-                width: parent.width
                 colorAssistant: mainColor
             }
             QoolTip {
@@ -137,11 +135,10 @@ BasicPage {
 
         // ---- HSL 面板 ----
         Item {
-            width: root.width
+            width: hslPanel.width
             height: hslPanel.height
             HSLPanel {
                 id: hslPanel
-                width: parent.width
                 colorAssistant: mainColor
             }
             QoolTip {
@@ -157,11 +154,10 @@ BasicPage {
 
         // ---- RGB 面板 ----
         Item {
-            width: root.width
+            width: rgbPanel.width
             height: rgbPanel.height
             RGBPanel {
                 id: rgbPanel
-                width: parent.width
                 colorAssistant: mainColor
             }
             QoolTip {
@@ -177,11 +173,10 @@ BasicPage {
 
         // ---- CMYK 面板 ----
         Item {
-            width: root.width
+            width: cmykPanel.width
             height: cmykPanel.height
             CMYKPanel {
                 id: cmykPanel
-                width: parent.width
                 colorAssistant: mainColor
             }
             QoolTip {
@@ -207,7 +202,10 @@ BasicPage {
         }
 
         ColorNameList {
-            width: root.width
+            // 专项注释（缺陷修复）：v3 示例页有 Layout.preferredHeight: 450，迁移
+            // 静默丢失该实例侧尺寸注入（回落 implicitHeight 500）。v4 页容器是
+            // Column（无 Layout 附加属性），以 height 直设等价。
+            height: 450
             colorAssistant: mainColor
         }
 
@@ -227,7 +225,11 @@ BasicPage {
         }
 
         ColorBankPanel {
-            width: root.width
+            // 专项注释（缺陷修复）：v3 示例页有 columns: 4 + Layout.preferredHeight: 450，
+            // 迁移静默丢失两处实例侧注入（回落默认 6 列、隐含高度约 172px：
+            // 槽位压扁、行数少 2）。恢复 v3 装配。
+            height: 450
+            columns: 4
             colorAssistant: mainColor
         }
     } //cc

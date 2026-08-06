@@ -45,6 +45,14 @@ import Qool.Color
 T.Control {
     id: root
 
+    // 专项注释（缺陷修复）：v3 根为 Qool.Controls.Control（implicit 自动取自
+    // contentItem）；拍平件改根为 T.Control 后实测（Qt 6.11）Templates 不传播
+    // contentItem implicit——implicit 恒 0。ChannelSlider 以显式尺寸消费
+    // （preferredHeight/fillWidth）故无可见影响，此处补齐保持独立使用自洽
+    // （v3 语义：contentItem implicit 30x100）。
+    implicitWidth: contentItem.implicitWidth
+    implicitHeight: contentItem.implicitHeight
+
     property bool animationEnabled: root.Style.animationEnabled
 
     property color channelColor

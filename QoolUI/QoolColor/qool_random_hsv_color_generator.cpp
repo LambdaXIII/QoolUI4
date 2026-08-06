@@ -18,8 +18,8 @@ QOOL_NS_BEGIN
 
     \list
     \li \c preferredX ≥ 0：该通道\b 锁定为 preferredX，不做随机，
-        忽略 minX / maxX；
-    \li \c preferredX < 0（默认 -1）：该通道在 [minX, maxX] 内随机
+        忽略 minimumX / maximumX；
+    \li \c preferredX < 0（默认 -1）：该通道在 [minimumX, maximumX] 内随机
         （min / max 自动取小大为界）。
     \endlist
 
@@ -30,8 +30,8 @@ QOOL_NS_BEGIN
     \section2 255 量化（刻意设计，请勿当作 bug 修改）
 
     内部统一按 0..255 整数量化（量化步 360/256 ≈ 1.41°）。量化粒度
-    与「与上次生成结果各分量差 ≥ 20」的防重复约束配套：保证连续两次
-    生成的颜色在视觉上可区分。把 255 改成更细粒度、或改用浮点构造，
+    与「与上次生成结果\b 色相差 ≥ 20」的防重复约束配套（其余通道
+    无约束均匀随机）。把 255 改成更细粒度、或改用浮点构造，
     都会破坏防重复语义——255 是设计的一部分，不是实现细节。
 
     \section2 色相满环映射（v3 缺陷修复，整数路径）
@@ -50,7 +50,8 @@ QOOL_NS_BEGIN
     \section2 防重复与黑白名单
 
     \list
-    \li 防重复：每个随机通道与上一次生成结果对应分量差 ≥ 20 才接受；
+    \li 防重复：\b 色相通道与上一次生成结果差 ≥ 20 才接受
+        （sat/value/alpha 无此约束，均匀随机）；
     \li \l whiteList 非空时优先从 whiteList 取色（仍受 blackList 与
         防重复约束）；
     \li \l blackList 排除：命中 blackList 的颜色不会被返回。
@@ -80,7 +81,7 @@ RandomHSVColorGenerator::~RandomHSVColorGenerator() {
   delete m_mutex;
 }
 
-QColor RandomHSVColorGenerator::generate() const {
+QColor RandomHSVColorGenerator::generate() {
   QMutexLocker locker(m_mutex);
 
   QColor result = m_previous;
@@ -101,61 +102,71 @@ QColor RandomHSVColorGenerator::generate() const {
   return result;
 }
 
-int RandomHSVColorGenerator::combinationsCount() const {
+int RandomHSVColorGenerator::count() const {
+  // 专项注释（缺陷修复）：迁移静默把 v3 count() 改名 combinationsCount() 并
+  // 改动公式（锁定通道由计 0 改计 1、去掉 +1）——无裁定依据（spec 仅裁定
+  // hue 满环修复），v3 调用方迁移后 ReferenceError。恢复 v3 逐字公式：
+  // 锁定通道计 0、乘积 + 1（默认配置 alpha 锁定 → 返回 1）。
   const int hue_count =
-    m_preferredHue >= 0 ? 1 : std::abs(_maxHue() - _minHue());
+    m_preferredHue >= 0 ? 0 : std::abs(_maxHue() - _minHue());
   const int sat_count = m_preferredSaturation >= 0 ?
-                          1 :
+                          0 :
                           std::abs(_maxSaturation() - _minSaturation());
   const int value_count =
-    m_preferredValue >= 0 ? 1 : std::abs(_maxValue() - _minValue());
+    m_preferredValue >= 0 ? 0 : std::abs(_maxValue() - _minValue());
   const int alpha_count =
-    m_preferredAlpha >= 0 ? 1 : std::abs(_maxAlpha() - _minAlpha());
-  return hue_count * sat_count * value_count * alpha_count;
+    m_preferredAlpha >= 0 ? 0 : std::abs(_maxAlpha() - _minAlpha());
+  return hue_count * sat_count * value_count * alpha_count + 1;
 }
 
-bool RandomHSVColorGenerator::check_previous(
-  const QColor& color) const {
+bool RandomHSVColorGenerator::check_previous(const QColor& color) {
   if (color == m_previous)
     return false;
   QMutexLocker locker(m_mutex);
   m_previous = color;
+  Q_EMIT previousChanged();
   return true;
 }
 
-int __generate(int min, int max, int preferred, int previous = 0) {
-  if (preferred >= 0)
-    return preferred;
-  const int left = std::min(min, max);
-  const int right = std::max(min, max);
-  int x = previous;
-  while (std::abs(x - previous) < 20)
-    x = QRandomGenerator::global()->bounded(left, right);
-  return x;
-}
-
 int RandomHSVColorGenerator::randomHue() const {
+  if (m_preferredHue >= 0)
+    return _preferredHue();
   // previous 统一 255 域：hsvHueF()（0..1）→ 量化域。
   // 无彩上一次 hsvHueF() == -1 → prev = -255 → 首次随机即通过
   // （|x + 255| ≥ 255 > 20），即无彩颜色不构成色相约束。
   const int prev = qRound(m_previous.hsvHueF() * 255);
-  return __generate(_minHue(), _maxHue(), _preferredHue(), prev);
+  int x = prev;
+  const int left = std::min(_minHue(), _maxHue());
+  const int right = std::max(_minHue(), _maxHue());
+  while (std::abs(x - prev) < 20)
+    x = QRandomGenerator::global()->bounded(left, right);
+  return x;
 }
 
+// 专项注释（v3 行为恢复）：v3 中防重复（差 ≥ 20）仅色相通道；
+// 迁移曾过度解读扩大到全通道，按裁定恢复为无约束均匀随机。
 int RandomHSVColorGenerator::randomSat() const {
-  const int prev = m_previous.hsvSaturation();
-  return __generate(
-    _minSaturation(), _maxSaturation(), _preferredSaturation(), prev);
+  if (m_preferredSaturation >= 0)
+    return _preferredSaturation();
+  const int left = std::min(_minSaturation(), _maxSaturation());
+  const int right = std::max(_minSaturation(), _maxSaturation());
+  return QRandomGenerator::global()->bounded(left, right);
 }
 
 int RandomHSVColorGenerator::randomVal() const {
-  const int prev = m_previous.value();
-  return __generate(_minValue(), _maxValue(), _preferredValue(), prev);
+  if (m_preferredValue >= 0)
+    return _preferredValue();
+  const int left = std::min(_minValue(), _maxValue());
+  const int right = std::max(_minValue(), _maxValue());
+  return QRandomGenerator::global()->bounded(left, right);
 }
 
 int RandomHSVColorGenerator::randomAlf() const {
-  const int prev = m_previous.alpha();
-  return __generate(_minAlpha(), _maxAlpha(), _preferredAlpha(), prev);
+  if (m_preferredAlpha >= 0)
+    return _preferredAlpha();
+  const int left = std::min(_minAlpha(), _maxAlpha());
+  const int right = std::max(_minAlpha(), _maxAlpha());
+  return QRandomGenerator::global()->bounded(left, right);
 }
 
 /*!
@@ -231,6 +242,12 @@ int RandomHSVColorGenerator::randomAlf() const {
 */
 
 /*!
+    \qmlproperty color Qool.Color::RandomHSVColorGenerator::previous
+    \brief 上一次成功生成的颜色（只读）。默认 \c Qt::white——首次
+    generate() 只需与白色不同。
+*/
+
+/*!
     \qmlproperty list<color> Qool.Color::RandomHSVColorGenerator::blackList
     \brief 排除列表：生成结果命中其中任一颜色时重掷（优先级低于
     whiteList——whiteList 命中但同时在 blackList 中仍会被排除）。
@@ -248,17 +265,9 @@ int RandomHSVColorGenerator::randomAlf() const {
     \brief 生成一个满足当前约束的颜色。
 
     返回值满足：不在 blackList 中、与上一次 generate() 结果不同
-    （各随机通道分量差 ≥ 20）、preferred ≥ 0 的通道恒为锁定值。
+    （色相通道差 ≥ 20；sat/value/alpha 无约束随机）、preferred ≥ 0
+    的通道恒为锁定值。
     首次调用时 previous 为默认白色，只需与白色不同。
-*/
-
-/*!
-    \qmlmethod int RandomHSVColorGenerator::combinationsCount()
-    \brief 当前约束下的组合数量上限（各随机通道 255 量化区间跨度之积）。
-
-    preferred ≥ 0 的通道按 1 计（锁定）；随机通道按
-    |maxX - minX|（255 量化域）计。用于展示 / 上限估计，非精确
-    可枚举数。
 */
 
 QOOL_NS_END

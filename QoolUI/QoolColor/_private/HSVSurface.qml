@@ -2,9 +2,8 @@
 // 拍平点：v3 的 ShapeHelper + CircleGadget（qool_shapehelper.cpp /
 // qool_shapehelpergadget_circle.cpp，v4 已移除）数学全部内联为 pMath——
 // 逐字移植，含象限修正与环绕（见下）。
-// Style 对位：Style.foregroundColor → root.Style.text（v3 foregroundColor
-// 为前景主色，v4 语义最近为 text；注意 v4 light 的值恰好等于 v3
-// foregroundColor 的值 #F8F8F2，但 light 是 3D 色调色非前景语义——见 T13 对照表）。
+// Style 对位：v4 样式系统无独立 foreground token，foreground 语义并入 text
+// （QPalette 对位），故 Style.foregroundColor → root.Style.text。
 // 与 v3 的刻意差异：
 //   1. v3 的 `containmentMask: circler` 是类型不匹配的死代码（CircleGadget 是
 //      QObject 而非 Item，QML 运行时报错并跳过），v4 删除——命中域不变

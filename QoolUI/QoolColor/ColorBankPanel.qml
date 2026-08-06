@@ -56,7 +56,7 @@ import "_private"
     \li 槽格左半 \b L（载入）：\c colorAssistant.color = slotColor
         ——槽色写回当前色。
     \li \c loadEnabled / \c saveEnabled：槽色与当前色\b 不同才可点
-        （相同则无操作意义，v3 同构）。
+        （相同则无操作意义，v4 默认自洽原则）。
     \li 槽号悬停淡出、L/S 淡入、按下前景高亮（\l ColorBankSlotButton
         内部行为）。
     \endlist
@@ -98,7 +98,7 @@ GridLayout {
     // 默认自有内存实例；注入宿主实例即共享数据（见类文档三接法）。
     property ColorBank colorBank: ColorBank {}
 
-    // 默认状态自洽：默认实例自带默认色，独立使用成立（v3 同构）。
+    // 默认状态自洽：默认实例自带默认色，独立使用即成立（v4 默认自洽原则）。
     property ColorAssistant colorAssistant: ColorAssistant {
         color: Style.highlight
     }

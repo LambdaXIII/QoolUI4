@@ -7,7 +7,7 @@
 //   PixelFont.normalFont → PixelFont.normal（见 T08/T10 style_mapping）。
 // 交互照迁：HSVWheel 拖动取色/双击重置（hue=0、sat=0）、滑块拖动/双击重置
 //   （Value/Alpha 默认 1）、showAlpha 控制透明度滑块显隐、animationEnabled 门控动画。
-// 与 v3 的刻意差异：标签文本加 qsTr（AGENTS 规范）；格式规范化（v3 缩进怪癖）。
+// 与 v3 的刻意差异：标签为排版文字（画面元素），不翻译；格式规范化（v3 缩进怪癖）。
 
 pragma ComponentBehavior: Bound
 
@@ -71,8 +71,7 @@ ColumnLayout {
     id: root
 
     // 动画总开关：v3 同款传播（父级属性 → Style），子件各自消费。
-    property bool animationEnabled: parent?.animationEnabled
-                                    ?? Style.animationEnabled
+    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
 
     property bool showAlpha: true
 
@@ -87,7 +86,7 @@ ColumnLayout {
         columns: 2
         Layout.fillWidth: true
         Text {
-            text: qsTr("HUE")
+            text: "HUE"
             font: PixelFont.normal
             color: Style.text
             Layout.leftMargin: 2
@@ -105,22 +104,20 @@ ColumnLayout {
             Layout.preferredWidth: 72
             Binding {
                 when: !hueText.editing
-                hueText.text: Tools.simplifyChannelNumber(
-                                  root.colorAssistant.hsvHueF)
+                hueText.text: Tools.simplifyChannelNumber(root.colorAssistant.hsvHueF)
                 restoreMode: Binding.RestoreNone
             }
             Connections {
                 enabled: hueText.editing
                 target: hueText
                 function onTextChanged() {
-                    root.colorAssistant.hsvHueF = hueText.parseChannelValue(
-                                                      hueText.text)
+                    root.colorAssistant.hsvHueF = hueText.parseChannelValue(hueText.text);
                 }
             }
         } //hueText
 
         Text {
-            text: qsTr("SATURATION")
+            text: "SATURATION"
             font: PixelFont.normal
             color: Style.text
             Layout.leftMargin: 2
@@ -138,16 +135,14 @@ ColumnLayout {
             Layout.preferredWidth: 72
             Binding {
                 when: !satText.editing
-                satText.text: Tools.simplifyChannelNumber(
-                                  root.colorAssistant.hsvSaturationF)
+                satText.text: Tools.simplifyChannelNumber(root.colorAssistant.hsvSaturationF)
                 restoreMode: Binding.RestoreNone
             }
             Connections {
                 enabled: satText.editing
                 target: satText
                 function onTextChanged() {
-                    root.colorAssistant.hsvSaturationF = satText.parseChannelValue(
-                                                             satText.text)
+                    root.colorAssistant.hsvSaturationF = satText.parseChannelValue(satText.text);
                 }
             }
         } //satText

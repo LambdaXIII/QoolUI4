@@ -8,7 +8,7 @@
 // 交互照迁：HSLBox 拖动取色/双击重置（hue<0→0，然后 sat=1、ltn=0.5）、
 //   ColorSlider_Hue 拖动/双击重置（0）、ColorSlider_Alpha 拖动/双击重置（1）、
 //   showAlpha 控制透明度滑块显隐、animationEnabled 门控动画。
-// 与 v3 的刻意差异：标签文本加 qsTr（AGENTS 规范）；格式规范化。
+// 与 v3 的刻意差异：标签为排版文字（画面元素），不翻译；格式规范化。
 // NOTE: 与 v3 一致，HSLBox 驱动 hslHueF/hslSaturationF/hslLightnessF，
 //   ColorSlider_Hue 驱动 hsvHueF（两域经 colorAssistant.color 同步，v3 架构）。
 
@@ -101,7 +101,7 @@ ColumnLayout {
         columns: 2
         Layout.fillWidth: true
         Text {
-            text: qsTr("SATURATION")
+            text: "SATURATION"
             font: PixelFont.normal
             color: Style.text
             Layout.leftMargin: 2
@@ -134,7 +134,7 @@ ColumnLayout {
         } //satText
 
         Text {
-            text: qsTr("LIGHTNESS")
+            text: "LIGHTNESS"
             font: PixelFont.normal
             color: Style.text
             Layout.leftMargin: 2

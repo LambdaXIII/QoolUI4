@@ -12,6 +12,8 @@
 //   - NumberLimiter         （position 的 CutAtEdges 限幅，一行 Math 内联）
 // 不再依赖：QtQuick.Controls / QtQuick.Layouts / Qool.Controls.Basic / numberhelper。
 //
+// 动画特征已按临时件策略移除（编辑弹跳/边缘闪烁/淡入），仅保静态外观、布局与状态切换。
+//
 // 与 v3 的刻意差异（均有注释，防审查误判）：
 //   - pControl.leftBeamerAlpha/rightBeamerAlpha：v3 中无任何消费方的死状态，删除。
 //   - root.textEdited 信号保留声明但 v3 亦从不发射（仅 API 面），行为照迁。
@@ -65,7 +67,15 @@ import Qool.Color
 T.Control {
     id: root
 
-    // 动画总开关：v4 惯例，取自附加 Style（Basic*Behavior 自身亦会二次门控）。
+    // 专项注释（缺陷修复）：v3 TextLineEdit 根为 QBasic.Control（QtQuick.Controls.Basic），
+    // implicit 尺寸自动取自 contentItem；拍平件改根为 T.Control（QtQuick.Templates）后
+    // 实测（Qt 6.11）Templates.Control 不传播 contentItem implicit——implicit 恒 0，
+    // 布局中分配高度 0、数字内容溢出与标签错位/重叠。显式绑定回传（语义与 v3 一致：
+    // implicit = 内容隐式尺寸，showUnderline 时含下划线区 5+4）。
+    implicitWidth: content.implicitWidth
+    implicitHeight: content.implicitHeight
+
+    // 动画已按临时件策略移除，本属性仅为 API 兼容保留（临时件定位）。
     property bool animationEnabled: root.Style.animationEnabled
 
     property bool editable: true
@@ -139,13 +149,11 @@ T.Control {
     WheelHandler {
         id: wheeler
         enabled: display.scrollable && (!pControl.editing)
-        // 每格滚轮（120 单位）滚动 4px；滚到边缘时触发指示条颜色动画。
+        // 每格滚轮（120 单位）滚动 4px。
         onWheel: ev => {
                      const p = ev.angleDelta
                      let delta_pos = p.y / 120 * 4 / display.width
                      display.implicitPosition = display.position + delta_pos
-                     if (display.position === 0 || display.position === 1)
-                         edgeAnimation.restart()
                  }
     }
 
@@ -171,6 +179,15 @@ T.Control {
                 anchors.fill: parent
                 clip: true
                 visible: !pControl.editing
+                // 专项注释（缺陷修复）：拍平时丢失了 v3 BasicScrollableText 的
+                // 数据绑定行（text: displayText + font/color/两向对齐，对照 v3
+                // TextLineEdit.qml 的 BasicScrollableText 实例），display 恒空、
+                // 全部数值显示沦为"<空>"占位。逐行补回。
+                text: root.displayText
+                font: root.font
+                color: root.color
+                horizontalAlignment: root.horizontalAlignment
+                verticalAlignment: root.verticalAlignment
 
                 // 滚动位置输入（滚轮写此值）；position 为 CutAtEdges 限幅结果
                 //（v3 NumberLimiter 模式，等价 Math 内联）。
@@ -186,9 +203,6 @@ T.Control {
 
                 implicitHeight: mainText.implicitHeight
                 implicitWidth: mainText.implicitWidth
-
-                signal leftEdgeReached
-                signal rightEdgeReached
 
                 Text {
                     id: mainText
@@ -210,21 +224,14 @@ T.Control {
                         }
                     }
                 } //mainText
-
-                // 与 v3 一致：implicitPosition 越界（滚轮过冲）时宣告边缘事件；
-                // position 本身被限幅，故此处判断用未限幅的输入值。
-                onPositionChanged: {
-                    if (display.implicitPosition <= 0)
-                        display.leftEdgeReached()
-                    if (display.implicitPosition >= 1)
-                        display.rightEdgeReached()
-                }
             } //display
 
             // ---- 编辑态（v3 BasicTextInput 内联）----
             TextInput {
                 id: input
-                activeFocusOnPress: false
+                // 专项注释（缺陷修复）：v3 BasicTextInput 为 activeFocusOnPress: true，
+                // 迁移静默翻转为 false（长按/拖动后 tap 取消场景的光标落点失焦）。恢复。
+                activeFocusOnPress: true
                 selectByMouse: true
                 wrapMode: TextInput.NoWrap
                 visible: pControl.editing
@@ -235,7 +242,6 @@ T.Control {
                 selectionColor: root.highlightColor
                 selectedTextColor: ThemeDB.recommendForeground(root.highlightColor)
                 onEditingFinished: pControl.end_edit()
-                onTextEdited: editingAnimation.restart()
                 anchors.fill: parent
             } //input
 
@@ -280,7 +286,7 @@ T.Control {
                 color: root.color
             }
 
-            // 编辑下划线：编辑聚焦时浮现；键入时做弹性跳起动画。
+            // 编辑下划线：编辑聚焦时浮现（无动画，临时件策略）。
             Rectangle {
                 id: bar
                 readonly property real preferred_y: parent.height - height
@@ -290,67 +296,29 @@ T.Control {
                 width: parent.width
                 opacity: pControl.editing && input.activeFocus ? 1 : 0
                 y: preferred_y
-                BasicNumberBehavior on opacity {
-                    enabled: root.enabled && root.Style.animationEnabled
-                }
             }
         } //underlineArea
     } //contentItem
 
-    // 键入时的下划线弹性动画（v3 原样：100ms 上跳 + 400ms 弹性回落）。
-    SequentialAnimation {
-        id: editingAnimation
-        PropertyAnimation {
-            target: bar
-            property: "y"
-            from: bar.preferred_y
-            to: bar.preferred_y - 2
-            duration: 100
-            easing.type: Easing.OutQuad
-        }
-        PropertyAnimation {
-            target: bar
-            property: "y"
-            to: bar.preferred_y
-            duration: 400
-            easing.type: Easing.OutElastic
-        }
-    }
-
-    // 滚动到边缘时的指示条颜色闪烁（v3 原样：高亮色 100ms → 本色 200ms）。
-    SequentialAnimation {
-        id: edgeAnimation
-        ColorAnimation {
-            target: indicator
-            property: "color"
-            to: root.highlightColor
-            duration: 100
-        }
-        ColorAnimation {
-            target: indicator
-            property: "color"
-            to: root.color
-            duration: 200
-        }
-    }
-
     // 空提示默认组件（等价 v3 BasicText_Empty：
     // 占位符文字色 + 装饰字号 + 右下对齐）。
+    // v3 commentColor 语义在 v4 归入 placeholderText（v4 无 comment 系 token，
+    // 占位提示的正确归属）。
     Component {
         id: emptyHint
         Text {
-            text: qsTr("<空>")
-            color: root.Style.placeholderText
-            font.pixelSize: root.Style.decorativeTextSize
+            font.pixelSize: root.Style.placeholderTextSize
             horizontalAlignment: Text.AlignRight
             verticalAlignment: Text.AlignBottom
+            color: root.Style.placeholderText
+            text: qsTr("<空>")
         }
     }
 
     /*!
-        \qmlmethod real NumInput::parseChannelValue(string text)
+        \qmlmethod real NumInput::parseChannelValue(string s)
 
-        数值输入约定的唯一实现入口（语义与 v3 面板内联逻辑逐字一致）：
+        将输入字符串解析为 0..1 归一化通道值（v3 面板行为收拢入口）。
         \list
         \li \c parseFloat 解析；
         \li 结果 \c x > 1 时按 \c x / 1000 处理（允许键入 0..1000 整数表示

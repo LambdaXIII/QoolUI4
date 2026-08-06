@@ -33,7 +33,7 @@ ColorSlider {
 
     property ColorAssistant colorAssistant: ColorAssistant {}
 
-    title: qsTr("VALUE")
+    title: "VALUE"
     defaultValue: 1
     displayColor: colorAssistant.solidColor
 

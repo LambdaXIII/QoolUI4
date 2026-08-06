@@ -7,13 +7,20 @@ import Qool
 /*!
     \qmltype ColorPreviewer
     \inqmlmodule Qool.Color
-    \brief 当前色预览 + 前景色对比（v3 ColorPreviewer 迁移）。
+    \brief 当前色预览（v3 ColorPreviewer 迁移）。
 
     圆角预览面：左半为去 alpha 的实色（solidColor），右半为带 alpha 的
     原色（上半透明衬底、下半白色衬底）——直观显示半透明色与浅色背景的
-    混合效果。外圈 1px 圆角边框为前景对比色，随颜色明暗自动取黑/白。
+    混合效果。
 
-    \section1 结构（v3 对照）
+    \section1 定位（刻意设计，防误解）
+
+    本组件是\b 纯预览元素，不是完整原件——只提供色面渲染（左半实色/
+    右半原色/透明度白衬底），\b 不提供任何样式外观（无边框、无前景对比
+    色装饰）。宿主按整体风格自行包装（加外框、用作 Button surface、
+    与其他原件组合）。
+
+    \section1 结构
 
     \list
     \li 左半：\c solidColor 实色（alpha 已剥离）。
@@ -22,14 +29,6 @@ import Qool
     \li v3 的黑色衬底路径被不透明左半完全遮挡（不可见死代码），
         v4 不迁移。
     \endlist
-
-    \section1 前景色对比（易误解，特别说明）
-
-    边框颜色是 \c colorAssistant.recommendedForegroundColor——\b 不是
-    主题描边色（Style.controlBorderColor），而是 \l ColorAssistant 按
-    亮度阈值（0.299/0.587/0.114）派生的前景色：深色预览配白边框、浅色
-    预览配黑边框。实现委托 \l {ThemeDB}{ThemeDB.recommendForeground}
-    （v3 \c Style.recommendedForegroundColor 的对位）。
 
     \section1 默认状态自洽
 
@@ -47,8 +46,7 @@ import Qool
     \section1 属性
 
     \qmlproperty ColorAssistant ColorPreviewer::colorAssistant
-    预览数据源（v3 同名 API 照迁）。注入后预览与边框即时跟随
-    （属性绑定）。
+    预览数据源（v3 同名 API 照迁）。注入后预览即时跟随（属性绑定）。
 
     \qmlproperty real ColorPreviewer::radius
     圆角半径，默认 10。
@@ -180,14 +178,4 @@ Item {
             strokeColor: "transparent"
         } //rightPath
     } //mainShape
-
-    // 前景色对比：1px 圆角边框 = recommendedForegroundColor（明暗自动黑/白）。
-    Rectangle {
-        id: borderBox
-        anchors.fill: parent
-        radius: root.radius
-        border.width: 1
-        color: "transparent"
-        border.color: root.colorAssistant.recommendedForegroundColor
-    } //borderBox
 }
