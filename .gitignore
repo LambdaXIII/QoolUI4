@@ -148,3 +148,5 @@ skills-lock.json
 
 **/_backup/
 **/.cache/
+# Agent tickets 工作产物（to-tickets 本地 tracker）
+.scratch/
