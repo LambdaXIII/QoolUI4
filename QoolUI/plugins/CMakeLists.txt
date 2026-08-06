@@ -1,3 +1,5 @@
 add_subdirectory(testplugin EXCLUDE_FROM_ALL)
 add_subdirectory(themeloader)
 add_subdirectory(fileiconprovider)
+add_subdirectory(colornameprovider_default)
+add_subdirectory(colornameprovider_commonzh)

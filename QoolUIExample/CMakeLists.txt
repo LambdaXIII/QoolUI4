@@ -28,11 +28,12 @@ qt_add_qml_module(appQoolUIExample
 
   IMPORTS Qool
   IMPORTS Qool.Chat
+  IMPORTS Qool.Color
   IMPORTS Qool.Controls
   IMPORTS Qool.Controls.Components
   IMPORTS Qool.Debug
   IMPORTS Qool.File
-  DEPENDENCIES TARGET Qool TARGET QoolChat TARGET QoolControls TARGET QoolControlsComponents TARGET QoolDebug TARGET QoolFile
+  DEPENDENCIES TARGET Qool TARGET QoolChat TARGET QoolColor TARGET QoolControls TARGET QoolControlsComponents TARGET QoolDebug TARGET QoolFile
   QML_FILES Main.qml
   QML_FILES pages/Page_QoolBox.qml
   QML_FILES
@@ -53,6 +54,7 @@ qt_add_qml_module(appQoolUIExample
   QML_FILES pages/components/ExampleBasicButton.qml
   QML_FILES pages/Page_QoolFile.qml
   QML_FILES pages/Page_InputControls.qml
+  QML_FILES pages/Page_Color.qml
 )
 
 qoolui_scan_assets_to(appQoolUIExample)

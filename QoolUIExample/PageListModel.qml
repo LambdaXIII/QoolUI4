@@ -29,6 +29,12 @@ ListModel {
     }
 
     ListElement {
+        title: qsTr("颜色控件")
+        note: qsTr("操纵颜色的模块")
+        page: "Page_Color.qml"
+    }
+
+    ListElement {
         title: qsTr("文件系统")
         note: qsTr("一些和文件系统交互的控件")
         page: "Page_QoolFile.qml"

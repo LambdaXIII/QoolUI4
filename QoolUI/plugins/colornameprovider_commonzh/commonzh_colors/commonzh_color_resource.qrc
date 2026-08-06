@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/qoolui/colors">
+        <file>common_zh.csv</file>
+    </qresource>
+</RCC>

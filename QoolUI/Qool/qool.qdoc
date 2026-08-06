@@ -16,27 +16,6 @@
         \l Qore、\l QoolPalette、\l PixelFont 等。
     \endlist
 
-    \section1 设计原则（核心库瘦身）
-
-    核心库只保留通用、轻量、自洽、Qt 生态内的能力；特化、有宿主归属、
-    可被 Qt 原生替代的一律外移或交由宿主实现：
-
-    \list
-    \li 持久化：组件库不处理主题持久化，宿主在根节点绑定注入（见
-        \l {qool-style-system.html}{Style 体系}）。
-    \li 纹理切角：V3 的 CutCornerImage 由 Qt 6.8 官方 ShapePath::fillItem
-        替代（见 \l OctagonShape）。
-    \li 本地图片加载：由 QQuickImageProvider(ForceAsynchronousImageLoading)
-        承担。
-    \li 数字工具：bound/remap 等纯函数由 \c qoolui::math 提供
-        （QoolCommon 仅头文件库，文档见 QoolCommon 的 math sidecar）；
-        计数/区间工具由 \c math::RangeCounter 承担。
-    \endlist
-
-    被刻意移除/外移的 V3 功能：QSettings 持久化、JobCenter、StackLocker、
-    NumberLimiter/IntegerCounter、ShapeHelper 77 控制点、generate_id、
-    MultiCounter、CutCornerImage、runner_loadlocalimage。
-
     \section1 QoolBox control 回退值机制
 
     QoolBox 的 \c control 属性在 \c settings 尚未就绪时保持默认实例

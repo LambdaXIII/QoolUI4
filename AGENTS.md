@@ -12,7 +12,7 @@ QoolUI 是 Qt6/QML UI 组件库（基础设施），供第三方应用消费。�
 
 **暴露形式**：C++ 代码几乎全部私有、**绝不动态导出**；需要暴露的 API 一律通过 QML 引擎类型系统设计（直接注册的 C++ 类型或纯 QML 组件），不提供传统 C++ DLL 调用方式。仅有的 C++ 复用面是 `QoolCommon`（INTERFACE 头文件库）与 `interfaces/`（插件接口头）。
 
-**私有原则**：仓库内 QML 类型默认公开、原则上不设私有；特例必须显式声明（`_private/` 目录 + `QT_QML_INTERNAL_TYPE`），源文件不得与公开 QML 混淆。注意与「暴露形式」区分：那是 C++ 暴露面的层面（几乎全私有、经 QML 暴露），本原则是仓库文件组织的层面。
+**私有原则**：仓库内 QML 类型默认公开、原则上不设私有；特例必须显式声明（`_private/` 目录 + `QT_QML_INTERNAL_TYPE` **或「不注册 + 目录 import」机制**，见「已知陷阱 4」），源文件不得与公开 QML 混淆。注意与「暴露形式」区分：那是 C++ 暴露面的层面（几乎全私有、经 QML 暴露），本原则是仓库文件组织的层面。
 
 **接口承诺**：`interfaces/` 插件接口为宽松承诺——接口可能演进，官方插件同步更新，第三方插件需跟随版本。
 
@@ -31,12 +31,13 @@ flowchart TB
         Qool["Qool<br/>URI: Qool"]
     end
 
-    subgraph L1["一级子模块 (可选, 只依赖 Qool)"]
-        QoolControls["Qool.Controls<br/>组合层"]
+    subgraph L1["一级子模块"]
+        QoolControls["Qool.Controls<br/>控件基础层"]
         QoolControlsComponents["Qool.Controls.Components<br/>基础原件层"]
         QoolDebug["Qool.Debug<br/>(宿主调试工具集)"]
         QoolFile["Qool.File"]
         QoolChat["Qool.Chat"]
+        QoolColor["Qool.Color<br/>(颜色组件集)"]
     end
 
     subgraph Plugins["外部插件 (可选, 接口契约)"]
@@ -51,7 +52,9 @@ flowchart TB
     Qool --> QoolDebug
     Qool --> QoolFile
     Qool --> QoolChat
+    Qool --> QoolColor
     QoolControls --> QoolControlsComponents
+    QoolColor --> QoolControlsComponents
 ```
 
 ### 分层
@@ -61,17 +64,22 @@ flowchart TB
 | 0 | `QoolIncludes` | 命名空间/版本头 + 插件接口（`interfaces/`），INTERFACE target |
 | 1 | `QoolCommon` | 仅头文件 C++ 模板库（属性宏体系/工具/math），脱离 Qool 可用 |
 | 2 | `Qool` | 核心模块：形状/样式/窗口/工具类型，QML 模块唯一必备件 |
-| 3 | 一级子模块 | `Qool.Controls`、`Qool.Chat`、`Qool.File`、`Qool.Debug`——只依赖 Qool |
+| 3 | 一级子模块 | `Qool.Controls`——控件基础层（仅次于 Qool，类比 QtQuick.Controls）；`Qool.Chat`、`Qool.File`、`Qool.Debug`、`Qool.Color`——功能合集模块，只依赖 Qool（合集模块可依赖 `Qool.Controls`） |
 | 3a | 一级子模块下层 | `Qool.Controls.Components`——基础原件层，被 `Qool.Controls` 依赖（上下级关系） |
 | 4 | 二级子模块（预留） | 可依赖上级模块（如 `Qool.Controls.Extra` 可依赖 `Qool.Controls`） |
-| 外 | 插件 | `themeloader`/`fileiconprovider`——实现接口、独立于库本体 |
+| 外 | 插件 | `themeloader`/`fileiconprovider`/色名提供器——实现接口、独立于库本体 |
 
 ### 依赖约束
 
-- **R1 QoolUI 内部模块间只依赖 Qool**：同级互不依赖，仅上下级可依赖。对宿主而言除 Qool 外皆可选——保证目录级删减时依赖完整（对 Qt 框架模块的依赖不受此限，如 `Qool.Debug` 额外声明 `IMPORTS QtQuick.Dialogs`）
+- **R1 QoolUI 内部模块依赖约束**：`Qool.Controls` 是控件基础层（仅次于 Qool，类比 QtQuick 与 QtQuick.Controls），**功能合集模块（`Qool.Color`/`Qool.Chat`/`Qool.File`/`Qool.Debug` 等）可依赖 `Qool.Controls`（及 `Qool.Controls.Components`）**；同级功能合集模块互不依赖，仅上下级可依赖。对宿主而言除 Qool 外皆可选——保证目录级删减时依赖完整（对 Qt 框架模块的依赖不受此限，如 `Qool.Debug` 额外声明 `IMPORTS QtQuick.Dialogs`）
 - **R2 QoolCommon 脱离 Qool 可用**：不依赖 QtQuick，作为纯 C++ 消费面
 - **R3 插件外部化**：接口用纯 Qt 类型（不引用库类型），官方插件仅是参考实现，逻辑与物理上皆可选
 - **R4 基础原件在下层**：`Qool.Controls` 的控件由 `Qool.Controls.Components` 的基础原件组合而成，方向不可逆
+
+### 插件约定
+
+- 插件优先级**统一在插件 json 的 `priority` 字段定义**（`PluginLoader` 从 json 元数据读取），接口不提供 priority 方法
+- **所有官方插件 json 必须包含 `priority` 字段**，即使接口不需要——这是 v4 约定性规范，非可选
 
 ### 依赖机制（三场景）
 
@@ -92,6 +100,7 @@ flowchart TB
 | QoolControlsComponents | `Qool.Controls.Components` | `import Qool.Controls.Components` |
 | QoolFile | `Qool.File` | `import Qool.File` |
 | QoolChat | `Qool.Chat` | `import Qool.Chat` |
+| QoolColor | `Qool.Color` | `import Qool.Color` |
 | QoolDebug | `Qool.Debug` | `import Qool.Debug` |
 
 ## 技术栈
@@ -269,11 +278,6 @@ qt_add_qml_module(ModuleName
 - 每次修改更新 `CHANGELOG.md`（已加入 `QOOL_GENERAL` 目标）
 - 版本号不随常规修改迭代，维持 `4.0.0` 直至正式发布时递增
 
-## 核心库瘦身原则
-
-- 只保留通用/轻量/自洽/Qt 生态内能力；特化、有宿主归属、可被 Qt 原生替代的一律外移（V3 对比裁定先例：持久化交宿主、CutCornerImage→Qt 6.8 `ShapePath::fillItem`、图片加载→`QQuickImageProvider`）
-- 本原则是「仓库定位」的推论：作为通用基础设施，特化能力不属于公开承诺范围
-
 ## 已知陷阱
 
 ### 1. QML 模块依赖声明
@@ -295,7 +299,10 @@ rm -rf build/CMakeCache.txt build/CMakeFiles
 ```
 
 ### 4. 私有 QML 文件
-`_private/*.qml` 需设置 `QT_QML_INTERNAL_TYPE TRUE`，不对外暴露。
+两种机制（选一，效果等同：宿主不可见）：
+
+- **internal 标记**：`_private/*.qml` 设 `QT_QML_INTERNAL_TYPE TRUE`。**限制（Qt 6.11 运行时实证）**：internal 类型不能被其他 internal 文件引用（同目录隐式 import 与模块 URI import 均失效，公开文件引用 internal 正常）——仅适用于私有件之间无互引的模块。
+- **不注册 + 目录 import**（Color 模块采用）：`_private` 文件**不进 `QML_FILES`**（qmldir 无条目，宿主 import 模块看不到），经 `qt_add_resources` 打进 qrc（`PREFIX "/qt/qml/<URI>"`，BASE 模块源码目录），模块内文件 `import "_private"`（相对目录 import）使用；私有件之间互引走同目录隐式解析。私有件无 qmlcachegen AOT 缓存（运行时源码解析，性能可接受）。
 
 ## 关键文件路径
 

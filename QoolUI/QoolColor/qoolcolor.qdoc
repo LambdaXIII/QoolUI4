@@ -1,0 +1,37 @@
+/*!
+    \qmlmodule Qool.Color 4.0
+    \brief 颜色组件集：多色彩空间编辑面板、快速取色/编辑/预览、色名列表与色银行。
+
+    Qool.Color 提供完整的颜色操纵组件面：
+
+    \list
+    \li 核心对象：\l ColorAssistant（四空间分量全同步）、\l ColorBank（稀疏
+        槽位容器）、\l ColorDB（插件化色名查询单例）、\l ColorHueCycleModel、
+        \l RandomHSVColorGenerator。
+    \li 编辑面板：\l HSVPanel、\l HSLPanel、\l RGBPanel、\l CMYKPanel——
+        数字输入 + 表面控件 + 滑块组合，可注入共享 ColorAssistant。
+    \li 取色/编辑/预览：\l ColorQuickPicker、\l ColorEdit、\l ColorPreviewer。
+    \li 列表与银行：\l ColorNameList（分类色名选择）、\l ColorBankPanel
+        （槽位存取）。
+    \endlist
+
+    \section1 设计说明（易误解处，防误判）
+
+    \list
+    \li \l RandomHSVColorGenerator 的 255 量化是刻意设计（防相近色，
+        配合与上次差 ≥ 20 去重）——量化粒度 1.41° 不是缺陷；hue 生成走
+        \c qRound(hue*360/255) 整数满环路径，不得改浮点构造。
+    \li \l ColorAssistant 的 int/F 双轨并存非冗余：面板消费 float 轨，
+        int 轨是公开 API 能力面；任一分量 setter 都经统一入口全空间重算。
+    \li \l ColorBank 是无界稀疏容器（存 slot_5 不创建 1..4）；\c slots
+        是面板显示范围而非存储边界；组件库刻意不做持久化（宿主三接法：
+        注入前构造填充、监听 colorChanged 纪录、继承仿写）。
+    \li 数值输入约定：数字输入框允许 0..1000 整数，\c x>1 时按 \c x/1000
+        解释（1000 表示 1.0）。
+    \li 私有拍平件（NumInput/CycleChoice/NumTools.js 与视觉件族）经目录
+        import 使用、不注册进模块 qmldir（宿主不可见），将来扩展为完整版
+        进入 Qool.Controls。
+    \li 色名插件优先级统一由插件 json 的 \c priority 字段定义，接口不提供
+        priority 方法。
+    \endlist
+*/

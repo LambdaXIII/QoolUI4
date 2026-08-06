@@ -53,8 +53,6 @@ qt_add_qml_module(Qool
   utils/qool_numberranger.cpp
   utils/qool_itemtracker.h
   utils/qool_itemtracker.cpp
-  utils/qool_random_hsv_color_generator.h
-  utils/qool_random_hsv_color_generator.cpp
 
   shapecontrol/qool_shapecontrol.h
   shapecontrol/qool_shapecontrol.cpp
