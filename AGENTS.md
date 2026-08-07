@@ -80,6 +80,7 @@ flowchart TB
 
 - 插件优先级**统一在插件 json 的 `priority` 字段定义**（`PluginLoader` 从 json 元数据读取），接口不提供 priority 方法
 - **所有官方插件 json 必须包含 `priority` 字段**，即使接口不需要——这是 v4 约定性规范，非可选
+- **插件按接口分包**：同一接口的多个插件组织在同一包（目录）中，以不同 CMake target 形式共存（实例：`colornameprovider` 包内含 default/commonzh 两个插件）；例外——插件本身复杂或属非默认行为的特化功能（如某种特化实现）时可独立成包
 
 ### 依赖机制（三场景）
 

@@ -57,7 +57,7 @@ qt_add_qml_module(appQoolUIExample
   QML_FILES pages/Page_Color.qml
 )
 
-qoolui_scan_assets_to(appQoolUIExample)
+qoolui_collect_assets(QOOL_ASSETS)
 qt_add_resources(appQoolUIExample "qoolexample_assets" PREFIX "/qoolexample" FILES
   ${QOOL_ASSETS}
 )

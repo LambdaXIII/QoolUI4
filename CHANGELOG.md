@@ -2,6 +2,20 @@
 
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
+## [4.0.0] — 2026-08-07
+
+### 修复
+
+- `.cmake-format.py` 全面调教：`additional_commands` 声明 Qt 6 CMake API（qt_add_qml_module/qt_add_resources/qt_standard_project_setup/qt_add_translations/qt_add_plugin/qt_add_executable/qt_add_library/qt_generate_deploy_qml_app_script）与 QoolUI 自定义命令（append_qml_dir/dump_list/load_qoolui_standard_options/copy_qml_modules_for/convert_paths_to_relative/qoolui_collect_assets/qoolui_scan_assets_to）的关键字结构——此前仅占位 `foo`，所有 Qt 命令被当纯位置参数、只能逐行垂直堆叠；声明后 kwarg 与值同行、重复 SOURCES/QML_FILES 分组保留
+- 布局参数定案（嵌套方案）：`max_prefix_chars` 10（Qt 命令一律嵌套、固定 2 空格缩进）+ `max_lines_hwrap` 2（拒绝未嵌套多行布局）+ `min_prefix_chars` 10（set/if/message 等短命令保持参数同行）——产出接近 Qt Creator 生成风格的紧凑布局
+- `enable_markup` 关闭：markup 注释重排按英文断词规则合并中文注释行，破坏手写注释结构
+- `enable_sort` 关闭：QML_FILES/SOURCES 按目录分组、顺序有语义，不可排序
+- lint 命名模式放宽兼容项目风格：macro_pattern 支持小写宏（load_qoolui_standard_options）、local_var_pattern 支持大写局部变量（ASS_DIR 等）、argument_var_pattern 支持下划线参数（_V_/_T_ 等）
+- qool_qml_project_setup.cmake：删除 convert_paths_to_relative（唯一调用方 qoolui_collect_assets 改用 `file(GLOB_RECURSE ... RELATIVE ...)` 一步产出相对路径，绕弯消除）；qoolui_collect_assets 的 warning 分支 `PARENT_SCOPE}` 笔误修复（多字符面量导致 assets 缺失时输出变量不生效到父作用域）；.cmake-format.py 同步删除 convert_paths_to_relative/qoolui_scan_assets_to 两个已不存在的命令声明
+- QoolUIExample：`qoolui_collect_assets(appQoolUIExample)` 参数与引用变量不匹配（函数设置变量 appQoolUIExample、引用 ${QOOL_ASSETS} 未定义 → 示例资源静默为空）→ `qoolui_collect_assets(QOOL_ASSETS)`；重构验证：vcvars 环境下 configure + 构建 302 目标全绿，qrc_qoolexample_assets.cpp 正常生成
+- QoolControls：`_private/DialRangeArc.qml` 曾裸注册进 QML_FILES（无 internal 标记、无 qrc 机制 → qmldir 注册、宿主可见，违反私有件机制二选一约定）→ 改为 QoolColor 同款 qrc 私有件机制（不进 QML_FILES，GLOB + qt_add_resources 打进 /qt/qml/Qool/Controls/_private/）；Dial.qml 原有 `import "_private"` 无需改动；验证：qmldir 不再含 DialRangeArc、模块公开 qrc 已移除、私有 qrc 生成（qrc 模式无 AOT 缓存，已知可接受代价）
+- **插件按接口分包（AGENTS.md 插件约定新增）**：同一接口的多个插件组织在同一包（目录）中，以不同 CMake target 共存；例外——插件本身复杂或属非默认行为的特化功能时可独立成包。践行：`plugins/colornameprovider_default/` 与 `plugins/colornameprovider_commonzh/` 合并为 `plugins/colornameprovider/`（两插件 target 共存，default priority 0 / commonzh priority -1，产物名不变：QoolUIColorNameProviderDefault.dll / QoolUIColorNameProviderCommonZh.dll，构建验证通过）
+
 ## [4.0.0] — 2026-08-06
 
 ### 修复

@@ -1,9 +1,7 @@
 
-
-
 project(QoolUI
-  VERSION ${QOOLUI_VERSION_FULL}
-  LANGUAGES CXX
+        VERSION ${QOOLUI_VERSION_FULL}
+        LANGUAGES CXX
 )
 
 set(CMAKE_CXX_STANDARD 17)
@@ -15,10 +13,7 @@ find_package(
   REQUIRED
 )
 
-qt_standard_project_setup(
-  REQUIRES 6.8
-  I18N_TRANSLATED_LANGUAGES zh en
-)
+qt_standard_project_setup(REQUIRES 6.8 I18N_TRANSLATED_LANGUAGES zh en)
 
 configure_file(includes/qoolns.hpp.config includes/qoolns.hpp)
 configure_file(includes/qoolversion.hpp.config includes/qoolversion.hpp)
@@ -28,12 +23,12 @@ file(GLOB QOOL_INTERFACE_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/*.h)
 
 # include_directories(${CMAKE_CURRENT_BINARY_DIR}/includes)
 
-add_library(QoolIncludes INTERFACE
-  includes/qoolns.hpp.config
-  includes/qoolversion.hpp.config
-  ${QOOL_INTERFACE_HEADERS}
+add_library(
+  QoolIncludes INTERFACE includes/qoolns.hpp.config
+  includes/qoolversion.hpp.config ${QOOL_INTERFACE_HEADERS}
 )
-target_include_directories(QoolIncludes
+target_include_directories(
+  QoolIncludes
   INTERFACE ${CMAKE_CURRENT_BINARY_DIR}/includes
   INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
 )

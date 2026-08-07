@@ -2,12 +2,101 @@
 # Options affecting listfile parsing
 # ----------------------------------
 # 影响列表文件解析的选项
+#
+# 关键：Qt 6 CMake API 与 QoolUI 自定义命令的关键字必须在此声明，
+# 否则 cmake-format 将整个命令视为一串位置参数，只能逐行垂直堆叠。
+#
+# NOTE: `section` 是 cmake-format 配置 DSL 的魔法函数（运行时由 ExecGlobal
+# 注入），标准 Python 静态分析（pyflakes/pyright 等）无法识别而误报
+# "undefined name section"。此处定义同名假实现仅为满足静态分析——
+# 运行时 ExecGlobal 的 __getitem__ 优先返回自身方法（hasattr 分支），
+# 此定义被完全忽略，不影响 cmake-format 加载。
+from contextlib import contextmanager
+
+@contextmanager
+def section(_key):
+  yield
 with section("parse"):
 
-  # Specify structure for custom cmake functions
-  # 指定自定义cmake函数的结构
-  additional_commands = { 'foo': { 'flags': ['BAR', 'BAZ'],
-             'kwargs': {'DEPENDS': '*', 'HEADERS': '*', 'SOURCES': '*'}}}
+  # Qt 6 CMake API 结构声明
+  additional_commands = {
+    'qt_add_qml_module': {
+      'pargs': 1,
+      'flags': [
+        'NO_PLUGIN', 'NO_RESOURCE_TARGET_PATH', 'NO_LINT',
+        'NO_GENERATE_PLUGIN_SOURCE', 'NO_GENERATE_QMLTYPES',
+        'NO_GENERATE_QMLDIR', 'NO_IMPORT_SCAN', 'NO_NAMESPACE_IMPORT',
+        'DESIGNER_SUPPORTED', 'PLUGIN_OPTIONAL', 'FOLLOW_FOREIGN_VERSIONING',
+      ],
+      'kwargs': {
+        'URI': 1, 'VERSION': 1, 'NAMESPACE': 1, 'RESOURCE_PREFIX': 1,
+        'PLUGIN_TARGET': 1, 'OUTPUT_TARGET': 1, 'CLASS_NAME': 1,
+        'OUTPUT_DIRECTORY': 1, 'TYPEINFO': '*',
+        'QML_FILES': '*', 'SOURCES': '*', 'RESOURCES': '*',
+        'IMPORTS': '*', 'OPTIONAL_IMPORTS': '*',
+        'DEPENDENCIES': '*', 'OPTIONAL_DEPENDENCIES': '*',
+      },
+    },
+    'qt_add_resources': {
+      'pargs': 2,
+      'kwargs': {
+        'PREFIX': 1, 'BASE': 1, 'WORKING_DIRECTORY': 1,
+        'FILES': '*', 'OPTIONS': '*',
+      },
+    },
+    'qt_standard_project_setup': {
+      'flags': [
+        'ENABLE_PRECOMPILED_HEADERS', 'ENABLE_COMMON_PRECOMPILED_HEADERS',
+        'ENABLE_UNICODE',
+      ],
+      'kwargs': {
+        'REQUIRES': 1, 'I18N_SOURCE_LANGUAGE': 1,
+        'I18N_TRANSLATED_LANGUAGES': '*', 'I18N_TRANSLATIONS_DIR': 1,
+        'CMAKE_CXX_STANDARD_PROPERTY': 1, 'CMAKE_C_STANDARD_PROPERTY': 1,
+      },
+    },
+    'qt_add_translations': {
+      'kwargs': {
+        'TS_FILE_BASE': 1, 'TS_FILE_DIR': 1, 'RESOURCE_PREFIX': 1,
+        'LRELEASE_TARGET': 1, 'LUPDATE_TARGET': 1,
+        'LRELEASE_OPTIONS': '*', 'LUPDATE_OPTIONS': '*',
+        'TS_FILES': '*', 'SOURCES': '*',
+        'QM_FILES_OUTPUT_VARIABLE': 1, 'RESOURCE_OUTPUT_VARIABLE': 1,
+      },
+    },
+    'qt_add_plugin': {
+      # 裸位置参数（sources）必须声明为独立 pargs 组，
+      # 否则会被 CLASS_NAME 等 kwarg 组吞并
+      'pargs': [
+        {'nargs': 1},
+        {'flags': ['SHARED', 'STATIC', 'MODULE'], 'nargs': '*'},
+      ],
+      'kwargs': {
+        'CLASS_NAME': 1, 'OUTPUT_NAME': 1,
+        'URI': 1, 'VERSION': 1, 'OUTPUT_DIRECTORY': 1,
+      },
+    },
+    'qt_add_executable': {
+      'pargs': [1, '*'],
+    },
+    'qt_add_library': {
+      'pargs': [1, '*'],
+    },
+    'qt_generate_deploy_qml_app_script': {
+      'flags': [
+        'MACOS_BUNDLE_POST_BUILD',
+        'DEPLOY_USER_QML_MODULES_ON_UNSUPPORTED_PLATFORM',
+        'NO_UNSUPPORTED_PLATFORM_ERROR',
+      ],
+      'kwargs': {'TARGET': 1, 'OUTPUT_SCRIPT': 1},
+    },
+    # QoolUI 自定义命令（qool_qml_project_setup.cmake）
+    'append_qml_dir': {'pargs': 1},
+    'dump_list': {'pargs': 1},
+    'load_qoolui_standard_options': {},
+    'copy_qml_modules_for': {'pargs': 1},
+    'qoolui_collect_assets': {'pargs': 1},
+  }
 
   # Override configurations per-command where available
   # 覆盖特定命令的配置（如可用）
@@ -25,6 +114,10 @@ with section("parse"):
 # Options affecting formatting.
 # -----------------------------
 # 影响格式化的选项
+#
+# 布局形态（方案 B / 嵌套）：
+# - 所有参数换行时使用固定 tab_size 缩进（如 Qt Creator 生成的 CMakeLists）
+# - 短命令（set/if/message 等）前缀长度 <= min_prefix_chars，保持参数同行
 with section("format"):
 
   # Disable formatting entirely, making cmake-format a no-op
@@ -77,15 +170,18 @@ with section("format"):
 
   # If the statement spelling length (including space and parenthesis) is...
   # 若语句长度（含空格和括号）小于该值，则拒绝嵌套布局
+  # 短命令（set/if/message 等）保持参数同行，不换行缩进
   min_prefix_chars = 10
 
   # If the statement spelling length (including space and parenthesis) is larger...
-  # 若语句长度（含空格和括号）超过tab宽度指定值，则拒绝非嵌套布局
-  max_prefix_chars = 20
+  # 若语句长度（含空格和括号）超过该值，则拒绝非嵌套布局
+  # Qt 命令（qt_add_qml_module/qt_add_resources 等）一律嵌套，参数固定缩进
+  max_prefix_chars = 10
 
   # If a candidate layout is wrapped horizontally but it exceeds this many...
   # 若候选水平布局超过指定行数，则拒绝该布局
-  max_lines_hwrap = 6
+  # 保持 2：拒绝任何未嵌套的多行布局，保证多行语句统一走嵌套缩进
+  max_lines_hwrap = 2
 
   # What style line endings to use in the output.
   # 输出时使用的换行符类型（unix/windows）
@@ -105,7 +201,8 @@ with section("format"):
 
   # If true, the argument lists which are known to be sortable will be sorted...
   # 若为True，可排序的参数列表将按字典序排序
-  enable_sort = True
+  # 关闭：QoolUI 的 QML_FILES/SOURCES 按目录分组，顺序有语义，不可排序
+  enable_sort = False
 
   # If true, the parsers may infer whether or not an argument list is sortable...
   # 若为True，解析器可推断参数列表是否可排序
@@ -131,7 +228,7 @@ with section("markup"):
 
   # What character to use as punctuation after numerals in an enumerated list
   # 有序列表数字后的标点符号
-  enum_char = '.'  
+  enum_char = '.'
 
   # If comment markup is enabled, don't reflow the first comment block in each...
   # 若启用注释标记，保留每个列表文件的第一个注释块格式
@@ -163,7 +260,8 @@ with section("markup"):
 
   # enable comment markup parsing and reflow
   # 启用注释标记解析和重排
-  enable_markup = True
+  # 禁用：markup 重排会合并中文注释行（按英文断词规则处理），破坏手写注释结构
+  enable_markup = False
 
 # ----------------------------
 # Options affecting the linter
@@ -181,7 +279,8 @@ with section("lint"):
 
   # regular expression pattern describing valid macro names
   # 有效宏名的正则表达式模式
-  macro_pattern = '[0-9A-Z_]+'
+  # 放宽：QoolUI 的宏名为小写（load_qoolui_standard_options 等）
+  macro_pattern = '[0-9A-Za-z_]+'
 
   # regular expression pattern describing valid names for variables with global...
   # 全局变量命名正则表达式模式
@@ -193,7 +292,8 @@ with section("lint"):
 
   # regular expression pattern describing valid names for variables with local...
   # 局部变量命名正则表达式模式
-  local_var_pattern = '[a-z][a-z0-9_]+'
+  # 放宽：QoolUI 的局部变量含大写（ASS_DIR/RELATIVE_PATHS 等）
+  local_var_pattern = '[A-Za-z][A-Za-z0-9_]+'
 
   # regular expression pattern describing valid names for privatedirectory...
   # 私有目录变量命名正则表达式模式
@@ -205,7 +305,8 @@ with section("lint"):
 
   # regular expression pattern describing valid names for function/macro...
   # 函数/宏参数和循环变量命名正则表达式模式
-  argument_var_pattern = '[a-z][a-z0-9_]+'
+  # 放宽：QoolUI 的参数名含下划线前缀（_V_/_T_/_X_ 等）
+  argument_var_pattern = '[_a-zA-Z][a-zA-Z0-9_]*'
 
   # regular expression pattern describing valid names for keywords used in...
   # 函数/宏中关键字命名正则表达式模式
