@@ -41,6 +41,7 @@
 - qool_vector2d.h 的 QML_VALUE_TYPE 去引号（与其余值类型注册风格统一）
 - Playground 清理（displayOverrideEx 未用 id 删除；变换示例补"恶作剧"说明注释）
 - TextField 文件头待验证段补 popup 焦点归还可能性记录；IndexIndicator 补大型模型性能 TODO
+- Playground：SpinBox 示例扩展为一组（整数/小数/可编辑/wrap 回环/自定义格式/禁用态——同组示例间加分隔线）
 
 ## [4.0.0] — 2026-08-09
 

@@ -172,13 +172,53 @@ BasicPage {
                 text: qsTr("TextField可以使用*displayTextFromText*方法重新设定输出格式。*textFromEditText*可用于讲输入的内容转换为值。这两个方法是独立的，并不一定互为逆运算。\n本组示例中第一个是一个简单的示例，第二个是一个混合了两种函数并且增加了一个validator的示例。")
             }
         }
-        // —— SpinBox（编辑会话由 TextField 双层承担——迁移后验证）——
+        // —— SpinBox 系列（编辑会话由 TextField 双层承担——迁移后验证）——
         QoolControl {
-            title: qsTr("数值步进（可编辑）")
+            title: qsTr("整数步进")
             width: 200
             contentItem: ColumnLayout {
                 SpinBox {
-                    id: editSpinBox
+                    Layout.fillWidth: true
+                    decimals: 0
+                    stepSize: 1
+                    from: 0
+                    to: 10
+                    value: 3
+                }
+            }
+        }
+
+        // 同组示例分段（SectionBar——Qool 分段分隔件）
+        SectionBar {
+            width: parent.width
+        }
+
+        QoolControl {
+            title: qsTr("小数步进")
+            width: 200
+            contentItem: ColumnLayout {
+                SpinBox {
+                    Layout.fillWidth: true
+                    decimals: 2
+                    stepSize: 0.5
+                    from: 0
+                    to: 100
+                    value: 12.5
+                }
+            }
+        }
+
+        Rectangle {
+            width: 200
+            height: 1
+            color: Style.controlBorderColor
+        }
+
+        QoolControl {
+            title: qsTr("可编辑")
+            width: 200
+            contentItem: ColumnLayout {
+                SpinBox {
                     Layout.fillWidth: true
                     editable: true
                     from: 0
@@ -192,6 +232,84 @@ BasicPage {
             }
             QoolTip {
                 text: qsTr("可编辑 SpinBox——点击进入编辑，Enter/失焦提交：合法值接受（value 更新），非法值拒绝回退（accepted/rejected 可监听）。")
+            }
+        }
+
+        Rectangle {
+            width: 200
+            height: 1
+            color: Style.controlBorderColor
+        }
+
+        QoolControl {
+            title: qsTr("wrap 回环")
+            width: 200
+            contentItem: ColumnLayout {
+                SpinBox {
+                    Layout.fillWidth: true
+                    wrap: true
+                    from: 0
+                    to: 10
+                    stepSize: 1
+                    value: 10
+                }
+            }
+            QoolTip {
+                text: qsTr("wrap: true——到达 to 后再步进回 from（回环）。")
+            }
+        }
+
+        Rectangle {
+            width: 200
+            height: 1
+            color: Style.controlBorderColor
+        }
+
+        QoolControl {
+            title: qsTr("自定义格式")
+            width: 200
+            contentItem: ColumnLayout {
+                SpinBox {
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 10
+                    decimals: 0
+                    value: 2
+                    // 显示/解析配对覆写（官方扩展点——实例可设）：
+                    // 显示带单位、解析去单位。注意：编辑会话按默认格式
+                    // （validator 不认自定义文本——可编辑 + 自定义格式需
+                    // 同时覆写 validator，超演示范围——本用例仅展示显示覆写）
+                    textFromValue: function (v, locale, decimals) {
+                        return v + " 倍";
+                    }
+                    valueFromText: function (text, locale) {
+                        return Number(text.replace(" 倍", ""));
+                    }
+                }
+            }
+            QoolTip {
+                text: qsTr("textFromValue/valueFromText 配对覆写——自定义显示/解析格式（官方扩展点）。")
+            }
+        }
+
+        Rectangle {
+            width: 200
+            height: 1
+            color: Style.controlBorderColor
+        }
+
+        QoolControl {
+            title: qsTr("禁用态")
+            width: 200
+            contentItem: ColumnLayout {
+                SpinBox {
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 10
+                    stepSize: 1
+                    value: 3
+                    enabled: false
+                }
             }
         }
     } //cc
