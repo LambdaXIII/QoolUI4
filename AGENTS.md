@@ -119,6 +119,8 @@ flowchart TB
 
 **版本跟进**：只跟进 Qt 最新正式 Release，不提前迁移 prerelease/testing；一旦跟进新版，绝不 backport 旧版本功能——旧版 Qt 不可用某功能不构成适配理由（例外仅限设计 bug：问题源于本库自身缺陷时须修复，而非为旧版添加适配）。`find_package` 中的最低版本是 Qt 官方兼容性提示，不随本原则变化。
 
+**以官方文档为准，不探查 Qt 源码**：使用 Qt 时通常不查看其源代码，行为语义一律以官方文档为准；仅当怀疑 Qt 本身存在 bug（而非用法问题）时才允许探查源码验证。推断 Qt 未文档化的行为时必须标注未验证（实例：ComboBox 的 contentItem 结构对模板层 textField 识别的影响，曾以文档证据推断并标注待实测）。
+
 **容器与算法**：充分使用 STL 容器与算法；Qt 模块内按需选用 Qt 容器（QString/QVariant 等生态必需），但算法尽量用 STL 的——仅当算法为 Qt 容器独有或 STL 不兼容时才用 Qt 算法（Qt 官方同样推荐此做法）。
 
 ## 构建命令
@@ -273,6 +275,12 @@ qt_add_qml_module(ModuleName
 - **QoolCommon（仅头文件库）的文档归属自身**：`\namespace`/`\fn` 等 C++ API 文档写 QoolCommon 内的独立 `.qdoc`（如 `qoolcommon/math/utils.qdoc` 承载 math 命名空间），用 `\inmodule QoolCommon` 而非 `\inqmlmodule Qool`——QoolCommon 会被第三方独立消费，文档不得挂靠 Qool 模块
 - 一律不设 `doc/` 目录
 - 刻意设计（非 bug 行为、设计意图）必须用 QDoc 说明，防止后续审查误判（先例：fillItem 替代 CutCornerImage、关闭按钮配件哲学、control 回退值机制）
+- **QML 类型文档内容规范（参照 Qt 官方 QML 类型页格式）**：
+  - 文档叙述**用法**，不是开发笔记——面向使用者写"怎么用、行为是什么、宿主该做什么"；实现机制与设计原因归代码注释，不进 QDoc（实例：ComboBox 的 Loader 结构/模板识别失败等机制只在注释说明，QDoc 只讲 editable 用法与处理路径）
+  - 结构对齐官方类型页：类型概述（定位 + 继承关系）→ 属性文档 → 信号文档 → 方法文档 → 主题章节（关键行为/使用场景）
+  - 逐属性说明（类型、默认值、语义、注意点）；同义分组属性（如 contentPadding 系列）共用一段
+  - 继承 Qt 官方模板/控件类型的组件，必须声明**接口兼容性**：官方 API 全部可用、宿主可参照官方文档；QDoc 只文档化 Qool 新增与差异部分
+  - 与 Qt 官方行为不同的**契约必须明示**（如 editable 提交后 currentIndex/currentText 不自动更新、宿主在 onAccepted 中自行 find 处理），防止宿主误用与后续审查误判
 - **修复 bug 时必须评估专项注释**：每处修复补"为什么这样改"的代码注释（含被修复缺陷的机制一句话），并评估被误解的 API 是否需补文档说明——修复与专项注释不可分离（先例：锁的取舍——Beeper 加锁/MessageLogger、FileInfoListModel 不加锁均注明原因；注册时机、move 差一、枚举引用修复均带机制注释）
 
 ## 变更记录

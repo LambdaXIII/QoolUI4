@@ -2,6 +2,19 @@
 
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
+## [4.0.0] — 2026-08-09
+
+### 修复
+
+- Qool.Controls：ComboBox editable 按 Enter 后结束编辑——Qt 默认在提交动作（accepted）发出后焦点仍留在文本域，编辑状态只能靠失焦结束，外部没有其它焦点对象时编辑状态悬挂、无法退出；现于 BasicTextField 的 onAccepted 中调用 root.accepted() 激活 ComboBox 的 accepted 信号（宿主 onAccepted 入口与 Qt 官方语义一致：经 find(editText) 处理输出数值；Qt 内部模型匹配/currentIndex 更新不随此调用执行，由宿主自行处理），随后释放焦点（focus=false）结束编辑。另补 onTextEdited 把编辑文本反向同步回 editText（模板层按 contentItem 类型识别文本域，Loader 包裹结构下 editText 不自动同步）。popup 打开时焦点在列表上，Enter 仍是激活高亮项，不经过此路径
+
+- AGENTS.md：技术栈节新增"以官方文档为准，不探查 Qt 源码"——使用 Qt 通常不查看其源代码，行为语义以官方文档为准；仅当怀疑 Qt 本身存在 bug 时才探查源码验证；推断 Qt 未文档化行为须标注未验证
+- AGENTS.md：文档规范（QDoc）节新增"QML 类型文档内容规范"——参照 Qt 官方 QML 类型页格式：文档叙述用法而非开发笔记（机制归代码注释）、结构对齐官方页（概述/属性/信号/方法/主题章节）、逐属性说明（类型/默认值/语义）、继承官方模板或控件的类型声明接口兼容性、与 Qt 官方行为不同的契约明示；以 ComboBox QDoc 重写为实例
+
+### 移除
+
+- Qool.Controls：删除 QoolComboBox——`qoolboxsettings remake`（0f0d2b1）重构时旧版 ComboBox 的存档副本误入公开注册：创建即零消费方（历史与现状均无实例化），功能为 ComboBox 真子集（无 popupDirection/对齐配置/editable 懒加载/backgroundSettings 宿主覆写，popup 背景手抄 settings 字段），冻结一年未演进（2026-08-06 审查曾补 QDoc 与 Style.follow 但未清理）。同步移除 CMakeLists 注册（qmldir 条目随 QML_FILES 移除自动消失），ComboBox.qml 两处 QoolComboBox 对照说明改写为独立表述
+
 ## [4.0.0] — 2026-08-07
 
 ### 修复

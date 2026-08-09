@@ -24,7 +24,6 @@ qt_add_qml_module(QoolControls
     QML_FILES ScrollBar.qml
     QML_FILES ScrollIndicator.qml
     QML_FILES ComboBox.qml
-    QML_FILES QoolComboBox.qml
     QML_FILES Dial.qml
 )
 

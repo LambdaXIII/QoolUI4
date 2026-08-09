@@ -8,30 +8,80 @@ import Qool
 /*!
     \qmltype ComboBox
     \inqmlmodule Qool.Controls
-    \brief 基于 T.ComboBox 的 QoolUI 风格下拉选择框，支持可编辑文本与可配置的弹出方向。
+    \brief 基于 QtQuick.Templates.ComboBox 的下拉选择框，支持可编辑文本与可配置的弹出方向。
 
-    外观由 \c backgroundSettings（QoolBoxSettings）与内嵌 QoolBGBox 统一提供；
-    \c title/\c label 透传至背景盒，\c contentPadding 系列（含
-    \c contentTop/Bottom/Left/RightPadding）经 SpaceHelper 控制内容内边距；
-    \c horizontalAlignment/\c verticalAlignment 决定显示文本的对齐方式。
+    ComboBox 是按钮与弹出列表的组合控件，用于从一组选项中选择一项。
+    本类型继承 QtQuick.Templates.ComboBox，接口与 QtQuick.Controls.ComboBox
+    完全兼容——\c model、\c currentIndex、\c currentText、\c editable、
+    \c editText、\c accepted()、\c find()、\c validator 等 Qt 官方 API
+    全部可用，宿主可参照 Qt 官方文档使用。在官方接口之上，本类型提供
+    外观定制（\c backgroundSettings、\c title、\c label）、内容内边距
+    （\c contentPadding 系列）与弹出方向控制（\c popupDirection）。
 
-    \section2 可编辑模式（editable）
-    非可编辑时显示普通文本（simpleText）；\c editable 为 \c true 时经
-    \c textFieldLoader 按需加载 BasicTextField。加载器使用内联
-    sourceComponent，构成组件边界——内部 id 对外不可见，因此焦点判断
-    必须经 \c textFieldLoader.item?.activeFocus 空安全访问（未加载时为
-    undefined）；QoolComboBox 因 contentItem 直接内联 BasicTextField、
-    无组件边界，可直接引用其 id。
+    \section1 属性文档
 
-    \section2 弹出方向（popupDirection）
-    \c Qore.Covered（默认）时弹出层覆盖在控件上；\c Qore.Below 时弹出层
-    顶边紧贴控件底边（扣除边框宽度），\c Qore.Above 时弹出层底边紧贴
-    控件顶边。\c popupOffsetX/\c popupOffsetY 提供额外像素偏移。
+    \qmlproperty string ComboBox::title
+    标题文字，透传至背景盒顶部显示。
 
-    \section2 flat 与委托
+    \qmlproperty string ComboBox::label
+    标签文字，透传至背景盒内部显示。
+
+    \qmlproperty real ComboBox::contentPadding
+    内容区四边统一内边距，默认 0。
+
+    \qmlproperty real ComboBox::contentTopPadding
+    \qmlproperty real ComboBox::contentBottomPadding
+    \qmlproperty real ComboBox::contentLeftPadding
+    \qmlproperty real ComboBox::contentRightPadding
+    内容区单边内边距，覆盖 \c contentPadding 的对应边，默认 0。
+
+    \qmlproperty int ComboBox::horizontalAlignment
+    显示文本水平对齐，默认 \c Text.AlignHCenter。
+
+    \qmlproperty int ComboBox::verticalAlignment
+    显示文本垂直对齐，默认 \c Text.AlignVCenter。
+
+    \qmlproperty int ComboBox::popupDirection
+    弹出层方向。\c Qore.Covered（默认）：弹出层覆盖在控件上；
+    \c Qore.Below：弹出层顶边紧贴控件底边；\c Qore.Above：弹出层底边
+    紧贴控件顶边。
+
+    \qmlproperty real ComboBox::popupOffsetX
+    \qmlproperty real ComboBox::popupOffsetY
+    弹出层相对默认位置的额外偏移（像素），默认 0。
+
+    \qmlproperty QoolBoxSettings ComboBox::backgroundSettings
+    背景外观设置（边框宽度/颜色、填充色、裁剪角），默认跟随
+    \c Style 的控件外观（\c controlBorderWidth、\c controlBorderColor、
+    \c controlBackgroundColor、\c controlCutSize）。
+
+    \section1 信号文档
+
+    \qmlsignal ComboBox::accepted()
+    继承自 Qt 官方接口，在可编辑模式下按 Enter 提交时发出，宿主在
+    \c onAccepted 中处理提交的编辑文本（见"可编辑模式"）。
+
+    \section1 可编辑模式（editable）
+    \c editable 为 \c true 时，控件以 BasicTextField 呈现文本（编辑与
+    非编辑态皆由它承担），并支持文本选择（\c selectTextByMouse）等
+    文本域能力。
+
+    输入内容的处理路径：设置 \c validator 对输入校验——仅当输入处于
+    可接受状态（\c acceptableInput）时按 Enter 才会发出 \c accepted()
+    并提交，校验不通过则保持编辑状态。\c accepted() 发出后 \c editText
+    已同步为用户输入，宿主可在 \c onAccepted 中配合 \c find() 匹配
+    模型项、设置 \c currentIndex，或将新文本加入模型——注意
+    currentIndex/currentText 不会随提交自动更新，需宿主自行处理。
+    提交后焦点自动释放，编辑立即结束，无需外部焦点对象。popup 打开
+    时按 Enter 激活高亮项，不经过编辑提交路径。
+
+    \section1 flat 与委托
     \c flat 且未悬浮、弹出层未打开、文本域未聚焦时背景完全透明。
-    delegate 使用 BasicItemDelegate，经 \c Style.follow 显式跟随控件样式。
+    delegate 默认使用 BasicItemDelegate，经 \c Style.follow 显式跟随
+    控件样式；宿主可替换 \c delegate 自定义列表项外观。
 */
+
+//TODO: 需要梳理撤销编辑行为具体如何实现。可能改为TextField临时出现？但这样涉及大量相关逻辑重做，与QtQuick默认设计有区别.
 
 T.ComboBox {
     id: root
@@ -73,11 +123,9 @@ T.ComboBox {
         implicitWidth: 100
         // 注意：不能给 sourceComponent 内的 BasicTextField 加 id 后直接引用
         // （内联 sourceComponent 是组件边界，内部 id 对外不可见，会
-        // ReferenceError——QoolComboBox 能直接引用是因为其 contentItem
-        // 直接内联 BasicTextField，无组件边界）。经 textFieldLoader.item
-        // 可空访问 activeFocus，未加载（非 editable）时为 undefined。
-        opacity: (root.flat && !root.hovered && !root.popup.visible &&
-                  !textFieldLoader.item?.activeFocus) ? 0 : 1
+        // ReferenceError）。经 textFieldLoader.item 可空访问 activeFocus，
+        // 未加载（非 editable）时为 undefined。
+        opacity: (root.flat && !root.hovered && !root.popup.visible && !textFieldLoader.item?.activeFocus) ? 0 : 1
         BasicNumberBehavior on opacity {}
     }
 
@@ -153,10 +201,24 @@ T.ComboBox {
                 verticalAlignment: root.verticalAlignment
 
                 readonly property real extraPadding: activeFocus ? 10 : 0
-                leftPadding: root.mirrored ? contentContainer.indicatorPadding
-                                             + extraPadding : 0
-                rightPadding: root.mirrored ? 0 : contentContainer.indicatorPadding
-                                              + extraPadding
+                leftPadding: root.mirrored ? contentContainer.indicatorPadding + extraPadding : 0
+                rightPadding: root.mirrored ? 0 : contentContainer.indicatorPadding + extraPadding
+
+                // 模板层按 contentItem 类型识别文本域，Loader 包裹下识别
+                // 不到：editText 不随输入自动同步（须手动回写）。Enter 的
+                // accepted 是文本域自身信号——先经 root.accepted() 激活
+                // ComboBox 的 accepted 信号（宿主 onAccepted 入口，与 Qt
+                // 官方语义一致：宿主在 onAccepted 中经 find(editText) 处理
+                // 输出数值；Qt 内部的模型匹配/currentIndex 更新不随此调用
+                // 执行，由宿主自行处理），再释放焦点结束编辑，避免外部
+                // 无焦点对象时编辑状态悬挂。
+                //一些互动行为&反向同步属性
+                onTextEdited: root.editText = text
+
+                onAccepted: {
+                    root.accepted();
+                    focus = false;
+                }
             }
         }
     }
@@ -184,8 +246,7 @@ T.ComboBox {
         y: implicitY + root.popupOffsetY
 
         width: root.width
-        height: Math.min(topPadding + implicitContentHeight + bottomPadding,
-                         root.Window.height - topMargin - bottomMargin)
+        height: Math.min(topPadding + implicitContentHeight + bottomPadding, root.Window.height - topMargin - bottomMargin)
 
         topPadding: 4
         bottomPadding: 4

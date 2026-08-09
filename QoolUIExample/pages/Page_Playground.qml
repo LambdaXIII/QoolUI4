@@ -13,16 +13,35 @@ BasicPage {
 
     title: qsTr("试炼场")
     note: qsTr("测试一些东西……")
+    ListModel {
+        id: listModel2
+        ListElement {
+            display: qsTr("AA")
+            value: Qore.Covered
+        }
+        ListElement {
+            display: qsTr("BB")
+            value: Qore.Above
+        }
+        ListElement {
+            display: qsTr("CC")
+            value: Qore.Below
+        }
+    }
 
-    Dial {
-        id: d
-        width: 300
-        height: 300
+    ComboBox {
+        model: listModel2
+        // flat:true
+        editable: true
+        textRole: "display"
 
-        startAngle: -30
-        endAngle: 100
-        onPositionChanged: console.log(endAngle)
+        validator: IntValidator {
+            bottom: 0
+        }
 
-        RectResizer {}
+        // onDisplayTextChanged: console.log(displayText, currentText)
+        // onCurrentTextChanged: console.log(displayText, currentText)
+        onEditTextChanged: console.log(editText)
+        onAccepted: console.log("!!")
     }
 }
