@@ -28,6 +28,8 @@ T.Control {
 
     SpaceHelper {
         id: spacer
+        leftPadding: 2
+        rightPadding: 2
     }
 
     topPadding: topInset + bgbox.topSpace + spacer.topPadding

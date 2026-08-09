@@ -5,6 +5,6 @@ Text {
     id: root
     color: Style.buttonText
     font.pixelSize: Style.controlTextSize
-    horizontalAlignment: Text.AlignHCenter
+    horizontalAlignment: Text.AlignRight
     verticalAlignment: Text.AlignVCenter
 }

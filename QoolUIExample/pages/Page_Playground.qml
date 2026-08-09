@@ -15,7 +15,7 @@ import QtQuick.Controls
 import Qool
 import Qool.Controls
 import Qool.Controls.Components
-
+import QtQuick.Layouts
 import "components"
 
 BasicPage {
@@ -31,104 +31,149 @@ BasicPage {
 
         spacing: 25
 
-        // 1) 整数步进：decimals 0 + stepSize 1
-        SpinBox {
-            from: 0
-            to: 10
-            value: 5
-            decimals: 0
-            stepSize: 1
+        QoolControl {
+            title: qsTr("试试输入你的名字")
+            width: 200
+            contentItem: ColumnLayout {
+                TextField {
+                    id: nameInputField
+                    text: qsTr("我的名字是小花")
+                    font.pixelSize: Style.titleTextSize
+                    Layout.fillWidth: true
+                    onAccepted: {
+                        if (!text)
+                            greeting_text.text = "";
+                        else
+                            greeting_text.text = qsTr("你好，%1！").arg(text);
+                    }
+                    displayTextFromText: function (t) {
+                        if (!t)
+                            return qsTr("(在此输入你的名字)");
+                        return t;
+                    }
+                }
+                BasicControlText {
+                    id: greeting_text
+                    Layout.fillWidth: true
+                    wrapMode: Text.WrapAnywhere
+                    BasicTextBehavior on text {}
+                    visible: text
+                    color: Style.accent
+                }
+            }
+
             QoolTip {
-                text: qsTr("整数步进：decimals 0 + stepSize 1")
+                text: qsTr("QoolUI提供了一个**高定**版本的TextField。基本用法和标准的类似，但是实现了更多可能性。")
             }
         }
 
-        // 2) 小数步进：默认 decimals 2（0.00 - 99.99 域）
-        SpinBox {
-            from: 0
-            to: 99.99
-            value: 3.14
-            QoolTip {
-                text: qsTr("默认两位小数：0.00 - 99.99")
+        // —— TextField + validator 用例（DoubleValidator 0~100 两位小数）——
+        // 测试点：
+        //   1. 点击进入编辑 → 编辑栏显示当前 text（= "12.5"）
+        //   2. 输入合法值（如 33.33）Enter/失焦 → accepted + text 更新
+        //   3. 输入非法值（如 200 超界、abc 非数字）Enter/失焦 → rejected
+        //      + text 不变（judge 判定——编辑层不挂 validator）
+
+        QoolControl {
+            id: validatorExample
+            title: qsTr("Validator支持")
+            width: 200
+            contentItem: ColumnLayout {
+                spacing: 8
+                TextField {
+                    Layout.fillWidth: true
+                    text: "12.5"
+                    validator: DoubleValidator {
+                        bottom: 0
+                        top: 100
+                        decimals: 2
+                    }
+                    onAccepted: validatorExample.whenAccepted()
+                    onRejected: validatorExample.whenRejected()
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("接受0~100之间的实数")
+                    ToolTip.delay: 500
+                }
+
+                TextField {
+                    Layout.fillWidth: true
+                    text: "12"
+                    validator: IntValidator {
+                        bottom: -100
+                        top: 100
+                    }
+                    onAccepted: validatorExample.whenAccepted()
+                    onRejected: validatorExample.whenRejected()
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("接受+-100之间的整数")
+                    ToolTip.delay: 500
+                }
+
+                TextField {
+                    Layout.fillWidth: true
+                    text: "abc@company.com"
+                    validator: RegularExpressionValidator {
+                        regularExpression: /^.+@.+\..+/
+                    }
+
+                    onAccepted: validatorExample.whenAccepted()
+                    onRejected: validatorExample.whenRejected()
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("接受电子邮件地址")
+                    ToolTip.delay: 500
+                }
+            }//contentItem
+
+            function whenAccepted() {
+                backgroundSettings.borderColor = Style.positive;
+            }
+
+            function whenRejected() {
+                backgroundSettings.borderColor = Style.negative;
             }
         }
 
-        // 2) 小数步进：自定义精度与步长
-        SpinBox {
-            from: 0
-            to: 10
-            decimals: 1
-            stepSize: 0.5
+        QoolControl {
+            id: displayOverrideEx
+            title: qsTr("自定义输出格式")
+            width: 200
+            contentItem: ColumnLayout {
+                TextField {
+                    id: displayOverrideField
+                    Layout.fillWidth: true
+                    Connections {
+                        target: nameInputField
+                        function onAccepted() {
+                            displayOverrideField.text = nameInputField.text;
+                        }
+                    }
+
+                    displayTextFromText: function (text) {
+                        if (!text)
+                            return "Hello, World!";
+                        return qsTr("你好，%1！").arg(text);
+                    }
+                    font.pixelSize: Style.titleTextSize
+                }
+                TextField {
+                    Layout.fillWidth: true
+                    text: "188"
+                    validator: DoubleValidator {
+                        bottom: 100
+                        top: 999
+                        decimals: 2
+                    }
+                    displayTextFromText: function (text) {
+                        return qsTr("%1体重%2公斤").arg(displayOverrideField.text).arg(text);
+                    }
+                    textFromEditText: function (text) {
+                        let x = parseFloat(text);
+                        return x + 10;
+                    }
+                }
+            }//layout
             QoolTip {
-                text: qsTr("自定义步长 0.5、一位小数")
-            }
-        }
-
-        SectionBar {
-            width: parent.width
-        }
-
-        // 3) 可编辑模式：editable: true，点击内容区进入覆盖编辑（selectAll 后
-        //    键入即整体替换），Enter/失焦提交，校验失败回退原值
-        SpinBox {
-            editable: true
-            from: 0
-            to: 100
-            value: 42
-            QoolTip {
-                text: qsTr("editable: true，点击数值进入编辑")
-            }
-        }
-
-        // 4) 禁用态：展示 ControlLockedCover
-        SpinBox {
-            enabled: false
-            from: 0
-            to: 10
-            value: 7
-            QoolTip {
-                text: qsTr("禁用态（enabled: false）")
-            }
-        }
-
-        SectionBar {
-            width: parent.width
-        }
-
-        // 5) 钩子：currentValue 默认绑定 value，可被外部覆写
-        SpinBox {
-            from: 0
-            to: 10
-            value: 3
-            currentValue: value * 10
-            QoolTip {
-                text: qsTr("currentValue 可覆写（此处为 value * 10）")
-            }
-        }
-
-        // 5) 钩子：textFromValue 自定义显示格式（官方 function 属性，零代码覆写）
-        SpinBox {
-            from: 0
-            to: 10
-            value: 2.5
-            textFromValue: function(value, decimals, locale) {
-                return Number(value).toLocaleString(locale, "f", decimals) + "x"
-            }
-            QoolTip {
-                text: qsTr("textFromValue 自定义格式（追加 “x” 后缀）")
-            }
-        }
-
-        // 6) wrap 回环：到达边界后回绕
-        SpinBox {
-            from: 0
-            to: 6
-            value: 6
-            decimals: 0
-            stepSize: 1
-            wrap: true
-            QoolTip {
-                text: qsTr("wrap: true，到达边界后回环")
+                text: qsTr("TextField可以使用*displayTextFromText*方法重新设定输出格式。*textFromEditText*可用于讲输入的内容转换为值。这两个方法是独立的，并不一定互为逆运算。\n本组示例中第一个是一个简单的示例，第二个是一个混合了两种函数并且增加了一个validator的示例。")
             }
         }
     } //cc

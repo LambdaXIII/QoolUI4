@@ -2,6 +2,33 @@
 
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
+## [4.0.0] — 2026-08-10
+
+### 新增
+
+- Qool.Controls.SpinBox（L1 裸控件）：T.DoubleSpinBox 基座，int/double 一体步进——透明尺寸背景（implicit 100×35）、点击覆盖式编辑（Text 常显 + Loader 激活 BasicTextField）、左右全高指示器占位（参照官方 Basic 实现坐标）、inputMethodHints 改 ImhFormattedNumbersOnly；无壳层视觉（壳层由宿主 QoolControl 包装）；Playground 展示页
+- Qool.Controls.TextField 双层强化版（v3 传统覆盖模式演进，系列可编辑控件编辑域消费基底）：
+  - 双层定位：展示层（displayItem 常驻——默认 Text 经 displayTextFromText 派生）+ 编辑会话（editing 开关——点击/聚焦进入、Loader 懒加载 BasicTextField 呈现、结束卸载恢复）
+  - 编辑模型（judge——常驻隐藏 TextInput）：会话文本/validator（root alias 直通）/acceptableInput 单点事实源——判定不依赖编辑层生命周期；编辑层不挂 validator（accepted/editingFinished 无条件发——结束尝试全识别）
+  - accepted/rejected 独立信号（判定结果——非内部转发）：接受（text = textFromEditText + accepted）/拒绝（不写 + rejected）；输入与当前 text 一致 = 无处理不触发；editingFinished 对齐 TextInput 语义（判定结果信号之前——接受时 text 已写入）
+  - 插拔三件套：displayTextFromText/textFromEditText（独立语义——分属展示/收尾过程——不假设互为逆、互逆可行非契约）/displayItem
+  - 官方 API 兼容：textEdited（转发编辑层用户编辑）/inputMask/inputMethodHints/wrapMode（转发编辑层）
+  - 裸控件定位（与 SpinBox 同）；隐式尺寸显式公式（T.Control 默认不传播——官方 Basic/Control.qml 同款）
+- Qool.Controls.Components.BasicTextField 还原纯净：撤销 rejected 下沉（onEditingFinished + !acceptableInput 判定删除）——定位回归"主题化默认 TextField"；editingFinished 信号释放给上层（编辑层实例挂统一收尾——实例 handler 覆盖组件定义）
+
+### 修复
+
+- Qool.Controls.TextField：编辑会话文本残留（Binding 组件回写 judge 的恢复时序（delayed + restoreMode）在编辑层卸载时不可靠——下次会话初始显示上次输入）→ 弃用 Binding 组件改手动同步（onTextEdited 回写 + 非编辑期 Connections 同步 + 收尾显式恢复基准）
+- Qool.Controls.TextField：编辑层初始空文本（Binding 组件创建时首次求值以编辑层空 text 污染 judge）→ onTextEdited 方案（程序化赋值不发 textEdited——初始无污染）
+- Qool.Controls.TextField：收尾递归重复（internalEditing 最后置 false 后，editing=false 触发 onEditingChanged 桥接再次收尾——editingFinished 重发）→ finishing 标志防重
+- Qool.Controls.TextField：悬空 editTextChanged 调用（alias 不生成信号——信号移除后残留调用 TypeError）→ 删除
+- Qool.Controls.TextField：MouseArea 悬停光标未响应 readOnly → enabled: !readOnly
+
+### 文档
+
+- Qool.Controls.TextField 补全 QDoc（\qmltype——双层结构/编辑会话/判定信号语义/插拔函数/契约差异）
+- QoolUIExample：Page_Playground TextField 调试示例（名字输入/Validator 支持/自定义输出格式）整合到 Page_InputControls 最前
+
 ## [4.0.0] — 2026-08-09
 
 ### 修复
