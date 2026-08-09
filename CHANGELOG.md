@@ -15,6 +15,11 @@
   - 官方 API 兼容：textEdited（转发编辑层用户编辑）/inputMask/inputMethodHints/wrapMode（转发编辑层）
   - 裸控件定位（与 SpinBox 同）；隐式尺寸显式公式（T.Control 默认不传播——官方 Basic/Control.qml 同款）
 - Qool.Controls.Components.BasicTextField 还原纯净：撤销 rejected 下沉（onEditingFinished + !acceptableInput 判定删除）——定位回归"主题化默认 TextField"；editingFinished 信号释放给上层（编辑层实例挂统一收尾——实例 handler 覆盖组件定义）
+- Qool.Controls.ComboBox / SpinBox 编辑域迁移到 TextField（双层强化版——编辑域状态机单一化）：
+  - 两控件删除各自的 Loader 识别缺口补偿（手动 editText 回写/手动提交回退/手动信号补发）
+  - ComboBox：常驻 TextField（readOnly 绑定控制 editable）——currentText ↔ text 命令式同步（用户裁定：属性绑定会被收尾内部写回 text 打断）；accepted/rejected 透传（rejected 为 Qool 扩展新信号）；editText/validator/inputMethodHints/selectTextByMouse 透传；编辑失败统一结束并宣告（契约差异：官方失败保持编辑——本类型结束 + rejected）
+  - SpinBox：常驻 TextField——value → textFromValue 喂入显示（命令式）；accepted 读收尾后 text 映射 value（值变补 valueModified）/拒绝透传（新信号）；编辑中按指示器先收尾再步进；displayTextOverride 移除（自定义显示经覆写 textFromValue/valueFromText 配对）
+  - TextField 增量：新增 selectByMouse 转发属性；readOnly 语义扩展（中途变 true 统一收尾进行中会话、不进 Tab 焦点链、纯行为开关——不触发样式变化）
 
 ### 修复
 
@@ -28,6 +33,7 @@
 
 - Qool.Controls.TextField 补全 QDoc（\qmltype——双层结构/编辑会话/判定信号语义/插拔函数/契约差异）
 - QoolUIExample：Page_Playground TextField 调试示例（名字输入/Validator 支持/自定义输出格式）整合到 Page_InputControls 最前
+- ComboBox/SpinBox QDoc 更新（编辑域说明/accepted-rejected 新信号/契约差异）；TextField QDoc 补 selectByMouse 与 readOnly 语义扩展
 
 ## [4.0.0] — 2026-08-09
 

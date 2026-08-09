@@ -117,9 +117,16 @@ import Qool
     层已装配就绪，宿主可读 editText）。宿主可设 true/false 进出会话；
     点击/聚焦/收尾路径亦驱动本属性。
 
+    \b 注意：会话收尾期间状态机锁定——\l editingStarted 与
+    \l editingFinished 信号处理器的执行窗口内设置本属性**不生效**（意图
+    被丢弃）。宿主不要在 editingStarted / editingFinished / accepted /
+    rejected 处理器中同步设置 editing；如需在拒绝后重开编辑，请延迟到
+    事件处理之后（Qt.callLater）或由用户点击重新进入。
+
     \qmlproperty bool readOnly
-    只读开关：true 时不启动会话（点击/聚焦空转）；显式会话可聚焦选中
-    但不可编辑。
+    只读开关（纯行为——不触发样式变化）：true 时不启动会话（点击/聚焦
+    空转）、不进 Tab 焦点链；显式会话（editing=true）可聚焦选中但不可
+    编辑。会话进行中变为 true → 当前编辑被统一收尾判定（提交/拒绝）。
 
     \qmlproperty color color
     文本色——展示与编辑层共用（T.Control 无 color，Qool 扩展）。
@@ -134,6 +141,10 @@ import Qool
     \qmlproperty int wrapMode
     输入掩码/输入法提示/换行模式——转发编辑层（官方 API 对齐），外部
     可设置并被响应。默认值与官方一致（空掩码 / ImhNone / NoWrap）。
+
+    \qmlproperty bool selectByMouse
+    鼠标选择开关——转发编辑层（官方 API 对齐）。默认 true（编辑会话
+    中允许鼠标选择——selectAll 后键入覆盖的会话惯例）；外部可关闭。
 
     \qmlproperty Item displayItem
     展示组件（内容主体——Item 实例，几何自管）。默认 Text（绑定
@@ -232,7 +243,8 @@ T.Control {
 
     /* 编辑开关（TextField 惯例命名，不提供 editable——反相冗余）：true =
        只读。不启动会话（点击/聚焦空转）；编辑层亦只读（显式会话可聚焦
-       选中，不可编辑）。 */
+       选中，不可编辑）。纯行为开关——不触发样式变化；会话进行中变 true
+       时由 pCtrl Connections 统一收尾（见下）。 */
     property bool readOnly: false
 
     /* 文本色：display 与编辑层共用（T.Control 无 color，Qool 扩展）。 */
@@ -252,6 +264,10 @@ T.Control {
     /* 换行模式（转发编辑层——官方 API 对齐）：单行文本域默认 NoWrap。 */
     property int wrapMode: TextInput.NoWrap
 
+    /* 鼠标选择开关（转发编辑层——官方 API 对齐）：默认 true——编辑会话
+       中允许鼠标选择（selectAll 后键入覆盖的会话惯例）；外部可关闭。 */
+    property bool selectByMouse: true
+
     /* 展示组件（内容主体——Item 实例属性，几何自管；默认 Text 写
        anchors.fill: parent）。编辑时经 Binding 隐藏（不卸载——会话结束
        恢复，无重建开销）。 */
@@ -267,7 +283,11 @@ T.Control {
         BasicTextBehavior on text {
             enabled: root.animationEnabled && !root.editing
         }
-        BasicNumberBehavior on opacity {}
+        BasicNumberBehavior on opacity {
+            // 显式绑控件自身（而非依赖 Behavior 内部动态查 Style——父链
+            // 覆盖可生效）
+            enabled: root.animationEnabled
+        }
     }
 
     /* 插拔函数（默认恒等）：text（保存形式）→ 展示文本派生——展示过程
@@ -306,8 +326,10 @@ T.Control {
 
     // 点击聚焦/进编辑由 contentItem 的 TapHandler 实现（无需 activeFocusOnTap——
     // 该属性不存在）；Tab 聚焦需显式开启——T.Control 基座默认 false
-    // （AbstractButton/文本域的默认 true 不适用于本基座）
-    activeFocusOnTab: true
+    // （AbstractButton/文本域的默认 true 不适用于本基座）。readOnly 时不进
+    // Tab 焦点链（只读展示不抢焦点——宿主按钮/包装控件的键盘焦点让位）；
+    // 显式会话（editing=true）仍可聚焦选中。
+    activeFocusOnTab: !root.readOnly
     font.pixelSize: Style.controlTextSize
 
     /* 隐式尺寸：T.Control 默认 implicit 不自动基于 background/contentItem
@@ -362,6 +384,13 @@ T.Control {
             function onTextChanged() {
                 if (!pCtrl.internalEditing)
                     judge.text = root.text;
+            }
+            // readOnly 中途变 true（上层控件 editable 关闭等场景）：只读语义
+            // 与"会话进行中"矛盾——统一收尾（判定流程完整走完——提交/拒绝
+            // 判定 + 信号），不留悬挂编辑态。上层控件零代码（本控件自管）。
+            function onReadOnlyChanged() {
+                if (root.readOnly && pCtrl.internalEditing)
+                    pCtrl.wanna_stop_editing();
             }
         }
 
@@ -419,19 +448,22 @@ T.Control {
             if (accepted && changed)
                 root.text = root.textFromEditText(judge.text);
 
-            let field = editLoader.item;
-            if (field)
-                field.opacity = 0;
-
             root.editing = false;
             root.editingFinished();
+
+            // 编辑模型脱离"编辑中"窗口——**提前于判定信号**：accepted/rejected
+            // 发出时若 internalEditing 仍 true，宿主/上层控件的命令式写回
+            // （如 SpinBox 的 decimals 格式化回位、ComboBox 的 currentText
+            // 拉回——同步执行于判定信号处理器内）会被 onTextChanged 的
+            // internalEditing 守卫挡在 judge 之外——judge 与 text 脱同步固化，
+            // 下次会话基准错乱、每轮往返误判 changed。提前卸载后写回正常
+            // 回流 judge。
+            internalEditing = false; //最后卸载（编辑层销毁——判定信号不再依赖编辑层）
 
             // 会话基准恢复：judge.text 回到主内容原值（非编辑期跟随的手动
             // 同步基准——下次会话初始无残留；接受时 root.text 已写入转换
             // 结果——恢复即新值）
             judge.text = root.text;
-
-            //最终状态更新
 
             if (changed) {
                 if (accepted)
@@ -440,7 +472,6 @@ T.Control {
                     root.rejected();
             }
 
-            internalEditing = false; //最后卸载
             finishing = false;
         }
     }//pCtrl
@@ -485,7 +516,7 @@ T.Control {
                 enabled: root.enabled
                 opacity: 0
                 visible: opacity > 0
-                selectByMouse: true // 编辑态固定允许鼠标选择（selectAll 后键入覆盖）
+                selectByMouse: root.selectByMouse // 转发（官方 API 对齐——默认 true：selectAll 后键入覆盖的会话惯例）
                 padding: 0 // 与 display 对齐（默认 Text 无 padding）——双层切换无位移
                 // 点击聚焦已被外部管理（TapHandler 进编辑 / 装配
                 // forceActiveFocus）——编辑层自身不抢焦点（避免冲突）
@@ -517,7 +548,12 @@ T.Control {
                 // Esc 收尾是行为型，属本层对"会话结束方式"的控制。
                 Keys.onEscapePressed: focus = false
 
-                BasicNumberBehavior on opacity {}
+                // 淡入（setup_editor 0→1）；淡出不播放（收尾同回合卸载——
+                // 编辑层直接移出场景，无帧边界）
+                BasicNumberBehavior on opacity {
+                    // 显式绑控件自身（避免 Behavior 内部动态查 Style）
+                    enabled: root.animationEnabled
+                }
             }
         }
 

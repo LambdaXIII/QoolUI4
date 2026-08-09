@@ -1,15 +1,9 @@
-// SpinBox 展示页：Qool.Controls 重写的数值步进器（int/double 一体，裸控件——
-// 无内置背景壳；QoolControl 包装用法待验证，本页直接裸展示）。
+// Playground：测试场——Qool.Controls 控件的展示性实现与调试用例（仓库
+// 开发模式：可随意更改，不保留旧内容）。
 //
-// 演示内容：
-//   1. 整数步进（decimals: 0 + stepSize: 1）
-//   2. 小数步进（默认 decimals 2；自定义 decimals/stepSize）
-//   3. 可编辑模式（editable: true，点击内容区覆盖编辑，Enter/失焦提交）
-//   4. 禁用态（enabled: false，展示 ControlLockedCover）
-//   5. 能力钩子：currentValue 覆写、textFromValue 自定义显示格式
-//   6. wrap 回环
-// 官方 API（from/to/stepSize/decimals/value/wrap/editable）与 Qool 新增
-// 属性（horizontalAlignment/verticalAlignment/currentValue）均可用。
+// 当前内容：
+//   1. TextField 系列（名字输入/Validator 支持/自定义输出格式——调试用例）
+//   2. SpinBox（可编辑数值步进——编辑会话由 TextField 双层承担）
 import QtQuick
 import QtQuick.Controls
 import Qool
@@ -174,6 +168,28 @@ BasicPage {
             }//layout
             QoolTip {
                 text: qsTr("TextField可以使用*displayTextFromText*方法重新设定输出格式。*textFromEditText*可用于讲输入的内容转换为值。这两个方法是独立的，并不一定互为逆运算。\n本组示例中第一个是一个简单的示例，第二个是一个混合了两种函数并且增加了一个validator的示例。")
+            }
+        }
+        // —— SpinBox（编辑会话由 TextField 双层承担——迁移后验证）——
+        QoolControl {
+            title: qsTr("数值步进（可编辑）")
+            width: 200
+            contentItem: ColumnLayout {
+                SpinBox {
+                    id: editSpinBox
+                    Layout.fillWidth: true
+                    editable: true
+                    from: 0
+                    to: 100
+                    decimals: 1
+                    stepSize: 0.5
+                    value: 12.5
+                    onAccepted: console.log("SpinBox accepted:", value)
+                    onRejected: console.log("SpinBox rejected")
+                }
+            }
+            QoolTip {
+                text: qsTr("可编辑 SpinBox——点击进入编辑，Enter/失焦提交：合法值接受（value 更新），非法值拒绝回退（accepted/rejected 可监听）。")
             }
         }
     } //cc
