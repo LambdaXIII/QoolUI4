@@ -89,8 +89,7 @@ GridLayout {
     id: root
 
     // 动画总开关：v3 同款传播（父级属性 → Style），传给槽位按钮。
-    property bool animationEnabled: parent?.animationEnabled
-                                    ?? Style.animationEnabled
+    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
 
     // 显示范围（非存储边界）：只画 0..slots-1 号格。
     property int slots: 24
@@ -117,15 +116,16 @@ GridLayout {
             slotColor: root.colorBank.color(index)
 
             onWannaSave: {
-                slotColor = root.colorAssistant.color
-                root.colorBank.setColor(index, slotColor)
+                slotColor = root.colorAssistant.color;
+                root.colorBank.setColor(index, slotColor);
             }
 
             onWannaLoad: root.colorAssistant.color = slotColor
 
             Layout.fillHeight: true
             Layout.fillWidth: true
-            Layout.preferredHeight: 40
+            Layout.preferredHeight: implicitBackgroundHeight
+            Layout.preferredWidth: implicitBackgroundWidth
 
             loadEnabled: slotColor !== root.colorAssistant.color
             saveEnabled: slotColor !== root.colorAssistant.color
