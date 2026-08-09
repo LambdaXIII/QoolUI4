@@ -42,35 +42,47 @@ T.Control {
 
     property int orientation: Qt.Vertical
 
-    contentItem: Grid {
-        id: grid
-        // flow: Grid.TopToBottom
-        layoutDirection: root.mirrored ? Qt.LeftToRight : Qt.RightToLeft
+    // TODO（低优先）：大型模型场景性能优化——Repeater 按模型行数实例化
+    // 圆点（数百行 → 数百点位、无 clip 无上限）。不紧急：超大模型大概率
+    // 不使用本指示器（仓库当前模型均小）。
+    contentItem: Item {
+        implicitWidth: grid.implicitWidth
+        implicitHeight: grid.implicitHeight
 
-        Repeater {
-            id: repeater
-            delegate: root.delegate
-        }
+        Grid {
+            id: grid
+            // 居中排布（修复 2026-08-10）：此前裸 Grid 从内容区左上排布，
+            // ComboBox 拉满全高时圆点列偏上 ~3.5px——anchors.centerIn 使
+            // 圆点列在内容区垂直/水平居中
+            anchors.centerIn: parent
+            // flow: Grid.TopToBottom
+            layoutDirection: root.mirrored ? Qt.LeftToRight : Qt.RightToLeft
 
-        // rows: Math.floor(grid.height / root.implicitDelegateHeight)
-        columnSpacing: 1
-        rowSpacing: 1
+            Repeater {
+                id: repeater
+                delegate: root.delegate
+            }
 
-        Binding {
-            when: root.orientation === Qt.Vertical
-            grid.flow: Grid.TopToBottom
-            // 固定单列、按 count 向下排布。此前 rows 绑定 grid.height
-            // 形成自引用环（高度→行数→高度），绑定循环求值不稳定；
-            // 单列同时保证 delegate 行高自适应（等宽覆盖场景独立可用）。
-            grid.columns: 1
-        }
+            // rows: Math.floor(grid.height / root.implicitDelegateHeight)
+            columnSpacing: 1
+            rowSpacing: 1
 
-        Binding {
-            when: root.orientation === Qt.Horizontal
-            grid.flow: Grid.LeftToRight
-            // 固定单行、按 count 向右排布，理由同上（columns 绑定
-            // grid.width 自引用）。
-            grid.rows: 1
+            Binding {
+                when: root.orientation === Qt.Vertical
+                grid.flow: Grid.TopToBottom
+                // 固定单列、按 count 向下排布。此前 rows 绑定 grid.height
+                // 形成自引用环（高度→行数→高度），绑定循环求值不稳定；
+                // 单列同时保证 delegate 行高自适应（等宽覆盖场景独立可用）。
+                grid.columns: 1
+            }
+
+            Binding {
+                when: root.orientation === Qt.Horizontal
+                grid.flow: Grid.LeftToRight
+                // 固定单行、按 count 向右排布，理由同上（columns 绑定
+                // grid.width 自引用）。
+                grid.rows: 1
+            }
         }
     }
 

@@ -245,7 +245,9 @@ T.ComboBox {
     delegate: BasicItemDelegate {
         required property var model
         required property int index
-        width: root.width
+        // 自适应列表可视宽（官方写法）：popup 水平 padding 使可视区窄于
+        // 控件宽——固定 root.width 会致右缘被裁 1-2px（修复 2026-08-10）
+        width: ListView.view.width
         text: model[root.textRole]
         highlighted: root.highlightedIndex === index
         Style.follow: root.Style

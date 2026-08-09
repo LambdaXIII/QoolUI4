@@ -35,6 +35,13 @@
 - QoolUIExample：Page_Playground TextField 调试示例（名字输入/Validator 支持/自定义输出格式）整合到 Page_InputControls 最前
 - ComboBox/SpinBox QDoc 更新（编辑域说明/accepted-rejected 新信号/契约差异）；TextField QDoc 补 selectByMouse 与 readOnly 语义扩展
 
+### 其他
+
+- IndexIndicator 圆点列垂直居中（ComboBox 指示器偏上 3.5px 修复）；ComboBox delegate 宽度改 ListView.view.width（右缘 1-2px 裁剪修复）
+- qool_vector2d.h 的 QML_VALUE_TYPE 去引号（与其余值类型注册风格统一）
+- Playground 清理（displayOverrideEx 未用 id 删除；变换示例补"恶作剧"说明注释）
+- TextField 文件头待验证段补 popup 焦点归还可能性记录；IndexIndicator 补大型模型性能 TODO
+
 ## [4.0.0] — 2026-08-09
 
 ### 修复

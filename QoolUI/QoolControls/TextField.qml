@@ -72,6 +72,11 @@ import Qool
 //   回本体（卸载后无对象可释放焦点，焦点归位机制待实测确认）。
 // - Loader active 绑定求值时机：onLoaded 装配依赖 item 已创建并入树（规避
 //   "信号处理器内绑定延迟求值"——置 editing 当刻读 editLoader.item 不可靠）。
+// - popup 等浮层关闭后焦点归还：浮层抢焦点使编辑层失焦收尾；关闭后 Qt 的
+//   焦点恢复（lastActiveFocusItem 链）可能把焦点落回本控件——若落回将经
+//   onActiveFocusChanged 自动重开会话。可能性记录（2026-08-10 审查）：
+//   从未观察到实际发生（恢复分支依赖 lastActiveFocusItem 销毁状态），
+//   真窗口实测确认。
 
 /*!
     \qmltype TextField

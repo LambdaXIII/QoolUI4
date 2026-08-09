@@ -128,7 +128,6 @@ BasicPage {
         }
 
         QoolControl {
-            id: displayOverrideEx
             title: qsTr("自定义输出格式")
             width: 200
             contentItem: ColumnLayout {
@@ -160,6 +159,9 @@ BasicPage {
                     displayTextFromText: function (text) {
                         return qsTr("%1体重%2公斤").arg(displayOverrideField.text).arg(text);
                     }
+                    // 恶作剧（有意演示）：textFromEditText 变换可把 text 推出
+                    // validator 范围（输入 990 → 提交 1000 超上界）——此后该值
+                    // 无法再提交——变换与校验范围不匹配是刻意演示，非缺陷
                     textFromEditText: function (text) {
                         let x = parseFloat(text);
                         return x + 10;

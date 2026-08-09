@@ -13,7 +13,7 @@ QOOL_NS_BEGIN
 
 class Vector2D {
   Q_GADGET
-  QML_VALUE_TYPE("qoolvector")
+  QML_VALUE_TYPE(qoolvector)
   QML_CONSTRUCTIBLE_VALUE
 public:
   Vector2D() = default;
