@@ -27,6 +27,7 @@ qt_add_qml_module(QoolControls
     QML_FILES SpinBox.qml
     QML_FILES Dial.qml
     QML_FILES TextField.qml
+    QML_FILES EditableText.qml
 )
 
 
