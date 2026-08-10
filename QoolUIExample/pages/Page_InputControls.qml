@@ -1,6 +1,7 @@
 // 标准输入控件演示页：展示 Qool.Controls 重写的输入控件——TextField
 // （双层编辑会话/validator 校验/插拔转换——示例源自 Playground 调试
-// 用例，置于页面最前）、ComboBox（标题、背景定制、QoolTip 说明）以及
+// 用例，置于页面最前）、ComboBox（标题、背景定制、QoolTip 说明）、
+// SpinBox（步进/可编辑/wrap/自定义格式——同组 SectionBar 分段）以及
 // SectionBar、Dial 等控件。
 //
 // 刻意设计（修复说明）：组合框的弹出方向取自
@@ -244,6 +245,122 @@ BasicPage {
             QoolTip {
                 //% "通过设置背景属性甚至可以恢复QoolControl原本的样式
                 text: qsTrId("qooltip-combobox-customed")
+            }
+        }
+
+        SectionBar {
+            width: parent.width
+        }
+
+        // —— SpinBox 系列（一组——编辑会话由 TextField 双层承担）——
+        QoolControl {
+            title: qsTr("整数步进")
+            width: 200
+            contentItem: ColumnLayout {
+                SpinBox {
+                    Layout.fillWidth: true
+                    decimals: 0
+                    stepSize: 1
+                    from: 0
+                    to: 10
+                    value: 3
+                }
+            }
+        }
+
+        QoolControl {
+            title: qsTr("小数步进")
+            width: 200
+            contentItem: ColumnLayout {
+                SpinBox {
+                    Layout.fillWidth: true
+                    decimals: 2
+                    stepSize: 0.5
+                    from: 0
+                    to: 100
+                    value: 12.5
+                }
+            }
+        }
+
+        QoolControl {
+            title: qsTr("可编辑")
+            width: 200
+            contentItem: ColumnLayout {
+                SpinBox {
+                    Layout.fillWidth: true
+                    editable: true
+                    from: 0
+                    to: 100
+                    decimals: 1
+                    stepSize: 0.5
+                    value: 12.5
+                    onAccepted: console.log("SpinBox accepted:", value)
+                    onRejected: console.log("SpinBox rejected")
+                }
+            }
+            QoolTip {
+                text: qsTr("可编辑 SpinBox——点击进入编辑，Enter/失焦提交：合法值接受（value 更新），非法值拒绝回退（accepted/rejected 可监听）。")
+            }
+        }
+
+        QoolControl {
+            title: qsTr("wrap 回环")
+            width: 200
+            contentItem: ColumnLayout {
+                SpinBox {
+                    Layout.fillWidth: true
+                    wrap: true
+                    from: 0
+                    to: 10
+                    stepSize: 1
+                    value: 10
+                }
+            }
+            QoolTip {
+                text: qsTr("wrap: true——到达 to 后再步进回 from（回环）。")
+            }
+        }
+
+        QoolControl {
+            title: qsTr("自定义格式")
+            width: 200
+            contentItem: ColumnLayout {
+                SpinBox {
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 10
+                    decimals: 0
+                    value: 2
+                    // 显示/解析配对覆写（官方扩展点——实例可设）：
+                    // 显示带单位、解析去单位。注意：编辑会话按默认格式
+                    // （validator 不认自定义文本——可编辑 + 自定义格式需
+                    // 同时覆写 validator，超演示范围——本用例仅展示显示覆写）
+                    textFromValue: function (v, locale, decimals) {
+                        return v + " 倍";
+                    }
+                    valueFromText: function (text, locale) {
+                        return Number(text.replace(" 倍", ""));
+                    }
+                }
+            }
+            QoolTip {
+                text: qsTr("textFromValue/valueFromText 配对覆写——自定义显示/解析格式（官方扩展点）。")
+            }
+        }
+
+        QoolControl {
+            title: qsTr("禁用态")
+            width: 200
+            contentItem: ColumnLayout {
+                SpinBox {
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 10
+                    stepSize: 1
+                    value: 3
+                    enabled: false
+                }
             }
         }
 
