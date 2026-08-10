@@ -7,7 +7,7 @@ qt_add_qml_module(QoolControls
     VERSION ${QOOLUI_VERSION_QML}
     NAMESPACE ${QOOL_NS}
 
-    IMPORTS Qool
+    IMPORTS Qool Qool.Controls.Components
     QML_FILES
     QML_FILES
     QML_FILES

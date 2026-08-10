@@ -6,6 +6,26 @@
 
 ### 新增
 
+- Qool.Controls.Slider（v3 Color 滑块视觉族通用化）：六边形渐变轨道 + 水晶菱形手柄（**同一八点模型**——斜边斜率一致天然对齐）；轨道默认 `text→color` 水平渐变（`color` 属性 = 渐变右端色、锚定切角内侧——`fillGradient`/`fillItem` 双通道透传，fillColor 兜底渐进降级）；手柄常态色 = 轨道渐变在当前值位置的采样色（ColorMapper.colorAt——渐变锚定段与手柄中心行程对齐，`colorAt(visualPosition)` 精确）；悬停/按下/刚移动三态展开（v3 ColorCursor 核心）+ pressed/程序化锁存提亮（TimerLatch + NumberNotifier——"值被写入即亮"）；尺寸反向排版（root 默认 80×20——模板不自带 implicit 公式；轨道显式绑定 root 尺寸——background 自动 fill 对带 size 绑定的 Crystal 不生效）；手柄跟随控件高度（crystalSize = 默认高度）；倒置/禁用/键盘为官方行为；手柄溢出边界为刻意效果（反 clip 声明）
+- Qool.Controls.Components.Crystal（八点模型六边形色块）：Qool 切角体系 Gadget 实现（`shapecontrol/gadgets/qool_shapegadget_crystal`——标准 ShapeControl + CrystalGadget 预制点）——统一 8 点路径覆盖宽六边形（w>h）/菱形（w=h，旋转 45° 正方形）/瘦六边形（w<h——上下尖 + 左右直边，可直接作竖直滑块背景）；**单层外轮廓模型**（无内缩——规避 OctagonShape 双层模型在切角极限的反向三角形 bug，性能亦轻）；RB/LB 跨边条件绑定（位置关系推演三形态校对，见 .scratch/slider/crystal-geometry.md）；中间量链基类 bindable（不重算 w/2/min）；命中域为外接矩形（无精确菱形掩码——Slider 场景手柄不交互、掩码无意义，独立使用宽松命中已声明）
+- QoolUIExample：Page_InputControls2（Slider + Dial 展示页——用例自 Playground 梳理合并：反馈/官方行为/尺寸形态分组，QoolTip 详尽说明行为/属性/注意点；Dial 补正式展示）；Page_Playground 清空为测试场空壳（Slider 调试用例迁移展示页，页面保留供后续调试）
+
+### 修复
+
+- CrystalGadget：构造时 setBinding 立即求值对 null target/control 解引用崩溃（QML 属性赋值在构造之后）→ 守卫 + bindable 依赖追踪（control 设置后自动重求值）；几何链 control（不重复从 target 获取——基类 ShapeControl 已有 x/y/width/height，snake_case bindable 访问器）；中间量链基类 bindable
+- Crystal 八点几何：RB/LB 无条件定义致 w>h 时底边两端缺失（形状塌成 5 边形"钻石"）→ 跨边条件绑定（w≥h：底边距 cut；w<h：侧边距下 cut）——位置关系推演（三形态校对，边界 w=h 归 ≥ 分支）
+- Slider 轨道尺寸：background 自动 fill 在 Crystal（带 size 绑定）上未生效（轨道缩成 20×20 菱形在左上角）→ 轨道显式绑定 root 尺寸
+- Slider 渐变通道：fillGradient 经子对象 id 引用/三目内联对象失败（绑定时机/语法）→ 属性默认值内联对象 + 直接绑定（fillColor 兜底——渐变失效时轨道仍可见）
+
+### 文档
+
+- Slider/Crystal QDoc（八点模型三形态、单层模型与反 clip 声明、命中域外接矩形声明、crystalSize 语义、fillGradient 替换近似说明）；CrystalGadget QDoc（位置关系推演、性能——中间量链基类、易误解点）
+
+### 其他
+
+- OctagonShape fillGradient 别名回滚（无使用方——轨道改 Crystal 后）
+- 展示梳理：Slider 用例自 Playground 迁移 Page_InputControls2（合并分组 + QoolTip 充实）；Playground 清空为测试场空壳
+
 - Qool.Controls.SpinBox（L1 裸控件）：T.DoubleSpinBox 基座，int/double 一体步进——透明尺寸背景（implicit 100×35）、点击覆盖式编辑（Text 常显 + Loader 激活 BasicTextField）、左右全高指示器占位（参照官方 Basic 实现坐标）、inputMethodHints 改 ImhFormattedNumbersOnly；无壳层视觉（壳层由宿主 QoolControl 包装）；Playground 展示页
 - Qool.Controls.TextField 双层强化版（v3 传统覆盖模式演进，系列可编辑控件编辑域消费基底）：
   - 双层定位：展示层（displayItem 常驻——默认 Text 经 displayTextFromText 派生）+ 编辑会话（editing 开关——点击/聚焦进入、Loader 懒加载 BasicTextField 呈现、结束卸载恢复）

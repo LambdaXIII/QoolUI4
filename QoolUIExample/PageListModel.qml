@@ -29,6 +29,12 @@ ListModel {
     }
 
     ListElement {
+        title: qsTr("输入控件（二）")
+        note: qsTr("Slider 与 Dial——滑块与转盘")
+        page: "Page_InputControls2.qml"
+    }
+
+    ListElement {
         title: qsTr("颜色控件")
         note: qsTr("操纵颜色的模块")
         page: "Page_Color.qml"
