@@ -15,8 +15,9 @@
   - 官方 API 兼容：textEdited（转发编辑层用户编辑）/inputMask/inputMethodHints/wrapMode（转发编辑层）
   - 裸控件定位（与 SpinBox 同）；隐式尺寸显式公式（T.Control 默认不传播——官方 Basic/Control.qml 同款）
 - Qool.Controls.Components.BasicTextField 还原纯净：撤销 rejected 下沉（onEditingFinished + !acceptableInput 判定删除）——定位回归"主题化默认 TextField"；editingFinished 信号释放给上层（编辑层实例挂统一收尾——实例 handler 覆盖组件定义）
-- Qool.Controls.Components.BasicArrow（方向箭头组件）：等腰三角形（顶角直角/钝角——非楔形）——direction 八方向（Qore.N/S/W/E/NW/NE/SW/SE——新增 Directions 枚举于 qool_literals.h；Unknown 默认不绘制）；两层结构（画布 Item 旋转 + Shape 静态三角形——重心对准画布中心，旋转绕重心位置自洽）；填充/边框（Style 控件组默认、可覆写）；方向切换旋转动画（movementDuration / animationEnabled 门控）
+- Qool.Controls.Components.BasicArrow（方向箭头组件）：等腰直角三角形（顶角 90°——SW 基准、直角边对齐坐标轴）——direction 八方向（Qore 的 N/S/W/E/NW/NE/SW/SE——Directions 枚举于 qool_literals.h；Unknown 默认不绘制）；图形逻辑 ShapeControl 体系（CircleGadget + 双 TriangleGadget——理想大小 + 微缩版内缩映射）；叠放双 Shape（边框层/填充层——无边框路径隐藏背景、前景跳转满尺寸；ShapePath 显式禁描边）；内层画布旋转（root 稳定留给宿主）+ 前景坐标 Behavior 动画（borderWidth 平滑过渡）；命中 = 画布内切圆判定（小尺寸箭头宽松化——刻意简化）；默认 12×12、旋转不越界（外接圆 = 内切圆）
 - Qool.Controls.SpinBox：指示器替换为 BasicArrow（右条 ▶ / 左条 ◀——左右方向；三态色逻辑保留）
+- QoolUIExample：SpinBox 示例组整合到 Page_InputControls（整数/小数/可编辑/wrap 回环/自定义格式/禁用态——SpinBox 组作为一个 section，SectionBar 分段）
 - Qool.Controls.ComboBox / SpinBox 编辑域迁移到 TextField（双层强化版——编辑域状态机单一化）：
   - 两控件删除各自的 Loader 识别缺口补偿（手动 editText 回写/手动提交回退/手动信号补发）
   - ComboBox：常驻 TextField（readOnly 绑定控制 editable）——currentText ↔ text 命令式同步（用户裁定：属性绑定会被收尾内部写回 text 打断）；accepted/rejected 透传（rejected 为 Qool 扩展新信号）；editText/validator/inputMethodHints/selectTextByMouse 透传；编辑失败统一结束并宣告（契约差异：官方失败保持编辑——本类型结束 + rejected）
