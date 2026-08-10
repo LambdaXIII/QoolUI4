@@ -322,15 +322,12 @@ BasicPage {
                     Layout.preferredWidth: 96
                     Layout.preferredHeight: 96
                     direction: Qore.E
-                    fillColor: Style.controlBackgroundColor
-                    borderColor: Style.controlBorderColor
-                    borderWidth: 1
+                    borderWidth: 10
                     // 点击循环切换八方向（N→NE→E→SE→S→SW→W→NW）——
                     // 观察旋转动画与重心旋转（旋转绕画布中心 = 三角形重心）
                     TapHandler {
                         onTapped: {
-                            const dirs = [Qore.N, Qore.NE, Qore.E, Qore.SE,
-                                         Qore.S, Qore.SW, Qore.W, Qore.NW];
+                            const dirs = [Qore.N, Qore.NE, Qore.E, Qore.SE, Qore.S, Qore.SW, Qore.W, Qore.NW];
                             const idx = dirs.indexOf(parent.direction);
                             parent.direction = dirs[(idx + 1) % dirs.length];
                         }
