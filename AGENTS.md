@@ -221,6 +221,13 @@ QAbstractItemModel 子类**遵循 Qt 官方线程规范：不加锁**（QAbstrac
   Updated 宣告"动作发生"。典型用例：currentRowUpdated（currentIndex 被
   重新设定但行可能未变，值相同也须通知）。**判断原则：值变才发 → Changed；
   动作即发（值可能不变）→ Updated**
+- **带数据参数的属性变化通知**（单属性变化通知语境）：携带**新旧值数据**
+  参数时用 `xxxUpdated` 后缀（如 `valueUpdated(newValue, oldValue)`——新值
+  在前：Qt 惯例 + 单参 handler 自动降级为新值、旧值丢弃）；`xxxChanged`
+  保留给宏生成的无参通知（值从属性读）。携带**定位/标识参数**（非新旧值）
+  的变化通知不受此条约束（实例：`Style.valueChanged(group, key)`、
+  `ColorBank.colorChanged(index)`——参数标识"哪个属性/哪个槽位"，维持
+  Changed 命名，既有 API 不追溯）
 - **瞬时事件**（非属性信号）：过去式短语，如 `beeperSignedIn`、`messageRecieved`
 - **动作/请求**：`wannaXxx`（如 `wannaSignIn`、`wannaMove`）——意图/请求信号，
   与执行槽成对构成实时接口：`wannaChangeX`（请求）→ `changeX`（执行槽）→
