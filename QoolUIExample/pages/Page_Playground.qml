@@ -1,9 +1,8 @@
 // Playground：测试场——Qool.Controls 控件的展示性实现与调试用例（仓库
 // 开发模式：可随意更改，不保留旧内容）。
 //
-// 当前内容：
-//   1. TextField 系列（名字输入/Validator 支持/自定义输出格式——调试用例）
-//   2. SpinBox（可编辑数值步进——编辑会话由 TextField 双层承担）
+// 当前内容：Qool.Controls.Slider 展示用例（2026-08-10 重写——旧 TextField/
+// SpinBox 调试用例已清空；TextField 展示已整合 Page_InputControls）。
 import QtQuick
 import QtQuick.Controls
 import Qool
@@ -15,8 +14,8 @@ import "components"
 BasicPage {
     id: root
 
-    title: qsTr("数值步进器")
-    note: qsTr("Qool.Controls 重写的 SpinBox（整数/小数步进）")
+    title: qsTr("Slider 测试场")
+    note: qsTr("Qool.Controls.Slider——拖动/点击/键盘/反馈/倒置/插拔展示用例")
 
     implicitHeight: cc.implicitHeight
 
@@ -25,320 +24,217 @@ BasicPage {
 
         spacing: 25
 
+        // —— 基础 Slider ——
         QoolControl {
-            title: qsTr("试试输入你的名字")
-            width: 200
+            title: qsTr("基础 Slider")
+            width: 260
             contentItem: ColumnLayout {
-                TextField {
-                    id: nameInputField
-                    text: qsTr("我的名字是小花")
-                    font.pixelSize: Style.titleTextSize
+                Slider {
+                    id: basicSlider
                     Layout.fillWidth: true
-                    onAccepted: {
-                        if (!text)
-                            greeting_text.text = "";
-                        else
-                            greeting_text.text = qsTr("你好，%1！").arg(text);
-                    }
-                    displayTextFromText: function (t) {
-                        if (!t)
-                            return qsTr("(在此输入你的名字)");
-                        return t;
-                    }
-                }
-                BasicControlText {
-                    id: greeting_text
-                    Layout.fillWidth: true
-                    wrapMode: Text.WrapAnywhere
-                    BasicTextBehavior on text {}
-                    visible: text
-                    color: Style.accent
-                }
-            }
-
-            QoolTip {
-                text: qsTr("QoolUI提供了一个**高定**版本的TextField。基本用法和标准的类似，但是实现了更多可能性。")
-            }
-        }
-
-        // —— TextField + validator 用例（DoubleValidator 0~100 两位小数）——
-        // 测试点：
-        //   1. 点击进入编辑 → 编辑栏显示当前 text（= "12.5"）
-        //   2. 输入合法值（如 33.33）Enter/失焦 → accepted + text 更新
-        //   3. 输入非法值（如 200 超界、abc 非数字）Enter/失焦 → rejected
-        //      + text 不变（judge 判定——编辑层不挂 validator）
-
-        QoolControl {
-            id: validatorExample
-            title: qsTr("Validator支持")
-            width: 200
-            contentItem: ColumnLayout {
-                spacing: 8
-                TextField {
-                    Layout.fillWidth: true
-                    text: "12.5"
-                    validator: DoubleValidator {
-                        bottom: 0
-                        top: 100
-                        decimals: 2
-                    }
-                    onAccepted: validatorExample.whenAccepted()
-                    onRejected: validatorExample.whenRejected()
-                    ToolTip.visible: hovered
-                    ToolTip.text: qsTr("接受0~100之间的实数")
-                    ToolTip.delay: 500
-                }
-
-                TextField {
-                    Layout.fillWidth: true
-                    text: "12"
-                    validator: IntValidator {
-                        bottom: -100
-                        top: 100
-                    }
-                    onAccepted: validatorExample.whenAccepted()
-                    onRejected: validatorExample.whenRejected()
-                    ToolTip.visible: hovered
-                    ToolTip.text: qsTr("接受+-100之间的整数")
-                    ToolTip.delay: 500
-                }
-
-                TextField {
-                    Layout.fillWidth: true
-                    text: "abc@company.com"
-                    validator: RegularExpressionValidator {
-                        regularExpression: /^.+@.+\..+/
-                    }
-
-                    onAccepted: validatorExample.whenAccepted()
-                    onRejected: validatorExample.whenRejected()
-                    ToolTip.visible: hovered
-                    ToolTip.text: qsTr("接受电子邮件地址")
-                    ToolTip.delay: 500
-                }
-            }//contentItem
-
-            function whenAccepted() {
-                backgroundSettings.borderColor = Style.positive;
-            }
-
-            function whenRejected() {
-                backgroundSettings.borderColor = Style.negative;
-            }
-        }
-
-        QoolControl {
-            title: qsTr("自定义输出格式")
-            width: 200
-            contentItem: ColumnLayout {
-                TextField {
-                    id: displayOverrideField
-                    Layout.fillWidth: true
-                    Connections {
-                        target: nameInputField
-                        function onAccepted() {
-                            displayOverrideField.text = nameInputField.text;
-                        }
-                    }
-
-                    displayTextFromText: function (text) {
-                        if (!text)
-                            return "Hello, World!";
-                        return qsTr("你好，%1！").arg(text);
-                    }
-                    font.pixelSize: Style.titleTextSize
-                }
-                TextField {
-                    Layout.fillWidth: true
-                    text: "188"
-                    validator: DoubleValidator {
-                        bottom: 100
-                        top: 999
-                        decimals: 2
-                    }
-                    displayTextFromText: function (text) {
-                        return qsTr("%1体重%2公斤").arg(displayOverrideField.text).arg(text);
-                    }
-                    // 恶作剧（有意演示）：textFromEditText 变换可把 text 推出
-                    // validator 范围（输入 990 → 提交 1000 超上界）——此后该值
-                    // 无法再提交——变换与校验范围不匹配是刻意演示，非缺陷
-                    textFromEditText: function (text) {
-                        let x = parseFloat(text);
-                        return x + 10;
-                    }
-                }
-            }//layout
-            QoolTip {
-                text: qsTr("TextField可以使用*displayTextFromText*方法重新设定输出格式。*textFromEditText*可用于讲输入的内容转换为值。这两个方法是独立的，并不一定互为逆运算。\n本组示例中第一个是一个简单的示例，第二个是一个混合了两种函数并且增加了一个validator的示例。")
-            }
-        }
-        // —— SpinBox 系列（编辑会话由 TextField 双层承担——迁移后验证）——
-        QoolControl {
-            title: qsTr("整数步进")
-            width: 200
-            contentItem: ColumnLayout {
-                SpinBox {
-                    Layout.fillWidth: true
-                    decimals: 0
-                    stepSize: 1
                     from: 0
-                    to: 10
-                    value: 3
+                    to: 100
+                    value: 50
                 }
+            }
+            QoolTip {
+                text: qsTr("点击/拖动整框任意位置调节（无手柄）；右侧小字显示数值（最多 3 位小数、去尾零去点）——文字颜色随填充边界分区：透明区段主题前景色、填充区段按亮度计算的对比色。")
             }
         }
 
-        // 同组示例分段（SectionBar——Qool 分段分隔件）
+        // —— 交互反馈 ——
+        QoolControl {
+            title: qsTr("交互反馈")
+            width: 260
+            contentItem: ColumnLayout {
+                Slider {
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 100
+                    value: 30
+                }
+            }
+            QoolTip {
+                text: qsTr("hover（enabled）：光标变为水平双向箭头（不变色）；按下或值运动锁存期间：填充提亮（lighter 1.4）——动画随 Style.animationEnabled 门控。")
+            }
+        }
+
+        // —— 程序化变化 + TimerLatch 锁存反馈 ——
+        QoolControl {
+            title: qsTr("程序化变化 + 锁存反馈")
+            width: 260
+            contentItem: ColumnLayout {
+                Slider {
+                    id: progSlider
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 100
+                    value: 20
+                }
+                Timer {
+                    interval: 1500
+                    running: true
+                    repeat: true
+                    onTriggered: progSlider.value = (progSlider.value + 25) % 101
+                }
+            }
+            QoolTip {
+                text: qsTr("外部定时器每 1.5s 写入 value——每次变化后填充短暂提亮约 1s（TimerLatch 锁存窗口）再回落——与拖动同款反馈语言（无论谁写的）。")
+            }
+        }
+
         SectionBar {
             width: parent.width
         }
 
+        // —— 倒置范围 ——
         QoolControl {
-            title: qsTr("小数步进")
-            width: 200
+            title: qsTr("倒置范围")
+            width: 260
             contentItem: ColumnLayout {
-                SpinBox {
+                Slider {
                     Layout.fillWidth: true
-                    decimals: 2
-                    stepSize: 0.5
+                    from: 100
+                    to: 0
+                    value: 75
+                }
+            }
+            QoolTip {
+                text: qsTr("from>to 刻度反向：拖动到右侧值减小；increase() 增大实际值、视觉向 to 端移动（官方代数语义——刻度反向是设计，非缺陷）。")
+            }
+        }
+
+        // —— 禁用 ——
+        QoolControl {
+            title: qsTr("禁用")
+            width: 260
+            contentItem: ColumnLayout {
+                Slider {
+                    Layout.fillWidth: true
                     from: 0
                     to: 100
-                    value: 12.5
-                }
-            }
-        }
-
-        Rectangle {
-            width: 200
-            height: 1
-            color: Style.controlBorderColor
-        }
-
-        QoolControl {
-            title: qsTr("可编辑")
-            width: 200
-            contentItem: ColumnLayout {
-                SpinBox {
-                    Layout.fillWidth: true
-                    editable: true
-                    from: 0
-                    to: 100
-                    decimals: 1
-                    stepSize: 0.5
-                    value: 12.5
-                    onAccepted: console.log("SpinBox accepted:", value)
-                    onRejected: console.log("SpinBox rejected")
-                }
-            }
-            QoolTip {
-                text: qsTr("可编辑 SpinBox——点击进入编辑，Enter/失焦提交：合法值接受（value 更新），非法值拒绝回退（accepted/rejected 可监听）。")
-            }
-        }
-
-        Rectangle {
-            width: 200
-            height: 1
-            color: Style.controlBorderColor
-        }
-
-        QoolControl {
-            title: qsTr("wrap 回环")
-            width: 200
-            contentItem: ColumnLayout {
-                SpinBox {
-                    Layout.fillWidth: true
-                    wrap: true
-                    from: 0
-                    to: 10
-                    stepSize: 1
-                    value: 10
-                }
-            }
-            QoolTip {
-                text: qsTr("wrap: true——到达 to 后再步进回 from（回环）。")
-            }
-        }
-
-        Rectangle {
-            width: 200
-            height: 1
-            color: Style.controlBorderColor
-        }
-
-        QoolControl {
-            title: qsTr("自定义格式")
-            width: 200
-            contentItem: ColumnLayout {
-                SpinBox {
-                    Layout.fillWidth: true
-                    from: 0
-                    to: 10
-                    decimals: 0
-                    value: 2
-                    // 显示/解析配对覆写（官方扩展点——实例可设）：
-                    // 显示带单位、解析去单位。注意：编辑会话按默认格式
-                    // （validator 不认自定义文本——可编辑 + 自定义格式需
-                    // 同时覆写 validator，超演示范围——本用例仅展示显示覆写）
-                    textFromValue: function (v, locale, decimals) {
-                        return v + " 倍";
-                    }
-                    valueFromText: function (text, locale) {
-                        return Number(text.replace(" 倍", ""));
-                    }
-                }
-            }
-            QoolTip {
-                text: qsTr("textFromValue/valueFromText 配对覆写——自定义显示/解析格式（官方扩展点）。")
-            }
-        }
-
-        Rectangle {
-            width: 200
-            height: 1
-            color: Style.controlBorderColor
-        }
-
-        QoolControl {
-            title: qsTr("禁用态")
-            width: 200
-            contentItem: ColumnLayout {
-                SpinBox {
-                    Layout.fillWidth: true
-                    from: 0
-                    to: 10
-                    stepSize: 1
-                    value: 3
+                    value: 60
                     enabled: false
                 }
             }
+            QoolTip {
+                text: qsTr("enabled=false：常态外观；hover 无光标反馈、按下无提亮（disabled 不响应交互）。")
+            }
         }
-        // —— BasicArrow（方向箭头——点击切换方向观察旋转动画）——
+
+        // —— 键盘步进 ——
         QoolControl {
-            title: qsTr("BasicArrow 方向箭头")
-            width: 200
+            title: qsTr("键盘步进")
+            width: 260
             contentItem: ColumnLayout {
-                BasicArrow {
-                    // enabled: False
-                    Layout.alignment: Qt.AlignHCenter
-                    Layout.preferredWidth: 96
-                    Layout.preferredHeight: 96
-                    direction: Qore.E
-                    borderWidth: 10
-                    borderColor: Style.negative
-                    fillColor: Style.accent
-                    // 点击循环切换八方向（N→NE→E→SE→S→SW→W→NW）——
-                    // 观察旋转动画与重心旋转（旋转绕画布中心 = 三角形重心）
-                    TapHandler {
-                        onTapped: {
-                            const dirs = [Qore.N, Qore.NE, Qore.E, Qore.SE, Qore.S, Qore.SW, Qore.W, Qore.NW];
-                            const idx = dirs.indexOf(parent.direction);
-                            parent.direction = dirs[(idx + 1) % dirs.length];
+                Slider {
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 100
+                    stepSize: 5
+                    value: 50
+                }
+            }
+            QoolTip {
+                text: qsTr("stepSize=5：点击获得焦点后按方向键按 5 步进（官方键盘行为）。")
+            }
+        }
+
+        SectionBar {
+            width: parent.width
+        }
+
+        // —— 插拔替换：两视觉层独立替换 ——
+        QoolControl {
+            title: qsTr("插拔替换")
+            width: 300
+            contentItem: ColumnLayout {
+                // 上：自定义 background（不透明壳），默认 handle（填充+文字）保留
+                Slider {
+                    id: shellSlider
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 100
+                    value: 40
+                    background: Rectangle {
+                        z: 0
+                        width: shellSlider.width
+                        height: 6
+                        y: (shellSlider.height - height) / 2
+                        color: "#335577"
+                        radius: 2
+                    }
+                }
+                // 下：自定义 handle（替换值显示件——简单填充，无文字），默认外壳保留
+                Slider {
+                    id: customHandleSlider
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 100
+                    value: 70
+                    handle: Rectangle {
+                        z: 1
+                        width: customHandleSlider.width
+                        height: customHandleSlider.height
+                        Rectangle {
+                            y: (parent.height - 6) / 2
+                            width: customHandleSlider.availableWidth
+                                   * customHandleSlider.visualPosition
+                            height: 6
+                            color: "orange"
                         }
                     }
                 }
             }
             QoolTip {
-                text: qsTr("大尺寸 BasicArrow——点击切换八方向，观察重心旋转动画（顶角直角/钝角的等腰三角形）。")
+                text: qsTr("两视觉层独立替换：上——自定义 background（不透明壳），默认值显示件保留；下——自定义 handle（纯填充），默认外壳保留——互不破坏。")
+            }
+        }
+
+        // —— 基础件独立演示 ——
+        QoolControl {
+            title: qsTr("基础件独立演示")
+            width: 300
+            contentItem: ColumnLayout {
+                spacing: 8
+                // TimerLatch：按钮点击触发锁存（任意信号源）
+                RowLayout {
+                    Layout.fillWidth: true
+                    Button {
+                        text: qsTr("触发锁存")
+                        onClicked: demoLatch.activate()
+                    }
+                    Rectangle {
+                        width: 24
+                        height: 24
+                        radius: 4
+                        color: demoLatch.active ? Style.highlight : Style.mid
+                        BasicColorBehavior on color {}
+                    }
+                    Text {
+                        text: qsTr("active: %1").arg(demoLatch.active)
+                        color: Style.text
+                    }
+                }
+                TimerLatch {
+                    id: demoLatch
+                    interval: 1000
+                }
+                // NumberNotifier：观测基础 Slider 的 value——持续速率
+                NumberNotifier {
+                    id: demoNotifier
+                    target: basicSlider
+                    property: "value"
+                }
+                Text {
+                    Layout.fillWidth: true
+                    text: qsTr("NumberNotifier 观测基础 Slider 的 value——当前速率：%1 值/秒")
+                        .arg(demoNotifier.velocity.toFixed(1))
+                    color: Style.text
+                }
+            }
+            QoolTip {
+                text: qsTr("TimerLatch：任何信号触发 → 锁存 interval 后自动释放（滑动窗口——持续触发持续保持）；NumberNotifier：每 interval（默认 200ms）采样 → velocity（值/秒、有向、骤停归零）。")
             }
         }
     } //cc
