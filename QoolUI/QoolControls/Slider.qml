@@ -22,7 +22,10 @@ import Qool
 // contentItem 不定义（官方 Slider 样式同款，弃用——文字归 handle 不归壳）。
 //
 // 反馈（值显示件上的填充层）：
-//   - hover（enabled）：cursorShape = SizeHorCursor（水平双向箭头），不变色
+//   - hover（enabled）：光标 = SizeHorCursor（水平双向箭头），不变色——
+//     由控件内 hover-only MouseArea 承载（cursorShape 是 MouseArea 属性，
+//     QQuickItem::setCursor 未暴露 QML 属性；MouseArea NoButton 不拦截点击，
+//     模板输入不受影响）
 //   - pressed || TimerLatch.active：fillColor → lighter(accent, 1.4)
 //     （v3 ChannelBar 同款系数），BasicColorBehavior 门控 Style.animationEnabled
 //   - 程序化 value 变化与拖动同款反馈语言——TimerLatch 在控件层（pCtrl），
@@ -49,8 +52,20 @@ T.Slider {
     implicitWidth: 200
     implicitHeight: root.Style.controlTitleTextSize + 12
 
-    hoverEnabled: true
-    cursorShape: root.enabled && root.hovered ? Qt.SizeHorCursor : Qt.ArrowCursor
+    // —— 光标反馈（hover-only MouseArea）——
+    // cursorShape 是 MouseArea 的属性（QQuickItem 的 setCursor 未暴露为 QML
+    // 属性——Qt 6.11 文档 Properties 无 cursor）——以 hover-only MouseArea
+    // 承载：acceptedButtons NoButton = 不拦截点击（模板输入不受影响）；
+    // hoverEnabled 消费 hover 事件（模板 hovered 可能不更新——本控件视觉
+    // 不依赖 hovered，光标状态直接用 containsMouse）。enabled 门控：禁用时
+    // 无光标反馈
+    MouseArea {
+        anchors.fill: parent
+        acceptedButtons: Qt.NoButton
+        hoverEnabled: true
+        cursorShape: root.enabled && containsMouse ? Qt.SizeHorCursor
+                                                   : Qt.ArrowCursor
+    }//MouseArea
 
     // —— 视觉层 1：background（纯壳：切角方框轨道）——
     // 仅左上+右下切角（controlCutSize），透明底 + mid 边框；垂直居中于 root
