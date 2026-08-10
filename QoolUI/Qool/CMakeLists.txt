@@ -82,6 +82,7 @@ qt_add_qml_module(
             CutSizeBinding.qml
             BasicLabel.qml
             DelayTimer.qml
+            TimerLatch.qml
   SOURCES shapecontrol/gadgets/qool_shape_macros.hpp
   SOURCES shapecontrol/gadgets/qool_shapegadget_circle.h
           shapecontrol/gadgets/qool_shapegadget_circle.cpp
@@ -91,6 +92,7 @@ qt_add_qml_module(
           shapecontrol/gadgets/qool_shapegadget_circlepoint.cpp
   SOURCES utils/qool_numbermapper.h utils/qool_numbermapper.cpp
   SOURCES utils/qool_colormapper.h utils/qool_colormapper.cpp
+  SOURCES qool_numbernotifier.h qool_numbernotifier.cpp
 )
 
 qoolui_collect_assets(QOOL_ASSETS)
