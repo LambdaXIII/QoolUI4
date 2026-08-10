@@ -12,7 +12,7 @@
         {Style 体系}）。
     \li 窗口：\l QoolWindow、\l QoolWindowBasic（见 \l {qool-window-parts.html}
         {QoolWindow 配件哲学}）。
-    \li 工具：\l CutSizeBinding、\l PositionLocker、\l DelayTimer、\l Floater、
+    \li 工具：\l CutSizeBinding、\l PositionLocker、\l TimerLatch、\l Floater、
         \l Qore、\l QoolPalette、\l PixelFont 等。
     \endlist
 

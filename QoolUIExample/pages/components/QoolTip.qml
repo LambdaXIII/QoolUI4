@@ -3,6 +3,7 @@ import Qool.Chat
 
 MouseArea {
     id: root
+    //TODO:实现有遮蔽Bug，考虑HoverHandler等替代方案。
     property string text
     property color color: Style.highlight
 
@@ -16,14 +17,14 @@ MouseArea {
 
     onEntered: {
         if (!text)
-            return
+            return;
         // console.log("entered")
         let a = {
             "channel": "qooltip",
             "content": root.text,
             "color": root.color
-        }
-        GlobalChatRoom.postMessage(a)
+        };
+        GlobalChatRoom.postMessage(a);
     }
 
     // onExited: {

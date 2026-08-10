@@ -11,7 +11,7 @@
 //     正常、不计划修复——退化形态勿用 OctagonShape）。
 //   - 轨道与手柄同模型：Slider 的轨道（宽条六边形）与手柄（方形菱形）斜边
 //     斜率一致——天然对齐（水晶顶点贴轨道斜边）。
-//   - 菱形左上角锚定（中心 = (size/2, size/2)），定位方式与普通 Item 一致
+//   - 菱形左上角锚定（中心 = (width/2, height/2)），定位方式与普通 Item 一致
 //     （v3 ColorCrystal 的"中心在原点"仅被 Color 模块 ColorCursor 依赖，
 //     Color 侧保留原私有件；本件为 Components 公开件）。
 //   - **无精确命中掩码**（基类 contains = 外接矩形）：Slider 场景手柄不接收
@@ -36,18 +36,19 @@ import Qool
 
     \section2 用法
     \list
-    \li 手柄（方形）：设 \c size（宽高相等——菱形）；轨道（宽条）：覆盖
-        \c width/\c height（宽六边形）。Slider 的轨道与手柄均用本件，
-        斜边斜率一致天然对齐。
+    \li 手柄（方形）：默认 \c implicitWidth/\c implicitHeight 20×20（宽 = 高
+        ——菱形）；轨道（宽条）：覆盖 \c width/\c height（宽六边形）。Slider
+        的轨道与手柄均用本件，斜边斜率一致天然对齐。
     \li \c color 为纯色填充；\c fillGradient / \c fillItem 为填充通道
         （\l {Qool::OctagonShape}{OctagonShape} 同款语义——fillItem 优先）。
-    \li \c leftPoint / \c rightPoint 为渐变锚点（左上/右上斜边内侧交点），
-        供渐变横贯"有效轨道段"（v3 ColorSliderBackground 语义）。
+    \li 渐变锚点（左上/右上斜边内侧交点）不另暴露——宿主按
+        \c{(width/2, height/2)} 与 \c{(width - width/2, height/2)} 自算
+        （Slider 即此）。
     \endlist
 
     \section2 易误解点
     \list
-    \li 菱形中心在 \c (size/2, size/2)（左上角锚定）——本件 x/y 即外接框
+    \li 菱形中心在 \c (width/2, height/2)（左上角锚定）——本件 x/y 即外接框
         左上角，定位方式与普通 Item 一致。
     \li 八点路径统一（TL→TC→TR→RT→RB→BC→LB→LT），三种形态下重合/共线点
         是合法冗余——宿主无需按形态切换路径。
@@ -59,8 +60,6 @@ import Qool
 Shape {
     id: root
 
-    /*! \qmlproperty real 外接框尺寸（宽 = 高 = size，菱形形态），默认 20。 */
-    property real size: 20
     /*! \qmlproperty color 填充色，默认 Style.accent（独立使用默认自洽）。 */
     property color color: root.Style.accent
     /*! \qmlproperty color 描边色，默认按填充色自动对比（ThemeDB.recommendForeground）。 */
@@ -71,13 +70,9 @@ Shape {
     property Item fillItem: null
     /*! \qmlproperty real 四角切角（等腰直角三角形直角边 = shortEdge/2）——八点与几何的统一基准。 */
     readonly property real cutSize: gadget.cutSize
-    /*! \qmlproperty point 左上斜边内侧交点（渐变锚点，v3 leftPoint 语义）。 */
-    readonly property point leftPoint: Qt.point(gadget.TLx, gadget.LTy)
-    /*! \qmlproperty point 右上斜边内侧交点（渐变锚点，v3 rightPoint 语义）。 */
-    readonly property point rightPoint: Qt.point(gadget.TRx, gadget.RTy)
 
-    width: size
-    height: size
+    implicitWidth: 20
+    implicitHeight: 20
 
     // 标准 ShapeControl 基座（target 自动 = 本组件）+ CrystalGadget 预制点
     // （gadget 作为 control 子对象自动关联；几何全部链 control——无需显式 target）

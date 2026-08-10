@@ -6,6 +6,7 @@
 
 ### 新增
 
+- Qool.Controls.VerticalSlider（Slider 竖直化，独立轴交换实现——禁止 rotate）：轨道瘦六边形（上下尖 + 左右直边）、手柄垂直移动、**底部为 from**（值增大向上）；参考轴交换（preferredWidth = width - bound(3, 宽度×25%, 25)）；交互垂直化（T.Slider 鼠标映射为水平语义不可用——全区域 picker MouseArea 垂直映射 y → value 取代模板交互，pressed 反馈改由 picker 承担）；键盘 Up/Down 步进（模板 Left/Right 保留）；其余与 Slider 同源（水晶模型/渐变采样/展开反馈/TimerLatch 锁存/CurveRenderer 动画期切换）
 - Qool.Controls.Slider（v3 Color 滑块视觉族通用化）：六边形渐变轨道 + 水晶菱形手柄（**同一八点模型**——斜边斜率一致天然对齐）；轨道默认 `text→color` 水平渐变（`color` 属性 = 渐变右端色、锚定切角内侧——`fillGradient`/`fillItem` 双通道透传，fillColor 兜底渐进降级）；手柄常态色 = 轨道渐变在当前值位置的采样色（ColorMapper.colorAt——渐变锚定段与手柄中心行程对齐，`colorAt(visualPosition)` 精确）；悬停/按下/刚移动三态展开（v3 ColorCursor 核心）+ pressed/程序化锁存提亮（TimerLatch + NumberNotifier——"值被写入即亮"）；尺寸反向排版（root 默认 80×20——模板不自带 implicit 公式；轨道显式绑定 root 尺寸——background 自动 fill 对带 size 绑定的 Crystal 不生效）；手柄跟随控件高度（crystalSize = 默认高度）；倒置/禁用/键盘为官方行为；手柄溢出边界为刻意效果（反 clip 声明）
 - Qool.Controls.Components.Crystal（八点模型六边形色块）：Qool 切角体系 Gadget 实现（`shapecontrol/gadgets/qool_shapegadget_crystal`——标准 ShapeControl + CrystalGadget 预制点）——统一 8 点路径覆盖宽六边形（w>h）/菱形（w=h，旋转 45° 正方形）/瘦六边形（w<h——上下尖 + 左右直边，可直接作竖直滑块背景）；**单层外轮廓模型**（无内缩——规避 OctagonShape 双层模型在切角极限的反向三角形 bug，性能亦轻）；RB/LB 跨边条件绑定（位置关系推演三形态校对，见 .scratch/slider/crystal-geometry.md）；中间量链基类 bindable（不重算 w/2/min）；命中域为外接矩形（无精确菱形掩码——Slider 场景手柄不交互、掩码无意义，独立使用宽松命中已声明）
 - QoolUIExample：Page_InputControls2（Slider + Dial 展示页——用例自 Playground 梳理合并：反馈/官方行为/尺寸形态分组，QoolTip 详尽说明行为/属性/注意点；Dial 补正式展示）；Page_Playground 清空为测试场空壳（Slider 调试用例迁移展示页，页面保留供后续调试）
@@ -23,6 +24,9 @@
 
 ### 其他
 
+- ScrollBar/ScrollIndicator 淡出延迟机制由 DelayTimer 改用 TimerLatch（锁存窗口 `active` 声明式驱动两态——trigger 重置倒计时，与 DelayTimer restart 同构）；删除 Qool.DelayTimer 类型（无消费方后移除，4.0.0 未发布无宿主负担）
+- Slider 手柄/轨道展开语义调整：展开态水晶占满控件高度（不超出边界）；轨道与水晶常态同高 = 新公开属性 `preferredHeight`（root.height - bound(3, 高度×25%, 25)）、轨道垂直居中三心对齐——贴斜边关系保持、放大视觉差不变；取消 v3"菱形顶出轨道"刻意效果（clip 不再影响反馈）；默认高度 20 → 25（implicitHeight）
+- Slider/Crystal/TimerLatch 新版调整（工作区裁定）：TimerLatch 改名（becameActive/becameInactive → activated/deactivated、activate → trigger）并内联 Timer；Crystal 移除 size/leftPoint/rightPoint（implicit 20×20，宿主 width/height 自由控制）；Slider API 收缩（fillGradient/fillItem/crystalSize 移除——渐变内联默认、换色走 color、尺寸走 width/height 覆盖）、手柄 MouseArea 修复（acceptedButtons: NoButton 不拦截模板拖动 + enabled 绑定 + 删除无效 containmentMask）、colorAt 采样改 visualPosition（笔误修复）、pressed/锁存提亮取消（只留展开反馈）、锁存窗口 1s → 500ms（valueChanged 即时 + velocityChanged 采样级重置双触发源）、新增 animationEnabled/valueVelocity/justMoved 公开属性
 - OctagonShape fillGradient 别名回滚（无使用方——轨道改 Crystal 后）
 - 展示梳理：Slider 用例自 Playground 迁移 Page_InputControls2（合并分组 + QoolTip 充实）；Playground 清空为测试场空壳
 

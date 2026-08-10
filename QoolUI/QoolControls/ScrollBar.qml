@@ -17,24 +17,21 @@ T.ScrollBar {
 
     minimumSize: 0.1
 
-    DelayTimer {
-        id: delayer
-        readonly property real normalOpacity: root.showIndicator ? 0.75 : 0
-        property real visualOpacity: normalOpacity
-        onStarted: visualOpacity = 1
-        onFinished: visualOpacity = normalOpacity
+    TimerLatch {
+        id: latch
         interval: 1750
+        readonly property real visualOpacity: root.showIndicator ? 0.75 : 0
     }
 
-    onScrollPositionChanged: delayer.restart()
-    onVisualSizeChanged: delayer.restart()
+    onScrollPositionChanged: latch.trigger()
+    onVisualSizeChanged: latch.trigger()
 
     contentItem: Rectangle {
         id: indicator
         color: root.pressed ? root.Style.positive : root.Style.toolTipBase
         BasicColorBehavior on color {}
 
-        opacity: (root.hovered || root.pressed) ? 1 : delayer.visualOpacity
+        opacity: (root.hovered || root.pressed || latch.active) ? 1 : latch.visualOpacity
         BasicNumberBehavior on opacity {
             duration: root.Style.movementDuration
         }

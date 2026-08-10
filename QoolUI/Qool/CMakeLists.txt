@@ -81,7 +81,6 @@ qt_add_qml_module(
             Floater.qml
             CutSizeBinding.qml
             BasicLabel.qml
-            DelayTimer.qml
             TimerLatch.qml
   SOURCES shapecontrol/gadgets/qool_shape_macros.hpp
   SOURCES shapecontrol/gadgets/qool_shapegadget_circle.h

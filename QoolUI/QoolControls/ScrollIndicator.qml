@@ -15,11 +15,11 @@ import Qool
     横条 100x2，四周留 2px）。
 
     \section2 两态驱动（刻意设计）
-    指示条透明度由 delayer 两态驱动：滚动（scrollPosition 变化）后的
+    指示条透明度由 latch 两态驱动：滚动（scrollPosition 变化）后的
     1750ms 窗口内瞬时显现为 1，窗口结束回落常态 visualOpacity
-    （alwaysOn 时 0.25，否则 0）。不得在 onStarted/onFinished 中直接给
-    opacity 赋值——赋值会杀死下方绑定（绑定永久失效，showIndicator
-    变化不再反映到透明度）；两态过渡由 BasicNumberBehavior 负责。
+    （alwaysOn 时 0.25，否则 0）。不得改用命令式赋值驱动 opacity——
+    赋值会杀死下方绑定（绑定永久失效，showIndicator 变化不再反映到
+    透明度）；两态过渡由 BasicNumberBehavior 负责。
 */
 
 T.ScrollIndicator {
@@ -43,23 +43,23 @@ T.ScrollIndicator {
 
     minimumSize: 0.1
 
-    DelayTimer {
-        id: delayer
-        readonly property real visualOpacity: root.showIndicator ? 0.25 : 0
+    TimerLatch {
+        id: latch
         interval: 1750
+        readonly property real visualOpacity: root.showIndicator ? 0.25 : 0
     }
 
-    onScrollPositionChanged: delayer.restart()
+    onScrollPositionChanged: latch.trigger()
 
     contentItem: Rectangle {
         id: indicator
         color: root.color
         radius: Math.floor(Math.min(width, height))
-        // 两态驱动：delayer 运行中（滚动后 1750ms 窗口）瞬时显现为 1，
-        // 窗口结束回落常态 visualOpacity。不能由 onStarted/onFinished 直接
-        // 给 opacity 赋值——那会杀死下方绑定（赋值后 binding 永久失效，
-        // showIndicator 变化不再反映）；behavior 负责两态过渡。
-        opacity: delayer.running ? 1 : delayer.visualOpacity
+        // 两态驱动：latch 锁存中（滚动后 1750ms 窗口）瞬时显现为 1，
+        // 窗口结束回落常态 visualOpacity。不能改用命令式赋值驱动 opacity
+        // ——那会杀死下方绑定（赋值后 binding 永久失效，showIndicator
+        // 变化不再反映）；behavior 负责两态过渡。
+        opacity: latch.active ? 1 : latch.visualOpacity
         BasicNumberBehavior on opacity {}
     }
 

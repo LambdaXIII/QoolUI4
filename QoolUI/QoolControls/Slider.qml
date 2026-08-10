@@ -8,39 +8,48 @@
 //   - 单层外轮廓模型（无内缩边框环）：细描边/无描边——不存在 OctagonShape
 //     双层模型在切角极限（顶点重合）时内边缘反向三角形的问题（OctagonShape
 //     该机制为已知 bug，八边形正常、不计划修复——六边形/菱形勿用）。
-//   - 轨道默认填充 text→color 水平渐变（锚定切角内侧——Crystal leftPoint/
-//     rightPoint 语义），fillGradient/fillItem 双通道透传（宿主可替换）。
-//   - 手柄展开反馈照 v3 ColorCursor 核心：悬停/按下/刚移动三态展开 hoveredSize
-//     （+limit(size*0.25,15,45)），动画经 pCtrl.initialized 延迟一帧 +
-//     animationEnabled 门控（v3 语义）。
+//   - 轨道默认填充 text→color 水平渐变（锚定切角内侧——Crystal 渐变锚点
+//     语义，用轨道局部尺寸计算）；渐变内联不可替换（v4 收缩裁定：换色走
+//     color 属性，不再提供 fillGradient/fillItem 透传通道）。
+//   - 手柄展开反馈照 v3 ColorCursor 核心：悬停/按下/刚移动三态展开——展开
+//     态占满 handle 区域（= 控件高度，不超出边界），常态 = preferredHeight
+//     （root.height - bound(3, 高度×25%, 25)——轨道同步收缩同高，顶点贴斜边
+//     关系保持；x 上限 25 封顶收缩量、下限 3 防常态过小），动画经
+//     animationEnabled 链式门控（parent?.animationEnabled ?? Style.animationEnabled）。
+//     v3 的 pCtrl.initialized 延迟一帧取消——初始就绪态无属性变化，无需防初始动画。
 //   - Crystal 常态色 = 轨道渐变在当前值位置的采样色（ColorMapper.colorAt）——
-//     数学上 colorAt(visualPosition) 即精确采样：渐变锚定 [size/2, availW-size/2]
-//     （切角内侧）= Crystal 中心行程 [size/2 + v*(availW-size)]，比例恒等于
-//     visualPosition；pressed/锁存时在采样色上 lighter 1.4。
-//   - 程序化变更锁存（TimerLatch + NumberNotifier 保留）：value 被写入（无论
-//     谁写的）→ latch 激活 1s → Crystal 提亮（v3 ChannelBar movementTimer 语义）。
+//     数学上近似精确：渐变锚定 [pH/2, availW-pH/2]（pH = preferredHeight，
+//     切角内侧）与 Crystal 中心行程 [h/2 + v*(availW-h)]（h = root.height）
+//     在轨道收缩（pH < h）时端点有 ≤ x/2 的微小偏移（v=0/1 采不到纯端色，
+//     中段比例仍近似等于 visualPosition）。v3 的 pressed/锁存 lighter 提亮
+//     已裁定取消（保留展开反馈为唯一手柄反馈）。
+//   - 程序化变更锁存（TimerLatch + NumberNotifier）：value 被写入（无论谁写
+//     的）→ movementLatch 锁存 500ms → 手柄展开（v3 ChannelBar movementTimer
+//     语义）。双触发源：valueChanged 即时触发 + velocityChanged（采样级——
+//     晚于 valueChanged 至多一个采样间隔 200ms）在持续变化期间周期性重置，
+//     窗口不落。
 //   - 交互为模板默认（点击跳转 + 拖动连续 + 键盘），映射公式（中心语义）与
-//     Crystal 定位自洽；轨道高 = 控件高（默认 crystalSize 20）——手柄菱形尺寸
-//     跟随控件高度（v3 语义：轨道高 = 光标高，六边形左右斜边与水晶顶点对齐，
-//     宿主改高后手柄等比例放大），尺寸公式模板不自带——反向排版：root 直接给
-//     默认 implicit（80 × crystalSize），background 基于 root 布局。
+//     Crystal 定位自洽；轨道常态高 = preferredHeight（跟随控件高度收缩）——
+//     手柄常态与轨道同高（v3 语义：六边形左右斜边与水晶顶点对齐，宿主改高
+//     后等比例缩放）、展开占满控件全高，尺寸公式模板不自带——反向排版：
+//     root 直接给默认 implicit（80 × 25），background 基于 root 布局。
 //   - 值显示（首版双色文本）放弃；无进度填充段（v3 原样）。
 //
-// 公开属性（新增面）：
+// 公开属性：
 //   - color：轨道渐变右端色（默认 Style.accent——左端固定 Style.text）——宿主
 //     换色即换整条轨道渐变 + Crystal 采样。
-//   - crystalSize：默认控件高度（默认 20，implicitHeight = crystalSize）——
-//     手柄尺寸跟随控件实际高度（非固定 crystalSize）。
-//   - fillItem / fillGradient：轨道填充双通道透传（fillGradient 默认渐变、
-//     fillItem 默认 null——宿主替换任一侧）。
+//   - animationEnabled：动画门控（父链继承，回退 Style.animationEnabled）。
+//   - valueVelocity / justMoved：对外状态——值变化速率（值/秒）与"刚移动"
+//     锁存窗口（500ms）。
+//   - preferredHeight：水晶/轨道常态高度（收缩态）——展开时水晶占满控件全高。
 //
 // 注意（易误解）：
 //   - handle delegate 必须自写 x/y（T.Slider 模板不注入定位——宿主替换 handle
 //     时同样要写，官方惯例）。
-//   - 宿主替换 fillGradient（自定义锚定）后 colorAt 采样按默认几何近似（渐变段
-//     与 Crystal 行程不再严格对齐）——精确对齐仅对默认渐变成立。
-//   - 手柄放大（展开态/超高轨道）超出控件边界是刻意效果（v3 语义——菱形顶出
-//     轨道）——勿对 Slider 或其容器 clip（切掉即破坏反馈语言）。
+//   - 手柄展开态占满控件高度（不超出边界）——clip 与否不影响反馈（v3"菱形
+//     顶出轨道"刻意效果已取消）。
+//   - 手柄 MouseArea 仅做 hover/光标反馈（acceptedButtons: Qt.NoButton——
+//     不拦截模板拖动；无精确菱形掩码——命中域为外接矩形，同 Crystal 声明）。
 
 import QtQuick
 import QtQuick.Shapes
@@ -58,180 +67,180 @@ import Qool.Controls.Components
     \l {Qool.Controls.Components::Crystal}{Crystal} 六边形模型（轨道为宽条
     六边形、手柄为方形菱形——同模型斜边斜率一致天然对齐），轨道默认填充
     \c text → \c color 水平渐变（左端固定 Style.text，右端 = \l color，默认
-    Style.accent）；手柄常态色 = 轨道渐变在当前值位置的采样色，按下/程序化
-    变更期间提亮（lighter 1.4）。
+    Style.accent）；手柄常态色 = 轨道渐变在当前值位置的采样色
+    （ColorMapper.colorAt(visualPosition)——随位置实时变化）。
 
     \section2 主题相关
     \list
     \li \l color 同时是渐变右端色与手柄采样来源——宿主换色即换整条轨道视觉。
-    \li 轨道 \l fillGradient / \l fillItem 双通道透传：默认渐变可整体替换
-        （LinearGradient 需锚定自己的坐标）；fillItem 为纹理通道（优先于渐变）。
-    \li \c crystalSize 是默认控件高度（implicitHeight）；手柄菱形尺寸始终跟随
-        控件实际高度（宿主改高后手柄等比例放大，六边形左右斜边与水晶顶点对齐）。
+    \li 轨道渐变内联默认（text→color，锚定切角内侧）——整体替换不再提供
+        （v4 收缩）；换色走 \l color，改尺寸走 \c width/\c height 覆盖。
     \endlist
 
     \section2 交互反馈
     \list
-    \li 悬停/按下/刚移动（值变化 1s 内）：手柄展开到 \c hoveredSize（v3
-        ColorCursor 三态展开，动画随 Style.animationEnabled 门控）。
-    \li 程序化写入 value（如外部绑定）：手柄提亮约 1s（TimerLatch 锁存窗口）
-        ——"值被写入即亮"语义（v3 ChannelBar movementTimer，无论谁写的）。
+    \li 悬停/按下/刚移动（值变化后 500ms 锁存窗口）：手柄展开到控件全高
+        （常态 = \l preferredHeight——收缩 \c{Qore.bound(3, 高度×0.25, 25)}，
+        视觉差即放大反馈；轨道与手柄常态同高、中心对齐贴斜边），动画随
+        \l animationEnabled 门控；悬停时光标变水平双向箭头（仅 enabled）。
+    \li 程序化写入 value（如外部绑定）：手柄展开约 500ms（\l justMoved 锁存
+        窗口）——"值被写入即反馈"语义（v3 ChannelBar movementTimer，无论谁
+        写的）；持续变化期间窗口经 \l valueVelocity 采样级重置不落。
     \li 倒置范围（from > to）：刻度反向，渐变/采样自动跟随 visualPosition。
     \endlist
 
-    \note 手柄放大（展开态或宿主调高轨道）时超出控件边界是**刻意效果**（v3
-    语义——菱形顶出轨道的视觉反馈）——宿主**不应**对本控件或其容器启用
-    \c clip（会切掉展开效果）；控件自身不裁剪子项。
+    \section2 状态属性
+    \list
+    \li \c animationEnabled：动画开关——父链继承（宿主可在父级统一关闭），
+        回退 \l Style 的 \c animationEnabled。
+    \li \c valueVelocity：值变化速率（值/秒，NumberNotifier 200ms 采样、
+        有向、骤停归零）。
+    \li \c justMoved："值刚被写入过"的声明式锁存窗口（500ms，滑动窗口）。
+    \li \c preferredHeight：水晶手柄与轨道的常态高度（收缩态）——展开时
+        水晶占满控件全高；宿主可用它参与外部布局计算。
+    \endlist
+
+    \note 手柄展开态占满控件高度（不超出边界）——\c clip 与否不影响反馈
+    （v3"菱形顶出轨道"刻意效果已取消）。
 */
 T.Slider {
     id: root
-
     /*! \qmlproperty color 轨道渐变右端色（左端固定 Style.text），默认 Style.accent。 */
     property color color: root.Style.accent
-    /*! \qmlproperty real 控件默认高度（implicitHeight = crystalSize，默认 20）——
-        手柄菱形尺寸始终跟随控件高度（v3 语义：轨道高 = 水晶高，六边形左右斜边
-        与水晶顶点对齐）——宿主改高后手柄自动等比例放大。 */
-    property real crystalSize: 20
-    /*! \qmlproperty Item 轨道纹理填充物（Crystal fillItem 透传，优先于渐变）。 */
-    property Item fillItem: null
-    /*! \qmlproperty Gradient 轨道渐变填充（默认 text→color 水平渐变，可整体替换）。 */
-    property Gradient fillGradient: LinearGradient {
-        // 默认渐变（属性默认值内联对象——合法语法；宿主替换 fillGradient 即覆盖）：
-        // 锚定切角内侧（v3 leftPoint/rightPoint 语义）——与 Crystal 中心行程对齐
-        // （colorAt(visualPosition) 精确采样——见文件头注释的数学）
-        x1: root.height / 2
-        y1: root.height / 2
-        x2: root.width - root.height / 2
-        y2: root.height / 2
-        GradientStop {
-            position: 0
-            color: root.Style.text
-        }
-        GradientStop {
-            position: 1
-            color: root.color
-        }
-    }
+    /*! \qmlproperty real 值变化速率（值/秒，NumberNotifier 200ms 采样、有向、骤停归零）。 */
+    readonly property real valueVelocity: notifier.velocity
+    /*! \qmlproperty bool "值刚被写入过"的声明式锁存窗口（500ms，滑动窗口——持续变化持续保持）。 */
+    property bool justMoved: movementLatch.active
+    /*! \qmlproperty bool 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。 */
+    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
+    /*! \qmlproperty real 常态高度：水晶手柄与轨道的常态（收缩）高度——展开时水晶占满控件全高（root.height）。 */
+    readonly property real preferredHeight: root.height - Qore.bound(3, root.height * 0.25, 25)
 
     // 尺寸：反向排版策略——模板不自带 implicit 公式，root 直接给默认尺寸
-    // （80 × crystalSize），background 基于 root 布局（自动 fill 控件——切角/
-    // 渐变锚定绑定 track 自身尺寸，随 root 缩放）——不依赖 implicitBackground*
+    // （80 × 25），background 基于 root 布局（自动 fill 控件——切角/渐变
+    // 锚定绑定 track 自身尺寸，随 root 缩放）——不依赖 implicitBackground*
     // 的传递链（曾致高度恒 0；交互恢复实测于本策略）
     implicitWidth: 80
-    implicitHeight: root.crystalSize
-
-    // —— 渐变采样器（Crystal 常态色来源——QoolCommon/ColorMapper 设施）——
-    ColorMapper {
-        id: trackMapper
-        ColorMapperStop { position: 0; color: root.Style.text }
-        ColorMapperStop { position: 1; color: root.color }
-    }
+    implicitHeight: 25
 
     // —— 逻辑件：程序化变更锁存（NumberNotifier 采样 → TimerLatch 激活）——
-    NumberNotifier {
+    NumberNotifier on value {
         id: notifier
-        target: root
-        property: "value"
         interval: 200
     }
-    Connections {
-        target: notifier
-        function onValueUpdated() {
-            latch.activate()
-        }
-    }
+
     TimerLatch {
-        id: latch
-        interval: 1000
+        id: movementLatch
+        interval: 500
+        Connections {
+            target: root
+            function onValueChanged() {
+                movementLatch.trigger();
+            }
+            function onValueVelocityChanged() {
+                if (root.valueVelocity > 0)
+                    movementLatch.trigger();
+            }
+        }
     }
 
     // —— 轨道（六边形）：Crystal 组件（六边形模型——与手柄同模型、斜边斜率
     // 一致天然对齐；单层外轮廓——无 OctagonShape 双层内缩在切角极限（顶点
     // 重合）时的反向三角形 bug，性能亦轻）。显式绑定控件尺寸（覆盖 Crystal
-    // 的 size 绑定——background 自动 fill 在 Crystal 有尺寸绑定时未生效，
-    // 曾致轨道缩成 20×20 菱形在左上角；渐变锚定用 root 尺寸——与 track 的
-    // leftPoint/rightPoint 等价，因 track.height = root.height）
+    // 的 implicit 默认——background 自动 fill 在 Crystal 有尺寸绑定时未生效，
+    // 曾致轨道缩成 20×20 菱形在左上角）。轨道恒为常态高度（preferredHeight，
+    // 不随展开变）+ 垂直居中——三心对齐（水晶中心 = 轨道中心 = 控件中心，
+    // 水晶常态与轨道同高贴斜边；展开时水晶顶出轨道但不出控件）
     background: Crystal {
         id: track
         width: root.width
-        height: root.height
+        height: root.preferredHeight
+        y: (root.height - height) / 2
         // 兜底纯色（渐变通道失效时轨道仍可见——渐进降级；渐变生效时覆盖）
         color: root.color
-        fillGradient: root.fillGradient
-        fillItem: root.fillItem
+        fillGradient: LinearGradient {
+            // 渐变内联默认（Slider 不再暴露 fillGradient——v4 收缩裁定，换色走
+            // color 属性）：锚定切角内侧（v3 渐变锚点语义）——与 Crystal 中心
+            // 行程对齐（colorAt(visualPosition) 精确采样——见文件头注释的数学）；
+            // 坐标用 track 局部尺寸（轨道收缩后切角 = track.height/2）
+            x1: track.height / 2
+            y1: track.height / 2
+            x2: root.width - track.height / 2
+            y2: track.height / 2
+            GradientStop {
+                position: 0
+                color: root.Style.text
+            }
+            GradientStop {
+                position: 1
+                color: root.color
+            }
+        }
     } //background
 
     // —— 手柄（Crystal 菱形）：尺寸跟随控件高度（六边形对齐语义——见文件头）；
     // 展开反馈照 v3 ColorCursor 核心——
     handle: Item {
         id: handleRoot
-        width: root.height
         height: root.height
+        width: height
         // handle delegate 须自写定位（模板不注入）——官方公式；Crystal 左上锚定，
-        // 菱形中心 = 值位置（v3 语义：中心行程 [size/2, availW-size/2]，顶点贴端）
+        // 菱形中心 = 值位置（v3 语义：中心行程 [h/2, availW-h/2]，顶点贴端）
         x: root.leftPadding + root.visualPosition * (root.availableWidth - width)
         y: root.topPadding + (root.availableHeight - height) / 2
 
+        ColorMapper {
+            id: colorMapper
+            ColorMapperStop {
+                position: 0
+                color: root.Style.text
+            }
+            ColorMapperStop {
+                position: 1
+                color: root.color
+            }
+        }
+
         Crystal {
             id: crystal
+            // 动画期间 CurveRenderer（原生 AA——展开缩放时小菱形边缘平滑且不重
+            // 三角化），静止回退默认 GeometryRenderer（零额外成本）。仅手柄需要
+            // （小尺寸亚像素毛躁；轨道为宽条像素充足——2026-08-10 裁定：全局
+            // CurveRenderer 帧数降、layer MSAA 缩放性能降，按需切换折中）
+            preferredRendererType: root.animationEnabled ? Shape.CurveRenderer : Shape.UnknownRenderer
             anchors.centerIn: parent
-            size: pCtrl.hovering ? pCtrl.hoveredSize : root.height
+            // 仅 hover/光标反馈：NoButton 不拦截按压（模板拖动在手柄上仍有效）；
+            // containmentMask 不设（self mask 无效且 Crystal 无精确掩码——
+            // 命中域即外接矩形，同 Crystal 文件头声明）；disabled 时无反馈
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                enabled: root.enabled
+                cursorShape: Qt.SizeHorCursor
+            }
+
+            HoverHandler {
+                id: hoverer
+                enabled: root.enabled
+            }
+
+            // 展开态占满 handle 区域（= 控件高度，不超出边界）；常态 = 轨道
+            // 高度（preferredHeight——同收缩贴斜边；2026-08-10 裁定：原
+            // "展开超出边界"刻意效果取消）
+            readonly property bool encountered: {
+                return hoverer.hovered || root.pressed || root.justMoved;
+            }
+
+            width: height
+            height: encountered ? root.height : root.preferredHeight
+            BasicNumberBehavior on height {
+                enabled: root.animationEnabled
+                duration: Style.transitionDuration
+            }
             // 常态色 = 轨道渐变在值位置的采样色（colorAt 精确——见文件头）；
-            // pressed/锁存 → lighter 提亮
-            color: root.pressed || latch.active
-                   ? Qt.lighter(trackMapper.colorAt(root.visualPosition), 1.4)
-                   : trackMapper.colorAt(root.visualPosition)
+            // 反馈仅展开（v3 的 pressed/锁存 lighter 提亮已裁定取消）
+            color: colorMapper.colorAt(root.visualPosition)
             // Behavior 须声明在本对象内（on 作用于声明者自己的属性）
-            BasicNumberBehavior on size {
-                enabled: pCtrl.animationEnabled
-            }
-            BasicColorBehavior on color {
-                enabled: pCtrl.animationEnabled
-            }
         }
-
-        // 展开逻辑（v3 ColorCursor 核心：悬停/交互/刚移动三态 → hoveredSize；
-        // initialized 延迟一帧——创建时不对默认值动画）
-        QtObject {
-            id: pCtrl
-            property bool initialized: false
-            readonly property bool animationEnabled: initialized
-                                                     && (!root.pressed)
-                                                     && root.Style.animationEnabled
-            readonly property bool hovering: hoverer.hovered || root.pressed
-                                             || movementTimer.justMoved
-            readonly property real hoveredSize: {
-                let delta = root.height * 0.25
-                delta = Math.max(15, Math.min(45, delta)) // v3 limitNumber(delta,15,45)
-                return root.height + delta
-            }
-        }
-
-        HoverHandler {
-            id: hoverer
-            enabled: root.enabled // disabled 时无悬停反馈（常态外观）
-        }
-
-        Timer {
-            id: movementTimer
-            property bool justMoved: false
-            interval: 1000
-            onTriggered: justMoved = false
-            function when_moved() {
-                justMoved = true
-                restart()
-            }
-        }
-        Connections {
-            target: handleRoot
-            function onXChanged() {
-                movementTimer.when_moved()
-            }
-            function onYChanged() {
-                movementTimer.when_moved()
-            }
-        }
-
-        Component.onCompleted: pCtrl.initialized = true
     } //handle
 }

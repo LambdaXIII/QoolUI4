@@ -37,7 +37,7 @@ BasicPage {
                 value: 50
             }
             QoolTip {
-                text: qsTr("水平滑块：六边形渐变轨道（**text→color** 水平渐变，锚定切角内侧）+ 水晶菱形手柄（同一八点模型——斜边斜率一致天然对齐）。\n交互为官方模板行为：点击跳转、拖动连续、方向键步进（获得焦点后）。\n- **color** = 渐变右端色（默认 Style.accent，左端固定 Style.text）——换色即换整条轨道视觉。\n- **crystalSize** = 默认高度（20）——手柄尺寸始终跟随控件实际高度（v3 语义：轨道高 = 水晶高）。\n- 手柄常态色 = 轨道渐变在当前值位置的采样色（ColorMapper.colorAt——拖动时实时变化）。")
+                text: qsTr("水平滑块：六边形渐变轨道（**text→color** 水平渐变，锚定切角内侧）+ 水晶菱形手柄（同一八点模型——斜边斜率一致天然对齐）。\n交互为官方模板行为：点击跳转、拖动连续、方向键步进（获得焦点后）。\n- **color** = 渐变右端色（默认 Style.accent，左端固定 Style.text）——换色即换整条轨道视觉。\n- 默认高度 25（implicitHeight，可覆盖 width/height）——手柄尺寸始终跟随控件实际高度（v3 语义：轨道高 = 水晶高）。\n- 手柄常态色 = 轨道渐变在当前值位置的采样色（ColorMapper.colorAt——拖动时实时变化）。")
             }
         }
 
@@ -68,7 +68,7 @@ BasicPage {
                 }
             }
             QoolTip {
-                text: qsTr("两套反馈语言：\n**上手反馈**（上）——悬停：光标变水平双向箭头（仅 enabled 时）、手柄展开到 hoveredSize（size + limit(size*0.25, 15, 45)）；按下/刚移动（值变化 1s 内）手柄保持展开；按下时手柄提亮（lighter 1.4）。动画随 Style.animationEnabled 门控。\n**程序化锁存**（下）——外部定时器每 1.5s 写入 value：每次变化后手柄提亮约 1s（TimerLatch 锁存窗口）再回落——“值被写入即亮”（v3 ChannelBar movementTimer 语义——无论谁写的，禁用时程序化写入也提亮）。\n- 手柄放大超出控件边界是**刻意效果**——不要对 Slider 或其容器启用 clip（会切掉展开反馈）。")
+                text: qsTr("两套反馈语言：\n**上手反馈**（上）——悬停：光标变水平双向箭头（仅 enabled 时）、手柄展开到控件全高（常态收缩 limit(高度×0.25, 3, 25)——视觉差即放大反馈；轨道与手柄常态同高、中心对齐）；按下/刚移动（值变化 500ms 内）手柄保持展开。动画随 animationEnabled 门控（父链继承，回退 Style）。\n**程序化锁存**（下）——外部定时器每 1.5s 写入 value：每次变化后手柄展开约 500ms（TimerLatch 锁存窗口）再回落——“值被写入即反馈”（v3 ChannelBar movementTimer 语义——无论谁写的；持续变化期间窗口经 valueVelocity 采样级重置不落，禁用时程序化写入也展开）。\n- 手柄常态收缩、展开占满控件高度（不超出边界）——clip 与否不影响反馈。")
             }
         }
 
@@ -112,7 +112,7 @@ BasicPage {
                 }
             }
             QoolTip {
-                text: qsTr("三组官方代数/状态行为：\n- **倒置范围**：from > to 刻度反向——拖动到右侧值减小；increase() 增大实际值、视觉向 to 端移动。渐变与手柄采样自动跟随 visualPosition 反向（刻度反向是设计，非缺陷）。\n- **禁用**：enabled = false 保持常态外观——无光标反馈、无悬停展开、按下不提亮；程序化写入的锁存提亮仍保留（数据反馈不随交互禁用）。\n- **键盘步进**：stepSize = 5——点击获得焦点后方向键按 5 步进（官方键盘行为）。")
+                text: qsTr("三组官方代数/状态行为：\n- **倒置范围**：from > to 刻度反向——拖动到右侧值减小；increase() 增大实际值、视觉向 to 端移动。渐变与手柄采样自动跟随 visualPosition 反向（刻度反向是设计，非缺陷）。\n- **禁用**：enabled = false 保持常态外观——无光标反馈、无悬停展开；程序化写入的展开反馈仍保留（数据反馈不随交互禁用）。\n- **键盘步进**：stepSize = 5——点击获得焦点后方向键按 5 步进（官方键盘行为）。")
             }
         }
 
@@ -140,7 +140,7 @@ BasicPage {
                 }
             }
             QoolTip {
-                text: qsTr("水晶八点模型（CrystalShapeControl Gadget——切角 = shortEdge/2）的形态覆盖：\n- **高轨道**（上，80px）：宽六边形（w > h）——切角随高度变（shortEdge/2），渐变锚定中线；手柄菱形等比例放大（顶点贴斜边）。\n- **瘦轨道**（下，40×120）：**w < h 时六边形自然闭合为瘦六边形**（上下尖 + 左右直边）——可直接作竖直滑块（VerticalSlider）的背景；本用例交互仍为水平语义（几何形态展示）。\n- 中间态 w = h 为菱形（旋转 45° 正方形）——同模型统一路径，无需分支。\n- 手柄放大超出边界是刻意效果——**不要 clip**。")
+                text: qsTr("水晶八点模型（CrystalShapeControl Gadget——切角 = shortEdge/2）的形态覆盖：\n- **高轨道**（上，80px）：宽六边形（w > h）——切角随高度变（shortEdge/2），渐变锚定中线；手柄常态与轨道同高（顶点贴斜边）、展开占满控件全高。\n- **瘦轨道**（下，40×120）：**w < h 时六边形自然闭合为瘦六边形**（上下尖 + 左右直边）——可直接作竖直滑块（VerticalSlider）的背景；本用例交互仍为水平语义（几何形态展示）。\n- 中间态 w = h 为菱形（旋转 45° 正方形）——同模型统一路径，无需分支。\n- 手柄常态收缩、展开占满控件高度（不超出边界）。")
             }
         }
 
@@ -174,7 +174,7 @@ BasicPage {
                 }
             }
             QoolTip {
-                text: qsTr("两处独立替换：\n- **color 属性**（上）——换渐变右端色（默认 Style.accent），手柄采样自动跟随——宿主无需碰手柄。\n- **自定义 handle**（下）——替换水晶菱形（矩形手柄）；**handle delegate 须自写 x/y 定位**（T.Slider 模板不注入定位——官方公式：x = leftPadding + visualPosition * (availableWidth - width)，y 同理垂直居中）。\n- 轨道另有 **fillGradient / fillItem** 双通道（默认渐变可整体替换；fillItem 为纹理通道，优先于渐变）。")
+                text: qsTr("两处独立替换：\n- **color 属性**（上）——换渐变右端色（默认 Style.accent），手柄采样自动跟随——宿主无需碰手柄。\n- **自定义 handle**（下）——替换水晶菱形（矩形手柄）；**handle delegate 须自写 x/y 定位**（T.Slider 模板不注入定位——官方公式：x = leftPadding + visualPosition * (availableWidth - width)，y 同理垂直居中）。\n- 轨道渐变内联默认（text→color，锚定切角内侧）——整体替换不再提供（v4 收缩）；换色走 **color** 属性。")
             }
         }
 
@@ -188,7 +188,7 @@ BasicPage {
                     Layout.fillWidth: true
                     Button {
                         text: qsTr("触发锁存")
-                        onClicked: demoLatch.activate()
+                        onClicked: demoLatch.trigger()
                     }
                     Rectangle {
                         width: 24
@@ -219,7 +219,7 @@ BasicPage {
                 property: "value"
             }
             QoolTip {
-                text: qsTr("Slider 反馈语言的底层逻辑件（独立可复用，Qool 模块）：\n- **TimerLatch**：activate() → active 锁存 interval（默认 1000ms）后自动释放——滑动窗口（持续触发持续保持）；becameActive/becameInactive 信号；任意信号源可触发（本例为按钮）。\n- **NumberNotifier**：每 interval（默认 200ms）采样 target 属性 → velocity（值/秒、有向、骤停归零）——“转速表”语义；valueUpdated(newValue, oldValue) 为采样快照（延迟 ≤ interval，可能错过往返——与属性自身的 Changed 不同）。")
+                text: qsTr("Slider 反馈语言的底层逻辑件（独立可复用，Qool 模块）：\n- **TimerLatch**：trigger() → active 锁存 interval（默认 1000ms）后自动释放——滑动窗口（持续触发持续保持）；activated/deactivated 信号；任意信号源可触发（本例为按钮）。\n- **NumberNotifier**：每 interval（默认 200ms）采样 target 属性 → velocity（值/秒、有向、骤停归零）——“转速表”语义；valueUpdated(newValue, oldValue) 为采样快照（延迟 ≤ interval，可能错过往返——与属性自身的 Changed 不同）。")
             }
         }
 
