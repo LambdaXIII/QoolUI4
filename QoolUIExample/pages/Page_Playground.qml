@@ -318,11 +318,14 @@ BasicPage {
             width: 200
             contentItem: ColumnLayout {
                 BasicArrow {
+                    // enabled: False
                     Layout.alignment: Qt.AlignHCenter
                     Layout.preferredWidth: 96
                     Layout.preferredHeight: 96
                     direction: Qore.E
                     borderWidth: 10
+                    borderColor: Style.negative
+                    fillColor: Style.accent
                     // 点击循环切换八方向（N→NE→E→SE→S→SW→W→NW）——
                     // 观察旋转动画与重心旋转（旋转绕画布中心 = 三角形重心）
                     TapHandler {

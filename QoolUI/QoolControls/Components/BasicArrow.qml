@@ -125,14 +125,16 @@ Item {
         // 小三角形（微缩版——三点绑定大三角形 + 内缩映射）。内缩沿
         // 角平分线/邻边方向（参考 QoolBoxShapeControl 的"每点独立分量"
         // 算法——平行移动不错位；非直角（底角 45°）需 22.5° 修正）：
-        //   尖（直角——角平分线 45°）：(+t, -t)（沿斜边方向 NE）
+        //   尖（直角——角平分线 45°）：(+t, -t)（沿斜边方向 NE——到两
+        //     直角边各 t）
         //   水平端点（水平边 y=-t 与内缩斜边交点）：(-(1+√2)t, -t)
-        //   垂直端点（垂直边 x=-t 与内缩斜边交点）：(-t, -(1+√2)t)
+        //   垂直端点（垂直边 x=t 与内缩斜边交点）：(+t, +(1+√2)t)
+        //   （两底角均向三角形内部——垂直端点在顶部，内缩向右下）
         TriangleGadget {
             id: triInner
             pointA: Qt.point(triOuter.pointA.x + (root.showBorder ? root.borderWidth : 0), triOuter.pointA.y - (root.showBorder ? root.borderWidth : 0))
             pointB: Qt.point(triOuter.pointB.x - (root.showBorder ? (1 + Math.SQRT2) * root.borderWidth : 0), triOuter.pointB.y - (root.showBorder ? root.borderWidth : 0))
-            pointC: Qt.point(triOuter.pointC.x - (root.showBorder ? root.borderWidth : 0), triOuter.pointC.y - (root.showBorder ? (1 + Math.SQRT2) * root.borderWidth : 0))
+            pointC: Qt.point(triOuter.pointC.x + (root.showBorder ? root.borderWidth : 0), triOuter.pointC.y + (root.showBorder ? (1 + Math.SQRT2) * root.borderWidth : 0))
         }
     }//shapeCtrl
 
