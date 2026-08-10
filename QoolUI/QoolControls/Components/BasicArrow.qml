@@ -143,25 +143,27 @@ Item {
         id: canvas
         anchors.fill: parent
 
-        /* 方向 → 旋转角度（基准形 SW——直角在尖（左下）、直角边对齐
-           坐标轴；顺时针 45° 步进旋转设定指向）。 */
+        /* 方向 → 旋转角度（基准形 SW——尖朝左下 = 135° 标准角；旋转后
+           尖朝标准角 D 需 rotation = D - 135，顺时针 45° 步进：
+           SW=0/W=45/NW=90/N=135/NE=180/E=225/SE=270/S=315——
+           E=225 即 135+225=360° 朝右、W=45 即 135+45=180° 朝左）。 */
         rotation: {
             switch (root.direction) {
             case Qore.SW:
                 return 0;
-            case Qore.S:
+            case Qore.W:
                 return 45;
-            case Qore.SE:
+            case Qore.NW:
                 return 90;
-            case Qore.E:
+            case Qore.N:
                 return 135;
             case Qore.NE:
                 return 180;
-            case Qore.N:
+            case Qore.E:
                 return 225;
-            case Qore.NW:
+            case Qore.SE:
                 return 270;
-            case Qore.W:
+            case Qore.S:
                 return 315;
             }
             return 0;

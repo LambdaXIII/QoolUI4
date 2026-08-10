@@ -187,7 +187,7 @@ T.DoubleSpinBox {
             // 命令式——用户裁定不采用属性绑定：TextField 收尾内部写回 text
             // 会打断外部绑定——见文件头）
             function onValueChanged() {
-                textField.text = root.textFromValue(root.value, root.locale, root.decimals)
+                textField.text = root.textFromValue(root.value, root.locale, root.decimals);
             }
         }
 
@@ -196,7 +196,7 @@ T.DoubleSpinBox {
             // 编辑中文本回写（Qool 扩展 editText——单向 tf → root，与
             // ComboBox 同风格）
             function onEditTextChanged() {
-                root.editText = textField.editText
+                root.editText = textField.editText;
             }
             // 编辑接受：读收尾后的 text（= textFromEditText(judge.text)——TextField
             // 内部默认恒等转换；消费者是实例化非继承，不覆写该插拔点）→
@@ -206,22 +206,22 @@ T.DoubleSpinBox {
             // 失败（valueFromText 返回非有限数——自定义覆写场景）不写 value
             // ——按拒绝路径回退（现状契约：不写脏数据）。
             function onAccepted() {
-                let parsed = root.valueFromText(textField.text, root.locale)
+                let parsed = root.valueFromText(textField.text, root.locale);
                 if (isFinite(parsed)) {
-                    let old = root.value
-                    root.value = parsed
+                    let old = root.value;
+                    root.value = parsed;
                     if (root.value !== old)
-                        root.valueModified()
-                    textField.text = root.textFromValue(root.value, root.locale, root.decimals)
-                    root.accepted()
+                        root.valueModified();
+                    textField.text = root.textFromValue(root.value, root.locale, root.decimals);
+                    root.accepted();
                 } else {
-                    root.rejected()
+                    root.rejected();
                 }
             }
             // 编辑拒绝：value 不变、textField.text 未写回（显示自然回退——
             // 编辑层卸载恢复展示层旧值）→ 透传（宿主可提示）
             function onRejected() {
-                root.rejected()
+                root.rejected();
             }
         }
     }//pCtrl
@@ -239,7 +239,7 @@ T.DoubleSpinBox {
         target: root.up
         function onPressedChanged() {
             if (root.up.pressed && textField.editing)
-                textField.editing = false
+                textField.editing = false;
         }
     }
 
@@ -247,7 +247,7 @@ T.DoubleSpinBox {
         target: root.down
         function onPressedChanged() {
             if (root.down.pressed && textField.editing)
-                textField.editing = false
+                textField.editing = false;
         }
     }
 
@@ -268,36 +268,28 @@ T.DoubleSpinBox {
        淡入保留动画（visible 翻转后 opacity 0→1 经 BasicNumberBehavior），
        淡出随 visible 立即消失（隐藏优先于淡出动画）。 */
     up.indicator: BasicArrow {
+        borderWidth: 0
+        fillColor: Style.buttonText
         // 右缘条（镜像左缘）——按钮全宽（模板分区 up 上半），须显式 x
         // 钉在右缘（anchors.centerIn 会居中于全宽按钮——水平居中错误）
         x: root.mirrored ? 0 : parent.width - width
         y: (parent.height - height) / 2
         // 左右方向（2026-08-10 裁定）：右条 = 增加（▶ 右箭头）
-        direction: Qore.E
-        fillColor: enabled ? (root.up.pressed ? root.Style.highlight
-                        : root.up.hovered ? root.Style.mid
-                        : root.Style.controlBackgroundColor)
-                       : root.Style.mid
-        borderColor: root.Style.controlBorderColor
-        borderWidth: 1
+        direction: root.mirrored ? Qore.W : Qore.E
         visible: root.hovered || root.activeFocus
         opacity: visible ? 1 : 0
         BasicNumberBehavior on opacity {}
     }//up.indicator
 
     down.indicator: BasicArrow {
+        borderWidth: 0
+        fillColor: Style.buttonText
         // 左缘条（镜像右缘）——按钮全宽（模板分区 down 下半），须显式 x
         // 钉在左缘（anchors.centerIn 会居中于全宽按钮——水平居中错误）
         x: root.mirrored ? parent.width - width : 0
         y: (parent.height - height) / 2
         // 左右方向（2026-08-10 裁定）：左条 = 减少（◀ 左箭头）
-        direction: Qore.W
-        fillColor: enabled ? (root.down.pressed ? root.Style.highlight
-                        : root.down.hovered ? root.Style.mid
-                        : root.Style.controlBackgroundColor)
-                       : root.Style.mid
-        borderColor: root.Style.controlBorderColor
-        borderWidth: 1
+        direction: root.mirrored ? Qore.E : Qore.W
         visible: root.hovered || root.activeFocus
         opacity: visible ? 1 : 0
         BasicNumberBehavior on opacity {}
@@ -337,7 +329,7 @@ T.DoubleSpinBox {
         // 由 onEditingChanged 启动）。TextField 自身的 activeFocusOnTab/
         // 点击路径自管——双路径都进会话（对齐官方：聚焦即编辑）。
         onActiveFocusChanged: if (root.editable && !textField.editing && activeFocus)
-                                  textField.editing = true
+            textField.editing = true
     }//contentItem
 
     // 裸控件无背景 → 无 containmentMask（模板默认），hover 反馈照常
