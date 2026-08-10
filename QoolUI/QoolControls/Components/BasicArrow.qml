@@ -11,14 +11,16 @@ import Qool
     \c direction 决定指向（\c Qore.N/S/W/E/NW/NE/SW/SE——八方向；
     \c Qore.Unknown 为默认值——不绘制）。
 
-    结构：外层画布（Item——承载方向旋转与样式属性）+ 图形逻辑
-    （ShapeControl 挂 CircleGadget 与双 TriangleGadget）+ 两个重叠 Shape
-    （背景 = 边框层、前景 = 填充层）。方向切换 = 画布旋转（绕重心——
-    位置自动正确）；宿主只需设置 \c direction，三角形指向即随之变化。
+    结构：外层根 Item（稳定——rotation 留给宿主）+ 内层画布（Item——
+    承载方向旋转）+ 图形逻辑（ShapeControl 挂 CircleGadget 与双
+    TriangleGadget）+ 两个重叠 Shape（背景 = 边框层、前景 = 填充层）。
+    方向切换 = 内层画布旋转（绕重心——位置自动正确）；宿主只需设置
+    \c direction，三角形指向即随之变化（组件自身不旋转）。
 
-    命中：\c containmentMask 为 QtObject 包装——\c contains 内将命中点
-    逆旋转（画布旋转）回本地基准后经 CircleGadget 粗判、TriangleGadget
-    精确三点判定——**默认精确命中**（旋转后三角形区域）。
+    命中：\c containmentMask 为 QtObject 包装——\c contains 仅以画布
+    内接圆（\c s/2——旋转安全半径）判定。刻意简化：本组件主要用途为
+    小尺寸箭头，精确三角形命中过度且无意义——圆判定宽松、旋转不变
+    （无需坐标变换）。
 
     边框 = 两个重叠 Shape（大 = \c borderColor 实心、小 = \c fillColor
     实心——每点沿邻边方向分量内缩 \c borderWidth）——内边缘语义（描边不
@@ -72,7 +74,7 @@ Item {
     property int direction: Qore.Unknown
 
     /* 填充/边框（默认 Style 控件组——宿主可覆写） */
-    property color fillColor: Style.controlBackgroundColor
+    property color fillColor: Style.accent
     property color borderColor: Style.controlBorderColor
     property real borderWidth: Style.controlBorderWidth
 
@@ -85,32 +87,6 @@ Item {
     implicitWidth: 12
     implicitHeight: 12
 
-    /* 方向 → 旋转角度（基准形 SW——直角在尖（左下）、直角边对齐坐标轴；
-       顺时针 45° 步进旋转设定指向。重心对准画布中心——旋转绕重心，
-       方向切换位置自动正确。 */
-    rotation: {
-        switch (root.direction) {
-        case Qore.SW: return 0;
-        case Qore.S: return 45;
-        case Qore.SE: return 90;
-        case Qore.E: return 135;
-        case Qore.NE: return 180;
-        case Qore.N: return 225;
-        case Qore.NW: return 270;
-        case Qore.W: return 315;
-        }
-        return 0;
-    }
-
-    // 方向切换 = 旋转过渡（无点级动画——静态三角形）
-    Behavior on rotation {
-        enabled: root.animationEnabled
-        PropertyAnimation {
-            duration: root.animationDuration
-            easing.type: Easing.InOutQuad
-        }
-    }
-
     /* 图形逻辑（ShapeControl 体系）：
        s = min(w, h)——内部最大正方形边长
        直角边 a = 0.671·s（重心到最远顶点（直角边端点）= a·√5/3 ≈ 0.745a
@@ -122,6 +98,11 @@ Item {
          垂直端点 (尖.x, 尖.y + a) */
     readonly property real s: Math.min(root.width, root.height)
     readonly property real a: 0.671 * root.s
+
+    // 边框可见性（统一优化条件）：borderWidth < 1（刻意忽略亚像素）或
+    // 填充与边框同色（背景层被前景完全覆盖——环带同色不可见）→ 无边框
+    // 路径：背景 Shape 不渲染、前景层满尺寸
+    readonly property bool showBorder: root.borderWidth >= 1 && root.fillColor !== root.borderColor
 
     ShapeControl {
         id: shapeCtrl
@@ -149,19 +130,51 @@ Item {
         //   垂直端点（垂直边 x=-t 与内缩斜边交点）：(-t, -(1+√2)t)
         TriangleGadget {
             id: triInner
-            pointA: Qt.point(triOuter.pointA.x - (root.showBorder ? root.borderWidth : 0),
-                             triOuter.pointA.y + (root.showBorder ? root.borderWidth : 0))
-            pointB: Qt.point(triOuter.pointB.x + (root.showBorder ? (1 + Math.SQRT2) * root.borderWidth : 0),
-                             triOuter.pointB.y + (root.showBorder ? root.borderWidth : 0))
-            pointC: Qt.point(triOuter.pointC.x - (root.showBorder ? root.borderWidth : 0),
-                             triOuter.pointC.y - (root.showBorder ? (1 + Math.SQRT2) * root.borderWidth : 0))
+            pointA: Qt.point(triOuter.pointA.x - (root.showBorder ? root.borderWidth : 0), triOuter.pointA.y + (root.showBorder ? root.borderWidth : 0))
+            pointB: Qt.point(triOuter.pointB.x + (root.showBorder ? (1 + Math.SQRT2) * root.borderWidth : 0), triOuter.pointB.y + (root.showBorder ? root.borderWidth : 0))
+            pointC: Qt.point(triOuter.pointC.x - (root.showBorder ? root.borderWidth : 0), triOuter.pointC.y - (root.showBorder ? (1 + Math.SQRT2) * root.borderWidth : 0))
         }
     }//shapeCtrl
 
-    // 边框可见性（统一优化条件）：borderWidth < 1（刻意忽略亚像素）或
-    // 填充与边框同色（背景层被前景完全覆盖——环带同色不可见）→ 无边框
-    // 路径：背景 Shape 不渲染、前景层满尺寸
-    readonly property bool showBorder: root.borderWidth >= 1 && root.fillColor !== root.borderColor
+    /* 内层画布：方向切换的旋转载体（root 不旋转——组件自身稳定，
+       rotation 留给宿主；消费方不受方向变化影响）。旋转绕画布中心
+       （= 三角形重心）——方向切换位置自动正确。 */
+    Item {
+        id: canvas
+        anchors.fill: parent
+
+        /* 方向 → 旋转角度（基准形 SW——直角在尖（左下）、直角边对齐
+           坐标轴；顺时针 45° 步进旋转设定指向）。 */
+        rotation: {
+            switch (root.direction) {
+            case Qore.SW:
+                return 0;
+            case Qore.S:
+                return 45;
+            case Qore.SE:
+                return 90;
+            case Qore.E:
+                return 135;
+            case Qore.NE:
+                return 180;
+            case Qore.N:
+                return 225;
+            case Qore.NW:
+                return 270;
+            case Qore.W:
+                return 315;
+            }
+            return 0;
+        }
+
+        // 方向切换 = 旋转过渡（无点级动画——静态三角形）
+        Behavior on rotation {
+            enabled: root.animationEnabled
+            PropertyAnimation {
+                duration: root.animationDuration
+                easing.type: Easing.InOutQuad
+            }
+        }
 
     // 两个重叠 Shape（背景 = 边框层、前景 = 填充层）。无边框路径时背景
     // Shape 整体 visible: false——真不渲染（Shape 是 Item）
@@ -269,23 +282,19 @@ Item {
             }
             fillColor: root.fillColor
         }
-    }
-
-    /* 精确命中（默认）：QtObject 包装作 containmentMask（TriangleGadget
-       是 QObject 非 Item——不能直接作掩码）。contains 收到的点逆旋转
-       （画布旋转）回本地基准后——CircleGadget 粗判 + TriangleGadget
-       精确三点判定。 */
-    containmentMask: QtObject {
-        function contains(p: point): bool {
-            const c = Qt.point(root.width / 2, root.height / 2)
-            const rad = -root.rotation * Math.PI / 180
-            const dx = p.x - c.x
-            const dy = p.y - c.y
-            const q = Qt.point(c.x + dx * Math.cos(rad) - dy * Math.sin(rad),
-                               c.y + dx * Math.sin(rad) + dy * Math.cos(rad))
-            if (!circleG.contains(q))
-                return false
-            return triOuter.contains(q)
         }
-    }
+    }//canvas
+
+    /* 精确命中（默认）：QtObject 掩码（文档示例写法——QML 对象定义
+       contains；QML Item 自身 function contains 不覆写 C++ 虚函数，
+       引擎命中不走）。contains 收到 root 本地坐标；经 canvas.mapFromItem
+       映射到画布本地（映射使用 item 变换——与视觉旋转严格一致），再
+       CircleGadget 粗判 + TriangleGadget 精确三点判定。 */
+    /* 命中（默认）：CircleGadget 直接作 containmentMask（QObject 且
+       contains 为 Q_INVOKABLE——掩码接受 QObject*，无需 QtObject 包装）。
+       仅内接圆判定（画布内切圆 s/2——旋转安全半径）。刻意简化：
+       BasicArrow 主要用途是小尺寸箭头，精确三角形判定过度且无意义；
+       圆判定宽松、旋转不变（中心/半径不随画布旋转变化——无需坐标变换，
+       直接以 root 本地点判定）。 */
+    containmentMask: circleG
 }
