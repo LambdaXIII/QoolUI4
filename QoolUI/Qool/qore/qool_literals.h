@@ -32,6 +32,11 @@ Q_ENUM_NS(Positions)
 enum PopupDirections { Above = -1, Covered = 0, Below = 1 };
 Q_ENUM_NS(PopupDirections)
 
+// 方向枚举（BasicArrow 等方向组件的通用方向——八向 + 未知；Unknown = 0
+// 为默认值，无行为语义）
+enum Directions { Unknown = 0, N, S, W, E, NW, NE, SW, SE };
+Q_ENUM_NS(Directions)
+
 } // namespace QoolLiterals
 QOOL_NS_END
 
