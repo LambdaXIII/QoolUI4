@@ -91,11 +91,11 @@ Item {
        s = min(w, h)——内部最大正方形边长
        直角边 a = 0.671·s（重心到最远顶点（直角边端点）= a·√5/3 ≈ 0.745a
        = 画布内切圆半径 s/2——旋转任意方向不超出控件）。
-       重心对准画布中心 (w/2, h/2)：重心相对尖（SW 基准）为 (-a/3, a/3)
-       ——尖在重心右上，故：
-         尖      (w/2 + a/3, h/2 - a/3)
-         水平端点 (尖.x - a, 尖.y)
-         垂直端点 (尖.x, 尖.y + a) */
+       基准方向 SW（尖朝左下）：重心对准画布中心 (w/2, h/2)——尖在
+       重心左下 (a/3, a/3)，直角边沿坐标轴（水平向右 a、垂直向上 a）：
+         尖      (w/2 - a/3, h/2 + a/3)
+         水平端点 (尖.x + a, 尖.y)
+         垂直端点 (尖.x, 尖.y - a) */
     readonly property real s: Math.min(root.width, root.height)
     readonly property real a: 0.671 * root.s
 
@@ -117,21 +117,21 @@ Item {
         // 大三角形（理想大小——SW 基准三点）
         TriangleGadget {
             id: triOuter
-            pointA: Qt.point(root.width / 2 + root.a / 3, root.height / 2 - root.a / 3)
-            pointB: Qt.point(root.width / 2 + root.a / 3 - root.a, root.height / 2 - root.a / 3)
-            pointC: Qt.point(root.width / 2 + root.a / 3, root.height / 2 - root.a / 3 + root.a)
+            pointA: Qt.point(root.width / 2 - root.a / 3, root.height / 2 + root.a / 3)
+            pointB: Qt.point(root.width / 2 - root.a / 3 + root.a, root.height / 2 + root.a / 3)
+            pointC: Qt.point(root.width / 2 - root.a / 3, root.height / 2 + root.a / 3 - root.a)
         }
 
         // 小三角形（微缩版——三点绑定大三角形 + 内缩映射）。内缩沿
         // 角平分线/邻边方向（参考 QoolBoxShapeControl 的"每点独立分量"
         // 算法——平行移动不错位；非直角（底角 45°）需 22.5° 修正）：
-        //   尖（直角——角平分线 45°）：(-t, +t)
-        //   水平端点（水平边 y=t 与内缩斜边交点）：(+(1+√2)t, +t)
+        //   尖（直角——角平分线 45°）：(+t, -t)（沿斜边方向 NE）
+        //   水平端点（水平边 y=-t 与内缩斜边交点）：(-(1+√2)t, -t)
         //   垂直端点（垂直边 x=-t 与内缩斜边交点）：(-t, -(1+√2)t)
         TriangleGadget {
             id: triInner
-            pointA: Qt.point(triOuter.pointA.x - (root.showBorder ? root.borderWidth : 0), triOuter.pointA.y + (root.showBorder ? root.borderWidth : 0))
-            pointB: Qt.point(triOuter.pointB.x + (root.showBorder ? (1 + Math.SQRT2) * root.borderWidth : 0), triOuter.pointB.y + (root.showBorder ? root.borderWidth : 0))
+            pointA: Qt.point(triOuter.pointA.x + (root.showBorder ? root.borderWidth : 0), triOuter.pointA.y - (root.showBorder ? root.borderWidth : 0))
+            pointB: Qt.point(triOuter.pointB.x - (root.showBorder ? (1 + Math.SQRT2) * root.borderWidth : 0), triOuter.pointB.y - (root.showBorder ? root.borderWidth : 0))
             pointC: Qt.point(triOuter.pointC.x - (root.showBorder ? root.borderWidth : 0), triOuter.pointC.y - (root.showBorder ? (1 + Math.SQRT2) * root.borderWidth : 0))
         }
     }//shapeCtrl
