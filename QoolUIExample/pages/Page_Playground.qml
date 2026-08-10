@@ -28,14 +28,11 @@ BasicPage {
         QoolControl {
             title: qsTr("基础 Slider")
             width: 260
-            contentItem: ColumnLayout {
-                Slider {
-                    id: basicSlider
-                    Layout.fillWidth: true
-                    from: 0
-                    to: 100
-                    value: 50
-                }
+            contentItem: Slider {
+                id: basicSlider
+                from: 0
+                to: 100
+                value: 50
             }
             QoolTip {
                 text: qsTr("点击/拖动整框任意位置调节（无手柄）；右侧小字显示数值（最多 3 位小数、去尾零去点）——文字颜色随填充边界分区：透明区段主题前景色、填充区段按亮度计算的对比色。")
@@ -46,13 +43,10 @@ BasicPage {
         QoolControl {
             title: qsTr("交互反馈")
             width: 260
-            contentItem: ColumnLayout {
-                Slider {
-                    Layout.fillWidth: true
-                    from: 0
-                    to: 100
-                    value: 30
-                }
+            contentItem: Slider {
+                from: 0
+                to: 100
+                value: 30
             }
             QoolTip {
                 text: qsTr("hover（enabled）：光标变为水平双向箭头（不变色）；按下或值运动锁存期间：填充提亮（lighter 1.4）——动画随 Style.animationEnabled 门控。")
@@ -63,20 +57,17 @@ BasicPage {
         QoolControl {
             title: qsTr("程序化变化 + 锁存反馈")
             width: 260
-            contentItem: ColumnLayout {
-                Slider {
-                    id: progSlider
-                    Layout.fillWidth: true
-                    from: 0
-                    to: 100
-                    value: 20
-                }
-                Timer {
-                    interval: 1500
-                    running: true
-                    repeat: true
-                    onTriggered: progSlider.value = (progSlider.value + 25) % 101
-                }
+            contentItem: Slider {
+                id: progSlider
+                from: 0
+                to: 100
+                value: 20
+            }
+            Timer {
+                interval: 1500
+                running: true
+                repeat: true
+                onTriggered: progSlider.value = (progSlider.value + 25) % 101
             }
             QoolTip {
                 text: qsTr("外部定时器每 1.5s 写入 value——每次变化后填充短暂提亮约 1s（TimerLatch 锁存窗口）再回落——与拖动同款反馈语言（无论谁写的）。")
@@ -91,13 +82,10 @@ BasicPage {
         QoolControl {
             title: qsTr("倒置范围")
             width: 260
-            contentItem: ColumnLayout {
-                Slider {
-                    Layout.fillWidth: true
-                    from: 100
-                    to: 0
-                    value: 75
-                }
+            contentItem: Slider {
+                from: 100
+                to: 0
+                value: 75
             }
             QoolTip {
                 text: qsTr("from>to 刻度反向：拖动到右侧值减小；increase() 增大实际值、视觉向 to 端移动（官方代数语义——刻度反向是设计，非缺陷）。")
@@ -108,14 +96,11 @@ BasicPage {
         QoolControl {
             title: qsTr("禁用")
             width: 260
-            contentItem: ColumnLayout {
-                Slider {
-                    Layout.fillWidth: true
-                    from: 0
-                    to: 100
-                    value: 60
-                    enabled: false
-                }
+            contentItem: Slider {
+                from: 0
+                to: 100
+                value: 60
+                enabled: false
             }
             QoolTip {
                 text: qsTr("enabled=false：常态外观；hover 无光标反馈、按下无提亮（disabled 不响应交互）。")
@@ -126,14 +111,11 @@ BasicPage {
         QoolControl {
             title: qsTr("键盘步进")
             width: 260
-            contentItem: ColumnLayout {
-                Slider {
-                    Layout.fillWidth: true
-                    from: 0
-                    to: 100
-                    stepSize: 5
-                    value: 50
-                }
+            contentItem: Slider {
+                from: 0
+                to: 100
+                stepSize: 5
+                value: 50
             }
             QoolTip {
                 text: qsTr("stepSize=5：点击获得焦点后按方向键按 5 步进（官方键盘行为）。")
@@ -216,22 +198,23 @@ BasicPage {
                         color: Style.text
                     }
                 }
-                TimerLatch {
-                    id: demoLatch
-                    interval: 1000
-                }
                 // NumberNotifier：观测基础 Slider 的 value——持续速率
-                NumberNotifier {
-                    id: demoNotifier
-                    target: basicSlider
-                    property: "value"
-                }
                 Text {
                     Layout.fillWidth: true
                     text: qsTr("NumberNotifier 观测基础 Slider 的 value——当前速率：%1 值/秒")
                         .arg(demoNotifier.velocity.toFixed(1))
                     color: Style.text
                 }
+            }
+            // 逻辑件（无视觉——不入布局容器）
+            TimerLatch {
+                id: demoLatch
+                interval: 1000
+            }
+            NumberNotifier {
+                id: demoNotifier
+                target: basicSlider
+                property: "value"
             }
             QoolTip {
                 text: qsTr("TimerLatch：任何信号触发 → 锁存 interval 后自动释放（滑动窗口——持续触发持续保持）；NumberNotifier：每 interval（默认 200ms）采样 → velocity（值/秒、有向、骤停归零）。")
