@@ -312,5 +312,34 @@ BasicPage {
                 }
             }
         }
+        // —— BasicArrow（方向箭头——点击切换方向观察旋转动画）——
+        QoolControl {
+            title: qsTr("BasicArrow 方向箭头")
+            width: 200
+            contentItem: ColumnLayout {
+                BasicArrow {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.preferredWidth: 96
+                    Layout.preferredHeight: 48
+                    direction: Qore.E
+                    fillColor: Style.controlBackgroundColor
+                    borderColor: Style.controlBorderColor
+                    borderWidth: 1
+                    // 点击循环切换八方向（N→NE→E→SE→S→SW→W→NW）——
+                    // 观察旋转动画与重心旋转（旋转绕画布中心 = 三角形重心）
+                    TapHandler {
+                        onTapped: {
+                            const dirs = [Qore.N, Qore.NE, Qore.E, Qore.SE,
+                                         Qore.S, Qore.SW, Qore.W, Qore.NW];
+                            const idx = dirs.indexOf(parent.direction);
+                            parent.direction = dirs[(idx + 1) % dirs.length];
+                        }
+                    }
+                }
+            }
+            QoolTip {
+                text: qsTr("大尺寸 BasicArrow——点击切换八方向，观察重心旋转动画（顶角直角/钝角的等腰三角形）。")
+            }
+        }
     } //cc
 }
