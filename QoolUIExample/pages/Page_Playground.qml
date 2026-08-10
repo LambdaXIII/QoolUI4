@@ -320,7 +320,7 @@ BasicPage {
                 BasicArrow {
                     Layout.alignment: Qt.AlignHCenter
                     Layout.preferredWidth: 96
-                    Layout.preferredHeight: 48
+                    Layout.preferredHeight: 96
                     direction: Qore.E
                     fillColor: Style.controlBackgroundColor
                     borderColor: Style.controlBorderColor
