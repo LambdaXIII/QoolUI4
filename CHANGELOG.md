@@ -16,6 +16,7 @@
   - 裸控件定位（与 SpinBox 同）；隐式尺寸显式公式（T.Control 默认不传播——官方 Basic/Control.qml 同款）
 - Qool.Controls.Components.BasicTextField 还原纯净：撤销 rejected 下沉（onEditingFinished + !acceptableInput 判定删除）——定位回归"主题化默认 TextField"；editingFinished 信号释放给上层（编辑层实例挂统一收尾——实例 handler 覆盖组件定义）
 - Qool.Controls.Components.BasicArrow（方向箭头组件）：等腰直角三角形（顶角 90°——SW 基准、直角边对齐坐标轴）——direction 八方向（Qore 的 N/S/W/E/NW/NE/SW/SE——Directions 枚举于 qool_literals.h；Unknown 默认不绘制）；图形逻辑 ShapeControl 体系（CircleGadget + 双 TriangleGadget——理想大小 + 微缩版内缩映射）；叠放双 Shape（边框层/填充层——无边框路径隐藏背景、前景跳转满尺寸；ShapePath 显式禁描边）；内层画布旋转（root 稳定留给宿主）+ 前景坐标 Behavior 动画（borderWidth 平滑过渡）；命中 = 画布内切圆判定（小尺寸箭头宽松化——刻意简化）；默认 12×12、旋转不越界（外接圆 = 内切圆）
+- Qool.BasicRotationBehavior（角度属性 Behavior）：旋转动画沿最近路径过渡（等价角判定——270→0 实际走 270→360，到达后静默跳回目标值，避免大圈旋转）；拦截时经 targetValueChanged 同步动画起点（真属性保持旧值/中间值——中断场景从中间角度继续）；BasicArrow 方向切换采用（SpinBox 指示器方向切换走最短弧）
 - Qool.Controls.SpinBox：指示器替换为 BasicArrow（右条 ▶ / 左条 ◀——左右方向；三态色逻辑保留）
 - QoolUIExample：SpinBox 示例组整合到 Page_InputControls（整数/小数/可编辑/wrap 回环/自定义格式/禁用态——SpinBox 组作为一个 section，SectionBar 分段）
 - Qool.Controls.ComboBox / SpinBox 编辑域迁移到 TextField（双层强化版——编辑域状态机单一化）：

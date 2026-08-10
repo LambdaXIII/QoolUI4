@@ -44,6 +44,8 @@ import Qool
 
     \qmlproperty real BasicArrow::animationDuration
     方向切换的旋转动画时长（毫秒）——默认 \l Style 的 movementDuration。
+    方向切换沿最近角度路径旋转（如 NW→SW 走顺时针 90°，而非反向
+    270° 大圈——BasicRotationBehavior 等价角判定）。
 
     \qmlproperty bool BasicArrow::animationEnabled
     动画开关（父链继承——默认 \l Style 的 animationEnabled）：关闭时方向
@@ -171,13 +173,12 @@ Item {
             return 0;
         }
 
-        // 方向切换 = 旋转过渡（无点级动画——静态三角形）
-        Behavior on rotation {
+        // 方向切换 = 旋转过渡（无点级动画——静态三角形）。
+        // BasicRotationBehavior——沿最近路径旋转（如 NW→SW 走 90°
+        // 而非 270°），动画到等价角后静默跳回目标值
+        BasicRotationBehavior on rotation {
             enabled: root.animationEnabled
-            PropertyAnimation {
-                duration: root.animationDuration
-                easing.type: Easing.InOutQuad
-            }
+            duration: root.animationDuration
         }
 
     // 两个重叠 Shape（背景 = 边框层、前景 = 填充层）。无边框路径时背景
@@ -220,72 +221,48 @@ Item {
         ShapePath {
             startX: (root.showBorder ? triInner : triOuter).pointA.x
             startY: (root.showBorder ? triInner : triOuter).pointA.y
-            Behavior on startX {
+            BasicNumberBehavior on startX {
                 enabled: root.animationEnabled
-                PropertyAnimation {
-                    duration: root.animationDuration
-                    easing.type: Easing.InOutQuad
-                }
+                duration: root.animationDuration
             }
-            Behavior on startY {
+            BasicNumberBehavior on startY {
                 enabled: root.animationEnabled
-                PropertyAnimation {
-                    duration: root.animationDuration
-                    easing.type: Easing.InOutQuad
-                }
+                duration: root.animationDuration
             }
             PathLine {
                 x: (root.showBorder ? triInner : triOuter).pointB.x
                 y: (root.showBorder ? triInner : triOuter).pointB.y
-                Behavior on x {
+                BasicNumberBehavior on x {
                     enabled: root.animationEnabled
-                    PropertyAnimation {
-                        duration: root.animationDuration
-                        easing.type: Easing.InOutQuad
-                    }
+                    duration: root.animationDuration
                 }
-                Behavior on y {
+                BasicNumberBehavior on y {
                     enabled: root.animationEnabled
-                    PropertyAnimation {
-                        duration: root.animationDuration
-                        easing.type: Easing.InOutQuad
-                    }
+                    duration: root.animationDuration
                 }
             }
             PathLine {
                 x: (root.showBorder ? triInner : triOuter).pointC.x
                 y: (root.showBorder ? triInner : triOuter).pointC.y
-                Behavior on x {
+                BasicNumberBehavior on x {
                     enabled: root.animationEnabled
-                    PropertyAnimation {
-                        duration: root.animationDuration
-                        easing.type: Easing.InOutQuad
-                    }
+                    duration: root.animationDuration
                 }
-                Behavior on y {
+                BasicNumberBehavior on y {
                     enabled: root.animationEnabled
-                    PropertyAnimation {
-                        duration: root.animationDuration
-                        easing.type: Easing.InOutQuad
-                    }
+                    duration: root.animationDuration
                 }
             }
             PathLine {
                 x: (root.showBorder ? triInner : triOuter).pointA.x
                 y: (root.showBorder ? triInner : triOuter).pointA.y
-                Behavior on x {
+                BasicNumberBehavior on x {
                     enabled: root.animationEnabled
-                    PropertyAnimation {
-                        duration: root.animationDuration
-                        easing.type: Easing.InOutQuad
-                    }
+                    duration: root.animationDuration
                 }
-                Behavior on y {
+                BasicNumberBehavior on y {
                     enabled: root.animationEnabled
-                    PropertyAnimation {
-                        duration: root.animationDuration
-                        easing.type: Easing.InOutQuad
-                    }
+                    duration: root.animationDuration
                 }
             }
             // ShapePath 默认白色描边——必须显式禁用（纯填充）

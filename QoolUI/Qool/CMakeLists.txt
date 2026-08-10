@@ -67,6 +67,7 @@ qt_add_qml_module(
             DragMoveArea.qml
             BasicColorBehavior.qml
             BasicNumberBehavior.qml
+            BasicRotationBehavior.qml
             BasicTextBehavior.qml
             PositionLocker.qml
             QoolWindowBasic.qml
