@@ -202,7 +202,11 @@ Item {
                 x: triOuter.pointA.x
                 y: triOuter.pointA.y
             }
+            // ShapePath 默认白色描边（strokeColor 默认 white/width 1）——
+            // 必须显式禁用（叠放方案纯填充）：transparent + width 0
             fillColor: root.borderColor
+            strokeColor: "transparent"
+            strokeWidth: 0
         }
     }
 
@@ -284,7 +288,10 @@ Item {
                     }
                 }
             }
+            // ShapePath 默认白色描边——必须显式禁用（纯填充）
             fillColor: root.fillColor
+            strokeColor: "transparent"
+            strokeWidth: 0
         }
         }
     }//canvas
