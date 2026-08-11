@@ -168,8 +168,8 @@
 
 /*!
     \qmlmethod void Qool::PositionTracker::update()
-    \brief 强制立即重算并通知。覆盖无信号可监听的盲区（如 transform
-    列表变化）。
+    \brief 强制立即重算并通知（批次合并的同步入口：属性变化默认延迟到
+    事件循环批次合并，本方法跳过延迟立即执行）。
 */
 
 /*!

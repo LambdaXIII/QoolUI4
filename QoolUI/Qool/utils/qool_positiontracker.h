@@ -20,7 +20,8 @@ class PositionTracker: public QObject {
 public:
   explicit PositionTracker(QObject* parent = nullptr);
 
-  // 强制立即重算（覆盖无信号盲区，如 transform 列表变化）
+  // 强制立即重算并通知（批次合并的同步入口：几何变化默认延迟到
+  // 事件循环批次合并，本方法跳过延迟立即执行）
   Q_INVOKABLE void update();
 
 protected:

@@ -153,6 +153,9 @@ QOOL_NS_END
 `QOOL_NS` 由 CMake 从 `includes/qoolns.hpp.config` 生成（值 = `qoolui`）。
 
 ### 属性宏体系（QoolCommon）
+
+**「属性」概念界定**：本项目语境下「属性」特指 QML/Qt 属性系统成员（Q_PROPERTY + getter/setter/NOTIFY/bindable——属性宏体系生成的即是）。追踪契约与「应自动响应」的承诺边界 = 属性系统：仅属性变化产生可监听的 `xxxChanged` 信号。引擎注入的非属性机制（实例：QQuickItem 的 `transform` 列表——QML 层可见但非 Q_PROPERTY、无 NOTIFY）不在属性概念内——其变化无信号、不属追踪契约、无需声明例外或设计兜底（先例：Floater 曾为 transform 列表设计 `refresh()` 兜底——范畴错误已移除；PositionTracker `update()` 保留为批次合并的同步入口）。
+
 **禁止手写 Q_PROPERTY + getter/setter 样板**。按场景选宏族（定义见 `QoolCommon/qoolcommon/`）：
 
 | 宏族 | 适用 | 生成内容 |

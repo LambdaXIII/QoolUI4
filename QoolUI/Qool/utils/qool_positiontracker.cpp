@@ -26,8 +26,7 @@
     强制重算（\c update()）后值若变化同样经此通知；输入属性
     \c targetChanged / \c pointChanged 是配置变化通知。
 
-    \c transform 列表属性（transform 数组）变化无公开信号，需要时调用
-    \c update() 强制重算。QWidget 混合场景（QQuickWidget）中
+    QWidget 混合场景（QQuickWidget）中
     \c currentWindow 是内部离屏渲染窗口（非显示容器），\c globalPos
     不反映真实屏幕位置——\c scenePos 不受影响。
 */
@@ -85,8 +84,9 @@ void PositionTracker::when_pointChanged() {
 }
 
 void PositionTracker::update() {
-  // 强制立即重算：覆盖无信号可监听的盲区（如 transform 列表变化）。
-  // 若批次已调度，此处立即执行后，后续 flush 回调因 m_dirty 已清而空转。
+  // 强制立即重算（批次合并的同步入口）：几何变化默认延迟到事件循环
+  // 批次 flush，本方法跳过延迟立即执行。若批次已调度，此处立即执行后，
+  // 后续 flush 回调因 m_dirty 已清而空转。
   m_dirty = true;
   flush();
 }

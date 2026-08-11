@@ -18,8 +18,7 @@ import QtQuick.Templates as T
 
     content 的位置 = 本组件左上角在 target 坐标系中的位置（场景坐标通道，
     不依赖窗口位置）。祖先链任意层平移/缩放/旋转自动触发重算
-    （PositionTracker 驱动）；\c transform 列表变化无信号，可调用
-    \c refresh() 强制刷新。content 的尺寸/透明度等随本组件同步。
+    （PositionTracker 驱动）。content 的尺寸/透明度等随本组件同步。
 
     \section1 层级（z）
 
@@ -104,11 +103,11 @@ Item {
     // 与 target 链几何变化都会使 floatingPos 失效（值去重——坐标实际
     // 未变时不触发）。target 属性变化经 targetTracker.target 绑定自动
     // 迁移（重配+重算）；root 被重父级经 rootTracker 自动重配；祖先链
-    // 平移盲区由 tracker 的逐层监听覆盖——不再需要宿主手动 refresh
-    // 补偿（RectResizer 旧用法保留，refresh 仍可用）。
+    // 平移盲区由 tracker 的逐层监听覆盖。
     // 边界（与旧三组 Connections 行为一致，非回归）：target 自身
-    // 变换（缩放/旋转围绕其原点）不改变 target 原点场景坐标——不触发
-    // 重算；此时 content 位置由 refresh() 强制刷新兜底。
+    // 变换（缩放/旋转围绕其原点）不改变 target 原点场景坐标——值去重
+    // 后不触发重算，此时 content 位置不更新（契约外行为：追踪只对
+    // 属性变化负责，见 PositionTracker 文档）。
     // 注意：Connections 默认启用（无需 enabled 门控）——tracker 首次
     // flush 经 singleShot(0) 落在事件循环批次，此时组件必已完成；
     // 组件完成前的初始位置由下方 Component.onCompleted 兜底。
@@ -152,15 +151,6 @@ Item {
     implicitWidth: content?.implicitWidth ?? 100
     implicitHeight: content?.implicitHeight ?? 100
 
-    // 公开刷新入口：先强制两个 tracker 立即重算（覆盖无信号盲区，
-    // 如 transform 列表变化），再直接重算位置——tracker 重算后若
-    // scenePos 未变不会发信号，必须显式 updatePos。
-    function refresh() {
-        rootTracker.update()
-        targetTracker.update()
-        pCtrl.updatePos()
-    }
-
     Component.onCompleted: pCtrl.updatePos()
 }
 
@@ -194,9 +184,4 @@ Item {
 /*!
     \qmlproperty bool Qool::Floater::noEnabledSync
     \brief 关闭 enabled 同步（默认 false）。见类型文档「开关」节。
-*/
-
-/*!
-    \qmlmethod void Qool::Floater::refresh()
-    \brief 强制刷新位置计算。覆盖无信号盲区（如 transform 列表变化）。
 */
