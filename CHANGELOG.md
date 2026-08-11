@@ -6,6 +6,9 @@
 
 ### 新增
 
+- Qool.Controls.EditableTextBox（多行文本输入框成品）：BasicTextArea（Components 基底）+ 滚动（官方「Scrollable TextArea」配方——QC.ScrollView，Controls 版；T.ScrollView 无 TextArea 内容尺寸接驳、滚动条不驱动——实测裁定弃用）；文本 API 经 property alias 直通（text/readOnly/color/selectionColor/selectedTextColor/wrapMode/textFormat/selectByMouse；placeholderText 不暴露——输入提示属编辑相关功能；font 不转发——基座 Control.font final 无法重声明，内层默认 Style.controlTextSize）+ textEdited/editingFinished 信号转发（无参——EditableText 系列一致语义）；滚动条挂 Qool 主题件（垂直/水平均 ScrollBar，非 Qt 默认样式；水平 AsNeeded——默认 Wrap 折行下不出现）；无背景（透明视觉——BasicTextArea 契约）；默认尺寸 240×120（固定视口）
+- QoolUIExample：Page_Playground 设置 EditableTextBox 展示用例（可编辑/readOnly 两例——多行输入、垂直滚动、Qool 主题滚动条）
+- Qool.Controls.Components.BasicTextArea（多行文本域基底）：QC.TextArea（QtQuick.Controls，非 T.TextArea——T 版在 ScrollView/Flickable 中无滚动能力，实测裁定）主题化——标准行为 + Qool 主题（文本三色 Style.text/highlight/highlightedText、Style.controlTextSize 字号、wrapMode 默认 Wrap、AlignTop 显式声明），不掺入行为决策；与 BasicTextField 对称（单行 ↔ 多行基底），宿主可直接作为多行文本域使用，亦可作未来多行编辑会话的编辑层基底；无背景（透明——显式 background: null 压掉 QC Basic 样式默认灰底，同 BasicTextField 约定）、Esc 不下沉、editingFinished/textEdited 信号不占用、不自带滚动（官方行为——置于 ScrollView 时官方集成自动接驳）；成品 Qool.Controls.TextArea 推迟（无消费方，保守路线）
 - QoolUIExample：EditableText 密码回显用例自 Playground 测试场迁入 Page_InputControls 正式展示页（单 QoolControl 分组——掩码 + 真实值对照，去除内部 displayText 派生展示；Password/NoEcho/PasswordEchoOnEdit/passwordCharacter/readOnly+Password/插拔后密码化六场景）；Playground 恢复测试场空壳
 - Qool.Controls.TextField → **Qool.Controls.EditableText 改名**（名字说真话：可编辑的 Text——非 TextField 兼容层，不承诺官方 API 面；QDoc 定位声明取代「契约差异」章节；BasicTextField 保留原名=真 TextField 基底；ComboBox/SpinBox 编辑域引用与注释、Page_InputControls 随改名更新）
 - Qool.Controls.EditableText 新增 echoMode 密码回显：echoMode（官方 4 枚举 Normal/Password/NoEcho/PasswordEchoOnEdit）+ passwordCharacter（默认透传平台主题、展示层为空时 fallback 固定字符——两处默认可能不一致需显式设置）+ passwordMaskDelay；displayText 密码化派生（作用于插拔 displayTextFromText 结果之后——插拔点保留）；编辑层转发三属性、copy/cut 禁用（TextInput 内建——非 Normal 回显下无效）；readOnly + echoMode 非编辑态同样掩码
