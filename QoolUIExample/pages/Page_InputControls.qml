@@ -200,6 +200,109 @@ BasicPage {
             }
         }
 
+        // —— EditableText 密码回显系列（echoMode——掩码 + 真实值对照）——
+        // 测试点：
+        //   1. Password：非编辑态掩码显示；编辑会话键入新字符短暂明文后掩码
+        //   2. NoEcho：完全无回显（输入有效但不可见——最高安全）
+        //   3. PasswordEchoOnEdit：平时掩码、编辑期间明文
+        //   4. passwordCharacter 自定义掩码字符（默认透传平台主题）
+        //   5. readOnly + Password：只读掩码展示
+        //   6. displayTextFromText 插拔 + Password：密码化作用于插拔派生之后
+        QoolControl {
+            title: qsTr("密码回显（echoMode）")
+            width: 240
+            contentItem: ColumnLayout {
+                spacing: 6
+
+                EditableText {
+                    id: tfPwd
+                    Layout.fillWidth: true
+                    text: "secret123"
+                    echoMode: TextInput.Password
+                }
+                BasicControlText {
+                    Layout.fillWidth: true
+                    text: qsTr("真实值：%1").arg(tfPwd.text)
+                    color: Style.placeholderText
+                    font.pixelSize: 11
+                }
+
+                EditableText {
+                    id: tfPwdNoEcho
+                    Layout.fillWidth: true
+                    text: "invisible"
+                    echoMode: TextInput.NoEcho
+                }
+                BasicControlText {
+                    Layout.fillWidth: true
+                    text: qsTr("真实值：%1").arg(tfPwdNoEcho.text)
+                    color: Style.placeholderText
+                    font.pixelSize: 11
+                }
+
+                EditableText {
+                    id: tfPwdOnEdit
+                    Layout.fillWidth: true
+                    text: "mixed123"
+                    echoMode: TextInput.PasswordEchoOnEdit
+                }
+                BasicControlText {
+                    Layout.fillWidth: true
+                    text: qsTr("真实值：%1").arg(tfPwdOnEdit.text)
+                    color: Style.placeholderText
+                    font.pixelSize: 11
+                }
+
+                EditableText {
+                    id: tfPwdCustom
+                    Layout.fillWidth: true
+                    text: "custom"
+                    echoMode: TextInput.Password
+                    passwordCharacter: "█"
+                }
+                BasicControlText {
+                    Layout.fillWidth: true
+                    text: qsTr("真实值：%1").arg(tfPwdCustom.text)
+                    color: Style.placeholderText
+                    font.pixelSize: 11
+                }
+
+                EditableText {
+                    id: tfPwdReadOnly
+                    Layout.fillWidth: true
+                    text: "locked456"
+                    readOnly: true
+                    echoMode: TextInput.Password
+                }
+                BasicControlText {
+                    Layout.fillWidth: true
+                    text: qsTr("真实值：%1").arg(tfPwdReadOnly.text)
+                    color: Style.placeholderText
+                    font.pixelSize: 11
+                }
+
+                EditableText {
+                    id: tfPwdPlug
+                    Layout.fillWidth: true
+                    text: "user42"
+                    echoMode: TextInput.Password
+                    displayTextFromText: function (t) {
+                        return "ID-" + t; // 插拔派生（保存→展示）→ 密码化其后
+                    }
+                }
+                BasicControlText {
+                    Layout.fillWidth: true
+                    text: qsTr("真实值：%1").arg(tfPwdPlug.text)
+                    color: Style.placeholderText
+                    font.pixelSize: 11
+                }
+            }//contentItem
+
+            QoolTip {
+                text: qsTr("**echoMode** 密码回显：Password（掩码显示——编辑会话键入新字符短暂明文后掩码）、NoEcho（完全无回显——最高安全）、PasswordEchoOnEdit（编辑期间明文、平时掩码）。\npasswordCharacter 自定义掩码字符（默认透传平台主题，多字符取首字符）；readOnly + Password 只读同样掩码；displayTextFromText 插拔的派生结果同样被密码化（插拔点保留在密码化之前）。非 Normal 回显下 copy/cut 禁用（编辑层内建）。")
+            }
+        }
+
         ComboBox {
             id: box1
             model: listModel1

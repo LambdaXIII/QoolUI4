@@ -6,9 +6,9 @@
 
 ### 新增
 
+- QoolUIExample：EditableText 密码回显用例自 Playground 测试场迁入 Page_InputControls 正式展示页（单 QoolControl 分组——掩码 + 真实值对照，去除内部 displayText 派生展示；Password/NoEcho/PasswordEchoOnEdit/passwordCharacter/readOnly+Password/插拔后密码化六场景）；Playground 恢复测试场空壳
 - Qool.Controls.TextField → **Qool.Controls.EditableText 改名**（名字说真话：可编辑的 Text——非 TextField 兼容层，不承诺官方 API 面；QDoc 定位声明取代「契约差异」章节；BasicTextField 保留原名=真 TextField 基底；ComboBox/SpinBox 编辑域引用与注释、Page_InputControls 随改名更新）
 - Qool.Controls.EditableText 新增 echoMode 密码回显：echoMode（官方 4 枚举 Normal/Password/NoEcho/PasswordEchoOnEdit）+ passwordCharacter（默认透传平台主题、展示层为空时 fallback 固定字符——两处默认可能不一致需显式设置）+ passwordMaskDelay；displayText 密码化派生（作用于插拔 displayTextFromText 结果之后——插拔点保留）；编辑层转发三属性、copy/cut 禁用（TextInput 内建——非 Normal 回显下无效）；readOnly + echoMode 非编辑态同样掩码
-- QoolUIExample：Playground 测试场新增 echoMode 展示用例（Password/NoEcho/PasswordEchoOnEdit/passwordCharacter 自定义/readOnly+Password/displayTextFromText 插拔后密码化——测试用，不进入正式演示页）
 
 - Qool.PositionTracker（2D 位置追踪器）：追踪 target 局部点 point 的场景坐标/屏幕坐标——逐层监听 target 祖先链（坐标/缩放/旋转/变换原点/父级/窗口），任意层变化自动重算；**帧内合并**（几何信号只置脏、事件循环批次统一 flush——坐标变化通知按批次合并、延迟至多一帧）+ **值去重**（结果未变不发信号，阻断下游无意义传播）；target 缺省 = 声明父（构造快照，显式赋值含 null 自然覆盖，不持续跟随）；保底语义（target null 透传 point 原值、无窗口时 globalPos = scenePos、currentWindow 输出）；`update()` 强制重算（覆盖 transform 列表无信号盲区）
 - Qool.Floater：`noVisibleSync` / `noEnabledSync` 开关（默认 false——替身契约保持全量同步，使用方零影响；开启后契约放弃对应属性同步，content 回到 Qt 默认机制——可自行绑定/显式设置；代价为父级对 root 对应属性的操作不再传递到 content，契约缺口已文档化；仅这两个属性有开关——其余属性在 Qt 默认行为中本就独立，契约绑定即本体）
