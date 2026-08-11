@@ -1,6 +1,28 @@
 import QtQuick
 import Qool
 
+/*!
+    \qmltype RectResizer
+    \inqmlmodule Qool.Debug
+    \brief 六手柄尺寸调整框：拖动手柄调整宿主（父项）的几何。
+
+    调试用装饰控件：六个手柄（Floater content 渲染在 Overlay 层）围绕
+    宿主四周——左右手柄调宽、上下手柄调高、四角手柄双向调整（拖动直接
+    修改宿主的 x/y/width/height，属调试语义：赋值会破坏宿主既有尺寸
+    绑定，宿主自行决定是否可接受）。手柄位置由 Floater 内置
+    PositionTracker 自动跟随祖先链变化（平移/缩放/旋转），无需手动刷新。
+
+    \section1 使用
+
+    直接作为目标的子项声明（\c anchors.fill: parent 自动铺满）：
+
+    \qml
+    Dial { RectResizer {} }
+    \endqml
+
+    手柄外观经 \c color / \c spacing / \c handleWidth 配置。
+*/
+
 Item {
     id: root
 
@@ -10,30 +32,10 @@ Item {
 
     anchors.fill: parent
 
-    // 手柄（Floater content）渲染在 Overlay 层，位置由 Floater 的
-    // updatePos 计算——它只在"Floater 自身 x/y 变化"或"Floater 的父
-    // （本组件）x/y 变化"时自动触发。本组件经 anchors 跟随 root.parent
-    // 平移时相对坐标不变，自动触发链断开，手柄停留在原地（表现为
-    // "被调对象移动了但手柄框不动"）；缩放时因 Floater.x 绑定（依赖
-    // root.width）重求值而偶然刷新。故监听 root.parent 的几何变化
-    // 统一刷新全部手柄。
-    Connections {
-        target: root.parent
-        function onXChanged() { refreshHandles() }
-        function onYChanged() { refreshHandles() }
-        function onWidthChanged() { refreshHandles() }
-        function onHeightChanged() { refreshHandles() }
-    }
-
-    function refreshHandles() {
-        rightFloater.refresh()
-        leftFloater.refresh()
-        topFloater.refresh()
-        bottomFloater.refresh()
-        topLeftFloater.refresh()
-        bottomRightFloater.refresh()
-    }
-
+    // 手柄位置由 Floater 内置 PositionTracker 自动覆盖（逐层监听祖先链：
+    // 本组件经 anchors 跟随 root.parent 平移/缩放/旋转均触发重算）——
+    // 旧版手动监听 root.parent 几何变化 + refresh() 补偿已移除（集成后
+    // 冗余）。
     Floater {
         id: rightFloater
         content: DragMoveArea {
@@ -41,8 +43,6 @@ Item {
             // 与下方 onWannaMove 对 root.parent 的手动调整构成双重驱动
             // （句柄漂移）。句柄只应经 onWannaMove 生效，故显式关闭。
             autoBind: false
-            width: rightFloater.width
-            height: rightFloater.height
             cursorShape: Qt.SizeHorCursor
             Rectangle {
                 anchors.fill: parent
@@ -65,8 +65,6 @@ Item {
             // 与下方 onWannaMove 对 root.parent 的手动调整构成双重驱动
             // （句柄漂移）。句柄只应经 onWannaMove 生效，故显式关闭。
             autoBind: false
-            width: leftFloater.width
-            height: leftFloater.height
             cursorShape: Qt.SizeHorCursor
             Rectangle {
                 anchors.fill: parent
@@ -90,8 +88,6 @@ Item {
             // 与下方 onWannaMove 对 root.parent 的手动调整构成双重驱动
             // （句柄漂移）。句柄只应经 onWannaMove 生效，故显式关闭。
             autoBind: false
-            width: topFloater.width
-            height: topFloater.height
             cursorShape: Qt.SizeVerCursor
             Rectangle {
                 anchors.fill: parent
@@ -115,8 +111,6 @@ Item {
             // 与下方 onWannaMove 对 root.parent 的手动调整构成双重驱动
             // （句柄漂移）。句柄只应经 onWannaMove 生效，故显式关闭。
             autoBind: false
-            width: bottomFloater.width
-            height: bottomFloater.height
             cursorShape: Qt.SizeVerCursor
             Rectangle {
                 anchors.fill: parent
@@ -139,8 +133,6 @@ Item {
             // 与下方 onWannaMove 对 root.parent 的手动调整构成双重驱动
             // （句柄漂移）。句柄只应经 onWannaMove 生效，故显式关闭。
             autoBind: false
-            width: topLeftFloater.width
-            height: topLeftFloater.height
             cursorShape: Qt.SizeAllCursor
             Rectangle {
                 anchors.fill: parent
@@ -166,8 +158,6 @@ Item {
             // 与下方 onWannaMove 对 root.parent 的手动调整构成双重驱动
             // （句柄漂移）。句柄只应经 onWannaMove 生效，故显式关闭。
             autoBind: false
-            width: bottomRightFloater.width
-            height: bottomRightFloater.height
             cursorShape: Qt.SizeFDiagCursor
             Rectangle {
                 anchors.fill: parent
@@ -185,3 +175,18 @@ Item {
         y: root.height + root.spacing
     }
 }
+
+/*!
+    \qmlproperty color Qool::RectResizer::color
+    \brief 手柄颜色。默认取 Style.toolTipBase。
+*/
+
+/*!
+    \qmlproperty real Qool::RectResizer::spacing
+    \brief 手柄与宿主的间距（默认 20）。
+*/
+
+/*!
+    \qmlproperty real Qool::RectResizer::handleWidth
+    \brief 手柄厚度（默认 10）。
+*/

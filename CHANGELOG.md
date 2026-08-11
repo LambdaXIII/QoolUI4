@@ -12,12 +12,18 @@
 ### 修复
 
 - Qool.Floater 位置机制改造（PositionTracker 驱动）：三组 Connections（自身/直接父级/target 的坐标信号）替换为两个 PositionTracker（root 原点 + target）——**祖先链高层平移盲区消除**（旧机制只监听 root.parent 一层，祖父及以上平移不触发重算，需宿主手动 refresh 补偿——RectResizer 6 手柄即用此补偿）；坐标通道改用场景坐标（mapFromItem——不依赖窗口位置）；target 运行时切换经 tracker 绑定自动迁移；refresh() 保留并委托 tracker 强制重算；width/height 冗余监听随旧机制移除（位置计算不消费尺寸——mapToGlobal/mapFromItem 只依赖坐标与变换）
+- QoolDebug.RectResizer 冗余补偿清理：`Connections { target: root.parent }` 与 `refreshHandles()`（6 处 refresh 调用）移除——PositionTracker 祖先链逐层监听已覆盖（含增强：root.parent 缩放/旋转现自动跟随，旧实现不监听仅偶然刷新）；content 内 6 处 `width/height: xxxFloater.width/height` 死代码移除（替身契约 Binding 已接管尺寸）
+- Qool.Floater 自动位置更新失效修复：`Connections` 误用 `enabled: Component.completed`（Component 无 completed 属性，求值 undefined → 连接永久禁用，位置从不自动更新；此前被 RectResizer 手动补偿掩盖，清理补偿后暴露）——移除门控，tracker 首次 flush 经 singleShot(0) 落在事件循环批次、组件必已完成，初始位置由 onCompleted 兜底；同步修复 QoolDebug.ColorButton 同类误用（Binding `when: Component.completed` → 背景色从不跟随 value）
+- Qool.DragMoveArea 拖动增量基准修复：局部坐标（mouseX/mouseY）基准在本组件被外部移动时受污染（Floater 位置更新把 content 拉回新位置 → 增量 = 鼠标位移 − 组件位移，走-停-走反复跳动、不跟手——RectResizer 手柄拖动即此现象）——基准改场景坐标（mapToItem(null)——mapToScene 非 QML 方法，qmllint/运行时均不可用），增量与组件自身移动解耦；基准初始化从 onPressed 处理器移入 Connections（监听 pressedChanged）——使用处覆盖 onPressed（QoolWindowBG 的 startSystemMove，Windows 下失败走 fallback 增量路径）时基准仍建立，fallback 路径恢复可用
 
 ### 文档
 
 - Qool.PositionTracker 补 QDoc（\qmltype——链路监听/批次合并/值去重/透传语义/混合场景与 transform 列表边界；属性/信号/方法块入 qool.qdoc）
 - Qool.Floater 补 QDoc（\qmltype——替身契约、target 可配置、z 消歧、事件不代理、refresh 语义、可见性语义、双开关含契约缺口、content 替换善后声明、opacity 值同步中性假设）
 - Qool.ItemTracker 补实现注释与 QDoc（find_parent 语义、flow-on 捷径——监听自身 enabledChanged 即覆盖祖先链、window 为 null 时属性取默认 true）
+- Qool.DragMoveArea 补 QDoc（\qmltype——增量语义/场景坐标基准/系统拖动配合；target/autoBind/hovered 属性与 wannaMove 信号块）
+- QoolDebug.RectResizer、QoolDebug.ColorButton 补 QDoc（\qmltype + 属性/方法块——QoolDebug 模块首批类型文档）
+- qool.qdoc 补 ItemTracker 属性块（target/item/window/itemEnabled/windowActived）
 
 ## [4.0.0] — 2026-08-10
 

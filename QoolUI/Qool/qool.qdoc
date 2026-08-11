@@ -173,6 +173,31 @@
 */
 
 /*!
+    \qmlproperty QObject Qool::ItemTracker::target
+    \brief 追踪目标（任意 QObject，如控件内部对象）。缺省为声明父。
+*/
+
+/*!
+    \qmlproperty QQuickItem Qool::ItemTracker::item
+    \brief 目标所属的 item（只读，自动查找）。
+*/
+
+/*!
+    \qmlproperty QWindow Qool::ItemTracker::window
+    \brief 目标所属的窗口（只读，自动查找）。
+*/
+
+/*!
+    \qmlproperty bool Qool::ItemTracker::itemEnabled
+    \brief 目标的有效可用状态（只读，含祖先链——isEnabled 语义）。
+*/
+
+/*!
+    \qmlproperty bool Qool::ItemTracker::windowActived
+    \brief 窗口激活状态（只读）。target 未挂窗口时视为 true。
+*/
+
+/*!
     \qmlproperty real Qool::QoolBoxShapeControl::offsetX
     \brief 外轮廓水平位移；命中判定与外部控制点跟随此值。
 */

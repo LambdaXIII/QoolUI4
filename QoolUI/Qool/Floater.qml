@@ -109,16 +109,19 @@ Item {
     // 边界（与旧三组 Connections 行为一致，非回归）：target 自身
     // 变换（缩放/旋转围绕其原点）不改变 target 原点场景坐标——不触发
     // 重算；此时 content 位置由 refresh() 强制刷新兜底。
+    // 注意：Connections 默认启用（无需 enabled 门控）——tracker 首次
+    // flush 经 singleShot(0) 落在事件循环批次，此时组件必已完成；
+    // 组件完成前的初始位置由下方 Component.onCompleted 兜底。
+    // （曾有误用 enabled: Component.completed——Component 无 completed
+    // 属性，求值 undefined 导致 Connections 永久禁用、位置永不更新。）
     Connections {
         target: rootTracker
-        enabled: Component.completed
         function onScenePosChanged() {
             pCtrl.updatePos()
         }
     }
     Connections {
         target: targetTracker
-        enabled: Component.completed
         function onScenePosChanged() {
             pCtrl.updatePos()
         }
