@@ -2,6 +2,23 @@
 
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
+## [4.0.0] — 2026-08-11
+
+### 新增
+
+- Qool.PositionTracker（2D 位置追踪器）：追踪 target 局部点 point 的场景坐标/屏幕坐标——逐层监听 target 祖先链（坐标/缩放/旋转/变换原点/父级/窗口），任意层变化自动重算；**帧内合并**（几何信号只置脏、事件循环批次统一 flush——坐标变化通知按批次合并、延迟至多一帧）+ **值去重**（结果未变不发信号，阻断下游无意义传播）；target 缺省 = 声明父（构造快照，显式赋值含 null 自然覆盖，不持续跟随）；保底语义（target null 透传 point 原值、无窗口时 globalPos = scenePos、currentWindow 输出）；`update()` 强制重算（覆盖 transform 列表无信号盲区）
+- Qool.Floater：`noVisibleSync` / `noEnabledSync` 开关（默认 false——替身契约保持全量同步，使用方零影响；开启后契约放弃对应属性同步，content 回到 Qt 默认机制——可自行绑定/显式设置；代价为父级对 root 对应属性的操作不再传递到 content，契约缺口已文档化；仅这两个属性有开关——其余属性在 Qt 默认行为中本就独立，契约绑定即本体）
+
+### 修复
+
+- Qool.Floater 位置机制改造（PositionTracker 驱动）：三组 Connections（自身/直接父级/target 的坐标信号）替换为两个 PositionTracker（root 原点 + target）——**祖先链高层平移盲区消除**（旧机制只监听 root.parent 一层，祖父及以上平移不触发重算，需宿主手动 refresh 补偿——RectResizer 6 手柄即用此补偿）；坐标通道改用场景坐标（mapFromItem——不依赖窗口位置）；target 运行时切换经 tracker 绑定自动迁移；refresh() 保留并委托 tracker 强制重算；width/height 冗余监听随旧机制移除（位置计算不消费尺寸——mapToGlobal/mapFromItem 只依赖坐标与变换）
+
+### 文档
+
+- Qool.PositionTracker 补 QDoc（\qmltype——链路监听/批次合并/值去重/透传语义/混合场景与 transform 列表边界；属性/信号/方法块入 qool.qdoc）
+- Qool.Floater 补 QDoc（\qmltype——替身契约、target 可配置、z 消歧、事件不代理、refresh 语义、可见性语义、双开关含契约缺口、content 替换善后声明、opacity 值同步中性假设）
+- Qool.ItemTracker 补实现注释与 QDoc（find_parent 语义、flow-on 捷径——监听自身 enabledChanged 即覆盖祖先链、window 为 null 时属性取默认 true）
+
 ## [4.0.0] — 2026-08-10
 
 ### 新增

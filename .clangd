@@ -1,0 +1,8 @@
+# clangd 配置：Qt 6 在 Linux/GCC 下注入 -mno-direct-extern-access
+# （QT_FEATURE_no_direct_extern_access；Clang 编译时 Qt 注入等价的
+# -fno-direct-access-external-data）。clangd 的 clang 不识别 GCC 专属
+# 参数，报 drv_unknown_argument——移除。该参数仅影响代码生成的符号
+# 寻址方式，与语义分析无关，移除无损。
+CompileFlags:
+  Remove:
+    - -mno-direct-extern-access

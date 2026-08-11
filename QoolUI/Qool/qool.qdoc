@@ -13,7 +13,8 @@
     \li 窗口：\l QoolWindow、\l QoolWindowBasic（见 \l {qool-window-parts.html}
         {QoolWindow 配件哲学}）。
     \li 工具：\l CutSizeBinding、\l PositionLocker、\l TimerLatch、\l Floater、
-        \l Qore、\l QoolPalette、\l PixelFont 等。
+        \l PositionTracker、\l ItemTracker、\l Qore、\l QoolPalette、
+        \l PixelFont 等。
     \endlist
 
     \section1 QoolBox control 回退值机制
@@ -134,6 +135,41 @@
 /*!
     \qmlproperty QoolBoxSettings Qool::QoolBoxShapeControl::settings
     \brief 形状外观设置（裁剪尺寸、边框、填充、偏移），驱动全部控制点计算。
+*/
+
+/*!
+    \qmlproperty Item Qool::PositionTracker::target
+    \brief 追踪目标。缺省为声明父对象（构造时快照）；显式赋值（含 null）
+    覆盖默认，不持续跟随 parent。
+*/
+
+/*!
+    \qmlproperty point Qool::PositionTracker::point
+    \brief target 局部坐标系中的追踪点（默认原点）。可写可绑定。
+*/
+
+/*!
+    \qmlproperty point Qool::PositionTracker::scenePos
+    \brief 追踪点的场景坐标（只读，自动更新）。target 为 null 时透传
+    \c point 原值。
+*/
+
+/*!
+    \qmlproperty point Qool::PositionTracker::globalPos
+    \brief 追踪点的屏幕坐标（只读，自动更新）。target 无窗口时等于
+    \c scenePos；target 为 null 时透传 \c point 原值。
+*/
+
+/*!
+    \qmlproperty QQuickWindow Qool::PositionTracker::currentWindow
+    \brief 追踪点所在场景（只读）。target 未挂窗口时为 null。QWidget
+    混合场景（QQuickWidget）中为内部离屏渲染窗口，非显示容器。
+*/
+
+/*!
+    \qmlmethod void Qool::PositionTracker::update()
+    \brief 强制立即重算并通知。覆盖无信号可监听的盲区（如 transform
+    列表变化）。
 */
 
 /*!

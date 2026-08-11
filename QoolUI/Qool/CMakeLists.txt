@@ -37,6 +37,8 @@ qt_add_qml_module(
           utils/qool_numberranger.cpp
           utils/qool_itemtracker.h
           utils/qool_itemtracker.cpp
+          utils/qool_positiontracker.h
+          utils/qool_positiontracker.cpp
           shapecontrol/qool_shapecontrol.h
           shapecontrol/qool_shapecontrol.cpp
           shapecontrol/qool_qoolbox_settings.h
