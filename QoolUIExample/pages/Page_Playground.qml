@@ -5,10 +5,16 @@
 // Page_InputControls2；本页保留供后续调试使用）。
 import QtQuick
 import Qool
+import Qool.Controls
+import Qool.Debug
 
 BasicPage {
     id: root
 
     title: qsTr("测试场")
     note: qsTr("调试用例（当前为空）")
+
+    Dial{
+        RectResizer{}
+    }
 }
