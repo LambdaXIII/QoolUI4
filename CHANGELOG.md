@@ -2,6 +2,18 @@
 
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
+## [4.0.0] — 2026-08-12
+
+### 变更
+
+- Qool.Controls.Components.ScrollBar、Qool.Controls.Components.BasicScrollView → **移入 Qool.Controls 并改名**（BasicScrollView → **ScrollView**——滚动条/滚动视图为控件层成员、非基础原件，去 Basic 前缀；依赖方向符合 R4：Qool.Controls 由 Components 与 Qool 主题组合；滚动组件归位控件层，与 ScrollIndicator 同层）。EditableTextBox 依赖同步（ScrollView 同模块隐式可见；BasicTextArea 仍在 Components——`import Qool.Controls.Components` 保留）；FileInfoListControl、QoolUIExample 消费方 import 已覆盖（均有 `import Qool.Controls`），无需改
+
+### 修复
+
+- Qool.Controls.ScrollIndicator 补 `onVisualSizeChanged: latch.trigger()`（内容跨过/退出一屏、size 越过 1.0 时同样触发 1750ms 显现窗口——对齐 ScrollBar 的 onVisualSizeChanged 触发，2026-08-11 优化经验回流）
+- Qool.Controls.ScrollIndicator opacity 过渡 duration 改 `Style.transitionDuration`（较 ScrollBar 的 movementDuration 快——指示条为轻量辅助件，瞬时反馈应快于主滚动条的移动动画）
+- Qool.Controls.ScrollIndicator 指示条 radius 改 `Math.floor(Math.min(width, height) / 2)`（半圆头，对齐 ScrollBar/Qt 官方 Basic 样式——固定 2px 尺寸下与原先的 max 圆角视觉等价，但尺寸泛化（宿主自定义宽度）时 max 会超半高、端部形态依赖 Qt 对超半高 radius 的处理，/2 任意尺寸下均为标准半圆头）
+
 ## [4.0.0] — 2026-08-11
 
 ### 新增

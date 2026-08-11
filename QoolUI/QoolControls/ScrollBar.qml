@@ -49,7 +49,7 @@ T.ScrollBar {
 
     Binding {
         when: !root.horizontal
-        indicator.implicitWidth: 8
+        indicator.implicitWidth: 4
         indicator.implicitHeight: 100
         root.leftPadding: 2
         root.rightPadding: 2
@@ -57,7 +57,7 @@ T.ScrollBar {
     Binding {
         when: root.horizontal
         indicator.implicitWidth: 100
-        indicator.implicitHeight: 8
+        indicator.implicitHeight: 4
         root.topPadding: 2
         root.bottomPadding: 2
     }

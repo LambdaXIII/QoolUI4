@@ -1,13 +1,13 @@
 import QtQuick
 import QtQuick.Controls as QC
 
-// Qool.Controls.Components.BasicScrollView：Qool 系列滚动视图基底——官方
+// Qool.Controls.ScrollView：Qool 系列滚动视图（带 Qool 主题滚动条）——官方
 // 成品 ScrollView（QC 版）+ 预设 Qool 主题滚动条，宿主零配置获得 Qool 主题
 // 滚动（拖动/滚轮/主题外观）。
 //
 // 根 = QC.ScrollView（官方成品，非 T.ScrollView——实测 T 版不转发
 // position/size 给附加滚动条、无样式让位；QC 版转发/内容让位全免费，
-// 2026-08-11）。滚动条 = ScrollBar（同模块——Qool.Controls.Components，
+// 2026-08-11）。滚动条 = ScrollBar（同模块——Qool.Controls，
 // T.ScrollBar 子类基础原件），几何按官方 ScrollView 样式公式
 //（parent/x/y/availableHeight + active 双条联动——官方样式层公式上移为
 // 内置，跨 Basic/Windows 样式一致）。
@@ -17,21 +17,23 @@ import QtQuick.Controls as QC
 // 声明则 Basic 样式下滚动条遮内容、行为随宿主样式漂移。
 
 /*!
-    \qmltype BasicScrollView
-    \inqmlmodule Qool.Controls.Components
-    \inherits ScrollView
+    \qmltype ScrollView
+    \inqmlmodule Qool.Controls
+    \inherits QtQuick.Controls::ScrollView
 
-    \brief 带 Qool 主题滚动条的滚动视图基底——官方 ScrollView 成品
+    \brief 带 Qool 主题滚动条的滚动视图——官方 ScrollView 成品
     （Controls 版）+ 预设 Qool 主题滚动条。
 
-    BasicScrollView 是 Qool 系列滚动视图的基础件：官方 Qt Quick Controls
-    的 \l ScrollView 全部行为（内容尺寸自动接驳、背景不随内容滚动、自动
-    裁剪、滚动转发），加上预设的 Qool 主题滚动条（垂直/水平均为 Qool
-    ScrollBar——非 Qt 默认样式）——宿主零配置获得 Qool 主题滚动。
+    ScrollView 是 Qool 的滚动视图：官方 Qt Quick Controls
+    的 \l {QtQuick.Controls::ScrollView} 全部行为（内容尺寸自动接驳、背景
+    不随内容滚动、自动裁剪、滚动转发），加上预设的 Qool 主题滚动条
+    （垂直/水平均为 Qool ScrollBar——非 Qt 默认样式）——宿主零配置获得
+    Qool 主题滚动。
 
     \section1 接口兼容性
 
-    继承 Qt Quick Controls 的 \l ScrollView（其继承 Pane）——官方 API
+    继承 Qt Quick Controls 的 \l {QtQuick.Controls::ScrollView}（其继承
+    Pane）——官方 API
     全部可用（contentData / effectiveScrollBarWidth /
     effectiveScrollBarHeight 等），宿主可参照官方文档。本类型不改变官方
     行为，仅预设滚动条与内容让位，以下仅文档化 Qool 设置部分。

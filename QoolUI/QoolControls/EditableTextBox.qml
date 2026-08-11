@@ -2,15 +2,15 @@ import QtQuick
 import Qool.Controls.Components
 
 // Qool.Controls.EditableTextBox：Qool 系列文本组件多行成品——BasicTextArea
-// （Components 基底）+ 滚动（BasicScrollView 组合——官方成品 QC.ScrollView
+// （Components 基底）+ 滚动（ScrollView 组合——官方成品 QC.ScrollView
 // + 预设 Qool 主题滚动条）。
 //
-// 滚动：BasicScrollView（Qool.Controls.Components——官方 QC.ScrollView
+// 滚动：ScrollView（Qool.Controls——官方 QC.ScrollView
 // 根，实测裁定 2026-08-11：T.ScrollView 不转发 position/size 给附加滚动条、
 // 无样式让位，弃用）对 TextArea 的集成（内容尺寸自动/背景不滚/clip 自动）；
 // 滚动条 Qool 主题（垂直/水平均 ScrollBar——非 Qt 默认样式；水平
 // AsNeeded，默认 Wrap 下不出现）。滚动条几何公式与内容让位内置在
-// BasicScrollView（见其注释——2026-08-11 实测：ScrollView 附加机制只转发
+// ScrollView（见其注释——2026-08-11 实测：ScrollView 附加机制只转发
 // 不设几何，公式须由挂载处提供）。
 //
 // 文本 API 直通（property alias + 信号转发）：宿主只与本类型交互，内层文本
@@ -24,10 +24,10 @@ import Qool.Controls.Components
 /*!
     \qmltype EditableTextBox
     \inqmlmodule Qool.Controls
-    \inherits BasicScrollView
+    \inherits ScrollView
 
     \brief 多行文本输入框成品——BasicTextArea（Components 基底）+ 滚动
-    （BasicScrollView 组合）。
+    （ScrollView 组合）。
 
     EditableTextBox 是 Qool 系列文本组件的多行成品：开箱即用的多行文本
     输入框。宿主给定尺寸（width/height 或 anchors.fill）即可输入，内容超出
@@ -38,7 +38,7 @@ import Qool.Controls.Components
 
     \section1 接口兼容性
 
-    继承 \l BasicScrollView（其继承 Qt Quick Controls 的 \l ScrollView /
+    继承 \l ScrollView（其继承 Qt Quick Controls 的 \l {QtQuick.Controls::ScrollView} /
     Pane）——官方 API 全部可用（contentData / effectiveScrollBarWidth /
     effectiveScrollBarHeight 等），宿主可参照官方文档。本类型不改变官方
     行为，仅预设 Qool 主题滚动条与文本 API 转发，以下仅文档化 Qool 设置
@@ -82,9 +82,9 @@ import Qool.Controls.Components
 
     \section1 滚动
 
-    滚动条由 BasicScrollView 预设（Qool 主题——垂直/水平均为 Qool
+    滚动条由 ScrollView 预设（Qool 主题——垂直/水平均为 Qool
     ScrollBar；水平 AsNeeded——默认 Wrap 折行下不出现）。几何布局、内容
-    让位、策略控制见 \l BasicScrollView。内容尺寸随文本自动增长、背景装饰
+    让位、策略控制见 \l ScrollView。内容尺寸随文本自动增长、背景装饰
     不随内容滚动、自动裁剪——ScrollView 对 TextArea 的官方集成保证。
 
     \section1 行为与用法
@@ -103,7 +103,7 @@ import Qool.Controls.Components
     \endlist
 */
 
-BasicScrollView {
+ScrollView {
     id: root
 
     // 文本 API 直通（property alias——独立传递，内层对象不暴露）

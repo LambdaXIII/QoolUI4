@@ -29,6 +29,8 @@ qt_add_qml_module(QoolControls
     QML_FILES Dial.qml
     QML_FILES EditableText.qml
     QML_FILES EditableTextBox.qml
+    QML_FILES ScrollBar.qml
+    QML_FILES ScrollView.qml
 )
 
 
