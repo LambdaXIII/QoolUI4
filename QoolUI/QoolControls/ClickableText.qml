@@ -22,7 +22,7 @@ T.AbstractButton {
     contentItem: BasicButtonText {
         id: mainText
         font: root.font
-        text: root.text
+        text: checkable && checked ? root.checkedText : root.text
         color: {
             if (root.down)
                 return root.Style.highlight;
