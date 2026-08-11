@@ -1,4 +1,4 @@
-// 标准输入控件演示页：展示 Qool.Controls 重写的输入控件——TextField
+// 标准输入控件演示页：展示 Qool.Controls 重写的输入控件——EditableText
 // （双层编辑会话/validator 校验/插拔转换——示例源自 Playground 调试
 // 用例，置于页面最前）、ComboBox（标题、背景定制、QoolTip 说明）、
 // SpinBox（步进/可编辑/wrap/自定义格式——同组 SectionBar 分段）以及
@@ -49,12 +49,12 @@ BasicPage {
 
         spacing: 25
 
-        // —— TextField 系列（源自 Playground 调试用例）——
+        // —— EditableText 系列（源自 Playground 调试用例）——
         QoolControl {
             title: qsTr("试试输入你的名字")
             width: 200
             contentItem: ColumnLayout {
-                TextField {
+                EditableText {
                     id: nameInputField
                     text: qsTr("我的名字是小花")
                     font.pixelSize: Style.titleTextSize
@@ -82,11 +82,11 @@ BasicPage {
             }
 
             QoolTip {
-                text: qsTr("QoolUI提供了一个**高定**版本的TextField。基本用法和标准的类似，但是实现了更多可能性。")
+                text: qsTr("QoolUI提供了一个**高定**版本的EditableText。基本用法和标准的类似，但是实现了更多可能性。")
             }
         }
 
-        // —— TextField + validator 用例（DoubleValidator 0~100 两位小数）——
+        // —— EditableText + validator 用例（DoubleValidator 0~100 两位小数）——
         // 测试点：
         //   1. 点击进入编辑 → 编辑栏显示当前 text（= "12.5"）
         //   2. 输入合法值（如 33.33）Enter/失焦 → accepted + text 更新
@@ -99,7 +99,7 @@ BasicPage {
             width: 200
             contentItem: ColumnLayout {
                 spacing: 8
-                TextField {
+                EditableText {
                     Layout.fillWidth: true
                     text: "12.5"
                     validator: DoubleValidator {
@@ -114,7 +114,7 @@ BasicPage {
                     ToolTip.delay: 500
                 }
 
-                TextField {
+                EditableText {
                     Layout.fillWidth: true
                     text: "12"
                     validator: IntValidator {
@@ -128,7 +128,7 @@ BasicPage {
                     ToolTip.delay: 500
                 }
 
-                TextField {
+                EditableText {
                     Layout.fillWidth: true
                     text: "abc@company.com"
                     validator: RegularExpressionValidator {
@@ -161,7 +161,7 @@ BasicPage {
             title: qsTr("自定义输出格式")
             width: 200
             contentItem: ColumnLayout {
-                TextField {
+                EditableText {
                     id: displayOverrideField
                     Layout.fillWidth: true
                     Connections {
@@ -178,7 +178,7 @@ BasicPage {
                     }
                     font.pixelSize: Style.titleTextSize
                 }
-                TextField {
+                EditableText {
                     Layout.fillWidth: true
                     text: "188"
                     validator: DoubleValidator {
@@ -196,7 +196,7 @@ BasicPage {
                 }
             }//layout
             QoolTip {
-                text: qsTr("TextField可以使用*displayTextFromText*方法重新设定输出格式。*textFromEditText*可用于讲输入的内容转换为值。这两个方法是独立的，并不一定互为逆运算。\n本组示例中第一个是一个简单的示例，第二个是一个混合了两种函数并且增加了一个validator的示例。")
+                text: qsTr("EditableText可以使用*displayTextFromText*方法重新设定输出格式。*textFromEditText*可用于讲输入的内容转换为值。这两个方法是独立的，并不一定互为逆运算。\n本组示例中第一个是一个简单的示例，第二个是一个混合了两种函数并且增加了一个validator的示例。")
             }
         }
 
@@ -252,7 +252,7 @@ BasicPage {
             width: parent.width
         }
 
-        // —— SpinBox 系列（一组——编辑会话由 TextField 双层承担）——
+        // —— SpinBox 系列（一组——编辑会话由 EditableText 双层承担）——
         QoolControl {
             title: qsTr("整数步进")
             width: 200

@@ -3,7 +3,7 @@ import QtQuick.Templates as T
 import Qool.Controls.Components
 import Qool
 
-// Qool.Controls.TextField：Qool 系列文本组件主角——双层强化版（展示层 +
+// Qool.Controls.EditableText：Qool 系列文本组件主角——双层强化版（展示层 +
 // 编辑层 + 编辑模型）。系列可编辑控件（ComboBox/SpinBox，未来迁移）的
 // 编辑域统一消费本类型。
 //
@@ -24,7 +24,7 @@ import Qool
 //   同步 + 收尾显式恢复（不用 Binding 组件覆盖/恢复——其恢复时序
 //   （delayed + restoreMode）在编辑层卸载时不可靠——会话文本残留）。
 // - 编辑层**不挂 validator**：其 accepted/editingFinished 因此无条件发——
-//   结束尝试（Enter/失焦/Esc 全覆盖）100% 可识别，判定全部收拢 TextField
+//   结束尝试（Enter/失焦/Esc 全覆盖）100% 可识别，判定全部收拢本类型
 //   层（Qt validator 的 accepted 条件机制不介入——见下）。
 // - accepted/rejected 为 root **独立信号**（判定结果——非编辑层信号转发）：
 //   结束尝试 → 判定 judge.acceptableInput → 接受（text = textFromEditText
@@ -79,16 +79,20 @@ import Qool
 //   真窗口实测确认。
 
 /*!
-    \qmltype TextField
+    \qmltype EditableText
     \inqmlmodule Qool.Controls
     \inherits Control
 
-    \brief Qool 系列文本输入控件——双层强化版（展示层 + 编辑层 + 编辑模型）。
+    \brief 可编辑的 Text——Qool 双层强化版文本组件（展示层 + 编辑层 +
+    编辑模型）。
 
-    平时由展示组件（displayItem，默认 Text）常驻显示 text 的呈现形式
-    （displayText）；点击内容区或聚焦（Tab）后进入编辑会话——编辑层
-    （BasicTextField）覆盖编辑，结束后卸载恢复展示。编辑会话的文本与
-    校验归编辑模型（内部隐藏 TextInput），编辑层为无状态呈现。
+    \b 定位：EditableText 是一个\textbf{可编辑的 Text}，\b{不是} Qt
+    TextField 的替代实现——不承诺官方 TextField API 面。平时由展示组件
+    （displayItem，默认 Text）常驻显示 text 的呈现形式（displayText），
+    语义近似 Text（无点击聚焦、无编辑框方法）；点击内容区或聚焦（Tab）
+    后进入编辑会话——编辑层（BasicTextField）覆盖编辑，语义近似
+    TextInput 编辑，结束后卸载恢复展示。编辑会话的文本与校验归编辑模型
+    （内部隐藏 TextInput），编辑层为无状态呈现。
 
     本类型是系列可编辑控件（ComboBox/SpinBox 等）编辑域的消费基底。
 
@@ -104,7 +108,9 @@ import Qool
     平时经 displayTextFromText 派生展示。
 
     \qmlproperty string displayText
-    展示文本——只读派生，恒等于 displayTextFromText(text)。
+    展示文本——只读派生。Normal 回显下恒等于 displayTextFromText(text)；
+    Password/PasswordEchoOnEdit 下为密码化结果（作用于插拔派生之后，
+    逐字符替换为 passwordCharacter）；NoEcho 下为空串。见"密码回显"。
 
     \qmlproperty string editText
     编辑会话实时通道（别名编辑模型文本——单点事实源）。非编辑期跟随
@@ -150,6 +156,27 @@ import Qool
     \qmlproperty bool selectByMouse
     鼠标选择开关——转发编辑层（官方 API 对齐）。默认 true（编辑会话
     中允许鼠标选择——selectAll 后键入覆盖的会话惯例）；外部可关闭。
+
+    \qmlproperty int echoMode
+    密码回显模式（转发编辑层——官方 TextInput API 对齐）：\c TextInput.Normal
+    （默认，原文显示）/ \c TextInput.Password（掩码显示——键入新字符短暂
+    明文，见 passwordMaskDelay）/ \c TextInput.NoEcho（不显示任何内容）/
+    \c TextInput.PasswordEchoOnEdit（编辑期间明文、平时掩码）。非 Normal
+    模式下 copy/cut 被禁用（编辑层内建——官方，防绕过密码特性）。见
+    "密码回显"。
+
+    \qmlproperty string passwordCharacter
+    密码掩码字符（转发编辑层——官方 API 对齐）：Password/PasswordEchoOnEdit
+    下掩码显示的字符。默认空串 = 透传平台主题字符（编辑层自动取平台
+    字符）；\b 注意：非编辑态展示层（displayItem 掩码派生）在空串时
+    fallback 固定字符"•"——两处默认可能不一致（编辑态平台字符 vs 非编辑
+    态"•"），需两处一致时显式设置本属性。多字符取首字符；空串编辑层
+    忽略（用平台默认）。
+
+    \qmlproperty int passwordMaskDelay
+    密码掩码延迟（转发编辑层——官方 API 对齐）：Password 模式键入新字符
+    在掩码前明文显示的毫秒数。默认未设置（转发编辑层时保持其平台默认
+    ——官方默认 600ms）——编辑态短暂明文确认键入。
 
     \qmlproperty Item displayItem
     展示组件（内容主体——Item 实例，几何自管）。默认 Text（绑定
@@ -204,18 +231,49 @@ import Qool
     判定不依赖编辑层生命周期（编辑模型常驻——程序化结束/编辑层已卸载
     亦可判定）。
 
-    \section1 契约差异（与 Qt 官方 TextField 对照）
+    \section1 与 Qt TextField 的关系
+
+    EditableText \b{不是} Qt TextField 的替代实现——不承诺官方 TextField
+    API 面，宿主不应按官方 TextField 文档使用。它是 Qool 自己的可编辑
+    Text 概念：
 
     \list
-    \li 双层结构：官方单层常驻输入（displayText 与编辑同一文本对象）；
-        本类型展示/编辑分离、displayText 只读派生、编辑会话状态机。
-    \li editing / editingStarted() / editingFinished() / accepted() /
-        rejected() 为 Qool 扩展（官方无编辑会话开关与对应信号；官方
-        accepted 仅在 Enter 且可接受时发——本类型 accepted 为结束尝试
-        判定结果，来源语义不同）。
+    \li 双层结构：展示层（displayItem，Text 语义）与编辑会话（BasicTextField
+        覆盖编辑，TextInput 语义）分离；displayText 只读派生。
+    \li 编辑会话状态机：editing / editingStarted() / editingFinished() /
+        accepted() / rejected() 为 Qool 扩展——官方无编辑会话开关与
+        对应信号（官方 accepted 仅在 Enter 且可接受时发；本类型 accepted
+        为结束尝试判定结果，来源语义不同）。
     \li 裸控件：无壳层视觉（背景盒/标题/壳层 covers）——由宿主包装
         QoolControl 等提供（与 SpinBox 同定位）。
     \endlist
+
+    \section1 密码回显
+
+    设置 \c echoMode 为 \c TextInput.Password / \c TextInput.PasswordEchoOnEdit
+    启用密码输入。掩码在两层生效：
+
+    \list
+    \li 展示层（非编辑态）：\c displayText 密码化派生——对
+        displayTextFromText(text) 的结果逐字符替换为 \c passwordCharacter
+        （空串时 fallback 固定字符"•"）。插拔点保留——密码化在其后。
+    \li 编辑层（编辑会话）：真 TextInput 承担——\c Password 键入新字符
+        短暂明文（\c passwordMaskDelay）后掩码；\c PasswordEchoOnEdit
+        编辑期间明文、失去焦点后掩码。
+    \endlist
+
+    \b copy/cut 禁用：非 Normal 回显模式下，编辑层内建禁用 copy/cut
+    （官方——防止以复制绕过密码特性）。
+
+    \b passwordCharacter 默认：空串 = 透传平台主题字符。编辑层取平台
+    字符；展示层 fallback"•"——两处默认可能不一致，需一致时显式设置
+    \c passwordCharacter。
+
+    \b readOnly + echoMode：非编辑态只读展示同样按掩码派生（展示层统一
+    处理）——只读密码字段同样隐藏明文。
+
+    \b NoEcho：displayText 为空串（完全不显示），最高安全——不可见
+    输入内容，仅适用于确定不需确认输入的纯隐藏场景。
 */
 
 T.Control {
@@ -229,8 +287,45 @@ T.Control {
        平时经 displayTextFromText 派生展示。 */
     property string text
 
-    /* 展示文本：只读派生（插拔点 displayTextFromText）。 */
-    readonly property string displayText: displayTextFromText(root.text)
+    /* 展示文本：只读派生（插拔点 displayTextFromText；密码回显按 echoMode
+       掩码化）。绑定块内直接引用 passwordCharacter/echoMode——建立依赖
+       跟踪（函数体内引用不建立——必须写在绑定表达式块内）。派生规则：
+       Normal → displayTextFromText(text)；NoEcho → 空串；
+       Password/PasswordEchoOnEdit → 密码化 displayTextFromText(text) 结果
+       （逐字符替换为 passwordCharacter；空时 fallback "•"）。密码化作用于
+       插拔派生结果之后——插拔点保留（自定义保存→展示转换仍生效）。 */
+    readonly property string displayText: {
+        let base = displayTextFromText(root.text);
+        if (root.echoMode === TextInput.Normal)
+            return base;
+        if (root.echoMode === TextInput.NoEcho)
+            return "";
+        // Password / PasswordEchoOnEdit：密码化派生结果（每源字符一个掩码
+        // 字符——取 passwordCharacter 首字符，对齐 Qt 编辑层 TextInput
+        // 语义"多字符取首字符"；空时 fallback "•"）
+        let bullet = root.passwordCharacter.length > 0 ? root.passwordCharacter[0] : "•";
+        return bullet.repeat(base.length);
+    }
+
+    /* 密码回显模式（转发编辑层——官方 TextInput API 对齐）：Normal（默认，
+       原文显示）/ Password（掩码显示——键入新字符短暂明文见
+       passwordMaskDelay）/ NoEcho（不显示任何内容）/ PasswordEchoOnEdit
+       （编辑期间明文、平时掩码）。非 Normal 模式下编辑层内建禁用 copy/cut
+       （官方——防绕过密码特性）。 */
+    property int echoMode: TextInput.Normal
+
+    /* 密码字符（转发编辑层——官方 API 对齐）：Password/PasswordEchoOnEdit
+       掩码显示的字符。默认空串 = 透传平台主题字符（编辑层自动取平台字符）；
+       展示层（displayItem 非编辑态掩码派生）在空串时 fallback 固定字符
+       "•"——两处默认可能不一致（编辑态平台字符 vs 非编辑态"•"），需一致时
+       显式设置本属性。多字符取首字符；空串编辑层忽略（用平台默认）。 */
+    property string passwordCharacter
+
+    /* 密码掩码延迟（转发编辑层——官方 API 对齐）：Password 模式键入新字符
+       在掩码前明文显示的毫秒数。默认未设置（undefined）——转发编辑层时
+       reset 到其平台默认（官方 TextInput 默认 600ms，官方文档未明写——
+       实测确认）：编辑态短暂明文确认键入。 */
+    property var passwordMaskDelay
 
     /* 编辑会话实时通道（alias judge.text——编辑模型单点）：非编辑期跟随
        text（judge 手动同步——见 pCtrl Connections）；编辑期与编辑层双向
@@ -530,6 +625,13 @@ T.Control {
                 inputMask: root.inputMask
                 inputMethodHints: root.inputMethodHints
                 wrapMode: root.wrapMode
+                // 密码回显转发（官方 API 对齐）：编辑层真 TextInput 承担
+                // 密码显示/短暂明文/copy-cut 禁用（非 Normal 回显下内建
+                // 失效——官方防绕过）；passwordMaskDelay 为 undefined 时
+                // 编辑层 reset 到平台默认（透传）
+                echoMode: root.echoMode
+                passwordCharacter: root.passwordCharacter
+                passwordMaskDelay: root.passwordMaskDelay
 
                 // 输入 → judge.text 回写（编辑模型单点——用户输入即回写；
                 // 不用 Binding 组件：其恢复机制（restoreMode + delayed）在
@@ -543,7 +645,7 @@ T.Control {
                 }
 
                 // 结束尝试（唯一入口）：本层不挂 validator → editingFinished
-                // 无条件发（Enter/失焦/Esc 全覆盖）——判定收尾在 TextField 层
+                // 无条件发（Enter/失焦/Esc 全覆盖）——判定收尾在本类型层
                 // （wanna_stop_editing——judge 判定）。不用 onAccepted：accepted
                 // 是"接受"信号（结果），不是"结束输入"信号（起点）。
                 onEditingFinished: pCtrl.wanna_stop_editing()

@@ -14,24 +14,24 @@ import Qool
 // 设计时再定）。本控件只负责数值步进本身：文本、指示器、编辑、步进反馈
 // （指示器状态色与按需淡入；壳层 covers 三件套不提供，属包装控件）。
 //
-// 编辑域（2026-08-10 迁移）：内容区常驻 Qool TextField（双层强化版——展示层
+// 编辑域（2026-08-10 迁移）：内容区常驻 Qool EditableText（双层强化版——展示层
 // + 编辑会话自管）。本控件只做 value ↔ text 映射与信号转发（pCtrl）：
 // - 显示：value → textFromValue 格式化喂入 textField.text（命令式同步——
-//   用户裁定不采用属性绑定：TextField 收尾内部写回 text 会打断外部绑定）。
+//   用户裁定不采用属性绑定：EditableText 收尾内部写回 text 会打断外部绑定）。
 // - 编辑接受：textField.accepted → 读收尾后的 text → valueFromText 映射 →
 //   value（值变补 valueModified）→ 透传 root.accepted()；映射失败（非有限数）
 //   不写 value——按拒绝回退（现状契约：不写脏数据）。
 // - 编辑拒绝：textField.rejected → 透传 root.rejected()（value 不变、
 //   textField.text 未写回——显示自然回退）。
 // - 编辑中按指示器：textField.editing = false（同步收尾）→ 模板步进。
-// - editable 中途关闭：TextField 自管（readOnly → 统一收尾判定）——零代码。
+// - editable 中途关闭：EditableText 自管（readOnly → 统一收尾判定）——零代码。
 //
 // 契约差异（与 Qt 官方默认实现对照）：
 // - inputMethodHints 官方默认 ImhDigitsOnly（虚拟键盘上不允许小数点/负号），
 //   Qool 改为 Qt.ImhFormattedNumbersOnly，支持小数与负号输入。
 // - 编辑提交/回退：官方失焦时把文本直接解析并夹紧写入 value（无效文本会被
 //   解析为 0 之类）；本实现校验不通过（acceptableInput=false）或解析失败
-//   （非有限数）时回退原值，不写脏数据（判定在编辑域 TextField 层——
+//   （非有限数）时回退原值，不写脏数据（判定在编辑域 EditableText 层——
 //   accepted/rejected 信号透出，宿主可感知）。
 // - 编辑中滚轮：官方模板无编辑态守卫，且文本域不消费滚轮事件（冒泡到控件），
 //   编辑态滚轮照样步进（value 步进 + valueModified）——但提交按编辑会话
@@ -84,7 +84,7 @@ import Qool
 
     \section1 编辑
 
-    编辑会话由内部 TextField（双层强化版）承担：点击/聚焦进入编辑，
+    编辑会话由内部 EditableText（双层强化版）承担：点击/聚焦进入编辑，
     Enter/失焦/Esc 结束并判定。输入通过校验（validator）且解析为有限数
     → 接受（\c value 更新 + \c accepted()）；否则拒绝（\c value 不变 +
     \c rejected()）——\b 契约差异：官方实现把无效文本解析为 0 之类并
@@ -119,17 +119,17 @@ T.DoubleSpinBox {
        即断开绑定（QML 普通可写属性语义），用于"显示值独立于内部值"的场景。 */
     property var currentValue: root.value
 
-    /* 三钩子之二：显示文本（无属性——经编辑域 TextField 的 text 喂入消费：
+    /* 三钩子之二：显示文本（无属性——经编辑域 EditableText 的 text 喂入消费：
        显示 = value → textFromValue 格式化（pCtrl 命令式同步）。宿主自定义
        显示经覆写官方 textFromValue/valueFromText 配对（派生类——官方机制）
        实现——不再需要实例级覆写通道属性（旧 displayTextOverride 已移除）。 */
 
     /* Qool 扩展：编辑中文本回写口（与 ComboBox.editText 同风格——编辑域
-       为 TextField 实例，tf.editText 变化命令式同步至此——单向 tf → root）。
+       为 EditableText 实例，tf.editText 变化命令式同步至此——单向 tf → root）。
        模板无 editText 属性；供宿主观察编辑过程。 */
     property string editText
 
-    /* Qool 扩展：编辑结束尝试的判定结果透传（编辑域 TextField 的判定——
+    /* Qool 扩展：编辑结束尝试的判定结果透传（编辑域 EditableText 的判定——
        accepted：输入通过校验且被解析为有限数（value 已更新，宿主读 value
        可靠）；rejected：校验不通过或解析失败（value 不变）。官方
        T.DoubleSpinBox 无此信号——须显式声明（pCtrl Connections 调用）。 */
@@ -176,7 +176,7 @@ T.DoubleSpinBox {
     }
 
     /* 逻辑对象：value ↔ text 映射与编辑结果处理（SmartObject——仓库逻辑
-       容器惯例；QtObject 无法承载独立对象）。编辑会话状态机由 TextField
+       容器惯例；QtObject 无法承载独立对象）。编辑会话状态机由 EditableText
        承担（双层自管）——本对象只做映射与信号转发。 */
     SmartObject {
         id: pCtrl
@@ -184,7 +184,7 @@ T.DoubleSpinBox {
         Connections {
             target: root
             // 步进/程序化 value 变化 → 显示喂入（textFromValue 官方格式化；
-            // 命令式——用户裁定不采用属性绑定：TextField 收尾内部写回 text
+            // 命令式——用户裁定不采用属性绑定：EditableText 收尾内部写回 text
             // 会打断外部绑定——见文件头）
             function onValueChanged() {
                 textField.text = root.textFromValue(root.value, root.locale, root.decimals);
@@ -198,7 +198,7 @@ T.DoubleSpinBox {
             function onEditTextChanged() {
                 root.editText = textField.editText;
             }
-            // 编辑接受：读收尾后的 text（= textFromEditText(judge.text)——TextField
+            // 编辑接受：读收尾后的 text（= textFromEditText(judge.text)——EditableText
             // 内部默认恒等转换；消费者是实例化非继承，不覆写该插拔点）→
             // valueFromText 映射 → 写 value（值实际变化时补发 valueModified
             // ——官方语义）→ 显示拉回（值未变时 valueChanged 不触发——此处
@@ -226,11 +226,11 @@ T.DoubleSpinBox {
         }
     }//pCtrl
 
-    // editable 中途关闭：编辑域 TextField 自管（readOnly 变 true → 统一
+    // editable 中途关闭：编辑域 EditableText 自管（readOnly 变 true → 统一
     // 收尾判定）——本控件零代码
 
     /* 编辑中按下指示器：先结束编辑（textField.editing = false——同步触发
-       TextField 统一收尾：判定提交/拒绝）再由模板的按下重复逻辑步进
+       EditableText 统一收尾：判定提交/拒绝）再由模板的按下重复逻辑步进
        （长按 300ms 后每 100ms 步进；快速点击在释放时步进一次）——
        "结束编辑并步进"，提交 + 步进顺序保证不丢输入。键盘 ↑/↓ 在编辑态
        由文本域处理，不会走到这里（模板 handleKeyPressEvent 设置 pressed
@@ -300,13 +300,13 @@ T.DoubleSpinBox {
         implicitWidth: textField.implicitWidth
         implicitHeight: textField.implicitHeight
 
-        // 编辑域：常驻 TextField（双层——展示层 + 编辑会话自管）。editable
+        // 编辑域：常驻 EditableText（双层——展示层 + 编辑会话自管）。editable
         // 经 readOnly 控制（绑定）：非可编辑只读展示（点击空转——指示器
-        // 步进照常）；可编辑点击/聚焦进会话（TextField 自带 TapHandler/
+        // 步进照常）；可编辑点击/聚焦进会话（EditableText 自带 TapHandler/
         // activeFocusOnTab）。显示文本由 pCtrl 命令式喂入（value →
         // textFromValue）——见 pCtrl Connections。padding 由控件级
         // leftPadding/rightPadding 避让指示器（内容区已在 padding 内）。
-        Q.TextField {
+        Q.EditableText {
             id: textField
             anchors.fill: parent
 
@@ -325,8 +325,8 @@ T.DoubleSpinBox {
         Component.onCompleted: textField.text = root.textFromValue(root.value, root.locale, root.decimals)
         // 焦点进入兜底：模板在 editable 时于 focusIn 强制焦点到 contentItem
         // （且对 contentItem 设置 activeFocusOnTab）——Tab/键盘聚焦路径落
-        // 在此 Item 上——转发进编辑会话（TextField 的 editing 开关——装配
-        // 由 onEditingChanged 启动）。TextField 自身的 activeFocusOnTab/
+        // 在此 Item 上——转发进编辑会话（EditableText 的 editing 开关——装配
+        // 由 onEditingChanged 启动）。EditableText 自身的 activeFocusOnTab/
         // 点击路径自管——双路径都进会话（对齐官方：聚焦即编辑）。
         onActiveFocusChanged: if (root.editable && !textField.editing && activeFocus)
             textField.editing = true

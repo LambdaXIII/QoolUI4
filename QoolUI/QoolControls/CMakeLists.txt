@@ -28,7 +28,7 @@ qt_add_qml_module(QoolControls
     QML_FILES Slider.qml
     QML_FILES VerticalSlider.qml
     QML_FILES Dial.qml
-    QML_FILES TextField.qml
+    QML_FILES EditableText.qml
 )
 
 

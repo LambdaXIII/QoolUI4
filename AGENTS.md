@@ -214,23 +214,23 @@ QAbstractItemModel 子类**遵循 Qt 官方线程规范：不加锁**（QAbstrac
 ### 信号命名
 信号是**瞬时状态变化的宣告**（过去式语义 `somethingHappened`——事件已发生），
 不是"更新动作"的命名：
-- **属性变更**：`xxxChanged`（宏生成——属性宏体系固定
+- **属性变更（无参）**：`xxxChanged`（宏生成——属性宏体系固定
   `Q_SIGNAL void _N_##Changed()` + setter 相等守卫）。**Changed 语义 =
   值实际变化才发出**（普通宏 setter 显式守卫；bindable 宏由
   `QObjectBindableProperty::operator=` 内置相等守卫保证——setter 不写
   守卫是刻意的，勿补勿删；NOTIFY 语义）
-- **更新动作事件**：`xxxUpdated`——**更新/重新设定动作完成即发出，不保证
-  值变化**（无相等守卫，手写信号）。与 Changed 互补：Changed 守卫"值变"、
-  Updated 宣告"动作发生"。典型用例：currentRowUpdated（currentIndex 被
-  重新设定但行可能未变，值相同也须通知）。**判断原则：值变才发 → Changed；
-  动作即发（值可能不变）→ Updated**
-- **带数据参数的属性变化通知**（单属性变化通知语境）：携带**新旧值数据**
-  参数时用 `xxxUpdated` 后缀（如 `valueUpdated(newValue, oldValue)`——新值
-  在前：Qt 惯例 + 单参 handler 自动降级为新值、旧值丢弃）；`xxxChanged`
-  保留给宏生成的无参通知（值从属性读）。携带**定位/标识参数**（非新旧值）
-  的变化通知不受此条约束（实例：`Style.valueChanged(group, key)`、
-  `ColorBank.colorChanged(index)`——参数标识"哪个属性/哪个槽位"，维持
-  Changed 命名，既有 API 不追溯）
+- **属性变更（带参）**：`xxxUpdated`（如 `valueUpdated(newValue, oldValue)`）
+  ——**与 `xxxChanged` 同为属性变化信号，触发条件相同（值实际变化才发），
+  区别仅为参数**：Updated 携带新旧值数据（新值在前：Qt 惯例 + 单参
+  handler 自动降级为新值、旧值丢弃）；Changed 无参（值从属性读）。携带
+  **定位/标识参数**（非新旧值）的变化通知不受此条约束（实例：
+  `Style.valueChanged(group, key)`、`ColorBank.colorChanged(index)`——参数
+  标识"哪个属性/哪个槽位"，维持 Changed 命名，既有 API 不追溯）
+- **动作完成宣告**（非属性变化语义）：`xxxUpdated`——宣告"更新/重新设定
+  动作完成"，**不承诺值变化**（值变化不是守卫条件——允许值未变时发出），
+  但**非每次动作必发**——是否发出由动作语义决定，无宣告意义的动作不
+  重发。典型用例：currentRowUpdated（currentIndex 被重新设定但行可能未变，
+  值相同也须通知——"重新设定"动作本身有宣告意义）
 - **瞬时事件**（非属性信号）：过去式短语，如 `beeperSignedIn`、`messageRecieved`
 - **动作/请求**：`wannaXxx`（如 `wannaSignIn`、`wannaMove`）——意图/请求信号，
   与执行槽成对构成实时接口：`wannaChangeX`（请求）→ `changeX`（执行槽）→

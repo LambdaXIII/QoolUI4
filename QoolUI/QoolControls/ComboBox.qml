@@ -67,9 +67,9 @@ import Qool
     model 不变），宿主可提示用户。
 
     \section1 可编辑模式（editable）
-    \c editable 为 \c true 时，控件以 Qool TextField（双层强化版——展示层
+    \c editable 为 \c true 时，控件以 Qool EditableText（双层强化版——展示层
     + 编辑会话）呈现文本，并支持文本选择（\c selectTextByMouse）等文本域
-    能力；编辑域状态机由 TextField 承担（统一收尾/判定信号）。
+    能力；编辑域状态机由 EditableText 承担（统一收尾/判定信号）。
 
     输入内容的处理路径：设置 \c validator 对输入校验——编辑结束尝试
     （Enter/失焦/Esc）时判定：输入可接受（\c acceptableInput）→ 发出
@@ -89,7 +89,7 @@ import Qool
     控件样式；宿主可替换 \c delegate 自定义列表项外观。
 */
 
-// 撤销编辑（Esc/校验失败）：由编辑域 TextField 的统一收尾承担——拒绝
+// 撤销编辑（Esc/校验失败）：由编辑域 EditableText 的统一收尾承担——拒绝
 // 判定（rejected）时文本保持原值（model 不变）——见 QDoc「可编辑模式」。
 
 T.ComboBox {
@@ -119,7 +119,7 @@ T.ComboBox {
         curved: true
     }
 
-    /* Qool 扩展：编辑会话拒绝判定透传（TextField.rejected → 本信号）。
+    /* Qool 扩展：编辑会话拒绝判定透传（EditableText.rejected → 本信号）。
        编辑输入未通过校验时发出（文本保持原值——model 不变）——宿主可
        提示用户。官方 ComboBox 无此信号。 */
     signal rejected
@@ -136,7 +136,7 @@ T.ComboBox {
         implicitHeight: 35
         implicitWidth: 100
         // 编辑会话中（textField.editing——双层编辑域常驻，会话状态由
-        // TextField 自管）背景不透明（编辑层浮于背景之上）
+        // EditableText 自管）背景不透明（编辑层浮于背景之上）
         opacity: (root.flat && !root.hovered && !root.popup.visible && !textField.editing) ? 0 : 1
         BasicNumberBehavior on opacity {}
     }
@@ -178,12 +178,12 @@ T.ComboBox {
         implicitHeight: textField.implicitHeight
         readonly property real indicatorPadding: root.indicator.width + root.spacing
 
-        // 编辑域：常驻 TextField（双层——展示层 + 编辑会话自管——编辑域
-        // 状态机由 TextField 承担，本控件只做值映射与信号转发）。editable
+        // 编辑域：常驻 EditableText（双层——展示层 + 编辑会话自管——编辑域
+        // 状态机由 EditableText 承担，本控件只做值映射与信号转发）。editable
         // 经 readOnly 控制（绑定）：非可编辑只读展示（点击穿透模板按钮
         // 行为开 popup）；可编辑点击进会话。显示文本以 model（currentText）
         // 为准——见下命令式同步。
-        Q.TextField {
+        Q.EditableText {
             id: textField
             anchors.fill: parent
 
@@ -201,7 +201,7 @@ T.ComboBox {
             rightPadding: root.mirrored ? 0 : contentContainer.indicatorPadding
         }
 
-        // 命令式同步（用户裁定——不采用属性绑定：TextField 收尾内部写回
+        // 命令式同步（用户裁定——不采用属性绑定：EditableText 收尾内部写回
         // text 会打断外部属性绑定（QML 机制——任何赋值断绑定）且不可预期；
         // 命令式 Connections 同步显式、不受内部写回影响）。编辑接受后显示
         // 短暂为编辑文本——宿主处理模型（find/加入/强制 currentText）后
