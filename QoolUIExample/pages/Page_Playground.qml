@@ -2,8 +2,9 @@
 // 可随意更改，不保留旧内容）。
 //
 // 当前内容：EditableText 密码回显（echoMode）调试用例（2026-08-11，
-// spec .scratch/editabletext——T2 验证项 2）。每个用例旁显示实时
-// displayText 以验证掩码派生结果。
+// spec .scratch/editabletext——T2 验证项 2）。每个用例旁显示
+// displayText（掩码结果）与 text（真实值）对照，以验证掩码派生。
+// 掩码展示必须配真实值对照——否则看不到掩码前后差异、起不到展示作用。
 import QtQuick
 import QtQuick.Layouts
 import Qool
@@ -43,6 +44,12 @@ BasicPage {
                     color: Style.placeholderText
                     font.pixelSize: 11
                 }
+                Text {
+                    Layout.fillWidth: true
+                    text: qsTr("text（真实值）：%1").arg(tfPassword.text)
+                    color: Style.placeholderText
+                    font.pixelSize: 11
+                }
             }
         }
 
@@ -63,6 +70,12 @@ BasicPage {
                     color: Style.placeholderText
                     font.pixelSize: 11
                 }
+                Text {
+                    Layout.fillWidth: true
+                    text: qsTr("text（真实值）：%1").arg(tfNoEcho.text)
+                    color: Style.placeholderText
+                    font.pixelSize: 11
+                }
             }
         }
 
@@ -80,6 +93,12 @@ BasicPage {
                 Text {
                     Layout.fillWidth: true
                     text: qsTr("displayText：%1").arg(tfEchoOnEdit.displayText)
+                    color: Style.placeholderText
+                    font.pixelSize: 11
+                }
+                Text {
+                    Layout.fillWidth: true
+                    text: qsTr("text（真实值）：%1").arg(tfEchoOnEdit.text)
                     color: Style.placeholderText
                     font.pixelSize: 11
                 }
@@ -104,6 +123,12 @@ BasicPage {
                     color: Style.placeholderText
                     font.pixelSize: 11
                 }
+                Text {
+                    Layout.fillWidth: true
+                    text: qsTr("text（真实值）：%1").arg(tfCustomChar.text)
+                    color: Style.placeholderText
+                    font.pixelSize: 11
+                }
             }
         }
 
@@ -122,6 +147,12 @@ BasicPage {
                 Text {
                     Layout.fillWidth: true
                     text: qsTr("displayText：%1").arg(tfReadOnly.displayText)
+                    color: Style.placeholderText
+                    font.pixelSize: 11
+                }
+                Text {
+                    Layout.fillWidth: true
+                    text: qsTr("text（真实值）：%1").arg(tfReadOnly.text)
                     color: Style.placeholderText
                     font.pixelSize: 11
                 }
@@ -148,6 +179,12 @@ BasicPage {
                     text: qsTr("displayText（%1 字符）：%2")
                         .arg(tfPlug.displayText.length)
                         .arg(tfPlug.displayText)
+                    color: Style.placeholderText
+                    font.pixelSize: 11
+                }
+                Text {
+                    Layout.fillWidth: true
+                    text: qsTr("text（真实值）：%1").arg(tfPlug.text)
                     color: Style.placeholderText
                     font.pixelSize: 11
                 }
