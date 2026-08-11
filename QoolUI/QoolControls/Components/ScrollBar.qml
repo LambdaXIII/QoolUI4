@@ -17,6 +17,11 @@ T.ScrollBar {
 
     minimumSize: 0.1
 
+    // 可见性按策略（官方 Basic 样式同款）：AlwaysOff 时完全隐藏——挂
+    // Flickable/ScrollView 时影响 effectiveScrollBarWidth/Height 计算
+    //（内容区是否让位）；2026-08-11 规范对齐
+    visible: policy !== ScrollBar.AlwaysOff
+
     TimerLatch {
         id: latch
         interval: 1750

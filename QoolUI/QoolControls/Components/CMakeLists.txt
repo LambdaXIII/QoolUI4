@@ -36,6 +36,8 @@ qt_add_qml_module(QoolControlsComponents
     QML_FILES BasicControlText.qml
     QML_FILES BasicArrow.qml
     QML_FILES BasicTextArea.qml
+    QML_FILES ScrollBar.qml
+    QML_FILES BasicScrollView.qml
     # QML_FILES VerticalScroller.qml
 
 )
