@@ -23,6 +23,12 @@ ListModel {
     }
 
     ListElement {
+        title: qsTr("HalfCrystal")
+        note: qsTr("三角版 Crystal——方向切换/菱形保留/掩码/动画")
+        page: "Page_HalfCrystal.qml"
+    }
+
+    ListElement {
         title: qsTr("基本输入控件")
         note: qsTr("定制的基础输入控件")
         page: "Page_InputControls.qml"

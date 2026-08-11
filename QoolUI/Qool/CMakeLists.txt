@@ -65,6 +65,8 @@ qt_add_qml_module(
           models/qool_multirowselectionmodel.cpp
   QML_FILES OctagonShape.qml
             OctagonRoundedShape.qml
+            Crystal.qml
+            HalfCrystal.qml
             QoolBox.qml
             DragMoveArea.qml
             BasicColorBehavior.qml
@@ -93,6 +95,8 @@ qt_add_qml_module(
           shapecontrol/gadgets/qool_shapegadget_circlepoint.cpp
   SOURCES shapecontrol/gadgets/qool_shapegadget_crystal.h
           shapecontrol/gadgets/qool_shapegadget_crystal.cpp
+  SOURCES shapecontrol/gadgets/qool_shapegadget_halfcrystal.h
+          shapecontrol/gadgets/qool_shapegadget_halfcrystal.cpp
   SOURCES utils/qool_numbermapper.h utils/qool_numbermapper.cpp
   SOURCES utils/qool_colormapper.h utils/qool_colormapper.cpp
   SOURCES qool_numbernotifier.h qool_numbernotifier.cpp

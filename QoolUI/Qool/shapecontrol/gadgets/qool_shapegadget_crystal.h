@@ -18,6 +18,8 @@ class CrystalGadget : public ShapeControlGadget {
 public:
   explicit CrystalGadget(QObject* parent = nullptr);
 
+  bool contains(const QPointF&) const override;
+
 private:
   QBINDABLE_WRITABLE_PROPERTY(CrystalGadget, qreal, x, FINAL)
   QBINDABLE_WRITABLE_PROPERTY(CrystalGadget, qreal, y, FINAL)

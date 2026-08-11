@@ -4,15 +4,27 @@
 
 ## [4.0.0] — 2026-08-12
 
+### 新增
+
+- Qool.HalfCrystal（三角版 Crystal 色块，四点模型）：内部最大正方形四边中点四点的 Shape 组件——`direction`（Qore.N/S/W/E）切换三角形指向（对侧点移到中心、共线隐藏于底边中点、中间态恒为菱形），其余方向值（Unknown/对角）显示完整菱形；同一视觉语言（45° 斜边、对轴、四通道填充 color/strokeColor/fillGradient/fillItem、单层 1px 描边、无 cutSize）；任意 w/h 安全（基于内部最大正方形居中）；方向切换经 pCtrl 四渲染参考值（northY/southY/westX/eastX）上四个 BasicNumberBehavior 平滑过渡（N/S 仅纵轴两点动、W/E 仅横轴两点动——非 8 个；duration = Style.movementDuration、Style.animationEnabled 门控）；精确命中掩码（**HalfCrystalGadget**——C++ contains 覆写，geometrySource = 画布 RectGadget gB + direction 绑定）：shapeRect（方向决定半区/整正方形）粗判 + 内部正方形四角域统一排除（开集语义 `dx+dy < halfS`——斜边/直角边端点命中，无 direction 分支）；几何链 ShapeControl → RectGadget gA（源头）→ RectGadget gB（画布，四元 QML 绑定本地画布坐标——相减抵消父坐标偏移，掩码与渲染同基准）；implicit 20×20
+- QoolUIExample：Page_HalfCrystal 展示页（方向切换组/菱形保留态/样式通道 color+渐变/非方形尺寸/掩码 hover 演示——三角形外悬停不触发/动画门控开关，与 Crystal 同台对比）
+
 ### 变更
 
 - Qool.Controls.Components.ScrollBar、Qool.Controls.Components.BasicScrollView → **移入 Qool.Controls 并改名**（BasicScrollView → **ScrollView**——滚动条/滚动视图为控件层成员、非基础原件，去 Basic 前缀；依赖方向符合 R4：Qool.Controls 由 Components 与 Qool 主题组合；滚动组件归位控件层，与 ScrollIndicator 同层）。EditableTextBox 依赖同步（ScrollView 同模块隐式可见；BasicTextArea 仍在 Components——`import Qool.Controls.Components` 保留）；FileInfoListControl、QoolUIExample 消费方 import 已覆盖（均有 `import Qool.Controls`），无需改
+- Qool.Controls.Components.Crystal → **移入 Qool 模块**（基础形状件归位——与 HalfCrystal 同层，`import Qool` 即可用）；移除 `control` 属性（单层简单组件不暴露几何——与 QoolBox 系列的多层公用场景区分，ShapeControl + CrystalGadget 内联为 Shape 子对象）；Slider/VerticalSlider 移除对 Qool.Controls.Components 的依赖（其仅依赖 Crystal，归位后经 Qool 可用），QDoc 链接更新（`{Qool::Crystal}`）；手柄 MouseArea 注释更新（Crystal 掩码已精确，手柄仍不设 containmentMask 是刻意的——NoButton 仅光标反馈、hover 域宽松）
 
 ### 修复
 
-- Qool.Controls.ScrollIndicator 补 `onVisualSizeChanged: latch.trigger()`（内容跨过/退出一屏、size 越过 1.0 时同样触发 1750ms 显现窗口——对齐 ScrollBar 的 onVisualSizeChanged 触发，2026-08-11 优化经验回流）
-- Qool.Controls.ScrollIndicator opacity 过渡 duration 改 `Style.transitionDuration`（较 ScrollBar 的 movementDuration 快——指示条为轻量辅助件，瞬时反馈应快于主滚动条的移动动画）
-- Qool.Controls.ScrollIndicator 指示条 radius 改 `Math.floor(Math.min(width, height) / 2)`（半圆头，对齐 ScrollBar/Qt 官方 Basic 样式——固定 2px 尺寸下与原先的 max 圆角视觉等价，但尺寸泛化（宿主自定义宽度）时 max 会超半高、端部形态依赖 Qt 对超半高 radius 的处理，/2 任意尺寸下均为标准半圆头）
+- **HalfCrystal 绑定循环与尺寸增长（bugfix）**：非方形实例持续触发 `Binding loop detected for property "eastX"/"southY"` 且形状不断变大——根因：Qt 6.6+ Shape 引擎在路径变化时强制 `setImplicitSize(路径边界 + 描边扩展)`（qquickshape.cpp `_q_shapePathChanged`），implicit 尺寸被布局（QQuickControl contentItem setSize / Qt Quick Layouts preferred）回写为组件尺寸 → 尺寸 → gA → gB → pCtrl → 路径 → implicit 正反馈环（三角形占满高度方向 k=1，描边扩展每轮 +0.7071 恒发散）。修复：root 改为 Item + 内部 Shape anchors.fill（引擎 implicit 更新只作用于内部 Shape，root implicit 固定 20×20 不参与布局，环断开）——组件 API/渲染/掩码不变。Qt Quick Layouts 中 implicit>0 优先于显式 width/height（qquicklayout.cpp GATHER PREFERRED SIZE HINTS）为 Qt 既定行为——页面非方形实例改用 `Layout.preferredWidth/Height` 显式指定；文件头注释记录结构决策与 Crystal 同机制隐患（无 QML 绑定层故不报循环警告，宿主置于隐式布局容器时同样会被放大——待评估同构修复）
+- **CrystalGadget 补精确命中掩码（bugfix——历史遗漏，非行为变更）**：`contains()` C++ 覆写——外接矩形粗判 + 四角切角域排除（角域为开集：斜边与八点顶点命中）；Crystal 组件挂 `containmentMask: gadget`——独立使用时命中域与可见八点形状一致（此前为外接矩形，四角误命中）
+- RectGadget 构造期 target null 守卫（setBinding 立即求值对未就绪 target 解引用崩溃——CrystalGadget 同款守卫模式；零使用者从未暴露）+ **半区几何缺陷修复**（halfWidth/halfHeight 曾误绑中心坐标 m_hcenter/m_vcenter（= x+width/2）而非半长 width/2，且 rightHalfRect 误用半宽作 x——x/y 非零时四半区矩形全部错误；RectGadget 零使用者从未暴露，HalfCrystal 画布串联触发）——半区矩形现基于自身几何、任意偏移正确（本地画布坐标语义）
+
+### 文档
+
+- RectGadget 补 QDoc（\qmltype——`rect` 覆盖默认 target 绑定行为（setValue 移除绑定——刻意设计供画布串联，非缺陷）；九点/半区矩形/内部最大正方形/contains 一览；任意位置偏移正确的本地画布语义）
+- CrystalGadget QDoc 补 contains 方法说明（Rect 粗判 + 四角切角域排除算法）
+- Crystal QDoc 更新（模块归属、掩码精确化、移除 control 说明）；HalfCrystal QDoc（四点模型/方向语义/菱形保留态/样式通道/动画门控/掩码算法与边界语义）
 
 ## [4.0.0] — 2026-08-11
 

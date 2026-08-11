@@ -13,10 +13,9 @@
 //     斜率一致——天然对齐（水晶顶点贴轨道斜边）。
 //   - 菱形左上角锚定（中心 = (width/2, height/2)），定位方式与普通 Item 一致
 //     （v3 ColorCrystal 的"中心在原点"仅被 Color 模块 ColorCursor 依赖，
-//     Color 侧保留原私有件；本件为 Components 公开件）。
-//   - **无精确命中掩码**（基类 contains = 外接矩形）：Slider 场景手柄不接收
-//     鼠标（交互在控件层），掩码无意义；独立使用场景命中域为外接矩形
-//     （菱形外四角也命中）——如需精确菱形命中，宿主自行提供 containmentMask。
+//     Color 侧保留原私有件；本件为 Qool 公开件）。
+//   - **精确命中掩码**（CrystalGadget::contains——外接矩形内四角切角域
+//     排除，斜边与八点顶点命中）：独立使用场景命中域与可见形状一致。
 
 import QtQuick
 import QtQuick.Shapes
@@ -24,7 +23,7 @@ import Qool
 
 /*!
     \qmltype Crystal
-    \inqmlmodule Qool.Controls.Components
+    \inqmlmodule Qool
     \brief 水晶六边形色块（八点模型）：\c width > \c height 为六边形、
     \c width = \c height 为菱形（旋转 45° 的正方形）、\c width < \c height
     为瘦六边形（上下尖 + 左右直边）。左上角锚定。
@@ -54,7 +53,8 @@ import Qool
         是合法冗余——宿主无需按形态切换路径。
     \li \c strokeWidth 固定 1：单层模型不支持宽边框（宽边框需内缩算法，
         与"切角极限合法"的设计矛盾）。
-    \li **命中域为外接矩形**（无精确菱形掩码——见文件头注释）。
+    \li **精确命中掩码**（CrystalGadget::contains——外接矩形内四角切角域
+        排除，斜边与八点顶点命中）。
     \endlist
 */
 Shape {
@@ -74,9 +74,14 @@ Shape {
     implicitWidth: 20
     implicitHeight: 20
 
+    // 精确命中掩码（CrystalGadget::contains——本地坐标判定，见 crystal.cpp）
+    containmentMask: gadget
+
     // 标准 ShapeControl 基座（target 自动 = 本组件）+ CrystalGadget 预制点
-    // （gadget 作为 control 子对象自动关联；几何全部链 control——无需显式 target）
-    readonly property ShapeControl control: ShapeControl {
+    // （gadget 作为 control 子对象自动关联；几何全部链 control——无需显式
+    // target；单层简单组件不暴露 control 属性——与 QoolBox 系列的多层公用
+    // 场景区分）
+    ShapeControl {
         CrystalGadget {
             id: gadget
         }

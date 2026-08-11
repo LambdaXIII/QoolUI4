@@ -33,7 +33,6 @@ import QtQuick
 import QtQuick.Shapes
 import QtQuick.Templates as T
 import Qool
-import Qool.Controls.Components
 
 /*!
     \qmltype VerticalSlider
@@ -212,9 +211,8 @@ T.Slider {
             preferredRendererType: root.animationEnabled ? Shape.CurveRenderer : Shape.UnknownRenderer
             anchors.centerIn: parent
             // 仅 hover/光标反馈：NoButton 不拦截按压（picker 拖动在手柄上仍
-            // 有效）；containmentMask 不设（self mask 无效且 Crystal 无精确
-            // 掩码——命中域即外接矩形，同 Crystal 文件头声明）；disabled 时
-            // 无反馈
+            // 有效）；containmentMask 不设（Crystal 掩码已精确，手柄仍刻意
+            // 不挂——NoButton 仅光标反馈、hover 域宽松）；disabled 时无反馈
             MouseArea {
                 anchors.fill: parent
                 acceptedButtons: Qt.NoButton

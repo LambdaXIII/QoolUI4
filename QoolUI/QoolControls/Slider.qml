@@ -49,13 +49,13 @@
 //   - 手柄展开态占满控件高度（不超出边界）——clip 与否不影响反馈（v3"菱形
 //     顶出轨道"刻意效果已取消）。
 //   - 手柄 MouseArea 仅做 hover/光标反馈（acceptedButtons: Qt.NoButton——
-//     不拦截模板拖动；无精确菱形掩码——命中域为外接矩形，同 Crystal 声明）。
+//     不拦截模板拖动；Crystal 已补精确掩码，手柄仍不设 containmentMask——
+//     NoButton 仅光标反馈、hover 域宽松为刻意设计）。
 
 import QtQuick
 import QtQuick.Shapes
 import QtQuick.Templates as T
 import Qool
-import Qool.Controls.Components
 
 /*!
     \qmltype Slider
@@ -64,7 +64,7 @@ import Qool.Controls.Components
 
     交互为模板默认（点击跳转、拖动连续、方向键步进——官方行为，接口兼容
     QtQuick.Templates.Slider）。轨道与手柄统一为
-    \l {Qool.Controls.Components::Crystal}{Crystal} 六边形模型（轨道为宽条
+    \l {Qool::Crystal}{Crystal} 六边形模型（轨道为宽条
     六边形、手柄为方形菱形——同模型斜边斜率一致天然对齐），轨道默认填充
     \c text → \c color 水平渐变（左端固定 Style.text，右端 = \l color，默认
     Style.accent）；手柄常态色 = 轨道渐变在当前值位置的采样色
@@ -210,8 +210,8 @@ T.Slider {
             preferredRendererType: root.animationEnabled ? Shape.CurveRenderer : Shape.UnknownRenderer
             anchors.centerIn: parent
             // 仅 hover/光标反馈：NoButton 不拦截按压（模板拖动在手柄上仍有效）；
-            // containmentMask 不设（self mask 无效且 Crystal 无精确掩码——
-            // 命中域即外接矩形，同 Crystal 文件头声明）；disabled 时无反馈
+            // containmentMask 不设（Crystal 掩码已精确，手柄仍刻意不挂——
+            // NoButton 仅光标反馈、hover 域宽松）；disabled 时无反馈
             MouseArea {
                 anchors.fill: parent
                 acceptedButtons: Qt.NoButton
