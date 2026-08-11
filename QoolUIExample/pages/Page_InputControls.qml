@@ -25,8 +25,7 @@ BasicPage {
 
     implicitHeight: cc.implicitHeight
 
-    readonly property list<string> listModel1: [qsTr("小明"), qsTr("小李"), qsTr("大美"), qsTr(
-            "笨笨")]
+    readonly property list<string> listModel1: [qsTr("小明"), qsTr("小李"), qsTr("大美"), qsTr("笨笨")]
 
     ListModel {
         id: listModel2
@@ -303,6 +302,8 @@ BasicPage {
             }
         }
 
+        SectionBar {}
+
         ComboBox {
             id: box1
             model: listModel1
@@ -471,6 +472,25 @@ BasicPage {
             width: parent.width
         }
 
-        Dial {}
+        QoolControl {
+            title: qsTr("酷酷的文本框")
+            width: 250
+            contentItem: ColumnLayout {
+                EditableTextBox {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    text: qsTr("多行文本输入：\n回车换行；\n内容超出视口高度时出现垂直滚动条（Qool 主题）。\n滚动条可拖动，鼠标滚轮亦可滚动。\n回车换行；\n内容超出视口高度时出现垂直滚动条（Qool 主题）。\n滚动条可拖动，鼠标滚轮亦可滚动。\n回车换行；\n内容超出视口高度时出现垂直滚动条（Qool 主题）。\n滚动条可拖动，鼠标滚轮亦可滚动。\n回车换行；\n内容超出视口高度时出现垂直滚动条（Qool 主题）。\n滚动条可拖动，鼠标滚轮亦可滚动。\n回车换行；\n内容超出视口高度时出现垂直滚动条（Qool 主题）。\n滚动条可拖动，鼠标滚轮亦可滚动。")
+                    readOnly: readonlyBtn.checked
+                }
+
+                ClickableText {
+                    id: readonlyBtn
+                    text: qsTr("可写")
+                    checkedText: qsTr("只读")
+                    checkable: true
+                    Layout.fillWidth: true
+                }
+            }
+        }
     } //cc
 }
