@@ -72,6 +72,71 @@ RectGadget::RectGadget(QObject* parent)
   QOOL_FOREACH_9(SETUP, topLeft, topCenter, topRight, leftCenter, center,
       rightCenter, bottomLeft, bottomCenter, bottomRight)
 #undef SETUP
+
+  QBINDABLE_SET_BINDING(halfWidth, [&] { return m_hcenter.value(); });
+  QBINDABLE_SET_BINDING(halfHeight, [&] { return m_vcenter.value(); });
+  QBINDABLE_SET_BINDING(topHalfRect, [&] {
+    const auto x = bindable_x().value();
+    const auto y = bindable_y().value();
+    const auto w = bindable_width().value();
+    const auto h = bindable_halfHeight().value();
+    return QRectF(x, y, w, h);
+  });
+  QBINDABLE_SET_BINDING(bottomHalfRect, [&] {
+    const auto x = bindable_x().value();
+    const auto y = bindable_leftCenterY().value();
+    const auto w = bindable_width().value();
+    const auto h = bindable_halfHeight().value();
+    return QRectF(x, y, w, h);
+  });
+  QBINDABLE_SET_BINDING(leftHalfRect, [&] {
+    const auto x = bindable_x().value();
+    const auto y = bindable_y().value();
+    const auto w = bindable_halfWidth().value();
+    const auto h = bindable_height().value();
+    return QRectF(x, y, w, h);
+  });
+  QBINDABLE_SET_BINDING(rightHalfRect, [&] {
+    const auto x = bindable_topCenterX();
+    const auto y = bindable_y().value();
+    const auto w = bindable_halfWidth().value();
+    const auto h = bindable_height().value();
+    return QRectF(w, y, w, h);
+  });
+
+  QBINDABLE_SET_BINDING(shortEdge, [&] {
+    return std::min(bindable_width().value(), bindable_height().value());
+  });
+  QBINDABLE_SET_BINDING(longEdge, [&] {
+    return std::max(bindable_width().value(), bindable_height().value());
+  });
+  QBINDABLE_SET_BINDING(isSquare,
+      [&] { return bindable_width().value() == bindable_height().value(); });
+
+  QBINDABLE_SET_BINDING(maxInnerSquareRect, [&] {
+    const auto edge = bindable_shortEdge().value();
+    const auto delta = edge / 2;
+    const auto cx = bindable_centerX().value();
+    const auto cy = bindable_centerY().value();
+
+    const auto x = cx - delta;
+    const auto y = cy - delta;
+    return QRectF(x, y, edge, edge);
+  });
+  QBINDABLE_SET_BINDING(minOutterSquareRect, [&] {
+    const auto edge = bindable_longEdge().value();
+    const auto delta = edge / 2;
+    const auto cx = bindable_centerX().value();
+    const auto cy = bindable_centerY().value();
+
+    const auto x = cx - delta;
+    const auto y = cy - delta;
+    return QRectF(x, y, edge, edge);
+  });
+}
+
+bool RectGadget::contains(const QPointF& p) const {
+  return m_rect.value().contains(p);
 }
 
 QRectF RectGadget::rect() const { return m_rect.value(); }

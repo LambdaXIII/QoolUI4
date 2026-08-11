@@ -17,6 +17,8 @@ class RectGadget : public ShapeControlGadget {
 public:
   explicit RectGadget(QObject* parent = nullptr);
 
+  bool contains(const QPointF&) const override;
+
 private:
   QProperty<qreal> m_left, m_right, m_top, m_bottom, m_hcenter, m_vcenter;
 
@@ -24,6 +26,7 @@ private:
   QBINDABLE_WRITABLE_PROPERTY(RectGadget, qreal, y, FINAL)
   QBINDABLE_WRITABLE_PROPERTY(RectGadget, qreal, width, FINAL)
   QBINDABLE_WRITABLE_PROPERTY(RectGadget, qreal, height, FINAL)
+
   QBINDABLE_WRITABLE_PROPERTY_DECLARE(RectGadget, QRectF, rect, FINAL)
 
 #define DECL(NAME)                                        \
@@ -34,6 +37,21 @@ private:
   QOOL_FOREACH_9(DECL, topLeft, topCenter, topRight, leftCenter, center,
       rightCenter, bottomLeft, bottomCenter, bottomRight)
 #undef DECL
+
+  // extra values
+  QBINDABLE_READONLY_PROPERTY(RectGadget, qreal, halfWidth, FINAL)
+  QBINDABLE_READONLY_PROPERTY(RectGadget, qreal, halfHeight, FINAL)
+  QBINDABLE_READONLY_PROPERTY(RectGadget, qreal, shortEdge, FINAL)
+  QBINDABLE_READONLY_PROPERTY(RectGadget, qreal, longEdge, FINAL)
+  QBINDABLE_READONLY_PROPERTY(RectGadget, bool, isSquare, FINAL)
+
+  // extra rects
+  QBINDABLE_WRITABLE_PROPERTY(RectGadget, QRectF, topHalfRect, FINAL)
+  QBINDABLE_WRITABLE_PROPERTY(RectGadget, QRectF, bottomHalfRect, FINAL)
+  QBINDABLE_WRITABLE_PROPERTY(RectGadget, QRectF, leftHalfRect, FINAL)
+  QBINDABLE_WRITABLE_PROPERTY(RectGadget, QRectF, rightHalfRect, FINAL)
+  QBINDABLE_WRITABLE_PROPERTY(RectGadget, QRectF, maxInnerSquareRect, FINAL)
+  QBINDABLE_WRITABLE_PROPERTY(RectGadget, QRectF, minOutterSquareRect, FINAL)
 };
 
 QOOL_NS_END
