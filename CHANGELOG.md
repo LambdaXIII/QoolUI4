@@ -6,17 +6,21 @@
 
 ### 新增
 
-- Qool.HalfCrystal（三角版 Crystal 色块，四点模型）：内部最大正方形四边中点四点的 Shape 组件——`direction`（Qore.N/S/W/E）切换三角形指向（对侧点移到中心、共线隐藏于底边中点、中间态恒为菱形），其余方向值（Unknown/对角）显示完整菱形；同一视觉语言（45° 斜边、对轴、四通道填充 color/strokeColor/fillGradient/fillItem、单层 1px 描边、无 cutSize）；任意 w/h 安全（基于内部最大正方形居中）；方向切换经 pCtrl 四渲染参考值（northY/southY/westX/eastX）上四个 BasicNumberBehavior 平滑过渡（N/S 仅纵轴两点动、W/E 仅横轴两点动——非 8 个；duration = Style.movementDuration、Style.animationEnabled 门控）；精确命中掩码（**HalfCrystalGadget**——C++ contains 覆写，geometrySource = 画布 RectGadget gB + direction 绑定）：shapeRect（方向决定半区/整正方形）粗判 + 内部正方形四角域统一排除（开集语义 `dx+dy < halfS`——斜边/直角边端点命中，无 direction 分支）；几何链 ShapeControl → RectGadget gA（源头）→ RectGadget gB（画布，四元 QML 绑定本地画布坐标——相减抵消父坐标偏移，掩码与渲染同基准）；implicit 20×20
-- QoolUIExample：Page_HalfCrystal 展示页（方向切换组/菱形保留态/样式通道 color+渐变/非方形尺寸/掩码 hover 演示——三角形外悬停不触发/动画门控开关，与 Crystal 同台对比）
+- **测试设施（Qt Test + Qt Quick Test 双栈，QoolUI/tests/）**：分层与被测面一一对应——`common/`（QoolCommon 纯 C++ 模板库，QCoreApplication）、`core/`（Qool 核心 C++ 类型，直接编译被测 .cpp——Qool 为 DLL 且遵循「绝不动态导出」，测试无法链接其符号）、`qml/`（Qt Quick Test harness，QUICK_TEST_MAIN_WITH_SETUP 注入 Qool 模块 import path）。三条运行通道同一批标准 exe：`cmake --build build --target run-tests`（聚合 target，日常首选）/ `ctest --preset dev`（CI/筛选）/ 直接运行。首套用例 134 断言全绿（math 92 数据驱动 + Vector2D 17 + NumberRanger 17 + TimerLatch QML 8）。使用手册与 Windows/MSVC 平台经验见 `QoolUI/tests/README.md`
+- `CMakePresets.json`（dev preset：Ninja + Release + BUILD_TESTING，CMAKE_PREFIX_PATH 取 `$env{QT_DIR}`）；`scripts/win_build_test.ps1`（Windows/MSVC 一键配置+构建+测试：vswhere 定位 VS → vcvars64 → qt-cmake --preset → run-tests；平台限定命名，其它平台用 preset 原生流程）
+- 测试环境策略（Windows 特有，全部 `if(WIN32)` 包裹）：POST_BUILD 用 `$<TARGET_RUNTIME_DLLS>` 部署 Qt DLL 到 exe 目录 + 复制 `platforms` 插件目录；运行通道注入 `QT_PLUGIN_PATH`/`QML_IMPORT_PATH`（DLL 部署使 Qt 前缀推导失效的补偿）；CTest 用 `ENVIRONMENT_MODIFICATION`（`ENVIRONMENT` 设 PATH 在 Windows 按 `;` 拆分损坏——已知陷阱）
 
 ### 变更
 
+- 顶层 CMakeLists 加 `include(CTest)`（CTest 必须顶层启用，否则 build/CTestTestfile.cmake 不生成、ctest 找不到测试）；QoolUI/CMakeLists.txt 按 `BUILD_TESTING` 条件加入 `tests/`（-DBUILD_TESTING=OFF 整体关闭）
 - 新增 `docs/agents/`（agent 工程技能设施配置）：issue-tracker.md（本地 markdown tracker：`.scratch/<feature-slug>/` 结构、spec.md + 编号票 + wayfinder 操作）/ triage-labels.md（默认五标签映射）/ domain.md（单 context 领域文档消费规则）；AGENTS.md 追加 `## Agent skills` 节指向三者；`.scratch/` 清空历史内容（家目录保留，gitignore 已覆盖）
 - Qool.Controls.Components.ScrollBar、Qool.Controls.Components.BasicScrollView → **移入 Qool.Controls 并改名**（BasicScrollView → **ScrollView**——滚动条/滚动视图为控件层成员、非基础原件，去 Basic 前缀；依赖方向符合 R4：Qool.Controls 由 Components 与 Qool 主题组合；滚动组件归位控件层，与 ScrollIndicator 同层）。EditableTextBox 依赖同步（ScrollView 同模块隐式可见；BasicTextArea 仍在 Components——`import Qool.Controls.Components` 保留）；FileInfoListControl、QoolUIExample 消费方 import 已覆盖（均有 `import Qool.Controls`），无需改
 - Qool.Controls.Components.Crystal → **移入 Qool 模块**（基础形状件归位——与 HalfCrystal 同层，`import Qool` 即可用）；移除 `control` 属性（单层简单组件不暴露几何——与 QoolBox 系列的多层公用场景区分，ShapeControl + CrystalGadget 内联为 Shape 子对象）；Slider/VerticalSlider 移除对 Qool.Controls.Components 的依赖（其仅依赖 Crystal，归位后经 Qool 可用），QDoc 链接更新（`{Qool::Crystal}`）；手柄 MouseArea 注释更新（Crystal 掩码已精确，手柄仍不设 containmentMask 是刻意的——NoButton 仅光标反馈、hover 域宽松）
 
 ### 修复
 
+- **Vector2D 拷贝构造笔误（测试设施逮住）**：`m_vector{other.m_from}`——拷贝后向量被起点取代（与拷贝赋值 operator= 不一致；QPointF 隐式转 QVector2D 使笔误编译通过）。QML 值类型按值传递直接受害
+- **NumberRanger::format 字符串替换分支不可达（测试设施逮住）**：QString 恒 `canConvert<qreal>`，数值分支先命中，正则替换逻辑成死代码——「字符串内数字按精度替换」承诺从未生效（"v=1.23456" 整体转数值失败得 "0"）。修复：字符串分支前置；同时修正其 `'g', decimals` 精度语义错误（'g' 精度是有效数字而非小数位，1.23 被截成 "1.2"）——decimalfy 已规整，改默认格式输出
 - **HalfCrystal 绑定循环与尺寸增长（bugfix）**：非方形实例持续触发 `Binding loop detected for property "eastX"/"southY"` 且形状不断变大——根因：Qt 6.6+ Shape 引擎在路径变化时强制 `setImplicitSize(路径边界 + 描边扩展)`（qquickshape.cpp `_q_shapePathChanged`），implicit 尺寸被布局（QQuickControl contentItem setSize / Qt Quick Layouts preferred）回写为组件尺寸 → 尺寸 → gA → gB → pCtrl → 路径 → implicit 正反馈环（三角形占满高度方向 k=1，描边扩展每轮 +0.7071 恒发散）。修复：root 改为 Item + 内部 Shape anchors.fill（引擎 implicit 更新只作用于内部 Shape，root implicit 固定 20×20 不参与布局，环断开）——组件 API/渲染/掩码不变。Qt Quick Layouts 中 implicit>0 优先于显式 width/height（qquicklayout.cpp GATHER PREFERRED SIZE HINTS）为 Qt 既定行为——页面非方形实例改用 `Layout.preferredWidth/Height` 显式指定；文件头注释记录结构决策与 Crystal 同机制隐患（无 QML 绑定层故不报循环警告，宿主置于隐式布局容器时同样会被放大——待评估同构修复）
 - **CrystalGadget 补精确命中掩码（bugfix——历史遗漏，非行为变更）**：`contains()` C++ 覆写——外接矩形粗判 + 四角切角域排除（角域为开集：斜边与八点顶点命中）；Crystal 组件挂 `containmentMask: gadget`——独立使用时命中域与可见八点形状一致（此前为外接矩形，四角误命中）
 - RectGadget 构造期 target null 守卫（setBinding 立即求值对未就绪 target 解引用崩溃——CrystalGadget 同款守卫模式；零使用者从未暴露）+ **半区几何缺陷修复**（halfWidth/halfHeight 曾误绑中心坐标 m_hcenter/m_vcenter（= x+width/2）而非半长 width/2，且 rightHalfRect 误用半宽作 x——x/y 非零时四半区矩形全部错误；RectGadget 零使用者从未暴露，HalfCrystal 画布串联触发）——半区矩形现基于自身几何、任意偏移正确（本地画布坐标语义）

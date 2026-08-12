@@ -1,0 +1,31 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 30, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "dev",
+      "displayName": "QoolUI dev (Ninja, Release, tests ON)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_TESTING": "ON",
+        "CMAKE_PREFIX_PATH": "$env{QT_DIR}"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "dev",
+      "configurePreset": "dev"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "dev",
+      "configurePreset": "dev",
+      "filter": { "name": "tst_*" },
+      "output": { "outputOnFailure": true }
+    }
+  ]
+}

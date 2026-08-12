@@ -33,6 +33,11 @@ project(QoolUIBundle
         LANGUAGES CXX
 )
 
+# ---- 测试设施 ----
+# CTest 必须在顶层启用（否则 build/CTestTestfile.cmake 不生成，ctest 找不到测试）；
+# include(CTest) 提供标准 BUILD_TESTING 开关（默认 ON，-DBUILD_TESTING=OFF 关闭）
+include(CTest)
+
 add_library(
   QOOL_GENERAL
   INTERFACE

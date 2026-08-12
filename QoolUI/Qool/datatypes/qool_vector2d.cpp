@@ -31,9 +31,12 @@ Vector2D Vector2D::fromVectors(const QList<QVector2D>& vectors) {
   return Vector2D(sum);
 }
 
+// 拷贝构造：vector 必须复制 other.m_vector——原实现误用 other.m_from
+// （QPointF 隐式转 QVector2D 编译通过但语义错误，拷贝后向量丢失、
+// 被起点取代；拷贝赋值 operator= 一直是正确的，二者不一致即笔误证据）
 Vector2D::Vector2D(const Vector2D& other)
   : m_from{other.m_from}
-  , m_vector{other.m_from} { }
+  , m_vector{other.m_vector} { }
 
 Vector2D::Vector2D(Vector2D&& other)
   : m_from{std::move(other.m_from)}
