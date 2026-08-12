@@ -18,7 +18,10 @@ QoolUITests/
 │   ├── tst_vector2d.cpp            # target: tst_qool_vector2d            值类型：构造/运算符/转换/属性契约
 │   ├── tst_numberranger.cpp        # target: tst_qool_numberranger        属性宏体系：默认值/守卫信号/校验逻辑/Q_PROPERTY 契约
 │   ├── tst_polar2d.cpp             # target: tst_qool_polar2d             Polar2D：转换/乘除/运算语义
-│   └── tst_multirowselectionmodel.cpp # target: tst_qool_multirowselectionmodel 模型：行选择状态/信号契约
+│   ├── tst_multirowselectionmodel.cpp # target: tst_qool_multirowselectionmodel 模型：行选择状态/信号契约
+│   ├── tst_crystalgadget.cpp       # target: tst_qool_crystalgadget       CrystalGadget：八点几何三形态 + contains 精确命中契约
+│   ├── tst_halfcrystalgadget.cpp   # target: tst_qool_halfcrystalgadget   HalfCrystalGadget：全方向 contains 契约（无源/半区/菱形/跟随）
+│   └── tst_rectgadget.cpp          # target: tst_qool_rectgadget          RectGadget：九点/半区矩形/内接外接正方形派生几何
 └── qml/                    # QML 测试批次层（Qt Quick Test harness）
     ├── CMakeLists.txt
     ├── qml_test_main.cpp   # 共享 harness 模板（QUICK_TEST_MAIN_WITH_SETUP）
@@ -27,10 +30,12 @@ QoolUITests/
         ├── tst_positionlocker.qml # PositionLocker：目标/偏移动态跟随
         ├── tst_cutsizebinding.qml # CutSizeBinding：尺寸/圆角绑定传播
         ├── tst_dummyitem.qml      # 基准组件：测试设施自身用（属性回显/信号记录）
+        ├── tst_crystal.qml        # Crystal：默认状态/cutSize 派生/掩码契约（contains 直接调用）
+        ├── tst_halfcrystal.qml    # HalfCrystal：direction 切换/掩码契约（四向 + 菱形 + 非正方形）
         └── assets/             # QML 测试批次资源（不得有 tst_ 前缀文件）
 ```
 
-**规模口径**：测试单元共 **10 个**（C++ 侧按 CMake Target 计 6 个——common 2 + core 4；QML 侧按 `tst_*.qml` 文件计 4 个）。CTest 注册 **7 个测试**：6 个 C++ target 各 1 个 + 4 个 QML 单元并入 1 个 harness target（`tst_qool_qml`）。
+**规模口径**：测试单元共 **15 个**（C++ 侧按 CMake Target 计 9 个——common 2 + core 7；QML 侧按 `tst_*.qml` 文件计 6 个）。CTest 注册 **10 个测试**：9 个 C++ target 各 1 个 + 6 个 QML 单元并入 1 个 harness target（`tst_qool_qml`）。
 
 **分层与被测面一一对应**：`common` 测脱离 Qool 的纯逻辑（QCoreApplication 即可），`core` 测 Qool 的 C++ 类型，`qml` 测公开 QML 组件的行为契约（按 Qool 模块分 QML 测试批次）。
 
@@ -71,7 +76,7 @@ MinGW 工具链加 `--kit gcc`。`run`（启动 QoolUIExample）同需 `--qt`（
 1. 在对应子目录建 `tst_<对象>.cpp`，类名 `Test<对象>`；测试用例用宏族 `QOOL_TEST_CASE(test_xxx)` 类体内内联定义（`#include "qool_test.hpp"`，宏族约束见 AGENTS.md）；结尾 `QTEST_MAIN(TestXxx)` + `#include "tst_xxx.moc"`（AUTOMOC 自动处理；不用 `QT_MOC`——CMake AUTOMOC 不支持，实测）
 2. 注册（按层区分）：
    - **QoolCommon（common/）**：**零配置**——`file(GLOB CONFIGURE_DEPENDS)` 自动发现，新文件放进目录即进入构建/CTest/run-tests，**不要手动写 `qoolui_add_cpp_test`**（会与 GLOB 重复生成同名 target 导致构建失败）
-   - **Qool 核心类型（core/）**：在 `core/CMakeLists.txt` 显式注册 `qoolui_add_cpp_test(tst_qool_<对象> tst_<对象>.cpp <被测源 .cpp>)` + `target_link_libraries(... PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)`——**不要链接 Qool target 取实现**（Qool 是 DLL 且按仓库原则不导出 C++ 符号），把被测 `.cpp` 直接编入测试 target 仅取头文件路径。见 `core/CMakeLists.txt` 的链接策略说明
+   - **Qool 核心类型（core/）**：在 `core/CMakeLists.txt` 显式注册 `qoolui_add_cpp_test(tst_qool_<对象> tst_<对象>.cpp <被测源 .cpp>)` + `target_link_libraries(... PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)`——**不要链接 Qool target 取实现**（Qool 是 DLL 且按仓库原则不导出 C++ 符号），把被测 `.cpp` 直接编入测试 target 仅取头文件路径。**必须补 PRIVATE include：`target_include_directories(tst_qool_<对象> PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})`**——被测头内部可能引用 Qool 模块的 PRIVATE include 目录下的头（实例：`gadgets/*.h` → `"qool_shapecontrol_gadget.h"`（shapecontrol/）、`"qool_smartobj.h"`（utils/）、`"qool_literals.h"`（qore/）），这些目录不随 Qool target 传播，漏一层断一层（C1083 逐个暴露）。清单在 `core/CMakeLists.txt` 顶部定义，与 `Qool/CMakeLists.txt` 的 PRIVATE include 同步维护。见 `core/CMakeLists.txt` 的链接策略说明
 3. 测试风格约定：
    - 数据驱动：`_data()` + `QFETCH`（见 tst_math.cpp）
    - 浮点断言：自备 `fuzzy_eq`（QCOMPARE 浮点是精确比较）
@@ -87,7 +92,8 @@ MinGW 工具链加 `--kit gcc`。`run`（启动 QoolUIExample）同需 `--qt`（
 4. **状态隔离是硬要求**：TestCase 的各测试函数**共享同一实例**且按函数名顺序执行——共享状态会跨测试泄漏（曾踩：interval 被前一个测试改写导致后一个断言失败）。每个测试函数用 `createTemporaryObject(component, root)` 创建独立实例 + 动态创建 SignalSpy（见 tst_timerlatch.qml 的 `makeLatch`/`makeSpy`）
 5. 时序断言用 `tryCompare(obj, prop, value, timeout)`（内部跑事件循环，Timer 驱动可测）
 6. `import Qool` 走运行时解析：QML 测试文件**不参与 qmlcachegen AOT**，无需改模块 CMake
-7. **新增整个测试批次**（新模块的 `tst_<模块>_qml` harness target）：机制与步骤见 `AGENTS.md`「QML 测试批次组织」
+7. **窗口访问**：TestCase **没有 `window` 属性**（取到 undefined）；正确途径是 `Window.window` 附加属性（`import QtQuick.Window`）。`QQuickWindow::itemAt` **非 Q_INVOKABLE**，QML 无法调用——引擎 hit-test（点击穿透/掩码命中）的端到端验证不可行；掩码/命中类契约改为直接调用掩码对象的 `contains()`（Q_INVOKABLE）断言（见 tst_crystal.qml 的 `expectContains` 辅助）
+8. **新增整个测试批次**（新模块的 `tst_<模块>_qml` harness target）：机制与步骤见 `AGENTS.md`「QML 测试批次组织」
 
 ## Windows 环境经验（msvc/mingw 通用，供其它平台对照）
 
@@ -101,6 +107,7 @@ MinGW 工具链加 `--kit gcc`。`run`（启动 QoolUIExample）同需 `--qt`（
 6. **Ninja 并行 POST_BUILD 竞争**：多个测试 target 的 POST_BUILD 并发复制同一目录（如 plugins/platforms）可能 Permission denied——重跑增量构建即可（本设施已消除该复制，仅当新增同类复制时注意）。
 7. **AUTOGEN 状态残留（C1083 排查）**：测试 target 的源文件列表经历过「空 → 有」的 configure（如中间版本配置错误导致 add_executable 无源）后，autogen timestamp 可能残留为最新（比源文件新）→ 后续正确 configure 不重置 autogen → 构建跳过 moc 生成 → `fatal error C1083: "tst_xxx.moc": No such file or directory`（build.make 中该 target 无 moc 规则可佐证）。**修复：删除构建目录中对应测试目录（如 `build-<kit>-<Type>/QoolUITests`）强制重新 configure**——仅重跑 cmake 不重置（实测）。
 8. **Qt 前缀定位**：`${Qt6_DIR}/../../..` = Qt 安装前缀（Qt6_DIR = `<前缀>/lib/cmake/Qt6`）。
+9. **QML 插件依赖的 Qt DLL（新增模块测试必查）**：`$<TARGET_RUNTIME_DLLS>` 只覆盖**链接依赖**——QML 引擎运行时加载的插件（如 `QtQuick.Shapes` 的 qmlshapesplugin）依赖的 Qt DLL（如 `Qt6QuickShapesd.dll`）不在任何 target 的 RUNTIME_DLLS 里，测试首次 import 该模块时插件加载失败（`Cannot load library ... qmlshapesplugind.dll`）。**解法**：`find_file` 按构建类型定位 DLL（`Qt6QuickShapes$<$<CONFIG:Debug>:d>.dll` 需分开 find） + 条件 POST_BUILD 复制（见 `qml/CMakeLists.txt` 的 QuickShapes 段，模板可直接复制）。任何新用到的 QML 插件模块都要检查一遍。
 
 ## 平台差异（其它平台怎么跑）
 

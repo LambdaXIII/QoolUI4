@@ -72,6 +72,21 @@ set(QOOLUI_TEST_ARGS_tst_qool_qml "-platform;offscreen" CACHE INTERNAL "")
 # 必须出现在 exe 的 DLL 搜索路径（exe 目录优先）。用 Qool target 自己的
 # RUNTIME_DLLS + TARGET_FILE 一并复制：qml 层 DLL 集 = Qt DLL（双源并集，
 # copy_if_different 幂等）+ Qool.dll。
+# Qt6QuickShapes：非任何 target 的链接依赖（QtQuick.Shapes 为 QML 插件，
+# QML import 时才加载 qmlshapesplugin → 其依赖 Qt6QuickShapesd.dll）——
+# 测试用到 Shape 组件（Crystal/HalfCrystal）时插件加载失败即缺此 DLL。
+# Qt6::QuickShapes 是 INTERFACE target（无 RUNTIME_DLLS），find_file 按
+# 构建类型定位 DLL，存在时追加复制（Release 无 debug 后缀文件则跳过）。
+find_file(QT6_QUICKSHAPES_DLL_DEBUG
+  NAMES Qt6QuickShapesd.dll
+  HINTS "${QOOLUI_QT6_PREFIX}/bin"
+  NO_DEFAULT_PATH
+)
+find_file(QT6_QUICKSHAPES_DLL_RELEASE
+  NAMES Qt6QuickShapes.dll
+  HINTS "${QOOLUI_QT6_PREFIX}/bin"
+  NO_DEFAULT_PATH
+)
 add_custom_command(
   TARGET tst_qool_qml POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -82,3 +97,17 @@ add_custom_command(
           $<TARGET_FILE:Qool> $<TARGET_FILE_DIR:tst_qool_qml>
   COMMAND_EXPAND_LISTS
 )
+if(EXISTS "${QT6_QUICKSHAPES_DLL_DEBUG}")
+  add_custom_command(
+    TARGET tst_qool_qml POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${QT6_QUICKSHAPES_DLL_DEBUG}" $<TARGET_FILE_DIR:tst_qool_qml>
+  )
+elseif(EXISTS "${QT6_QUICKSHAPES_DLL_RELEASE}")
+  add_custom_command(
+    TARGET tst_qool_qml POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${QT6_QUICKSHAPES_DLL_RELEASE}" $<TARGET_FILE_DIR:tst_qool_qml>
+  )
+endif()
+

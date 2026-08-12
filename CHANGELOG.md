@@ -12,6 +12,7 @@
 - **测试设施（Qt Test + Qt Quick Test 双栈，QoolUI/tests/）**：分层与被测面一一对应——`common/`（QoolCommon 纯 C++ 模板库，QCoreApplication）、`core/`（Qool 核心 C++ 类型，直接编译被测 .cpp——Qool 为 DLL 且遵循「绝不动态导出」，测试无法链接其符号）、`qml/`（Qt Quick Test harness，QUICK_TEST_MAIN_WITH_SETUP 注入 Qool 模块 import path）。三条运行通道同一批标准 exe：`cmake --build build --target run-tests`（聚合 target，日常首选）/ `ctest --preset dev`（CI/筛选）/ 直接运行。首套用例 134 断言全绿（math 92 数据驱动 + Vector2D 17 + NumberRanger 17 + TimerLatch QML 8）。使用手册与 Windows/MSVC 平台经验见 `QoolUI/tests/README.md`
 - `CMakePresets.json`（dev preset：Ninja + Release + BUILD_TESTING，CMAKE_PREFIX_PATH 取 `$env{QT_DIR}`）；`scripts/win_build_test.ps1`（Windows/MSVC 一键配置+构建+测试：vswhere 定位 VS → vcvars64 → qt-cmake --preset → run-tests；平台限定命名，其它平台用 preset 原生流程）
 - 测试环境策略（Windows 特有，全部 `if(WIN32)` 包裹）：POST_BUILD 用 `$<TARGET_RUNTIME_DLLS>` 部署 Qt DLL 到 exe 目录 + 复制 `platforms` 插件目录；运行通道注入 `QT_PLUGIN_PATH`/`QML_IMPORT_PATH`（DLL 部署使 Qt 前缀推导失效的补偿）；CTest 用 `ENVIRONMENT_MODIFICATION`（`ENVIRONMENT` 设 PATH 在 Windows 按 `;` 拆分损坏——已知陷阱）
+- **Crystal/HalfCrystal 测试单元（测试设施扩容）**：core 层 3 个——`tst_qool_crystalgadget`（八点几何三形态 + contains 精确命中契约）、`tst_qool_halfcrystalgadget`（contains 全方向契约：无源恒不命中/N·S·W·E 半区+角域排除/菱形形态/direction 与几何变化跟随）、`tst_qool_rectgadget`（九点/四半区矩形/内接外接正方形派生几何/rect 同步/contains 边界）；QML 批次 2 个——`tst_crystal.qml`（默认状态/cutSize 派生/掩码契约组件级）、`tst_halfcrystal.qml`（direction 切换/四向+菱形+非正方形掩码契约）。**逮住 3 个问题（修复归组件任务，此处只记录）**：CrystalGadget::contains 四角排除条件写反（角域与内部判定互换——C++/QML 双侧实证）；Crystal 组件 implicitWidth/implicitHeight 不等于声明值（Shape 根 implicit 被引擎覆盖——HalfCrystal 注释已预告的同机制隐患实证）；QML 批次顺序执行时 HalfCrystal 实例化 SEGFAULT（Crystal 掩码测试执行后触发，栈顶 qmlcachegen lambda_24，触发条件二分确认）。HalfCrystal/RectGadget 契约全绿
 
 ### 变更
 
@@ -20,6 +21,7 @@
 - 新增 `docs/agents/`（agent 工程技能设施配置）：issue-tracker.md（本地 markdown tracker：`.scratch/<feature-slug>/` 结构、spec.md + 编号票 + wayfinder 操作）/ triage-labels.md（默认五标签映射）/ domain.md（单 context 领域文档消费规则）；AGENTS.md 追加 `## Agent skills` 节指向三者；`.scratch/` 清空历史内容（家目录保留，gitignore 已覆盖）
 - Qool.Controls.Components.ScrollBar、Qool.Controls.Components.BasicScrollView → **移入 Qool.Controls 并改名**（BasicScrollView → **ScrollView**——滚动条/滚动视图为控件层成员、非基础原件，去 Basic 前缀；依赖方向符合 R4：Qool.Controls 由 Components 与 Qool 主题组合；滚动组件归位控件层，与 ScrollIndicator 同层）。EditableTextBox 依赖同步（ScrollView 同模块隐式可见；BasicTextArea 仍在 Components——`import Qool.Controls.Components` 保留）；FileInfoListControl、QoolUIExample 消费方 import 已覆盖（均有 `import Qool.Controls`），无需改
 - Qool.Controls.Components.Crystal → **移入 Qool 模块**（基础形状件归位——与 HalfCrystal 同层，`import Qool` 即可用）；移除 `control` 属性（单层简单组件不暴露几何——与 QoolBox 系列的多层公用场景区分，ShapeControl + CrystalGadget 内联为 Shape 子对象）；Slider/VerticalSlider 移除对 Qool.Controls.Components 的依赖（其仅依赖 Crystal，归位后经 Qool 可用），QDoc 链接更新（`{Qool::Crystal}`）；手柄 MouseArea 注释更新（Crystal 掩码已精确，手柄仍不设 containmentMask 是刻意的——NoButton 仅光标反馈、hover 域宽松）
+- **core 层 include 机制统一（测试设施）**：新增 `QOOL_SRC_PRIVATE_INCLUDES` 变量（Qool 模块 PRIVATE include 全清单，与 `Qool/CMakeLists.txt` 同步）——直接编译被测源时 target 必须补齐（被测头内部可能引用 shapecontrol/gadgets/utils/qore 等目录的头，Qool target 的 PRIVATE include 不传播，漏一层断一层——gadget 测试曾连断 3 层）；全部 7 个 core 测试统一 PRIVATE include
 
 ### 修复
 
@@ -31,6 +33,9 @@
 - **HalfCrystal 绑定循环与尺寸增长（bugfix）**：非方形实例持续触发 `Binding loop detected for property "eastX"/"southY"` 且形状不断变大——根因：Qt 6.6+ Shape 引擎在路径变化时强制 `setImplicitSize(路径边界 + 描边扩展)`（qquickshape.cpp `_q_shapePathChanged`），implicit 尺寸被布局（QQuickControl contentItem setSize / Qt Quick Layouts preferred）回写为组件尺寸 → 尺寸 → gA → gB → pCtrl → 路径 → implicit 正反馈环（三角形占满高度方向 k=1，描边扩展每轮 +0.7071 恒发散）。修复：root 改为 Item + 内部 Shape anchors.fill（引擎 implicit 更新只作用于内部 Shape，root implicit 固定 20×20 不参与布局，环断开）——组件 API/渲染/掩码不变。Qt Quick Layouts 中 implicit>0 优先于显式 width/height（qquicklayout.cpp GATHER PREFERRED SIZE HINTS）为 Qt 既定行为——页面非方形实例改用 `Layout.preferredWidth/Height` 显式指定；文件头注释记录结构决策与 Crystal 同机制隐患（无 QML 绑定层故不报循环警告，宿主置于隐式布局容器时同样会被放大——待评估同构修复）
 - **CrystalGadget 补精确命中掩码（bugfix——历史遗漏，非行为变更）**：`contains()` C++ 覆写——外接矩形粗判 + 四角切角域排除（角域为开集：斜边与八点顶点命中）；Crystal 组件挂 `containmentMask: gadget`——独立使用时命中域与可见八点形状一致（此前为外接矩形，四角误命中）
 - RectGadget 构造期 target null 守卫（setBinding 立即求值对未就绪 target 解引用崩溃——CrystalGadget 同款守卫模式；零使用者从未暴露）+ **半区几何缺陷修复**（halfWidth/halfHeight 曾误绑中心坐标 m_hcenter/m_vcenter（= x+width/2）而非半长 width/2，且 rightHalfRect 误用半宽作 x——x/y 非零时四半区矩形全部错误；RectGadget 零使用者从未暴露，HalfCrystal 画布串联触发）——半区矩形现基于自身几何、任意偏移正确（本地画布坐标语义）
+- **QML 测试 QtQuick.Shapes 插件加载失败（测试设施）**：qmlshapesplugin 依赖 Qt6QuickShapesd.dll，不在任何 target 的 `$<TARGET_RUNTIME_DLLS>`（非链接依赖，QML import 时才加载）——测试首次 import QtQuick.Shapes（Crystal/HalfCrystal 引入）时插件加载失败 "Cannot load library"。修复：`QoolUITests/qml/CMakeLists.txt` `find_file` 按构建类型定位 + 条件 POST_BUILD 复制（模板可复用，新增 QML 插件模块测试时必查）
+- **CrystalGadget::contains 四角排除条件写反（测试逮住）**：四个角域判定 `(cut-dx)+(cut-dy) < cut`（⟺ `dx+dy > cut`）排除的是斜边**外侧**（形状内部）三角形，应排除斜边**内侧**（矩形角）角域——形状内误排除、角域错误命中。修复：不等号反向（`<`→`>`，排除 `dx+dy > cut` 角域；斜边开集语义保持 `dx+dy == cut` 命中）。HalfCrystalGadget 同族算法正确可对照
+- **Crystal implicit 尺寸陷阱实证与同构修复（测试逮住）**：Crystal 以 Shape 为根组件，Qt 6.6+ Shape 引擎在路径变化时强制 setImplicitSize(路径边界)——implicitWidth/Height 实际为路径边界而非声明值 20。修复：root 改 Item + 内部 Shape anchors.fill（HalfCrystal 同构——引擎 implicit 更新只作用于内部 Shape，root implicit 固定 20×20 不参与布局，断开尺寸→路径→implicit→尺寸正反馈环）；文件头注释记录结构决策（HalfCrystal 注释预告的"待评估同构修复"落地）
 
 ### 文档
 
@@ -40,6 +45,7 @@
 - Crystal QDoc 更新（模块归属、掩码精确化、移除 control 说明）；HalfCrystal QDoc（四点模型/方向语义/菱形保留态/样式通道/动画门控/掩码算法与边界语义）
 - **测试设施文档同步与消重（spec 委派推演闭环）**：三份文档（`QoolUITests/README.md`/`QoolUITests/AGENTS.md`/根 `AGENTS.md`）同步到 kit×type 构建体系并消解重复定义——README=使用手册（架构树补全 10 个测试单元（6 C++ target + 4 QML 文件）与 CTest 7 注册测试关系、价值记录两栏化（5 个测试逮住的产品缺陷 vs LINK_DEPENDS 设施修复）、Windows 一键三次调用唯一事实源（修复斜杠连写不可执行写法）、新增 C++ 测试 common 层 GLOB 零配置 vs core 层显式注册区分（消除与 GLOB 重复注册的确定性错误）、ctest 筛选示例修正（`tst_qoolcommon` 前缀已不存在；CTest 正则无 `|` 交替）、Windows 经验唯一清单（AGENTS 5 条并入去重）、平台差异/调试技巧路径更新）；AGENTS=规范（运行通道表单一事实源、一键段改一行引用、已知经验节改一行引用、旧 token 5 处清零）；根 AGENTS（offscreen 归因修正——由测试注册机制保证非脚本约定 + 工作流规范句 + install/deploy 概念边界句 + run 命令 QT_DIR 依赖注记——裸跑 run 无 Qt 运行时注入秒退，实测确认）；脚本 docstring offscreen 归因同步（注释级，零行为变更）；grep 精确 token 零残留（`build/`/`--build build`/`--preset dev[^-]`/`win_build_test`/小写 `scripts/`——`configure/build/test` 命令枚举与 `--build build-` 新内容均精确排除）+ 文档命令逐条实测（configure/build/test 7/7/ctest 筛选匹配数 1 与 5/直跑 exe 14 断言/run 进程存活）
 
+- **测试设施文档同步（README 扩容）**：目录树补 5 个新测试单元、规模口径更新（15 单元/CTest 10 个）；「如何新增测试」C++ 节补 include 补齐义务（`QOOL_SRC_PRIVATE_INCLUDES` 引用）；QML 节补窗口访问注意（TestCase 无 `window` 属性——`Window.window` 附加属性；`QQuickWindow::itemAt` 非 Q_INVOKABLE，引擎 hit-test 端到端不可行，掩码契约直接调 `contains()`）；Windows 经验补 QML 插件依赖 DLL 条目（第 9 条）
 ## [4.0.0] — 2026-08-11
 
 ### 新增

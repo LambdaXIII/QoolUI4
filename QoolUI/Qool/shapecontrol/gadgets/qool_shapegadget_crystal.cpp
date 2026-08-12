@@ -138,9 +138,9 @@ CrystalGadget::CrystalGadget(QObject* parent)
     \brief 精确命中判定：外接矩形内除四角切角域外全部命中。
 
     算法（与 HalfCrystal 掩码同族）：外接矩形粗判 + 四角等腰直角三角形
-    排除——直角边 = \c cutSize（shortEdge/2）、斜边 \c{dx+dy < cutSize}
-    （开集语义：斜边与八点顶点命中）。point 为组件本地坐标
-    （引擎已逆变换，无 x/y 偏移依赖）。
+    排除——直角边 = \c cutSize（shortEdge/2），排除域 = 斜边内侧角域
+    （\c{dx+dy > cutSize}；开集语义：斜边 \c{dx+dy == cutSize} 与八点顶点
+    命中）。point 为组件本地坐标（引擎已逆变换，无 x/y 偏移依赖）。
 */
 bool CrystalGadget::contains(const QPointF& point) const {
   // ① Rect 粗判（整外接矩形——含边界）
@@ -151,27 +151,28 @@ bool CrystalGadget::contains(const QPointF& point) const {
 
   // ② 四角域统一排除（内部正方形四角各一直角等腰三角形）
   //    角域直角顶点在正方形角、直角边沿坐标轴、斜边斜率 -1；
-  //    判定 dx >= 0 && dy >= 0 && dx + dy < cutSize（< 保证斜边命中）
+  //    判定 dx >= 0 && dy >= 0 && dx + dy > cut（> 排除斜边内侧角域——
+  //    dx+dy == cut 斜边命中，开集语义）
   const qreal cut = m_cutSize.value(); // shortEdge / 2
 
   // 左上角域：原点 (0,0)
   if (cut - point.x() >= 0 && cut - point.y() >= 0
-      && (cut - point.x()) + (cut - point.y()) < cut)
+      && (cut - point.x()) + (cut - point.y()) > cut)
     return false;
 
   // 右上角域：原点 (w-cut, 0)
   if (point.x() - (w - cut) >= 0 && cut - point.y() >= 0
-      && (point.x() - (w - cut)) + (cut - point.y()) < cut)
+      && (point.x() - (w - cut)) + (cut - point.y()) > cut)
     return false;
 
   // 右下角域：原点 (w-cut, h-cut)
   if (point.x() - (w - cut) >= 0 && point.y() - (h - cut) >= 0
-      && (point.x() - (w - cut)) + (point.y() - (h - cut)) < cut)
+      && (point.x() - (w - cut)) + (point.y() - (h - cut)) > cut)
     return false;
 
   // 左下角域：原点 (0, h-cut)
   if (cut - point.x() >= 0 && point.y() - (h - cut) >= 0
-      && (cut - point.x()) + (point.y() - (h - cut)) < cut)
+      && (cut - point.x()) + (point.y() - (h - cut)) > cut)
     return false;
 
   return true;

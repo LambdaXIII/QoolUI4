@@ -16,6 +16,14 @@
 //     Color 侧保留原私有件；本件为 Qool 公开件）。
 //   - **精确命中掩码**（CrystalGadget::contains——外接矩形内四角切角域
 //     排除，斜边与八点顶点命中）：独立使用场景命中域与可见形状一致。
+//
+// 结构决策（root 为 Item + 内部 Shape anchors.fill）：与 HalfCrystal 同构。
+// Qt 6.6+ 的 Shape 引擎在路径变化时强制 setImplicitSize(路径边界)——
+// 路径点随组件尺寸变化的组件若以 Shape 为根，implicit 尺寸即路径边界，
+// 布局会按 implicit 回写组件尺寸 → 尺寸 → 路径 → implicit → 尺寸正反馈环
+// （HalfCrystal 曾实测：非方形实例持续 Binding loop + 尺寸不断放大）。
+// 包一层 Item 根：引擎 implicit 更新只作用于内部 Shape（anchors.fill 锚定
+// 尺寸，implicit 不参与布局），root 的 implicit 固定 20×20——环断开。
 
 import QtQuick
 import QtQuick.Shapes
@@ -55,9 +63,12 @@ import Qool
         与"切角极限合法"的设计矛盾）。
     \li **精确命中掩码**（CrystalGadget::contains——外接矩形内四角切角域
         排除，斜边与八点顶点命中）。
+    \li implicit 20×20 由 Item 根固定（内部 Shape 的 implicit 不参与布局）
+        ——与 HalfCrystal 同构，Shape 根组件被隐式布局容器放大/循环的
+        陷阱已断开。
     \endlist
 */
-Shape {
+Item {
     id: root
 
     /*! \qmlproperty color 填充色，默认 Style.accent（独立使用默认自洽）。 */
@@ -77,56 +88,61 @@ Shape {
     // 精确命中掩码（CrystalGadget::contains——本地坐标判定，见 crystal.cpp）
     containmentMask: gadget
 
-    // 标准 ShapeControl 基座（target 自动 = 本组件）+ CrystalGadget 预制点
-    // （gadget 作为 control 子对象自动关联；几何全部链 control——无需显式
-    // target；单层简单组件不暴露 control 属性——与 QoolBox 系列的多层公用
-    // 场景区分）
-    ShapeControl {
-        CrystalGadget {
-            id: gadget
-        }
-    }
+    // 内部 Shape（anchors.fill——尺寸恒等于 root；引擎 implicit 更新只作用
+    // 于此，不参与布局）。标准 ShapeControl 基座（target 自动 = 内部
+    // Shape）+ CrystalGadget 预制点（gadget 作为 control 子对象自动关联；
+    // 几何全部链 control——无需显式 target；单层简单组件不暴露 control
+    // 属性——与 QoolBox 系列的多层公用场景区分）
+    Shape {
+        anchors.fill: parent
 
-    ShapePath {
-        id: mainPath
-        startX: gadget.TLx
-        startY: gadget.TLy
-        PathLine {
-            x: gadget.TCx
-            y: gadget.TCy
+        ShapeControl {
+            CrystalGadget {
+                id: gadget
+            }
         }
-        PathLine {
-            x: gadget.TRx
-            y: gadget.TRy
-        }
-        PathLine {
-            x: gadget.RTx
-            y: gadget.RTy
-        }
-        PathLine {
-            x: gadget.RBx
-            y: gadget.RBy
-        }
-        PathLine {
-            x: gadget.BCx
-            y: gadget.BCy
-        }
-        PathLine {
-            x: gadget.LBx
-            y: gadget.LBy
-        }
-        PathLine {
-            x: gadget.LTx
-            y: gadget.LTy
-        }
-        PathLine {
-            x: gadget.TLx
-            y: gadget.TLy
-        }
-        fillColor: root.color
-        strokeColor: root.strokeColor
-        strokeWidth: 1 // 细描边固定（单层模型——见文件头注释）
-        fillGradient: root.fillGradient
-        fillItem: root.fillItem
-    } //mainPath
+
+        ShapePath {
+            id: mainPath
+            startX: gadget.TLx
+            startY: gadget.TLy
+            PathLine {
+                x: gadget.TCx
+                y: gadget.TCy
+            }
+            PathLine {
+                x: gadget.TRx
+                y: gadget.TRy
+            }
+            PathLine {
+                x: gadget.RTx
+                y: gadget.RTy
+            }
+            PathLine {
+                x: gadget.RBx
+                y: gadget.RBy
+            }
+            PathLine {
+                x: gadget.BCx
+                y: gadget.BCy
+            }
+            PathLine {
+                x: gadget.LBx
+                y: gadget.LBy
+            }
+            PathLine {
+                x: gadget.LTx
+                y: gadget.LTy
+            }
+            PathLine {
+                x: gadget.TLx
+                y: gadget.TLy
+            }
+            fillColor: root.color
+            strokeColor: root.strokeColor
+            strokeWidth: 1 // 细描边固定（单层模型——见文件头注释）
+            fillGradient: root.fillGradient
+            fillItem: root.fillItem
+        } //mainPath
+    } //Shape
 }

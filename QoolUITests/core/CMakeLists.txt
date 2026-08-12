@@ -14,6 +14,22 @@
 
 set(QOOL_SRC "${CMAKE_CURRENT_LIST_DIR}/../../QoolUI/Qool")
 
+# Qool 模块的 PRIVATE include 目录清单（与 Qool/CMakeLists.txt 的
+# target_include_directories PRIVATE 同步）——直接编译被测源时的必需面：
+# 被测头内部可能引用这些目录下的头（实例：gadgets/*.h → "qool_shapecontrol_gadget.h"
+# （shapecontrol/）、"qool_smartobj.h"（utils/）、"qool_literals.h"（qore/）），
+# 而 Qool target 的 PRIVATE include 不传播给测试 target——漏一层断一层
+# （C1083 逐个暴露）。新增 core 测试一律对本变量做 PRIVATE include。
+set(QOOL_SRC_PRIVATE_INCLUDES
+    "${QOOL_SRC}/shapecontrol"
+    "${QOOL_SRC}/shapecontrol/gadgets"
+    "${QOOL_SRC}/datatypes"
+    "${QOOL_SRC}/style"
+    "${QOOL_SRC}/utils"
+    "${QOOL_SRC}/qore"
+    "${QOOL_SRC}/models"
+)
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/QoolUITests/core")
 
 # qt.conf（原 spec 5.2）：本层测试链接 Qt6::Quick（QT_GUI_LIB）→ QTEST_MAIN
@@ -31,6 +47,7 @@ qoolui_add_cpp_test(
   tst_vector2d.cpp
   "${QOOL_SRC}/datatypes/qool_vector2d.cpp"
 )
+target_include_directories(tst_qool_vector2d PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
 target_link_libraries(tst_qool_vector2d PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
 
 qoolui_add_cpp_test(
@@ -39,6 +56,7 @@ qoolui_add_cpp_test(
   "${QOOL_SRC}/utils/qool_numberranger.cpp"
   "${QOOL_SRC}/utils/qool_smartobj.cpp"
 )
+target_include_directories(tst_qool_numberranger PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
 target_link_libraries(tst_qool_numberranger PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
 
 qoolui_add_cpp_test(
@@ -46,6 +64,7 @@ qoolui_add_cpp_test(
   tst_polar2d.cpp
   "${QOOL_SRC}/datatypes/qool_polar2d.cpp"
 )
+target_include_directories(tst_qool_polar2d PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
 target_link_libraries(tst_qool_polar2d PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
 
 qoolui_add_cpp_test(
@@ -53,4 +72,43 @@ qoolui_add_cpp_test(
   tst_multirowselectionmodel.cpp
   "${QOOL_SRC}/models/qool_multirowselectionmodel.cpp"
 )
+target_include_directories(tst_qool_multirowselectionmodel PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
 target_link_libraries(tst_qool_multirowselectionmodel PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
+
+# CrystalGadget（八点几何 + contains 精确命中）——链依赖：
+# ShapeControl（target→control 几何链）+ ShapeControlGadget 基类 + SmartObject
+qoolui_add_cpp_test(
+  tst_qool_crystalgadget
+  tst_crystalgadget.cpp
+  "${QOOL_SRC}/shapecontrol/qool_shapecontrol.cpp"
+  "${QOOL_SRC}/shapecontrol/qool_shapecontrol_gadget.cpp"
+  "${QOOL_SRC}/shapecontrol/gadgets/qool_shapegadget_crystal.cpp"
+  "${QOOL_SRC}/utils/qool_smartobj.cpp"
+)
+target_include_directories(tst_qool_crystalgadget PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
+target_link_libraries(tst_qool_crystalgadget PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
+
+# HalfCrystalGadget contains 契约（geometrySource = RectGadget 画布）
+qoolui_add_cpp_test(
+  tst_qool_halfcrystalgadget
+  tst_halfcrystalgadget.cpp
+  "${QOOL_SRC}/shapecontrol/qool_shapecontrol.cpp"
+  "${QOOL_SRC}/shapecontrol/qool_shapecontrol_gadget.cpp"
+  "${QOOL_SRC}/shapecontrol/gadgets/qool_shapegadget_rect.cpp"
+  "${QOOL_SRC}/shapecontrol/gadgets/qool_shapegadget_halfcrystal.cpp"
+  "${QOOL_SRC}/utils/qool_smartobj.cpp"
+)
+target_include_directories(tst_qool_halfcrystalgadget PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
+target_link_libraries(tst_qool_halfcrystalgadget PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
+
+# RectGadget 派生几何契约（HalfCrystal 画布依赖 + 通用消费面）
+qoolui_add_cpp_test(
+  tst_qool_rectgadget
+  tst_rectgadget.cpp
+  "${QOOL_SRC}/shapecontrol/qool_shapecontrol.cpp"
+  "${QOOL_SRC}/shapecontrol/qool_shapecontrol_gadget.cpp"
+  "${QOOL_SRC}/shapecontrol/gadgets/qool_shapegadget_rect.cpp"
+  "${QOOL_SRC}/utils/qool_smartobj.cpp"
+)
+target_include_directories(tst_qool_rectgadget PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
+target_link_libraries(tst_qool_rectgadget PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
