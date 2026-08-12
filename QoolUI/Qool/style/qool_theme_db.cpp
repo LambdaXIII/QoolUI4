@@ -1,4 +1,4 @@
-#include "qool_theme_database.h"
+#include "qool_theme_db.h"
 
 #include "qool_interface_themeloader.h"
 #include "qool_system_theme.h"
@@ -7,27 +7,27 @@
 
 QOOL_NS_BEGIN
 
-QOOL_SIMPLE_SINGLETON_QT_IMPL(ThemeDatabase)
+QOOL_SIMPLE_SINGLETON_QT_IMPL(ThemeDB)
 
-ThemeDatabase::ThemeDatabase()
+ThemeDB::ThemeDB()
   : QAbstractListModel(nullptr)
   , m_mutex { new QMutex } {
   installTheme(*SystemTheme::instance());
   auto_install_themes();
 }
 
-ThemeDatabase::~ThemeDatabase() {
+ThemeDB::~ThemeDB() {
   if (m_mutex)
     delete m_mutex;
 }
 
-Theme ThemeDatabase::theme(const QString& name) const {
+Theme ThemeDB::theme(const QString& name) const {
   const auto key =
     m_themeNames.contains(name) ? name : m_themeNames.constFirst();
   return m_themes[key];
 }
 
-QHash<int, QByteArray> ThemeDatabase::roleNames() const {
+QHash<int, QByteArray> ThemeDB::roleNames() const {
   static QHash<int, QByteArray> names;
   if (names.isEmpty()) {
     names = QAbstractListModel::roleNames();
@@ -43,11 +43,11 @@ QHash<int, QByteArray> ThemeDatabase::roleNames() const {
   return names;
 }
 
-int ThemeDatabase::rowCount(const QModelIndex& parent) const {
+int ThemeDB::rowCount(const QModelIndex& parent) const {
   return m_themes.count();
 }
 
-QVariant ThemeDatabase::data(const QModelIndex& index, int role) const {
+QVariant ThemeDB::data(const QModelIndex& index, int role) const {
   if (! index.isValid() || index.row() >= m_themes.count())
     return {};
 
@@ -82,7 +82,7 @@ QVariant ThemeDatabase::data(const QModelIndex& index, int role) const {
   return {};
 }
 
-QVariant ThemeDatabase::anyValue(Theme::Groups group,
+QVariant ThemeDB::anyValue(Theme::Groups group,
   const QString& key, const QVariant& defvalue) const {
   for (auto i = m_themes.constBegin(); i != m_themes.constEnd(); ++i) {
     if (i.value().contains(group, key))
@@ -91,7 +91,7 @@ QVariant ThemeDatabase::anyValue(Theme::Groups group,
   return defvalue;
 }
 
-QVariant ThemeDatabase::anyValue(
+QVariant ThemeDB::anyValue(
   const QString& key, const QVariant& defvalue) const {
   for (auto i = m_themes.constBegin(); i != m_themes.constEnd(); ++i) {
     if (i.value().contains(key))
@@ -100,7 +100,7 @@ QVariant ThemeDatabase::anyValue(
   return defvalue;
 }
 
-qreal ThemeDatabase::visualBrightness(QColor color) {
+qreal ThemeDB::visualBrightness(QColor color) {
   static QHash<QString, qreal> cache;
   color = color.toRgb();
   const auto name = color.name().toUpper();
@@ -110,7 +110,7 @@ qreal ThemeDatabase::visualBrightness(QColor color) {
   return cache[name];
 }
 
-QColor ThemeDatabase::recommendForeground(
+QColor ThemeDB::recommendForeground(
   const QColor& bgColor, const QColor& light, const QColor& dark) {
   const qreal brightness = visualBrightness(bgColor);
   const qreal b_dark = visualBrightness(dark);
@@ -120,7 +120,7 @@ QColor ThemeDatabase::recommendForeground(
   return brightness >= 0.4 ? light : dark;
 }
 
-void ThemeDatabase::auto_install_themes() {
+void ThemeDB::auto_install_themes() {
   auto plugins = PluginLoader<ThemeLoader>::loadInstances();
   if (plugins.isEmpty()) {
     xWarningQ << "No ThemeLoader installed -- which is impossible, "
@@ -147,7 +147,7 @@ void ThemeDatabase::auto_install_themes() {
          << xDBGReset << "theme(s) installed.";
 }
 
-void ThemeDatabase::installTheme(Theme theme) {
+void ThemeDB::installTheme(Theme theme) {
   const QString name = theme.name();
 
   if (name.isEmpty() || m_themeNames.contains(name)) {
@@ -167,11 +167,11 @@ void ThemeDatabase::installTheme(Theme theme) {
   emit themeInstalled(name);
 }
 
-QStringList ThemeDatabase::themes() const {
+QStringList ThemeDB::themes() const {
   return m_themeNames;
 }
 
-int ThemeDatabase::count() const {
+int ThemeDB::count() const {
   return m_themeNames.length();
 }
 

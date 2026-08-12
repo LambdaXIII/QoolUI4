@@ -78,7 +78,7 @@ Item {
     QtObject {
         id: pControl
         property real radius: 5
-        property color foregroundColor: ThemeDB.recommendForeground(
+        property color foregroundColor: ThemeHQ.recommendForeground(
                                             root.currentColor)
         property bool altPressed: false
     }

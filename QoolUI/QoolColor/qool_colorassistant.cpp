@@ -19,7 +19,7 @@
 
     \c solidColor（去 alpha）、\c visualBrightness（0.299/0.587/0.114 亮度）、
     \c recommendedForegroundColor（亮度阈值 0.5 的黑/白对比前景色）随 \c color
-    变化而更新。亮度公式与 \l ThemeDB 一致；因 v4 的 C++ 类不动态导出、
+    变化而更新。亮度公式与 \l ThemeHQ 一致；因 v4 的 C++ 类不动态导出、
     QML 暴露走类型系统，派生量在内部自实现而非跨模块 C++ 委托。
 */
 
@@ -179,7 +179,7 @@ QColor ColorAssistant::solidColor() const {
 
 /*!
     感知亮度（0.299/0.587/0.114 加权）。
-    公式与 \l ThemeDB 的 visualBrightness 一致；ThemeDB 的 C++ 符号不导出
+    公式与 \l ThemeHQ 的 visualBrightness 一致；ThemeDB 的 C++ 符号不导出
     （v4 原则：C++ 类私有不动态导出，QML 暴露走类型系统），故此处自实现。
 */
 qreal ColorAssistant::visualBrightness() const {
@@ -189,7 +189,7 @@ qreal ColorAssistant::visualBrightness() const {
 
 /*!
     对比前景色（亮度 ≥0.5 → 黑，否则白）。
-    与 \l ThemeDB 的 recommendForeground 语义等价（该符号不可跨模块 C++ 调用，
+    与 \l ThemeHQ 的 recommendForeground 语义等价（该符号不可跨模块 C++ 调用，
     见 visualBrightness 说明），阈值按 v3 行为 0.5。
 */
 QColor ColorAssistant::recommendedForegroundColor() const {

@@ -7,7 +7,7 @@ Floater {
     id: root
     property string text
     property color color: Style.highlight
-    property color textColor: ThemeDB.recommendForeground(root.color,
+    property color textColor: ThemeHQ.recommendForeground(root.color,
                                                           root.Style.buttonText,
                                                           root.Style.highlightedText)
 

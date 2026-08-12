@@ -207,11 +207,23 @@ QOOL_FOREACH_10(__HANDLE__, white, silver, grey, black, ...)
 | 槽函数 | `when_` 前缀 | `when_themeChanged` |
 | QQmlListProperty 回调 / 私有辅助 | `__` 双下划线前缀 | `__appendFunction`、`__auto_insert` |
 
-### 单例
-统一用 `QoolCommon/qoolcommon/singleton.hpp` 三件套，**禁止手写静态实例**：
-- 头文件: `QOOL_SIMPLE_SINGLETON_DECL(类名)`
-- 源文件: `QOOL_SIMPLE_SINGLETON_QT_IMPL(类名)`（线程安全）
-- 需暴露给 QML 时追加 `QOOL_SIMPLE_SINGLETON_QML_CREATE(类名)` + `QML_SINGLETON`
+### 单例（单例组件设计模式）
+
+全局实例统一用 `QoolCommon/qoolcommon/singleton.hpp` 三件套（`QOOL_SIMPLE_SINGLETON_DECL` + `QOOL_SIMPLE_SINGLETON_QT_IMPL`），**禁止手写静态实例**。
+
+**形态三选一**（先按形态定位，再写代码）：
+1. **纯 QML 侧工具**（无进程共享状态）→ QML 文件单例（`pragma Singleton` + `QT_QML_SINGLETON_TYPE`）——per-engine 天然安全，无需 C++（先例：Qore / PixelFont / GlobalChatRoom）
+2. **C++-only 能力**（不暴露 QML）→ 普通全局单例（三件套），无 QML 注册（先例：SystemTheme / ChatRoomManager）
+3. **需要 QML 暴露的进程级能力**（全局共享状态/插件集束/缓存）→ **三件套**：
+   - **XxxDB**（全局单例，C++）：状态 + 逻辑 + C++ 消费面；**不暴露 QML**（无 QML_SINGLETON/QML_ELEMENT/QML_NAMED_ELEMENT）；**不标 Q_INVOKABLE**（标记只属于 QML 暴露面）；命名 `Database` → `DB`
+   - **XxxHQ**（QML 单例）：每 engine 独立实例（`create()` → `new XxxHQ(engine)`，parent = engine）；**类名 = QML 注册名**（双侧同名）；转发原暴露接口（实例方法/static/属性/信号），实现调 DB；只承载 QML 面（纯 C++ 方法不转发）
+   - **XxxHQModel**（普通类型，非单例，按需实例化）：模型面；优先 `QIdentityProxyModel` 挂接 DB（全套模型变更由 Qt 原生转发，DB 不进 QV4 值系统）
+
+**硬约束**：
+- **禁止进程级 C++ 单例经 `QML_SINGLETON` 暴露**——Qt 契约：共享实例只能被一个 QQmlEngine 访问，多 engine 即崩溃（4.0 系列实测 0xc0000005；QML 测试框架每文件建独立 engine）
+- **接口双侧保留**：C++ 面（DB）与 QML 面（HQ）各归其位，逻辑单份在 DB
+- **模型非单例化**：模型面从单例拆出为普通类型，需要处按需实例化
+- **插件/数据 App 级集束**（打包/聚合）：DB 持有，HQ 消费；插件只加载一次
 
 ### 值类型（QML 可见）
 内部 `struct XxxData : QSharedData` 持数据 + 门面类暴露 API：`Q_GADGET` + `QML_VALUE_TYPE(小写名)`，按可构造性选 `QML_CONSTRUCTIBLE_VALUE`（Q_INVOKABLE 构造函数）或 `QML_STRUCTURED_VALUE`。链式 API 返回 `Type&`（如 `Message::attach()`）。
@@ -290,7 +302,7 @@ qt_add_qml_module(ModuleName
     SOURCES ...
 )
 ```
-- QML 单例文件用 CMake 属性注册（而非 QML_SINGLETON 注解）: `set_source_files_properties(Xxx.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)`——这是 .qml 文件的通道；C++ 单例的 QML 暴露走 `QML_SINGLETON` 宏（见「单例」节），两者不混用
+- QML 单例文件用 CMake 属性注册（而非 QML_SINGLETON 注解）: `set_source_files_properties(Xxx.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)`——这是 .qml 文件的通道（形态一）；C++ 侧需要 QML 暴露的进程级能力走三件套模式（见「单例」节），**禁止进程级 C++ 单例经 QML_SINGLETON 暴露**，两者不混用
 - 文件按目录分组列出（如 `apps/xxx.h`），include 目录对应声明
 - 依赖机制见「模块架构 → 依赖机制（三场景）」；qmldir 不手写
 

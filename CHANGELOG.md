@@ -2,7 +2,32 @@
 
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
-## [4.0.0] — 2026-08-12
+## [4.0.0] — 2026-08-13
+
+### 变更
+
+- **QML 单例契约修复（系统性违规改造，spec singleton-design 8 tickets）**：进程级 C++ 单例经 `QML_SINGLETON` 暴露在**多 QQmlEngine** 场景崩溃（实测 0xc0000005，栈顶 `QV4::Value::fromHeapObject`——Qt 契约：共享实例暴露为 singleton 只能被一个 engine 访问）。4 个违规类（ThemeDatabase/ColorNameDatabase/FileIconDB/FileInfoDB）按**单例组件设计模式**（DB/HQ/HQModel 三件套）拆分：DB（改名 XxxDB，C++ 全局单例）保留全部方法/状态/逻辑并摘除 QML 注册与 Q_INVOKABLE 标记；HQ（新类 XxxHQ，QML 单例，`create()` 每 engine 独立实例，parent = engine）转发原暴露接口（实例方法/static/属性/信号），实现调 DB::instance()；接口双侧保留、逻辑单份在 DB、数据 App 级共享恢复（跨 engine 一致）。具体：
+  - **Theme 域**：ThemeDatabase → **ThemeDB**（文件名 `qool_theme_database.*` → `qool_theme_db.*`），模型特性保留（QAbstractListModel，被 ThemeHQModel 消费）；**ThemeHQ** 新建（转发 theme/anyValue/themes/count/installTheme/themeInstalled 重发/recommendForeground/visualBrightness static）；**ThemeHQModel** 新建（普通类型 `QML_ELEMENT` 非单例，`QIdentityProxyModel` 构造时 C++ 侧挂接 ThemeDB::instance()——全套模型变更原生转发，DB 不进 QV4 值系统）。仓库内 14 文件 ThemeDB 引用迁移 ThemeHQ（11 处调用 + 注释/qdoc/示例）；Style（C++ 消费者）跟随类名改用 ThemeDB::instance() 零行为变化
+  - **ColorName 域**：ColorNameDatabase → **ColorNameDB**（文件名同步 `qool_colorname_db.*`，provider 表/nameCache/5 查询方法保留）；**ColorNameHQ** 新建（转发 names/color/categories/hasColor/name）；4 组件 ColorDB 引用迁移
+  - **FileIcon 域**：FileIconDB 摘 QML 暴露（provider 表 + requestPath/requrestUrl 保留，FileIconImageProvider 路由零改动）；**FileIconHQ** 新建（iconUrl = FileIconImageProvider::compileUrl 静态，不经 DB——转发边界例外）
+  - **FileInfo 域**：FileInfoDB 摘 QML 暴露（QCache + getFileInfo ×2 保留，FileInfo 值类型缓存查询零改动）；**FileInfoHQ** 新建（转发 getFileInfo ×2，命中共享缓存）；example Page_QoolFile 引用迁移
+  - `QOOL_SIMPLE_SINGLETON_QML_CREATE` 宏从 `singleton.hpp` 删除（违规模式载体，防回归；DECL/IMPL 保留）；AGENTS.md「单例」节改写为模式固化（三选一形态 + 三件套规范 + 硬约束，删除 QML_CREATE+QML_SINGLETON 组合推荐）；QML 模块注册节 C++ 单例指引同步修订
+  - QDoc：4 个 HQ/HQModel 新类型文档（生命周期"进程级 QML 单例"→ 每 engine 实例 + App 级共享数据）；ColorDB QDoc 迁移 ColorNameHQ；qool.qdoc style-system page 补 ThemeHQ 分层与持久化说明；QoolFile 模块 AGENTS.md 更新
+  - **验证**：新增 4 个测试单元全绿（`tst_qool_singleton_contract` 跨 engine 契约——4 HQ 参数化：engine1 加载→析构→engine2 重建不崩+值一致；`tst_qool_singleton_write` QML 写面+信号转发；`tst_qool_singleton_model` ThemeHQModel 模型契约+rowsInserted 转发+双实例一致；`tst_qool_singleton_db` 4 个 DB 接口保留+HQ 转发等价）；ctest 14/14 全绿（9 既有 + 4 新 + QML 批次多 engine 生态回归）；grep 验收 `ThemeDB.`/`ColorDB.`/`FileInfoDB.` QML 面点调用零残留
+
+### 新增
+
+- **单例组件设计模式固化**（AGENTS.md「单例」节 + ADR-0001 + 根 CONTEXT.md）：形态三选一（纯 QML 文件单例 / C++-only 单例 / 三件套 DB+HQ+HQModel）；硬约束——禁止进程级 C++ 单例经 QML_SINGLETON 暴露、接口双侧保留、模型非单例化、插件/数据 App 级集束。设计产物归档：`docs/adr/0001-qml-singleton-contract.md`（定案版含实施验证结论）、根 `CONTEXT.md`（术语表：全局单例/QML 单例/违规模式/HQ/消费者-提供者关系等）
+- 主题总览列表模型 **ThemeHQModel**（QML 类型，`Qool` 模块）：roles 与源模型一致（name/theme/metadata/constants/active/inactive/disabled/custom）；installTheme 后 rowsInserted 实时转发；多视图各自实例化数据一致；`metadata` role 当前源模型 data() 无 case（取空）——视图需要元数据时经 theme role 的 Theme.metadata() 读取（QDoc 已记录）
+
+### 修复
+
+- **多 QQmlEngine 场景 SEGFAULT（0xc0000005）**：进程级 C++ 单例（ThemeDatabase 等 4 类）经 `QML_SINGLETON` 暴露被多个 engine 的 QV4 上下文共享使用——QML 测试框架（每文件独立 engine）与多窗口/多视图宿主必现。按契约重构为 DB（C++ 全局单例，不暴露 QML）+ HQ（QML 单例每 engine 实例）+ HQModel（非单例代理模型）后不再崩溃，单 engine 行为不变（见「变更」节详述）
+
+### 文档
+
+- AGENTS.md：「单例」节模式固化（三件套规范与硬约束——违规模式警示）；QML 模块注册节同步修订；QoolFile 模块 AGENTS.md 的 FileInfoDB/FileIconDB 描述更新（进程级 C++ 单例 + QML 面走 HQ）
+- QDoc：ThemeHQ（主题 QML 面：查询/安装/前景对比色 + 生命周期）、ThemeHQModel（roles 表/实时性/metadata 缺口说明）、ColorNameHQ（查询语义迁移自 ColorDB 文档 + 生命周期改写）、FileIconHQ（iconUrl 与协议说明）、FileInfoHQ（缓存与失效/单线程契约）
 
 ### 新增
 

@@ -73,8 +73,8 @@ Item {
 
     /*! \qmlproperty color 填充色，默认 Style.accent（独立使用默认自洽）。 */
     property color color: root.Style.accent
-    /*! \qmlproperty color 描边色，默认按填充色自动对比（ThemeDB.recommendForeground）。 */
-    property color strokeColor: ThemeDB.recommendForeground(root.color)
+    /*! \qmlproperty color 描边色，默认按填充色自动对比（ThemeHQ.recommendForeground）。 */
+    property color strokeColor: ThemeHQ.recommendForeground(root.color)
     /*! \qmlproperty Gradient 渐变填充通道（默认 null——纯色；fillItem 优先于渐变）。 */
     property Gradient fillGradient: null
     /*! \qmlproperty Item 纹理填充通道（OctagonShape 同款语义，优先于渐变/纯色）。 */

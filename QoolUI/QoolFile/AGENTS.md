@@ -35,8 +35,8 @@ FileInfoListModel ──配套──▶ FileInfoListView ──配套──▶ F
 ## C++ 设施
 
 - `FileInfoListModel`：单线程列表模型（遵循 Qt 模型线程规范，跨线程访问经 Queued 转发）；insert/append/remove/take/move/sort/removeDuplicates 全套操作；`fileInfos` 可写属性；move 支持多行
-- `FileInfoDB`：QML 单例，QCache 缓存文件信息（QUrl→QVariantMap）；`getFileInfo(url/path)`；经 `FileInfoProvider` 插件接口扩展提供者（autoInstallProviders）
-- `FileIconDB` + 图标 ImageProvider：文件图标体系，可经 fileiconprovider 插件扩展
+- `FileInfoDB`（进程级 C++ 单例）：QCache 缓存文件信息（QUrl→QVariantMap）；`getFileInfo(url/path)`；经 `FileInfoProvider` 插件接口扩展提供者（autoInstallProviders）。不暴露 QML——QML 面走 `FileInfoHQ`（QML 单例，每 engine 独立实例，转发 getFileInfo 命中共享缓存）
+- `FileIconDB`（进程级 C++ 单例）+ 图标 ImageProvider：文件图标体系，可经 fileiconprovider 插件扩展；QML 面走 `FileIconHQ`（iconUrl）
 - `UrlChecker`：URL 校验
 - `fileinfo`（FileInfo）：文件信息值类型（QML 可见，链式 API）
 

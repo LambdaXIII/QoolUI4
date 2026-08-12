@@ -8,28 +8,12 @@
 
 QOOL_NS_BEGIN
 
-/*!
-    \qmltype FileIconDB
-    \inqmlmodule Qool.File
-    \nativetype qoolui::FileIconDB
-    \brief 图标提供器的全局路由单例（QML 单例，进程级生命周期）。
-
-    构造时经 PluginLoader 自动安装全部 FileIconProvider 插件，按
-    priority 排序存入 provider 表；插件缺失时发出警告且无法提供图标。
-
-    \section1 provider 优先级
-    \c requestPath()/requrestUrl() 从高优先级向低优先级遍历询问：
-    首个能提供结果（std::optional 有值）的 provider 胜出并返回，
-    全部无法提供时返回空值。\c requestPath() 返回图标本地路径，
-    \c requrestUrl() 返回图标 URL。
-
-    \c iconUrl() 将本地文件路径编译为 \c image://qoolfileicon 协议的
-    图标 URL（等价 FileIconImageProvider::compileUrl）。
-
-    \note 析构仅做清理：单例析构实际不可达（进程级生命周期）；
-    provider 接口不保证继承 QObject（插件可提供纯 C++ 实现），
-    dynamic_cast 失败返回 nullptr，直接 deleteLater 是崩溃窗口。
-*/
+// 文件图标数据库（进程级 C++ 单例）：构造时经 PluginLoader 自动安装
+// 全部 FileIconProvider 插件，按 priority 排序存入 provider 表；插件
+// 缺失时发出警告且无法提供图标。路由语义（requestPath/requrestUrl
+// 从高优先级向低优先级遍历询问，首个能提供结果者胜出）与 iconUrl
+// 能力面见头文件注释；QML 消费面（iconUrl）由 FileIconHQ 提供。
+// 单线程契约：本类无跨线程访问（插件安装与路由均主线程），不额外加锁。
 QOOL_SIMPLE_SINGLETON_QT_IMPL(FileIconDB)
 
 FileIconDB::FileIconDB()

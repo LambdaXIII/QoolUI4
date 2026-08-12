@@ -25,7 +25,7 @@ Floater {
 
     QtObject {
         id: pCtrl
-        readonly property color textColor: ThemeDB.recommendForeground(
+        readonly property color textColor: ThemeHQ.recommendForeground(
                                                root.color, Style.button,
                                                Style.buttonText)
     }

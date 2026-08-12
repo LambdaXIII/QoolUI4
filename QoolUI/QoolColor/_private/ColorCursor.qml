@@ -1,6 +1,6 @@
 // NOTE(迁移) v3 Qool.Color/_private/ColorCursor.qml 逐字迁移。
 // Style 对位：highlightColor → root.Style.highlight（默认值）、
-// recommendedForegroundColor(color)（Style 函数）→ ThemeDB.recommendForeground(color)
+// recommendedForegroundColor(color)（Style 函数）→ ThemeHQ.recommendForeground(color)
 // （v4 语义近似：阈值 0.4→0.6，见 T13 对照表；light/dark 取默认白/黑）。
 //
 // 关键行为与易误解点（勿改）：
@@ -109,7 +109,7 @@ Item {
         id: crystal
         size: root.size
         color: root.currentColor
-        strokeColor: ThemeDB.recommendForeground(root.currentColor)
+        strokeColor: ThemeHQ.recommendForeground(root.currentColor)
         x: parent.width / 2
         y: parent.height / 2
 

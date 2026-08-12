@@ -31,7 +31,7 @@ BasicPage {
             }
 
             onAccepted: urls => {
-                            let info = FileInfoDB.getFileInfo(urls[0]);
+                            let info = FileInfoHQ.getFileInfo(urls[0]);
                             fileItem.fileInfo = info;
                         }
 

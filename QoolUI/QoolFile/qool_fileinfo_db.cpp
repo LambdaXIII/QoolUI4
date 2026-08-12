@@ -10,28 +10,12 @@
 
 QOOL_NS_BEGIN
 
-/*!
-    \qmltype FileInfoDB
-    \inqmlmodule Qool.File
-    \nativetype qoolui::FileInfoDB
-    \brief 文件元信息的全局缓存单例（QML 单例，进程级生命周期）。
-
-    以 QUrl 为键、QVariantMap 为值，缓存文件的通用信息（名称、路径、
-    大小、时间戳、类型标志等，见 \c generateCommonInfo）与各
-    FileInfoProvider 插件按优先级补充的信息；\c getFileInfo() 返回
-    值拷贝，可按需多次调用。
-
-    \section1 缓存与失效
-    缓存容量 2000 项，由 QCache 自动淘汰。命中时以磁盘文件的
-    lastModified 时间戳与缓存值比对，文件被修改即重新生成缓存
-    （generateCache），保证返回信息始终新鲜。
-
-    \section1 单线程契约
-    \c getFileInfo() 声明为 const 却会写入 QCache——QCache 非线程
-    安全，调用方必须限定主线程（模型等消费方均为主线程，无需加锁）。
-    防御性判空：QCache 淘汰策略下 object() 可能失效，直接解引用
-    nullptr 是崩溃窗口。
-*/
+// 文件信息数据库（进程级 C++ 单例）：以 QUrl 为键、QVariantMap 为值，
+// 缓存文件的通用信息（名称、路径、大小、时间戳、类型标志等，见
+// generateCommonInfo）与各 FileInfoProvider 插件按优先级补充的信息；
+// getFileInfo() 返回值拷贝，可按需多次调用。缓存语义（容量 2000、
+// lastModified 失效比对、单线程契约）与 QML 消费面见 FileInfoHQ 的
+// QML 文档——本类只承载数据与查询逻辑，QML 面由 FileInfoHQ 转发。
 QOOL_SIMPLE_SINGLETON_QT_IMPL(FileInfoDB)
 
 FileInfoDB::FileInfoDB()

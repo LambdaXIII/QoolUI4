@@ -32,7 +32,7 @@
     \b priority 的裁决语义按接口而定，不可一概而论——有的接口是逐层
     "覆盖"（高优先级胜出），有的是逐层"补充"（如首个有结果者胜出/并集
     汇总）；每个接口的文档必须写明自身的裁决语义。实例：
-    \c ColorNameProvider 为"补充"型（\l ColorDB 按 priority 升序查询，
+    \c ColorNameProvider 为"补充"型（\l ColorNameHQ 按 priority 升序查询，
     首个命中者胜出）。
 
     \section2 接口头文件

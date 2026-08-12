@@ -23,7 +23,7 @@ T.Control {
     contentItem: Text {
         id: contentText
         font: root.font
-        color: ThemeDB.recommendForeground(root.color, root.Style.dark,
+        color: ThemeHQ.recommendForeground(root.color, root.Style.dark,
                                            root.Style.light)
         padding: 2
     }

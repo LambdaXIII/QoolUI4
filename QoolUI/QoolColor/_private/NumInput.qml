@@ -240,7 +240,7 @@ T.Control {
                 verticalAlignment: root.verticalAlignment
                 color: root.color
                 selectionColor: root.highlightColor
-                selectedTextColor: ThemeDB.recommendForeground(root.highlightColor)
+                selectedTextColor: ThemeHQ.recommendForeground(root.highlightColor)
                 onEditingFinished: pControl.end_edit()
                 anchors.fill: parent
             } //input

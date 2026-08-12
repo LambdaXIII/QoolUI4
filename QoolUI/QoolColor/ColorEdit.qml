@@ -10,7 +10,7 @@ import Qool
 
     双态组件：
     \list 1
-    \li \b 显示态：显示 \l {ColorDB}{ColorDB.name(currentColor)} 的
+    \li \b 显示态：显示 \l {ColorNameHQ}{ColorNameHQ.name(currentColor)} 的
         最近色名（文本右对齐）。
     \li \b 编辑态：点击（IBeam 光标）进入；编辑框内容为显示态文本并
         全选，随输入实时解析回写 \l currentColor；回车或失焦结束编辑
@@ -20,7 +20,7 @@ import Qool
     \section1 输入解析（易误解，特别说明）
 
     编辑框内容按"颜色名或 \c #RRGGBB / \c #AARRGGBB 十六进制"经
-    \l {ColorDB}{ColorDB.color(text, defaultColor)} 解析：
+    \l {ColorNameHQ}{ColorNameHQ.color(text, defaultColor)} 解析：
     \list
     \li 解析失败（含输入中间态，如刚输入 "re" 尚未成 "red"）时
         \c currentColor 被置为 \l defaultColor——\b 输入过程中的瞬时
@@ -52,7 +52,7 @@ import Qool
     \section1 属性
 
     \qmlproperty color ColorEdit::currentColor
-    当前颜色。显示态由 \l {ColorDB}{ColorDB.name()} 渲染为色名；编辑态
+    当前颜色。显示态由 \l {ColorNameHQ}{ColorNameHQ.name()} 渲染为色名；编辑态
     由输入文本解析回写（失败回退 \l defaultColor）。
 
     \qmlproperty color ColorEdit::defaultColor
@@ -102,7 +102,7 @@ Item {
         horizontalAlignment: root.horizontalAlignment
         Binding {
             when: !editor.visible
-            display.text: ColorDB.name(root.currentColor)
+            display.text: ColorNameHQ.name(root.currentColor)
             restoreMode: Binding.RestoreNone
         }
     } //display
@@ -115,7 +115,7 @@ Item {
     } //mArea
 
     // 编辑态：v3 BasicTextInput（Qool.Controls.Basic）内联为 TextInput。
-    // 不复用 NumInput 的原因：显示态内容（ColorDB 色名渲染）与编辑内容
+    // 不复用 NumInput 的原因：显示态内容（ColorNameHQ 色名渲染）与编辑内容
     // （原始文本）不同，NumInput 的滚动显示/数值约定（x>1 → /1000）与
     // 本组件的颜色名输入无关——见文件头 QDoc。
     TextInput {
@@ -127,7 +127,7 @@ Item {
         wrapMode: TextInput.NoWrap
         color: root.Style.text
         font: root.font
-        selectedTextColor: ThemeDB.recommendForeground(root.currentColor)
+        selectedTextColor: ThemeHQ.recommendForeground(root.currentColor)
         selectionColor: root.currentColor
         horizontalAlignment: root.horizontalAlignment
         onEditingFinished: {
@@ -135,7 +135,7 @@ Item {
             root.editingFinished()
         }
         onTextChanged: {
-            root.currentColor = ColorDB.color(text, root.defaultColor)
+            root.currentColor = ColorNameHQ.color(text, root.defaultColor)
         }
     } //editor
 

@@ -55,8 +55,12 @@ qt_add_qml_module(
           style/qool_style.cpp
           style/qool_theme.h
           style/qool_theme.cpp
-          style/qool_theme_database.h
-          style/qool_theme_database.cpp
+          style/qool_theme_db.h
+          style/qool_theme_db.cpp
+          style/qool_theme_hq.h
+          style/qool_theme_hq.cpp
+          style/qool_theme_hqmodel.h
+          style/qool_theme_hqmodel.cpp
           style/qool_system_theme.h
           style/qool_system_theme.cpp
           style/qool_stylegroupagent.h

@@ -15,7 +15,8 @@ qt_add_qml_module(QoolColor
     SOURCES qool_colorhuecyclemodel.h qool_colorhuecyclemodel.cpp
     SOURCES qool_random_hsv_color_generator.h qool_random_hsv_color_generator.cpp
     SOURCES qool_crystal4containmentmask.h qool_crystal4containmentmask.cpp
-    SOURCES qool_colornamedatabase.h qool_colornamedatabase.cpp
+    SOURCES qool_colorname_db.h qool_colorname_db.cpp
+    SOURCES qool_colorname_hq.h qool_colorname_hq.cpp
 
     QML_FILES ColorQuickPicker.qml
     QML_FILES ColorEdit.qml

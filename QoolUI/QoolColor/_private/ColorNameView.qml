@@ -27,7 +27,7 @@ import Qool.Color
     \inqmlmodule Qool.Color
     \brief 色名列表视图（v3 ColorNameView 拍平）：分类色名 + 互斥点选。
 
-    以 \l {ColorDB}{ColorDB.names(category)} 为模型展示色名列表，
+    以 \l {ColorNameHQ}{ColorNameHQ.names(category)} 为模型展示色名列表，
     每行一个 \l ColorNameButton；点选互斥（同一时刻至多一项选中，
     v3 ButtonGroup 独占语义拍平）。
 
@@ -35,7 +35,7 @@ import Qool.Color
 
     \qmlproperty string ColorNameView::category
     当前分类（v3 的 \c catagory 拼写修正）。模型为
-    \l {ColorDB}{ColorDB.names(category)}；改值即换列表内容。
+    \l {ColorNameHQ}{ColorNameHQ.names(category)}；改值即换列表内容。
     默认 \c "DEFAULT"（与默认色名插件的分类一致）。
 
     \qmlproperty font ColorNameView::font
@@ -74,7 +74,7 @@ ListView {
             pControl.checkedButton.checked = false
     }
 
-    model: ColorDB.names(root.category)
+    model: ColorNameHQ.names(root.category)
 
     // 选中控制（v3 ButtonGroup 拍平）：checkedButton 互斥引用 + currentColor。
     QtObject {

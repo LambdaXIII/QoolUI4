@@ -9,7 +9,7 @@
 //     两个 MouseArea 的 containsPress 合成。
 // Style 对位：PixelFont.normalFont→PixelFont.normal；
 //   recommendedForegroundColor 用 ColorAssistant 派生属性（v3 同构，
-//   委托 ThemeDB.recommendForeground）。
+//   委托 ThemeHQ.recommendForeground）。
 // 与 v3 的刻意差异：无（行为逐字；Style/依赖对位见上）。
 
 pragma ComponentBehavior: Bound

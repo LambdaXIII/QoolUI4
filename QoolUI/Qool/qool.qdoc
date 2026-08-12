@@ -37,15 +37,20 @@
         供 QML 侧统一取用（如 \c root.Style.accent）。
     \li \l Theme：值类型，携带五组数据（Constants/Active/Inactive/
         Disabled + 元数据），描述一套完整外观。
-    \li \l SystemTheme / ThemeDatabase：主题来源——系统调色板
-        （Active/Inactive/Disabled 三组真实状态色）与主题数据库。
+    \li \l SystemTheme / ThemeDB：主题来源——系统调色板
+        （Active/Inactive/Disabled 三组真实状态色）与主题数据库
+        （进程级 C++ 全局单例，App 级共享数据）。
+    \li \l ThemeHQ：主题的 QML 面（QML 单例，每 QQmlEngine 独立实例），
+        转发 ThemeDB 的查询/安装/前景对比色接口——多 engine 场景下
+        各 engine 使用各自的 ThemeHQ 对象，数据仍是同一份。
     \endlist
 
     \section1 持久化分层（宿主注入）
 
     组件库刻意不做主题持久化。宿主在 QML 根节点绑定
     \c Style.theme 注入主题，构建期一次生效、无闪烁；需要在启动前
-    决策主题的宿主可操作 ThemeDatabase（C++ 侧）预置数据。
+    决策主题的宿主可操作 ThemeDB（C++ 侧）预置数据，QML 侧经
+    \l ThemeHQ 查询与安装主题。
 
     \section1 非 const 接口即宿主注入入口
 

@@ -14,7 +14,9 @@ qt_add_qml_module(QoolFile
 
     SOURCES qool_fileinfo_db.h qool_fileinfo_db.cpp
     SOURCES qool_fileinfo.h qool_fileinfo.cpp
+    SOURCES qool_fileinfo_hq.h qool_fileinfo_hq.cpp
     SOURCES qool_fileicon_db.h qool_fileicon_db.cpp
+    SOURCES qool_fileicon_hq.h qool_fileicon_hq.cpp
     SOURCES qool_fileicon_imageprovider.h qool_fileicon_imageprovider.cpp
     SOURCES qool_fileplugin.h qool_fileplugin.cpp
     SOURCES qool_fileinfolist_model.h qool_fileinfolist_model.cpp

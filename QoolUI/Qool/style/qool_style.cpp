@@ -2,7 +2,7 @@
 
 #include "qool_stylegroupagent.h"
 #include "qool_system_theme.h"
-#include "qool_theme_database.h"
+#include "qool_theme_db.h"
 #include "qoolcommon/debug.hpp"
 
 #include <QQuickWindow>
@@ -190,7 +190,7 @@ void Style::inherit(Style *other) {
 }
 
 void Style::when_themeChanged() {
-  const auto t = ThemeDatabase::instance()->theme(m_theme);
+  const auto t = ThemeDB::instance()->theme(m_theme);
   xInfoQ << "setting up theme" xDBGBlue << t.name() << xDBGReset "for" xDBGRed
          << this << xDBGReset;
 

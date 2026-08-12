@@ -29,10 +29,10 @@ public:                                                                \
     return singleton;                                                  \
   }
 
-#define QOOL_SIMPLE_SINGLETON_QML_CREATE(_CLS_)                        \
-public:                                                                \
-  static _CLS_* create(QQmlEngine*, QJSEngine*) {                      \
-    return _CLS_::instance();                                          \
-  }
+// 注意：曾有过 QOOL_SIMPLE_SINGLETON_QML_CREATE（把进程级单例伪装成
+// QML 单例）——违反 Qt 契约（共享实例经 QML_SINGLETON 暴露只能被一个
+// QQmlEngine 访问），多 engine 崩溃，已删除。需要 QML 暴露的进程级
+// 能力走「单例组件设计模式」三件套（XxxDB + XxxHQ + 可选 XxxHQModel），
+// 见仓库根 AGENTS.md「单例」节。
 
 #endif // QOOLCOMMON_SINGLETON_HPP

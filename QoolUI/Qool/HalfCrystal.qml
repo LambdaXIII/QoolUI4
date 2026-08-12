@@ -53,7 +53,7 @@ import Qool
     \section2 样式通道
     \list
     \li \c color（默认 Style.accent）纯色填充；\c strokeColor
-        （ThemeDB.recommendForeground 自动对比）描边色。
+        （ThemeHQ.recommendForeground 自动对比）描边色。
     \li \c fillGradient / \c fillItem 渐变/纹理通道（fillItem 优先）——
         Crystal 同款语义，无内置渐变逻辑。
     \li 单层外轮廓模型，细描边固定 1px；implicit 20×20。
@@ -78,8 +78,8 @@ Item {
 
     /*! \qmlproperty color 填充色，默认 Style.accent（独立使用默认自洽）。 */
     property color color: root.Style.accent
-    /*! \qmlproperty color 描边色，默认按填充色自动对比（ThemeDB.recommendForeground）。 */
-    property color strokeColor: ThemeDB.recommendForeground(root.color)
+    /*! \qmlproperty color 描边色，默认按填充色自动对比（ThemeHQ.recommendForeground）。 */
+    property color strokeColor: ThemeHQ.recommendForeground(root.color)
     /*! \qmlproperty Gradient 渐变填充通道（默认 null——纯色；fillItem 优先于渐变）。 */
     property Gradient fillGradient: null
     /*! \qmlproperty Item 纹理填充通道（Crystal 同款语义，优先于渐变/纯色）。 */

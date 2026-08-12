@@ -12,7 +12,7 @@ import "_private"
 
     自顶向下组合：
     \list 1
-    \li \l CycleChoice 分类切换器：选项为 \l {ColorDB}{ColorDB.categories()}
+    \li \l CycleChoice 分类切换器：选项为 \l {ColorNameHQ}{ColorNameHQ.categories()}
         返回的插件分类（如默认插件的 "DEFAULT"）。
     \li \l ColorNameView 色名列表：显示当前分类下全部色名，点选联动
         \l colorAssistant。
@@ -29,7 +29,7 @@ import "_private"
 
     \section1 分类切换（易误解，特别说明）
 
-    分类数据来自 \l {ColorDB}{ColorDB.categories()}（插件声明分类的
+    分类数据来自 \l {ColorNameHQ}{ColorNameHQ.categories()}（插件声明分类的
     并集，v3 同 API）；切换走 \l CycleChoice（v4 拍平件），每次点击
     循环到下一分类，\c displayText 即当前分类名。\b 本组件不内置
     分类数据——分类全集由已安装插件决定（v3 行为照迁）。
@@ -83,7 +83,7 @@ ColumnLayout {
         // ——QML 组属性赋值会移除子属性绑定，v3 正是靠此把分类文字
         // 渲染为像素字体 24px（v3 用 PixelFont.normalFont，对位 PixelFont.normal）。
         font: PixelFont.normal
-        texts: ColorDB.categories()
+        texts: ColorNameHQ.categories()
         backgroundSettings.cutSizes: 2
         Layout.fillWidth: true
     } //profiler

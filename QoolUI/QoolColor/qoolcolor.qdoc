@@ -6,7 +6,7 @@
 
     \list
     \li 核心对象：\l ColorAssistant（四空间分量全同步）、\l ColorBank（稀疏
-        槽位容器）、\l ColorDB（插件化色名查询单例）、\l ColorHueCycleModel、
+        槽位容器）、\l ColorNameHQ（插件化色名查询单例）、\l ColorHueCycleModel、
         \l RandomHSVColorGenerator。
     \li 编辑面板：\l HSVPanel、\l HSLPanel、\l RGBPanel、\l CMYKPanel——
         数字输入 + 表面控件 + 滑块组合，可注入共享 ColorAssistant。
@@ -34,7 +34,7 @@
     \li 色名插件优先级统一由插件 json 的 \c priority 字段定义，接口不提供
         priority 方法。
     \endlist
-    \li 前景对比色统一用 v4 既有设施：\l {ThemeDB}{ThemeDB.recommendForeground}
+    \li 前景对比色统一用 v4 既有设施：\l {ThemeHQ}{ThemeHQ.recommendForeground}
         （背景→黑/白推荐）与 \l {ColorAssistant}{ColorAssistant.recommendedForegroundColor}
         （0.5 阈值黑白派生属性）——v4 样式系统无独立 foreground 语义，
         foreground 并入 text 系（QPalette 对位设计）。

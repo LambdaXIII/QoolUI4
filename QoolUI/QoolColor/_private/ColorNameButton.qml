@@ -10,7 +10,7 @@
 //     经 checked=false 清空组引用。
 // Style 对位：textColor→text、highlightColor→highlight、
 //   foregroundColor→text（T08 对照表）、recommendedForegroundColor→
-//   ThemeDB.recommendForeground、controlTransitionDuration→transitionDuration、
+//   ThemeHQ.recommendForeground、controlTransitionDuration→transitionDuration、
 //   PixelFont.normalFont→PixelFont.normal。
 // 与 v3 的刻意差异：无（行为逐字；Style/依赖对位见上）。
 
@@ -27,8 +27,8 @@ import Qool.Color
     \brief 色名行按钮（v3 ColorNameButton 拍平）：色名 + 色块 + 选中展开。
 
     显示色名（\l name）与对应色块（\l color，经
-    \l {ColorDB}{ColorDB.color(name)} 解析）。选中时色块展开铺满整行、
-    文字反色为前景对比色（\l {ThemeDB}{ThemeDB.recommendForeground}），
+    \l {ColorNameHQ}{ColorNameHQ.color(name)} 解析）。选中时色块展开铺满整行、
+    文字反色为前景对比色（\l {ThemeHQ}{ThemeHQ.recommendForeground}），
     底部悬停指示条渐显。
 
     \section1 互斥选择（易误解，特别说明）
@@ -46,11 +46,11 @@ import Qool.Color
     \section1 属性
 
     \qmlproperty string ColorNameButton::name
-    色名，默认 "white"。\l color 由 \l {ColorDB}{ColorDB.color(name)}
+    色名，默认 "white"。\l color 由 \l {ColorNameHQ}{ColorNameHQ.color(name)}
     解析（未知名回退默认白）。
 
     \qmlproperty color ColorNameButton::color
-    只读，\l name 对应的颜色（ColorDB 解析结果）。
+    只读，\l name 对应的颜色（ColorNameHQ 解析结果）。
 
     \qmlproperty var ColorNameButton::group
     互斥组引用（v3 ButtonGroup 拍平，见上）。null 时点选为普通切换。
@@ -73,7 +73,7 @@ T.AbstractButton {
                                     ?? Style.animationEnabled
 
     property string name: "white"
-    readonly property color color: ColorDB.color(root.name)
+    readonly property color color: ColorNameHQ.color(root.name)
 
     // 互斥组（v3 ButtonGroup.group 拍平）：由 ColorNameView 注入。
     // 类型用 var（而非 QtObject）：组的 checkedButton 是动态属性，
@@ -112,7 +112,7 @@ T.AbstractButton {
             width: height
             height: parent.height
             border.width: 1
-            border.color: ThemeDB.recommendForeground(root.color)
+            border.color: ThemeHQ.recommendForeground(root.color)
             color: root.color
         } //box
     } //mainItem
@@ -158,7 +158,7 @@ T.AbstractButton {
             PropertyChanges {
                 box.width: mainItem.width
                 nameText.leftPadding: pControl.spacing
-                nameText.color: ThemeDB.recommendForeground(root.color)
+                nameText.color: ThemeHQ.recommendForeground(root.color)
             }
         }
     ] //states

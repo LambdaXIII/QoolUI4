@@ -112,3 +112,70 @@ qoolui_add_cpp_test(
 )
 target_include_directories(tst_qool_rectgadget PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
 target_link_libraries(tst_qool_rectgadget PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
+
+# ---- 单例契约修复测试（DB/HQ/HQModel 拆分）----
+# 分层：QML 面测试（contract/write）走模块插件（类型注册在模块 DLL 内），
+# 链接模块 target 仅为头文件 + DLL 部署；C++ 面测试（model/db）直接编译
+# 被测源（仓库「绝不动态导出」，测试 target 内副本与模块内副本行为等价）。
+set(QOOL_COLOR_SRC "${CMAKE_CURRENT_LIST_DIR}/../../QoolUI/QoolColor")
+set(QOOL_FILE_SRC "${CMAKE_CURRENT_LIST_DIR}/../../QoolUI/QoolFile")
+
+# 跨 engine 契约（QML 面，4 HQ 参数化）
+# 注：QoolFile 是 MODULE_LIBRARY（插件形态），不可被 target_link_libraries
+# 链接——QML 引擎经 import path（build/qml）直接加载其插件 DLL，
+# 依赖链（Qool.dll/Qt DLL）由 Qool/QoolColor 链接复制到 exe 目录满足。
+qoolui_add_cpp_test(
+  tst_qool_singleton_contract
+  tst_singleton_contract.cpp
+)
+target_link_libraries(tst_qool_singleton_contract PRIVATE
+  Qool QoolColor QoolControls QoolControlsComponents
+  QoolCommon QoolUITestSupport Qt6::Quick Qt6::Qml)
+target_compile_definitions(tst_qool_singleton_contract PRIVATE
+  QOOLUI_TEST_QML_IMPORT_PATH="${QT_QML_OUTPUT_DIRECTORY}")
+
+# QML 写面 + 信号转发（QML 面）
+qoolui_add_cpp_test(
+  tst_qool_singleton_write
+  tst_singleton_write.cpp
+  "${QOOL_SRC}/style/qool_theme.cpp"
+)
+target_include_directories(tst_qool_singleton_write PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
+target_link_libraries(tst_qool_singleton_write PRIVATE
+  Qool QoolColor QoolControls QoolControlsComponents
+  QoolCommon QoolUITestSupport Qt6::Quick Qt6::Qml)
+target_compile_definitions(tst_qool_singleton_write PRIVATE
+  QOOLUI_TEST_QML_IMPORT_PATH="${QT_QML_OUTPUT_DIRECTORY}")
+
+# ThemeHQModel（代理模型：源 = ThemeDB::instance()）
+qoolui_add_cpp_test(
+  tst_qool_singleton_model
+  tst_singleton_model.cpp
+  "${QOOL_SRC}/style/qool_theme_db.cpp"
+  "${QOOL_SRC}/style/qool_theme.cpp"
+  "${QOOL_SRC}/style/qool_system_theme.cpp"
+  "${QOOL_SRC}/style/qool_theme_hqmodel.cpp"
+)
+target_include_directories(tst_qool_singleton_model PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
+target_link_libraries(tst_qool_singleton_model PRIVATE
+  Qool QoolCommon QoolUITestSupport Qt6::Quick Qt6::Qml)
+
+# DB 接口保留 + HQ 转发等价（4 个 DB 全部）
+qoolui_add_cpp_test(
+  tst_qool_singleton_db
+  tst_singleton_db.cpp
+  "${QOOL_SRC}/style/qool_theme_db.cpp"
+  "${QOOL_SRC}/style/qool_theme.cpp"
+  "${QOOL_SRC}/style/qool_system_theme.cpp"
+  "${QOOL_SRC}/style/qool_theme_hq.cpp"
+  "${QOOL_COLOR_SRC}/qool_colorname_db.cpp"
+  "${QOOL_FILE_SRC}/qool_fileicon_db.cpp"
+  "${QOOL_FILE_SRC}/qool_fileicon_imageprovider.cpp"
+  "${QOOL_FILE_SRC}/qool_fileinfo_db.cpp"
+)
+target_include_directories(tst_qool_singleton_db PRIVATE
+  ${QOOL_SRC_PRIVATE_INCLUDES}
+  "${QOOL_COLOR_SRC}"
+  "${QOOL_FILE_SRC}")
+target_link_libraries(tst_qool_singleton_db PRIVATE
+  Qool QoolColor QoolCommon QoolUITestSupport Qt6::Quick Qt6::Qml)
