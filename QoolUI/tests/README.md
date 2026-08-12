@@ -32,6 +32,17 @@ QoolUI/tests/
 
 Windows 一键（配置+构建+测试）：`pwsh -File scripts/win_build_test.ps1`（仅本机脚本，见「平台差异」）。
 
+### 规模化（上百个 tst 时）
+
+- **注册全自动**：`common/` 用 `file(GLOB CONFIGURE_DEPENDS tst_*.cpp)` 自动发现——新增测试文件零配置进入构建/CTest/run-tests（Ninja 检测到新文件自动重新配置）；`qml/` 由 harness 递归扫描 `tst_*.qml`，同样零配置。**只有 `core/` 保持显式注册**（每个测试需显式声明被测源，无法自动推断，这是刻意的）
+- **run-tests 注册表驱动**：COMMAND 从 `QOOLUI_TEST_TARGETS` 自动生成（`qoolui_add_cpp_test` 注册即纳入）；测试特定参数（如 QML 的 `-platform offscreen`）经 `QOOLUI_TEST_ARGS_<target>` 变量声明。**新增测试无需改任何列表**
+- **CTest 是规模化主通道**（Qt 官方跑上百测试的方式）：
+  - 并行：`ctest --preset dev -j8`
+  - 筛选：`ctest -R tst_qool_vector2d`（单个）/ `ctest -R "tst_qoolcommon"`（按前缀）/ `ctest -R "tst_qool(vector2d\|numberranger)"`（正则组）
+  - 失败重跑：`ctest --rerun-failed`
+  - CI 报告：`ctest --output-junit result.xml`（配合 `--output-on-failure`）
+- **run-tests 保持串行失败即停**是有意的：开发时快速定位第一个失败；规模化/并行/全量报告走 ctest
+
 ## 如何新增测试
 
 ### C++ 测试（QoolCommon / Qool 核心类型）

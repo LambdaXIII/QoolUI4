@@ -77,30 +77,29 @@ add_subdirectory(core)
 add_subdirectory(qml)
 
 # ---- 聚合运行 target：cmake --build build --target run-tests ----
-# 逐个运行全部测试 exe（顺序执行，任一失败即中止并返回非零）。
-# Windows 经 cmake -E env 注入 Qt 前缀路径（插件/QML 模块）。
-if(WIN32)
-  add_custom_target(
-    run-tests
-    COMMAND ${CMAKE_COMMAND} -E env ${QOOLUI_TEST_ENV}
-            $<TARGET_FILE:tst_qoolcommon_math>
-    COMMAND ${CMAKE_COMMAND} -E env ${QOOLUI_TEST_ENV}
-            $<TARGET_FILE:tst_qool_vector2d>
-    COMMAND ${CMAKE_COMMAND} -E env ${QOOLUI_TEST_ENV}
-            $<TARGET_FILE:tst_qool_numberranger>
-    COMMAND ${CMAKE_COMMAND} -E env ${QOOLUI_TEST_ENV}
-            $<TARGET_FILE:tst_qool_qml> -platform offscreen
-    DEPENDS ${QOOLUI_TEST_TARGETS}
-    USES_TERMINAL
-  )
-else()
-  add_custom_target(
-    run-tests
-    COMMAND $<TARGET_FILE:tst_qoolcommon_math>
-    COMMAND $<TARGET_FILE:tst_qool_vector2d>
-    COMMAND $<TARGET_FILE:tst_qool_numberranger>
-    COMMAND $<TARGET_FILE:tst_qool_qml> -platform offscreen
-    DEPENDS ${QOOLUI_TEST_TARGETS}
-    USES_TERMINAL
-  )
-endif()
+# 注册表驱动：COMMAND 从 QOOLUI_TEST_TARGETS 自动生成——新增测试（经
+# qoolui_add_cpp_test 注册）自动纳入，无需手改本列表。
+# 逐个运行全部测试 exe（顺序执行，任一失败即中止并返回非零——开发时
+# 快速定位第一个失败；规模化/并行/筛选走 ctest 通道，见 tests/README.md）。
+set(RUN_TESTS_COMMANDS "")
+foreach(tst IN LISTS QOOLUI_TEST_TARGETS)
+  if(WIN32)
+    # Windows 经 cmake -E env 注入 Qt 前缀路径（插件/QML 模块）
+    list(APPEND RUN_TESTS_COMMANDS
+      COMMAND ${CMAKE_COMMAND} -E env ${QOOLUI_TEST_ENV} $<TARGET_FILE:${tst}>)
+  else()
+    list(APPEND RUN_TESTS_COMMANDS COMMAND $<TARGET_FILE:${tst}>)
+  endif()
+  # 测试特定参数（如 QML 测试的 -platform offscreen）：
+  # 经 QOOLUI_TEST_ARGS_<target> 变量声明（见 qml/CMakeLists.txt）
+  if(DEFINED QOOLUI_TEST_ARGS_${tst})
+    list(APPEND RUN_TESTS_COMMANDS ${QOOLUI_TEST_ARGS_${tst}})
+  endif()
+endforeach()
+
+add_custom_target(
+  run-tests
+  ${RUN_TESTS_COMMANDS}
+  DEPENDS ${QOOLUI_TEST_TARGETS}
+  USES_TERMINAL
+)

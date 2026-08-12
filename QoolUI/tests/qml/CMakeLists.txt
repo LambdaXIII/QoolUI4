@@ -20,6 +20,12 @@ target_compile_definitions(
 
 add_test(NAME tst_qool_qml COMMAND tst_qool_qml -platform offscreen)
 
+# 注册进聚合 run-tests（注册表驱动，见 tests/CMakeLists.txt）：
+# QML 测试需要 -platform offscreen 无头运行（目视渲染直接跑 exe 无参）
+list(APPEND QOOLUI_TEST_TARGETS tst_qool_qml)
+set(QOOLUI_TEST_TARGETS ${QOOLUI_TEST_TARGETS} CACHE INTERNAL "")
+set(QOOLUI_TEST_ARGS_tst_qool_qml "-platform;offscreen" CACHE INTERNAL "")
+
 # 依赖 DLL 复制到 exe 目录（与 qoolui_add_cpp_test 相同的部署策略）
 add_custom_command(
   TARGET tst_qool_qml POST_BUILD
