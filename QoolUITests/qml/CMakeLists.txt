@@ -42,6 +42,15 @@ target_link_libraries(
   tst_qool_qml PRIVATE Qt6::QuickTest Qt6::Qml
 )
 
+# Qool.dll 更新必须触发 exe 重链：Qool 是 DLL 且绝不动态导出，exe 不链接
+# Qool.lib（且 MSVC 导出未变时导入库不更新，链接 Qool.lib 也无法感知内容
+# 变化）——QML 修改只更新 Qool.dll 的 qrc 资源。无此依赖时 exe 不重链，
+# POST_BUILD 复制不执行，exe 旁 Qool.dll 副本过期 → QML 测试静默加载旧组件。
+# LINK_DEPENDS 把 Qool.dll 本体声明为链接规则实依赖（implicit input）：
+# DLL 更新 → exe 重链 → POST_BUILD 复制重跑 → 副本同步。
+set_property(TARGET tst_qool_qml APPEND PROPERTY
+  LINK_DEPENDS "$<TARGET_FILE:Qool>")
+
 target_compile_definitions(
   tst_qool_qml
   PRIVATE QUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tst_qool_qml"

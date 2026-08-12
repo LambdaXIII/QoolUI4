@@ -1,6 +1,17 @@
 #ifndef QOOLCOMMON_QBINDABLE_PROPERTY_MACROS_HPP
 #define QOOLCOMMON_QBINDABLE_PROPERTY_MACROS_HPP
 
+// QObject bindable 属性宏族：成员为 Q_OBJECT_BINDABLE_PROPERTY（值变化
+// 通知走 bindable 而非 setter 显式 emit；相等守卫由 operator= 内置，setter
+// 不写守卫是刻意的），并生成 bindable_xxx()（QBindable{&member} 形态，
+// Q_PROPERTY 带 BINDABLE 供 QML 引擎走 bindable 接口）。
+// 签名：QBINDABLE_*_PROPERTY(_C_, _T_, _N_, ...)——**无默认值参数**；
+// ... 为 Q_PROPERTY 附加选项通道（误传默认值会静默进入 Q_PROPERTY 尾部
+// 导致 moc Parse error）。DECLARE 版不生成成员，实现归类/类外手写。
+// QOOL_MAKE_PROPERTY_BINDABLE：给非宏体系的普通 Q_PROPERTY 补 bindable
+// 访问（QBindable{this, name} 形态，用于绑定表达式读取，不用于实现
+// BINDABLE——依赖追踪限制见 Qt 文档）。
+// 详细文档见 qoolcommon/property_macros.qdoc。
 #include "_property_helpers.hpp"
 
 #include <QBindable>

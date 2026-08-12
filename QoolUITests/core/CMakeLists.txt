@@ -40,3 +40,17 @@ qoolui_add_cpp_test(
   "${QOOL_SRC}/utils/qool_smartobj.cpp"
 )
 target_link_libraries(tst_qool_numberranger PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
+
+qoolui_add_cpp_test(
+  tst_qool_polar2d
+  tst_polar2d.cpp
+  "${QOOL_SRC}/datatypes/qool_polar2d.cpp"
+)
+target_link_libraries(tst_qool_polar2d PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
+
+qoolui_add_cpp_test(
+  tst_qool_multirowselectionmodel
+  tst_multirowselectionmodel.cpp
+  "${QOOL_SRC}/models/qool_multirowselectionmodel.cpp"
+)
+target_link_libraries(tst_qool_multirowselectionmodel PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)

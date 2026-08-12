@@ -83,11 +83,15 @@ Polar2D operator+(const Polar2D& a, const QVector2D& vec) {
 Polar2D operator-(const Polar2D& a, const QVector2D& vec) {
   return Polar2D(a.vector() - vec);
 }
+// 标量乘法/除法 = 半径缩放，方向不变（极坐标的标量运算语义）。
+// 原实现误用 radius + r / radius - r（加/减语义与乘/除符号不符，
+// 与 Vector2D 的 operator* 缩放语义不一致——测试 scale_multiply/
+// scale_divide 逮住），且零缩放应得零向量。
 Polar2D operator*(const Polar2D& a, qreal r) {
-  return Polar2D(a.radius() + r, a.radians());
+  return Polar2D(a.radius() * r, a.radians());
 }
 Polar2D operator/(const Polar2D& a, qreal r) {
-  return Polar2D(a.radius() - r, a.radians());
+  return Polar2D(a.radius() / r, a.radians());
 }
 
 QOOL_NS_END

@@ -3,10 +3,65 @@
   "cmakeMinimumRequired": { "major": 3, "minor": 30, "patch": 0 },
   "configurePresets": [
     {
-      "name": "dev",
-      "displayName": "QoolUI dev (Ninja, Release, tests ON)",
+      "name": "dev-msvc-debug",
+      "displayName": "QoolUI dev (MSVC, Ninja, Debug)",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build",
+      "binaryDir": "${sourceDir}/build-msvc-Debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTING": "ON",
+        "CMAKE_PREFIX_PATH": "$env{QT_DIR}"
+      }
+    },
+    {
+      "name": "dev-msvc-release",
+      "displayName": "QoolUI dev (MSVC, Ninja, Release)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-msvc-Release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_TESTING": "ON",
+        "CMAKE_PREFIX_PATH": "$env{QT_DIR}"
+      }
+    },
+    {
+      "name": "dev-clang-debug",
+      "displayName": "QoolUI dev (Clang, Ninja, Debug)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-clang-Debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTING": "ON",
+        "CMAKE_PREFIX_PATH": "$env{QT_DIR}"
+      }
+    },
+    {
+      "name": "dev-clang-release",
+      "displayName": "QoolUI dev (Clang, Ninja, Release)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-clang-Release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_TESTING": "ON",
+        "CMAKE_PREFIX_PATH": "$env{QT_DIR}"
+      }
+    },
+    {
+      "name": "dev-gcc-debug",
+      "displayName": "QoolUI dev (GCC, Ninja, Debug)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-gcc-Debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTING": "ON",
+        "CMAKE_PREFIX_PATH": "$env{QT_DIR}"
+      }
+    },
+    {
+      "name": "dev-gcc-release",
+      "displayName": "QoolUI dev (GCC, Ninja, Release)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-gcc-Release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_TESTING": "ON",
@@ -15,17 +70,19 @@
     }
   ],
   "buildPresets": [
-    {
-      "name": "dev",
-      "configurePreset": "dev"
-    }
+    { "name": "dev-msvc-debug", "configurePreset": "dev-msvc-debug" },
+    { "name": "dev-msvc-release", "configurePreset": "dev-msvc-release" },
+    { "name": "dev-clang-debug", "configurePreset": "dev-clang-debug" },
+    { "name": "dev-clang-release", "configurePreset": "dev-clang-release" },
+    { "name": "dev-gcc-debug", "configurePreset": "dev-gcc-debug" },
+    { "name": "dev-gcc-release", "configurePreset": "dev-gcc-release" }
   ],
   "testPresets": [
-    {
-      "name": "dev",
-      "configurePreset": "dev",
-      "filter": { "name": "tst_*" },
-      "output": { "outputOnFailure": true }
-    }
+    { "name": "dev-msvc-debug", "configurePreset": "dev-msvc-debug", "filter": { "name": "tst_*" }, "output": { "outputOnFailure": true } },
+    { "name": "dev-msvc-release", "configurePreset": "dev-msvc-release", "filter": { "name": "tst_*" }, "output": { "outputOnFailure": true } },
+    { "name": "dev-clang-debug", "configurePreset": "dev-clang-debug", "filter": { "name": "tst_*" }, "output": { "outputOnFailure": true } },
+    { "name": "dev-clang-release", "configurePreset": "dev-clang-release", "filter": { "name": "tst_*" }, "output": { "outputOnFailure": true } },
+    { "name": "dev-gcc-debug", "configurePreset": "dev-gcc-debug", "filter": { "name": "tst_*" }, "output": { "outputOnFailure": true } },
+    { "name": "dev-gcc-release", "configurePreset": "dev-gcc-release", "filter": { "name": "tst_*" }, "output": { "outputOnFailure": true } }
   ]
 }

@@ -38,7 +38,7 @@ QoolUI 的测试设施：Qt Test + Qt Quick Test 双栈程序化测试。本文�
 
 - 每个 Qool 模块 = 一个 QML 测试批次 = 一个 harness target（`tst_<模块>_qml`），`assets/` 资源放批次目录下（文件系统相对路径访问，如 `"assets/foo.png"`）；`assets/` 内不得有 `tst_` 前缀文件
 - 新增 QML 测试批次：复制 `qml/CMakeLists.txt` 的 tst_qool_qml 段（add_executable + 编译定义 + add_test + 注册表登记），QUICK_TEST_SOURCE_DIR 指向新批次目录
-- harness 共享 `qml_test_main.cpp` 模板；import path 不必按模块区分（`QT_QML_OUTPUT_DIRECTORY = build/qml` 全局，引擎沿模块依赖链自动解析）
+- harness 共享 `qml_test_main.cpp` 模板；import path 不必按模块区分（`QT_QML_OUTPUT_DIRECTORY = build-<kit>-<Type>/qml` 全局，引擎沿模块依赖链自动解析）
 
 ## 测试策略
 
@@ -52,10 +52,10 @@ QoolUI 的测试设施：Qt Test + Qt Quick Test 双栈程序化测试。本文�
 
 - **自包含**：本树位于仓库顶级，不继承 QoolUI 的 `qt_standard_project_setup()` 目录作用域——`CMAKE_AUTOMOC`、`project()` 自行声明
 - **project 声明**：`project(QoolUITests VERSION ${QOOLUI_VERSION_FULL} LANGUAGES CXX)`——子目录 project() 重置 PROJECT_* 变量，本树引用模块路径一律相对路径（`${CMAKE_CURRENT_LIST_DIR}/../../QoolUI/...`），不引用 QoolUI 的 PROJECT_*
-- **CTest 注册**：`include(CTest)` 在主 CMakeLists 的 `if(QOOL_BUILD_TESTS)` 内（顶层启用——enable_testing 必须顶层调用，ctest --preset dev 才在 build/ 找到 CTestTestfile.cmake 并递归发现本树测试；落地实测：内聚到本树时全新 configure 后 ctest 找不到测试，修正为顶层条件化）；`BUILD_TESTING` = 注册侧标准开关（OFF 时测试仍构建但 ctest 不注册，run-tests 仍可用）
-- **输出树**：`build/QoolUITests/{common,core,qml}` 三层（层内共享一份 DLL 集，`copy_if_different` 幂等）；目录级 `CMAKE_RUNTIME_OUTPUT_DIRECTORY` 覆盖不碰主设置
+- **CTest 注册**：`include(CTest)` 在主 CMakeLists 的 `if(QOOL_BUILD_TESTS)` 内（顶层启用——enable_testing 必须顶层调用，`ctest --preset dev-<kit>-<type>` 才在 `build-<kit>-<Type>/` 找到 CTestTestfile.cmake 并递归发现本树测试；落地实测：内聚到本树时全新 configure 后 ctest 找不到测试，修正为顶层条件化）；`BUILD_TESTING` = 注册侧标准开关（OFF 时测试仍构建但 ctest 不注册，run-tests 仍可用）
+- **输出树**：`build-<kit>-<Type>/QoolUITests/{common,core,qml}` 三层（层内共享一份 DLL 集，`copy_if_different` 幂等）；目录级 `CMAKE_RUNTIME_OUTPUT_DIRECTORY` 覆盖不碰主设置
 - **qt.conf**（Windows 前缀解析，spec 5.2）：`qt.conf.in` 配置期生成到 core/qml 层 exe 旁（`Prefix = Qt 安装前缀`，绝对路径正斜杠）——QLibraryInfo 读取，覆盖 DLL 复制导致的推导失效；任何运行通道无需环境注入；源码不含安装路径。**common 层不需要**（纯 QCoreApplication，不加载平台插件）；core 层需要（链接 Qt6::Quick → QGuiApplication 构造加载平台插件）。改模板后需重新 configure 生效
-- **DLL 部署**：POST_BUILD `$<TARGET_RUNTIME_DLLS>` 复制 Qt DLL；qml 层额外复制 Qool target 的 RUNTIME_DLLS + TARGET_FILE（Qoolplugin.dll 从 build/qml/Qool/ 加载，其依赖链须在 exe 目录）
+- **DLL 部署**：POST_BUILD `$<TARGET_RUNTIME_DLLS>` 复制 Qt DLL；qml 层额外复制 Qool target 的 RUNTIME_DLLS + TARGET_FILE（Qoolplugin.dll 从 `build-<kit>-<Type>/qml/Qool/` 加载，其依赖链须在 exe 目录）
 - **构建开关**（`load_qoolui_standard_options()`，默认 ON）：`QOOL_BUILD_TESTS` = 构建侧总闸（测试目录是否加入，OFF 时测试树彻底消失含 include(CTest)）；`QOOL_BUILD_EXAMPLEAPP` = 示例程序；`BUILD_TESTING`（顶层 include(CTest) 提供）= 注册侧标准开关（OFF 时测试仍构建但 ctest 不注册，run-tests 仍可用）
 - **EXCLUDE_FROM_ALL（已修正，原 spec 6.3）**：测试 target **加入默认构建（all）**——原「EXCLUDE_FROM_ALL 不构建测试」设计被 QtCreator 面板通道实测推翻：面板运行前构建 all，被排除测试的 exe 缺失 → 「启动测试失败/无预期输出」全红（实验：单测进 all 后绿、其余全红，确认根因）。run-tests 保留为聚合运行通道（DEPENDS 常规依赖）。QtCreator 面板列出可运行（从 CMake target 数据库读）
 - **注册机制**：`qoolui_add_cpp_test()` 公共函数（add_executable + Qt6::Test + add_test + DLL 部署 + 注册表）；`QOOLUI_TEST_TARGETS` 注册表驱动 run-tests 聚合 target；common 层 `file(GLOB CONFIGURE_DEPENDS)` 自动发现，core 层显式注册（需声明被测源，刻意）；测试特定参数经 `QOOLUI_TEST_ARGS_<target>`
@@ -64,16 +64,12 @@ QoolUI 的测试设施：Qt Test + Qt Quick Test 双栈程序化测试。本文�
 
 | 通道 | 命令 | 适用 |
 |---|---|---|
-| 聚合 target（日常） | `cmake --build build --target run-tests` | 一条命令跑全部、失败即红，无 CTest 机制 |
-| CTest | `ctest --preset dev`（或 `ctest -R tst_`） | CI/筛选/并行/报告 |
-| 直接运行 | `build/QoolUITests/<层>/tst_*.exe -txt` | 单个测试调试；QML 加 `-platform offscreen` 无头 |
+| 聚合 target（日常） | `cmake --build build-<kit>-<Type> --target run-tests` | 一条命令跑全部、失败即红，无 CTest 机制 |
+| CTest | `ctest --preset dev-<kit>-<type>`（或 `ctest -R tst_`） | CI/筛选/并行/报告 |
+| 直接运行 | `build-<kit>-<Type>/QoolUITests/<层>/tst_*.exe -txt` | 单个测试调试；QML 加 `-platform offscreen` 无头；单文件用 `-input <绝对路径>` |
 
-Windows 一键（配置+构建+测试）：`pwsh -File scripts/win_build_test.ps1`。
+Windows 一键（环境+配置+构建+测试）操作流程见 `README.md`（`python Scripts/qoolui_build_windows.py` 三次调用，唯一事实源）。
 
 ## 已知经验（Windows 特有，供跨平台对照）
 
-1. **MSYS/Git-Bash 管道伪象（重大）**：从 MSYS bash 管道运行 Qt Test 程序，stdout logger 输出完全丢失且退出码不可信（表现为「无声退出 0」或虚假的 0xC0000409 崩溃）。**判定测试结果必须从真实 Windows 控制台（cmd/Windows Terminal/PTY）运行**——观测通道问题，不是测试或 Qt 的问题
-2. **Ninja 并行 POST_BUILD 竞争**：多个测试 target 的 POST_BUILD 并发复制同一目录（如 plugins/platforms）可能 Permission denied——重跑增量构建即可（本设施已消除该复制，仅当新增同类复制时注意）
-3. **Qt 前缀定位**：`${Qt6_DIR}/../../..` = Qt 安装前缀（Qt6_DIR = `<前缀>/lib/cmake/Qt6`）
-4. **CTest 的 ENVIRONMENT 陷阱**：`ENVIRONMENT` 属性 PATH 值在 Windows 按 `;` 拆分，多路径注入损坏——不要用；本设施零环境注入（qt.conf）
-5. **AUTOGEN 状态残留（C1083 排查）**：测试 target 的源文件列表经历过「空 → 有」的 configure（如中间版本配置错误导致 add_executable 无源）后，autogen timestamp 可能残留为最新（比源文件新）→ 后续正确 configure 不重置 autogen → 构建跳过 moc 生成 → `fatal error C1083: "tst_xxx.moc": No such file or directory`（build.make 中该 target 无 moc 规则可佐证）。**修复：删除构建目录中对应测试目录（如 `build/.../QoolUITests`）强制重新 configure**——仅重跑 cmake 不重置（实测）
+Windows 环境经验唯一清单（MSYS 管道伪象/Ninja POST_BUILD 竞争/Qt 前缀定位/CTest ENVIRONMENT 陷阱/AUTOGEN 残留等）见 `README.md`——本规范不再重复维护。
