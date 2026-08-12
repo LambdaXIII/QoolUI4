@@ -17,6 +17,14 @@
 // 精确命中掩码（HalfCrystalGadget C++ contains——geometrySource = gB 画布 +
 // direction）：shapeRect 粗判 + 内部正方形四角域排除（开集语义，斜边命中）。
 //
+// hover 挂载（Qt 6.11 实证）：QHoverEvent 分发（QQuickDeliveryAgent::
+// deliverHoverEventRecursive）对每个 item 独立调用其自身 contains，不检查
+// 祖先 Item 的 containmentMask——root 上的掩码只约束 QPointerEvent（点击/
+// 按下）路径；宿主 MouseArea 的 hover 走自身 contains（无掩码 = 矩形判定，
+// 三角外误 hover）。精确 hover 须宿主把掩码挂到 MouseArea 自身：
+// `MouseArea { containmentMask: 组件id.containmentMask }`（anchors.fill 时
+// 本地坐标即组件本地，与 gB 基准一致）。契约说明见 QDoc「命中掩码」。
+//
 // 结构决策（root 为 Item + 内部 Shape anchors.fill）：Qt 6.6+ 的 Shape 引擎
 // 在路径变化时强制 setImplicitSize(路径边界)（qquickshape.cpp
 // _q_shapePathChanged）——路径点随组件尺寸变化的组件若以 Shape 为根，
@@ -72,6 +80,22 @@ import Qool
     \c{dx+dy < shortEdge/2}——开集语义，斜边与直角边端点命中）。
     掩码引用 gB 瞬时几何（不跟动画层）——命中域即当前形状语义；
     组件平移/父变换后仍准确（掩码坐标与渲染同基准——本地画布坐标）。
+
+    \note \b hover 需显式挂载掩码。Qt 的 hover 事件分发只检查 item 自身
+    的 \c contains（不检查祖先 Item 的 containmentMask）——组件 root 上的
+    掩码约束点击/按下（QPointerEvent 路径），\b 不 约束宿主 MouseArea 的
+    hover。需要精确 hover 时把掩码挂到 MouseArea 自身（坐标基准一致——
+    MouseArea anchors.fill 时本地坐标即组件本地）：
+    \code
+    HalfCrystal {
+        id: crystal
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            containmentMask: crystal.containmentMask
+        }
+    }
+    \endcode
 */
 Item {
     id: root

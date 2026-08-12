@@ -22,6 +22,7 @@
 
 ### 修复
 
+- **HalfCrystal 掩码 hover 误判（测试页掩码演示实证）**：鼠标在组件内三角外区域（如下半）时 `containsMouse` 仍为 true——**Qt 6.11 的 QHoverEvent 分发（QQuickDeliveryAgent::deliverHoverEventRecursive）只检查 item 自身的 contains，不检查祖先 Item 的 containmentMask**：组件 root 上的掩码只约束 QPointerEvent（点击/按下）路径，宿主 MouseArea 的 hover 走自身 contains（无掩码 = 矩形判定）。修复 = 宿主 MouseArea 显式挂载组件掩码（坐标基准一致：anchors.fill 时 MouseArea 本地即组件本地）：`MouseArea { containmentMask: 组件id.containmentMask }`——测试页掩码演示（HalfCrystal + Crystal 对照）按此用法更新；HalfCrystal/Crystal QDoc「命中掩码」节补 hover 挂载契约说明。回归：新增 C++ 端到端 hover 测试 `tst_qool_hover_e2e`（真实窗口 + QTest::mouseMove——QML 测试批次 TestCase.mouseMove 在 offscreen 平台不注入事件）；`qoolui_add_cpp_test` 宏支持 `QOOLUI_TEST_ARGS_<target>` 变量（ctest 与 run-tests 双通道注入测试参数——与 qml/ 批次同名同义），hover_e2e 声明 `-platform offscreen` 无头运行（聚合运行时不再闪现真实窗口；目视渲染直接跑 exe 无参）；QML 测试 `tst_halfcrystal.qml` 增 `test_maskEngineEntry`（QQuickItem::contains 引擎接线含掩码）。**期望 WARN 处理**：测试环境无主题插件（qoolplugins/ 随 example 部署）→ ThemeDB 初始化必出 "No ThemeLoader installed" WARN（回退 system 主题，断言不受影响）——经 QML `ignoreWarning`（tst_crystal.qml 首个触发点）与 C++ `QTest::ignoreMessage`（hover_e2e）吞除并验证出现性（未出现即提示，防环境变化静默）。诊断过程：直接调用 contains 与引擎路径对照 + 探针掩码打印引擎坐标，确认掩码判定本身正确（META invoke (60,90)=false）、误判源自 hover 分发路径不查祖先掩码
 - **多 QQmlEngine 场景 SEGFAULT（0xc0000005）**：进程级 C++ 单例（ThemeDatabase 等 4 类）经 `QML_SINGLETON` 暴露被多个 engine 的 QV4 上下文共享使用——QML 测试框架（每文件独立 engine）与多窗口/多视图宿主必现。按契约重构为 DB（C++ 全局单例，不暴露 QML）+ HQ（QML 单例每 engine 实例）+ HQModel（非单例代理模型）后不再崩溃，单 engine 行为不变（见「变更」节详述）
 
 ### 文档

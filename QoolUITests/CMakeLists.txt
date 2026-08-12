@@ -45,7 +45,7 @@ target_include_directories(
 # Qt 安装前缀（Qt6_DIR = <prefix>/lib/cmake/Qt6，上三级回到前缀）。
 # 供各层 qt.conf 模板（qt.conf.in）与依赖复制使用。
 find_package(
-  Qt6 REQUIRED COMPONENTS Test QuickTest Qml Quick
+  Qt6 REQUIRED COMPONENTS Test QuickTest Qml Quick QuickShapes
 )
 get_filename_component(QOOLUI_QT6_PREFIX "${Qt6_DIR}/../../.." ABSOLUTE)
 
@@ -57,10 +57,18 @@ set(QOOLUI_TEST_TARGETS "" CACHE INTERNAL "QoolUI test executables")
 # QtCreator 测试面板运行前构建 all，EXCLUDE_FROM_ALL 的测试不构建 → exe
 # 缺失 → 「启动测试失败/无预期输出」全红（实测：tst_math 单测进 all 后绿、
 # 其余全红，确认根因）。run-tests 仍为聚合运行通道（DEPENDS 常规依赖）。
+# 测试特定参数（如窗口测试的 -platform offscreen）：经
+# QOOLUI_TEST_ARGS_<target> 变量声明（ctest 与 run-tests 双通道注入——
+# 与 qml/ 批次的约定同名同义；无头窗口测试必须声明，否则 ctest/run-tests
+# 运行时闪现真实窗口）
 function(qoolui_add_cpp_test name)
   add_executable(${name} ${ARGN})
   target_link_libraries(${name} PRIVATE Qt6::Test)
-  add_test(NAME ${name} COMMAND ${name})
+  if(DEFINED QOOLUI_TEST_ARGS_${name})
+    add_test(NAME ${name} COMMAND ${name} ${QOOLUI_TEST_ARGS_${name}})
+  else()
+    add_test(NAME ${name} COMMAND ${name})
+  endif()
   # 依赖 DLL 复制到 exe 目录（Windows 生效，其余平台展开为空）
   add_custom_command(
     TARGET ${name} POST_BUILD

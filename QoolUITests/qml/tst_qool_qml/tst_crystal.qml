@@ -53,6 +53,13 @@ TestCase {
     }
 
     function test_cutSizeFollowsSize() {
+        // 期望 WARN（测试环境无主题插件）：本函数是 QML 批次第一个实例化
+        // Qool 组件的测试——触发 ThemeDB 初始化 → PluginLoader 扫描不到
+        // qoolplugins/（插件随 example 部署，测试 exe 目录无）→
+        // "No ThemeLoader installed" WARN，ThemeDB 回退 system 主题。
+        // 对断言无影响（相对值断言）；ignoreWarning 吞掉并验证其出现
+        // （未出现会提示——届时说明 ThemeDB 初始化位置变化，需移动本注册）。
+        ignoreWarning(new RegExp("No ThemeLoader installed.*"))
         const c = makeCrystal({ w: 100, h: 80 })
         tryCompare(c, "cutSize", 40, 1000)
         c.width = 60

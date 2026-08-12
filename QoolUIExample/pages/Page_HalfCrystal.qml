@@ -172,6 +172,10 @@ BasicPage {
                             id: maskedMouse
                             anchors.fill: parent
                             hoverEnabled: true
+                            // Qt 的 hover 分发只检查 item 自身的 contains（不
+                            // 检查祖先掩码）——必须显式复用组件掩码才能获得
+                            // 精确 hover（HalfCrystal QDoc「命中掩码」）
+                            containmentMask: masked.containmentMask
                         }
                     }
 
@@ -181,6 +185,8 @@ BasicPage {
                         MouseArea {
                             anchors.fill: parent
                             hoverEnabled: true
+                            // 同 HalfCrystal：hover 需显式挂组件掩码
+                            containmentMask: parent.containmentMask
                         }
                     }
                 }

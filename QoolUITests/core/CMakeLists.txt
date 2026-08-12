@@ -113,8 +113,22 @@ qoolui_add_cpp_test(
 target_include_directories(tst_qool_rectgadget PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
 target_link_libraries(tst_qool_rectgadget PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
 
-# ---- 单例契约修复测试（DB/HQ/HQModel 拆分）----
-# 分层：QML 面测试（contract/write）走模块插件（类型注册在模块 DLL 内），
+# 端到端 hover：真实窗口 + QTest::mouseMove 下 HalfCrystal 掩码判定域与
+# 渲染一致（QML 测试批次的 TestCase.mouseMove 在 offscreen 不注入事件，
+# 引擎真实鼠标路径在本层验证——见 tst_hover_e2e.cpp 头注释）。
+# 窗口测试：ctest/run-tests 双通道注入 -platform offscreen（无头；目视
+# 渲染直接跑 exe 无参）——避免聚合运行时闪现真实窗口
+set(QOOLUI_TEST_ARGS_tst_qool_hover_e2e "-platform;offscreen" CACHE INTERNAL "")
+qoolui_add_cpp_test(
+  tst_qool_hover_e2e
+  tst_hover_e2e.cpp
+)
+target_link_libraries(tst_qool_hover_e2e PRIVATE
+  Qool QoolCommon QoolUITestSupport Qt6::Quick Qt6::QuickShapes Qt6::Qml)
+target_compile_definitions(tst_qool_hover_e2e PRIVATE
+  QOOLUI_TEST_QML_IMPORT_PATH="${QT_QML_OUTPUT_DIRECTORY}")
+
+# ---- 单例契约修复测试（DB/HQ/HQModel 拆分）----# 分层：QML 面测试（contract/write）走模块插件（类型注册在模块 DLL 内），
 # 链接模块 target 仅为头文件 + DLL 部署；C++ 面测试（model/db）直接编译
 # 被测源（仓库「绝不动态导出」，测试 target 内副本与模块内副本行为等价）。
 set(QOOL_COLOR_SRC "${CMAKE_CURRENT_LIST_DIR}/../../QoolUI/QoolColor")

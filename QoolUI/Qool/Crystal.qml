@@ -62,7 +62,10 @@ import Qool
     \li \c strokeWidth 固定 1：单层模型不支持宽边框（宽边框需内缩算法，
         与"切角极限合法"的设计矛盾）。
     \li **精确命中掩码**（CrystalGadget::contains——外接矩形内四角切角域
-        排除，斜边与八点顶点命中）。
+        排除，斜边与八点顶点命中）。\b hover 需显式挂载：Qt 的 hover 分发
+        只检查 item 自身的 \c contains（不检查祖先掩码）——宿主 MouseArea
+        挂 \c{containmentMask: 组件id.containmentMask} 才获得精确 hover
+        （与 HalfCrystal 同机制，用法见 HalfCrystal「命中掩码」章节）。
     \li implicit 20×20 由 Item 根固定（内部 Shape 的 implicit 不参与布局）
         ——与 HalfCrystal 同构，Shape 根组件被隐式布局容器放大/循环的
         陷阱已断开。

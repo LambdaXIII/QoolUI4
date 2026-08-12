@@ -13,7 +13,15 @@ import Qool
 //   其余方向（Unknown/对角）→ 菱形（整正方形粗判）
 //   非正方形尺寸下仍正确（内正方形画布语义）
 // - direction 切换 → 掩码判定跟随（组件级绑定传播）
-// - itemAt 端到端：掩码经 containmentMask 接入引擎 hit test
+// - 引擎接线：QQuickItem::contains（含掩码）判定域与渲染一致
+//
+// 注：真实鼠标 hover 路径（QHoverEvent 分发不检查祖先掩码——宿主 MouseArea
+// 需显式挂组件掩码）在 C++ 端到端测试 tst_qool_hover_e2e 验证（QML 测试
+// 批次 TestCase.mouseMove 在 offscreen 平台不注入事件）。
+//
+// 注：本文件不再触发 "No ThemeLoader installed" WARN（ThemeDB 进程级单例，
+// 已在 tst_crystal.qml::test_cutSizeFollowsSize 首次初始化时经 ignoreWarning
+// 处理；若未来批次顺序变化导致先触发，需把注册移到新的首个触发点）。
 //
 // 隔离策略：每个测试函数 createTemporaryObject 独立实例；绑定传播异步，
 // 方向/尺寸变化后 tryCompare 轮询再断言。
@@ -138,6 +146,24 @@ TestCase {
         expectContains(c, 7, 3, false, "左上角域")
         expectContains(c, 33, 3, false, "右上角域")
         expectContains(c, 20, 20, false, "半区外")
+    }
+
+    function test_maskEngineEntry() {
+        // 引擎接线：QQuickItem::contains 是引擎 hitTest 入口（含掩码判定）。
+        // 配置 = 测试页"掩码 hover 演示"masked（120×120 N 尖朝上）：
+        // 三角内命中、三角外（下半）不命中。
+        // 注：真实鼠标 hover 路径（QHoverEvent 分发不检查祖先掩码）在
+        // tst_qool_hover_e2e（C++）验证——宿主 MouseArea 需显式挂掩码
+        const c = makeCrystal({ w: 120, h: 120 }, Qore.N)
+        tryCompare(c.containmentMask, "direction", Qore.N, 1000)
+
+        // N 三角 north(60,0) east(120,60) west(0,60)（120×120 时内正方形
+        // 即整个组件，halfS=60）
+        verify(c.contains(Qt.point(60, 45)), "三角内部应命中")
+        verify(c.contains(Qt.point(30, 30)), "斜边开集（dx+dy=60）应命中")
+        verify(!c.contains(Qt.point(60, 90)), "下半部分不应命中（用户报告误判区）")
+        verify(!c.contains(Qt.point(10, 45)), "左侧角域不应命中")
+        verify(c.contains(Qt.point(30, 60)), "底边（west 侧）应命中")
     }
 
     Component {

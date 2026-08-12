@@ -355,6 +355,23 @@ rm -rf build-<kit>-<Type>/CMakeCache.txt build-<kit>-<Type>/CMakeFiles
 - **internal 标记**：`_private/*.qml` 设 `QT_QML_INTERNAL_TYPE TRUE`。**限制（Qt 6.11 运行时实证）**：internal 类型不能被其他 internal 文件引用（同目录隐式 import 与模块 URI import 均失效，公开文件引用 internal 正常）——仅适用于私有件之间无互引的模块。
 - **不注册 + 目录 import**（Color 模块采用）：`_private` 文件**不进 `QML_FILES`**（qmldir 无条目，宿主 import 模块看不到），经 `qt_add_resources` 打进 qrc（`PREFIX "/qt/qml/<URI>"`，BASE 模块源码目录），模块内文件 `import "_private"`（相对目录 import）使用；私有件之间互引走同目录隐式解析。私有件无 qmlcachegen AOT 缓存（运行时源码解析，性能可接受）。
 
+### 5. containmentMask 不约束子 MouseArea 的 hover（Qt 6.11 实证）
+
+Qt 的 QHoverEvent 分发（`QQuickDeliveryAgent::deliverHoverEventRecursive`）对每个 item **独立调用其自身 `contains`**，不检查祖先 Item 的 containmentMask——组件 root 上的掩码只约束 QPointerEvent（点击/按下）路径；宿主 MouseArea 的 hover 走自身 contains（无掩码 = 矩形判定，形状外误 hover）。**带掩码组件（Crystal/HalfCrystal 等）+ 宿主 MouseArea 需要精确 hover 时，须把掩码显式挂到 MouseArea**（anchors.fill 时本地坐标即组件本地，坐标基准一致）：
+
+```qml
+HalfCrystal {
+    id: crystal
+    MouseArea {
+        anchors.fill: parent
+        hoverEnabled: true
+        containmentMask: crystal.containmentMask
+    }
+}
+```
+
+掩码对象非 QQuickItem（Gadget 为 QObject）可被多 Item 引用，无注册冲突。契约说明见 HalfCrystal/Crystal QDoc「命中掩码」；回归测试 `tst_qool_hover_e2e`（真实鼠标路径，offscreen）。
+
 ## 关键文件路径
 
 | 用途 | 路径 |
