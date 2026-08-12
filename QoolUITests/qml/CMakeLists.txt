@@ -34,8 +34,9 @@ configure_file(
 )
 
 # ---- Qool 模块的 QML 测试批次 ----
-# EXCLUDE_FROM_ALL（原 spec 6.3）：默认 all 不构建测试；run-tests 强制拉入
-add_executable(tst_qool_qml EXCLUDE_FROM_ALL qml_test_main.cpp)
+# 加入默认构建（all）——落地修正（原 spec 6.3 的 EXCLUDE_FROM_ALL）：
+# QtCreator 测试面板运行前构建 all，被排除的测试 exe 缺失 → 全红
+add_executable(tst_qool_qml qml_test_main.cpp)
 
 target_link_libraries(
   tst_qool_qml PRIVATE Qt6::QuickTest Qt6::Qml

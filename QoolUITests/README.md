@@ -34,7 +34,7 @@ QoolUITests/
 |CTest|`ctest --preset dev`（或 `ctest -R tst_`）|CI/筛选/并行/报告|
 |直接运行|`build/QoolUITests/common/tst_qoolcommon_math.exe -txt`|单个测试调试；QML（qml 层）加 `-platform offscreen` 无头|
 
-> 测试 exe 输出在 `build/QoolUITests/{common,core,qml}` 三层；默认 `cmake --build build`（all）**不构建测试**（EXCLUDE_FROM_ALL），需显式构建 run-tests 或从 QtCreator 面板运行。
+> 测试 exe 输出在 `build/QoolUITests/{common,core,qml}` 三层；测试 target 在默认构建（all）中——`cmake --build build` 即构建测试（落地修正：EXCLUDE_FROM_ALL 导致 QtCreator 面板运行前构建不含测试、exe 缺失全红，已移除）。
 
 Windows 一键（配置+构建+测试）：`pwsh -File scripts/win_build_test.ps1`（仅本机脚本，见「平台差异」）。
 

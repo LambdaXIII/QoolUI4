@@ -53,10 +53,12 @@ get_filename_component(QOOLUI_QT6_PREFIX "${Qt6_DIR}/../../.." ABSOLUTE)
 set(QOOLUI_TEST_TARGETS "" CACHE INTERNAL "QoolUI test executables")
 
 # 统一注册 C++ 测试 target：add_executable + Qt6::Test + CTest + DLL 部署
-# EXCLUDE_FROM_ALL（原 spec 6.3）：默认 all 构建不包含测试；run-tests 的
-# DEPENDS 显式依赖强制拉入（EXCLUDE_FROM_ALL 不阻挡显式依赖）
+# 测试加入默认构建（all）——落地修正（原 spec 6.3 的 EXCLUDE_FROM_ALL）：
+# QtCreator 测试面板运行前构建 all，EXCLUDE_FROM_ALL 的测试不构建 → exe
+# 缺失 → 「启动测试失败/无预期输出」全红（实测：tst_math 单测进 all 后绿、
+# 其余全红，确认根因）。run-tests 仍为聚合运行通道（DEPENDS 常规依赖）。
 function(qoolui_add_cpp_test name)
-  add_executable(${name} EXCLUDE_FROM_ALL ${ARGN})
+  add_executable(${name} ${ARGN})
   target_link_libraries(${name} PRIVATE Qt6::Test)
   add_test(NAME ${name} COMMAND ${name})
   # 依赖 DLL 复制到 exe 目录（Windows 生效，其余平台展开为空）
