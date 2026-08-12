@@ -5,7 +5,7 @@
 .DESCRIPTION
     WINDOWS/MSVC ONLY - do not use on other platforms.
     Other platforms: use CMakePresets directly (cmake --preset dev) or the
-    native flow described in QoolUI/tests/README.md (platform notes section).
+    native flow described in QoolUITests/README.md (platform notes section).
 
     Steps:
       1. Locate Visual Studio via vswhere

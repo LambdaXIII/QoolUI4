@@ -6,6 +6,8 @@
 
 #include <QtTest>
 
+#include "qool_test.hpp"
+
 #include "datatypes/qool_vector2d.h"
 
 #include <cmath>
@@ -23,25 +25,7 @@ bool fuzzy_eq(double actual, double expected, double eps = 1e-6) {
 class TestVector2D : public QObject {
   Q_OBJECT
 
-private slots:
-  void default_construction();
-  void two_point_construction();
-  void from_vector2d_construction();
-  void static_factories();
-  void arithmetic_plus_vector();
-  void arithmetic_length();
-  void arithmetic_scale();
-  void arithmetic_negate();
-  void conversions();
-  void normalized_and_iszero();
-  void index_access();
-  void equality();
-  void copy_semantics();
-  void cross_product();
-  void gadget_property_contract();
-};
-
-void TestVector2D::default_construction() {
+  QOOL_TEST_CASE(default_construction) {
   const Vector2D v;
   QCOMPARE(v.from(), QPointF(0, 0));
   QCOMPARE(v.vector(), QVector2D(0, 0));
@@ -51,8 +35,7 @@ void TestVector2D::default_construction() {
   QCOMPARE(v.y(), 0.0);
   QVERIFY(v.isZero());
 }
-
-void TestVector2D::two_point_construction() {
+  QOOL_TEST_CASE(two_point_construction) {
   const Vector2D v(QPointF(0, 0), QPointF(3, 4));
   QCOMPARE(v.from(), QPointF(0, 0));
   QCOMPARE(v.vector(), QVector2D(3, 4));
@@ -67,15 +50,13 @@ void TestVector2D::two_point_construction() {
   QCOMPARE(shifted.vector(), QVector2D(3, 4));
   QCOMPARE(shifted.to(), QPointF(4, 5));
 }
-
-void TestVector2D::from_vector2d_construction() {
+  QOOL_TEST_CASE(from_vector2d_construction) {
   const Vector2D v(QVector2D(6, 8));
   QCOMPARE(v.from(), QPointF(0, 0));
   QCOMPARE(v.vector(), QVector2D(6, 8));
   QCOMPARE(v.length(), 10.0);
 }
-
-void TestVector2D::static_factories() {
+  QOOL_TEST_CASE(static_factories) {
   // fromVector：显式带起点
   const auto v = Vector2D::fromVector(QVector2D(3, 4), QPointF(10, 20));
   QCOMPARE(v.from(), QPointF(10, 20));
@@ -96,16 +77,14 @@ void TestVector2D::static_factories() {
   const auto zero_sum = Vector2D::fromVectors({});
   QCOMPARE(zero_sum.vector(), QVector2D(0, 0));
 }
-
-void TestVector2D::arithmetic_plus_vector() {
+  QOOL_TEST_CASE(arithmetic_plus_vector) {
   const Vector2D v(QPointF(1, 1), QPointF(4, 5)); // vector (3,4)
   const auto sum = v + QVector2D(1, -1);
   QCOMPARE(sum.from(), QPointF(1, 1)); // 起点不变
   QCOMPARE(sum.vector(), QVector2D(4, 3));
   QCOMPARE(sum.to(), QPointF(5, 4));
 }
-
-void TestVector2D::arithmetic_length() {
+  QOOL_TEST_CASE(arithmetic_length) {
   const Vector2D v(QVector2D(3, 4)); // length 5
   // 正延长：方向不变，长度 +2
   const auto longer = v + 5.0;
@@ -117,8 +96,7 @@ void TestVector2D::arithmetic_length() {
   QVERIFY(fuzzy_eq(shorter.x(), 1.8));
   QVERIFY(fuzzy_eq(shorter.y(), 2.4));
 }
-
-void TestVector2D::arithmetic_scale() {
+  QOOL_TEST_CASE(arithmetic_scale) {
   const Vector2D v(QVector2D(3, 4));
   const auto doubled = v * 2.0;
   QCOMPARE(doubled.vector(), QVector2D(6, 8));
@@ -130,15 +108,13 @@ void TestVector2D::arithmetic_scale() {
   const Vector2D shifted(QPointF(1, 1), QPointF(4, 5));
   QCOMPARE((shifted * 2.0).from(), QPointF(1, 1));
 }
-
-void TestVector2D::arithmetic_negate() {
+  QOOL_TEST_CASE(arithmetic_negate) {
   const Vector2D v(QPointF(1, 2), QPointF(4, 6));
   const auto neg = -v;
   QCOMPARE(neg.from(), QPointF(1, 2));
   QCOMPARE(neg.vector(), QVector2D(-3, -4));
 }
-
-void TestVector2D::conversions() {
+  QOOL_TEST_CASE(conversions) {
   const Vector2D v(QPointF(1, 2), QPointF(4, 6)); // vector (3,4) length 5
   const QPointF as_point = v;
   QCOMPARE(as_point, QPointF(4, 6)); // == to()
@@ -147,8 +123,7 @@ void TestVector2D::conversions() {
   const qreal as_length = v;
   QCOMPARE(as_length, 5.0); // == length()
 }
-
-void TestVector2D::normalized_and_iszero() {
+  QOOL_TEST_CASE(normalized_and_iszero) {
   const Vector2D v(QVector2D(3, 4));
   const QVector2D n = v.normalized();
   QVERIFY(fuzzy_eq(n.x(), 0.6));
@@ -161,14 +136,12 @@ void TestVector2D::normalized_and_iszero() {
   const Vector2D zero_vec(QPointF(5, 5), QPointF(5, 5));
   QVERIFY(!zero_vec.isZero());
 }
-
-void TestVector2D::index_access() {
+  QOOL_TEST_CASE(index_access) {
   const Vector2D v(QPointF(1, 2), QPointF(4, 6));
   QCOMPARE(v[0], QPointF(1, 2));
   QCOMPARE(v[1], QPointF(4, 6));
 }
-
-void TestVector2D::equality() {
+  QOOL_TEST_CASE(equality) {
   // 相同 from 与 vector 才相等
   QVERIFY(Vector2D(QPointF(0, 0), QPointF(3, 4))
           == Vector2D(QVector2D(3, 4)));
@@ -176,8 +149,7 @@ void TestVector2D::equality() {
           != Vector2D(QPointF(1, 1), QPointF(4, 5))); // from 不同
   QVERIFY(Vector2D(QVector2D(3, 4)) != Vector2D(QVector2D(4, 3)));
 }
-
-void TestVector2D::copy_semantics() {
+  QOOL_TEST_CASE(copy_semantics) {
   const Vector2D a(QPointF(1, 2), QPointF(4, 6)); // vector (3,4)
   const Vector2D b(a); // 拷贝构造
   QCOMPARE(b.from(), QPointF(1, 2));
@@ -190,8 +162,7 @@ void TestVector2D::copy_semantics() {
   QCOMPARE(c.vector(), QVector2D(3, 4));
   QCOMPARE(c.to(), QPointF(4, 6));
 }
-
-void TestVector2D::cross_product() {
+  QOOL_TEST_CASE(cross_product) {
   QCOMPARE(crossProduct(Vector2D(QVector2D(1, 0)), Vector2D(QVector2D(0, 1))),
            1.0);
   QCOMPARE(crossProduct(Vector2D(QVector2D(0, 1)), Vector2D(QVector2D(1, 0))),
@@ -201,8 +172,7 @@ void TestVector2D::cross_product() {
   QCOMPARE(crossProduct(Vector2D(QVector2D(1, 1)), Vector2D(QVector2D(1, 1))),
            0.0);
 }
-
-void TestVector2D::gadget_property_contract() {
+  QOOL_TEST_CASE(gadget_property_contract) {
   // Q_GADGET 属性契约：QML 暴露的 6 个属性必须注册（公开即承诺）
   const auto& mo = Vector2D::staticMetaObject;
   const char* const expected[] = { "from", "vector", "to", "length", "x", "y" };
@@ -215,6 +185,22 @@ void TestVector2D::gadget_property_contract() {
              qPrintable(QString("属性不可读: %1").arg(name)));
   }
 }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 QTEST_MAIN(TestVector2D)
 

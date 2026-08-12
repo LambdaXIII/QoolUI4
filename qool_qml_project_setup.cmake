@@ -31,6 +31,22 @@ macro(load_qoolui_standard_options)
       set(QOOL_PLUGIN_DIR "qoolplugins")
     endif()
 
+    # 构建开关（宿主引入时可整体关闭；默认 ON 本仓库自洽优先）：
+    # - QOOL_BUILD_TESTS（构建侧总闸）：测试目录（QoolUITests）是否加入——
+    #   关闭时测试树彻底消失（连其 include(CTest) 都不执行）
+    # - QOOL_BUILD_EXAMPLEAPP：示例程序（QoolUIExample）是否加入
+    # 注册侧标准开关 BUILD_TESTING（include(CTest) 自带，见 QoolUITests）：
+    # 只关 BUILD_TESTING = 测试仍构建但 ctest 不注册（run-tests 仍可用）
+    if(NOT DEFINED QOOL_BUILD_TESTS)
+      set(QOOL_BUILD_TESTS ON CACHE BOOL "Build the test facility (QoolUITests)")
+    endif()
+    if(NOT DEFINED QOOL_BUILD_EXAMPLEAPP)
+      set(QOOL_BUILD_EXAMPLEAPP
+          ON
+          CACHE BOOL "Build the example application (QoolUIExample)"
+      )
+    endif()
+
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
     set(QOOLUI_PLUGIN_OUTPUT_DIRECTORY
         "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${QOOL_PLUGIN_DIR}"

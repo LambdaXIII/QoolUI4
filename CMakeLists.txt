@@ -34,9 +34,12 @@ project(QoolUIBundle
 )
 
 # ---- 测试设施 ----
-# CTest 必须在顶层启用（否则 build/CTestTestfile.cmake 不生成，ctest 找不到测试）；
-# include(CTest) 提供标准 BUILD_TESTING 开关（默认 ON，-DBUILD_TESTING=OFF 关闭）
-include(CTest)
+# CTest 顶层启用：enable_testing() 必须顶层调用，ctest --preset dev 才在
+# build/ 找到 CTestTestfile.cmake 并递归发现 QoolUITests 的测试（落地实测：
+# include(CTest) 内聚到测试树时全新 configure 后 ctest 找不到测试——决策 6
+# 修正为顶层条件化）。include(CTest) 在 QOOL_BUILD_TESTS 内 → 关闭时宿主
+# 仍零 CTest 痕迹；BUILD_TESTING 为标准注册侧开关（-DBUILD_TESTING=OFF =
+# 测试仍构建但 ctest 不注册）。构建侧总闸见 load_qoolui_standard_options()。
 
 add_library(
   QOOL_GENERAL
@@ -52,6 +55,12 @@ add_library(
 )
 
 add_subdirectory(QoolUI)
-add_subdirectory(QoolUIExample)
+if(QOOL_BUILD_EXAMPLEAPP)
+  add_subdirectory(QoolUIExample)
+endif()
+if(QOOL_BUILD_TESTS)
+  include(CTest)
+  add_subdirectory(QoolUITests)
+endif()
 
 dump_list(QML_IMPORT_PATH)

@@ -10,6 +10,8 @@
 #include <QtTest>
 #include <QSignalSpy>
 
+#include "qool_test.hpp"
+
 #include "utils/qool_numberranger.h"
 
 #include <cmath>
@@ -27,25 +29,7 @@ bool fuzzy_eq(double actual, double expected, double eps = 1e-6) {
 class TestNumberRanger : public QObject {
   Q_OBJECT
 
-private slots:
-  void defaults();
-  void validate_plain();
-  void validate_clamped_by_top();
-  void validate_clamped_by_bottom();
-  void validate_top_bottom_combined();
-  void validate_mode_ignore_top();
-  void validate_mode_ignore_bottom();
-  void validate_mode_none();
-  void validate_precision_modes();
-  void validate_invalid_inputs();
-  void validated_bindings_track_properties();
-  void format_numbers();
-  void format_strings();
-  void notify_equal_value_guard();
-  void property_registration();
-};
-
-void TestNumberRanger::defaults() {
+  QOOL_TEST_CASE(defaults) {
   const NumberRanger r;
   // 构造时 decimals 默认 3
   QCOMPARE(r.decimals(), 3);
@@ -57,8 +41,7 @@ void TestNumberRanger::defaults() {
   QVERIFY(fuzzy_eq(r.validate(100.0).toDouble(), 100.0));
   QVERIFY(fuzzy_eq(r.validate(-100.0).toDouble(), -100.0));
 }
-
-void TestNumberRanger::validate_plain() {
+  QOOL_TEST_CASE(validate_plain) {
   NumberRanger r;
   // 无上下界：仅做小数位规整
   QVERIFY(fuzzy_eq(r.validate(5.5).toDouble(), 5.5));
@@ -66,8 +49,7 @@ void TestNumberRanger::validate_plain() {
   QVERIFY(fuzzy_eq(r.validate(0.0).toDouble(), 0.0));
   QVERIFY(fuzzy_eq(r.validate(-2.5).toDouble(), -2.5));
 }
-
-void TestNumberRanger::validate_clamped_by_top() {
+  QOOL_TEST_CASE(validate_clamped_by_top) {
   NumberRanger r;
   r.set_top(10.0);
   // 超出上界 → 钳到边界
@@ -77,8 +59,7 @@ void TestNumberRanger::validate_clamped_by_top() {
   // 恰好等于边界 → 不钳（n > t 才钳）
   QVERIFY(fuzzy_eq(r.validate(10.0).toDouble(), 10.0));
 }
-
-void TestNumberRanger::validate_clamped_by_bottom() {
+  QOOL_TEST_CASE(validate_clamped_by_bottom) {
   NumberRanger r;
   r.set_bottom(-1.0);
   QVERIFY(fuzzy_eq(r.validate(-5.0).toDouble(), -1.0));
@@ -86,8 +67,7 @@ void TestNumberRanger::validate_clamped_by_bottom() {
   // 恰好等于边界 → 不钳
   QVERIFY(fuzzy_eq(r.validate(-1.0).toDouble(), -1.0));
 }
-
-void TestNumberRanger::validate_top_bottom_combined() {
+  QOOL_TEST_CASE(validate_top_bottom_combined) {
   NumberRanger r;
   r.set_bottom(-1.0);
   r.set_top(10.0);
@@ -95,8 +75,7 @@ void TestNumberRanger::validate_top_bottom_combined() {
   QVERIFY(fuzzy_eq(r.validate(100.0).toDouble(), 10.0));
   QVERIFY(fuzzy_eq(r.validate(3.0).toDouble(), 3.0));
 }
-
-void TestNumberRanger::validate_mode_ignore_top() {
+  QOOL_TEST_CASE(validate_mode_ignore_top) {
   NumberRanger r;
   r.set_top(10.0);
   r.set_bottom(-1.0);
@@ -105,8 +84,7 @@ void TestNumberRanger::validate_mode_ignore_top() {
   QVERIFY(fuzzy_eq(r.validate(100.0).toDouble(), 100.0));
   QVERIFY(fuzzy_eq(r.validate(-100.0).toDouble(), -1.0));
 }
-
-void TestNumberRanger::validate_mode_ignore_bottom() {
+  QOOL_TEST_CASE(validate_mode_ignore_bottom) {
   NumberRanger r;
   r.set_top(10.0);
   r.set_bottom(-1.0);
@@ -114,8 +92,7 @@ void TestNumberRanger::validate_mode_ignore_bottom() {
   QVERIFY(fuzzy_eq(r.validate(100.0).toDouble(), 10.0));
   QVERIFY(fuzzy_eq(r.validate(-100.0).toDouble(), -100.0));
 }
-
-void TestNumberRanger::validate_mode_none() {
+  QOOL_TEST_CASE(validate_mode_none) {
   NumberRanger r;
   r.set_top(10.0);
   r.set_bottom(-1.0);
@@ -123,8 +100,7 @@ void TestNumberRanger::validate_mode_none() {
   QVERIFY(fuzzy_eq(r.validate(100.0).toDouble(), 100.0));
   QVERIFY(fuzzy_eq(r.validate(-100.0).toDouble(), -100.0));
 }
-
-void TestNumberRanger::validate_precision_modes() {
+  QOOL_TEST_CASE(validate_precision_modes) {
   NumberRanger r;
 
   // decimals == 0：四舍五入到整数
@@ -144,8 +120,7 @@ void TestNumberRanger::validate_precision_modes() {
   r.set_decimals(-1);
   QVERIFY(fuzzy_eq(r.validate(1.2345).toDouble(), 1.2345));
 }
-
-void TestNumberRanger::validate_invalid_inputs() {
+  QOOL_TEST_CASE(validate_invalid_inputs) {
   NumberRanger r;
   r.set_top(10.0);
   // null 原样返回
@@ -156,8 +131,7 @@ void TestNumberRanger::validate_invalid_inputs() {
   // 字符串数值参与校验：可转换 qreal
   QVERIFY(fuzzy_eq(r.validate(QStringLiteral("12.5")).toDouble(), 10.0));
 }
-
-void TestNumberRanger::validated_bindings_track_properties() {
+  QOOL_TEST_CASE(validated_bindings_track_properties) {
   // validated_top/bottom 为内部绑定推导状态（QOOL_BINDABLE_MEMBER，非 Q_PROPERTY），
   // 通过 validate() 行为断言其推导结果随 top/bottom/decimals/validateMode 变化
   NumberRanger r;
@@ -184,8 +158,7 @@ void TestNumberRanger::validated_bindings_track_properties() {
   r.set_validateMode(NumberRanger::IgnoreTop);
   QVERIFY(fuzzy_eq(r.validate(100.0).toDouble(), 100.0));
 }
-
-void TestNumberRanger::format_numbers() {
+  QOOL_TEST_CASE(format_numbers) {
   NumberRanger r;
   r.set_decimals(2);
   QCOMPARE(r.format(1.23456).toString(), QStringLiteral("1.23"));
@@ -195,8 +168,7 @@ void TestNumberRanger::format_numbers() {
   r.set_decimals(-1);
   QCOMPARE(r.format(1.23456).toString(), QStringLiteral("1.23456"));
 }
-
-void TestNumberRanger::format_strings() {
+  QOOL_TEST_CASE(format_strings) {
   // 设计意图（qool_numberranger.cpp 注释）：字符串内数字按 decimals 精度
   // 规整替换。但实现中 QString 恒 canConvert<qreal>，先命中数值分支，
   // 字符串替换分支不可达——"v=1.23456" 整体转数值失败得 0.0。
@@ -213,8 +185,7 @@ void TestNumberRanger::format_strings() {
   // null 原样返回
   QVERIFY(r.format(QVariant()).isNull());
 }
-
-void TestNumberRanger::notify_equal_value_guard() {
+  QOOL_TEST_CASE(notify_equal_value_guard) {
   NumberRanger r;
   QSignalSpy topSpy(&r, &NumberRanger::topChanged);
   QSignalSpy decimalsSpy(&r, &NumberRanger::decimalsChanged);
@@ -236,8 +207,7 @@ void TestNumberRanger::notify_equal_value_guard() {
   r.set_validateMode(NumberRanger::None);
   QCOMPARE(modeSpy.count(), 1);
 }
-
-void TestNumberRanger::property_registration() {
+  QOOL_TEST_CASE(property_registration) {
   // Q_PROPERTY 注册完整性（QML 暴露面契约）。
   // 注意：validatedTop/validatedBottom 是内部 QOOL_BINDABLE_MEMBER 状态
   // （无 getter、无 Q_PROPERTY），不属于 QML 暴露面——此处不断言。
@@ -257,6 +227,22 @@ void TestNumberRanger::property_registration() {
              qPrintable(QString("属性不可读: %1").arg(name)));
   }
 }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 QTEST_MAIN(TestNumberRanger)
 

@@ -12,6 +12,8 @@
 
 #include <QtTest>
 
+#include "qool_test.hpp"
+
 #include "qoolcommon/math.hpp"
 
 #include <cmath>
@@ -31,44 +33,8 @@ bool fuzzy_eq(double actual, double expected, double eps = kEps) {
 class TestMath : public QObject {
   Q_OBJECT
 
-private slots:
   // ---- math::utils ----
-  void is_equal_data();
-  void is_equal();
-  void is_zero_data();
-  void is_zero();
-  void auto_bound_data();
-  void auto_bound();
-  void set_precision_data();
-  void set_precision();
-  void remap_data();
-  void remap();
-  void cycle_in_range_data();
-  void cycle_in_range();
-  void average();
-
-  // ---- math::geometry ----
-  void normalize_degrees_data();
-  void normalize_degrees();
-  void normalize_degrees_180_data();
-  void normalize_degrees_180();
-  void normalize_radians_data();
-  void normalize_radians();
-  void polar_roundtrip();
-  void hypotenuse_data();
-  void hypotenuse();
-
-  // ---- math::RangeCounter ----
-  void range_counter_data();
-  void range_counter();
-
-  // ---- 基准测试示范 ----
-  void benchmark_remap();
-};
-
-// ===================== math::utils =====================
-
-void TestMath::is_equal_data() {
+  QOOL_TEST_CASE(is_equal_data) {
   QTest::addColumn<double>("a");
   QTest::addColumn<double>("b");
   QTest::addColumn<bool>("expected");
@@ -84,16 +50,14 @@ void TestMath::is_equal_data() {
   QTest::newRow("large beyond") << 1e20 << 1e20 + 1e12 << false;
   QTest::newRow("negative") << -1.0 << -1.0 + 1e-11 << true;
 }
-
-void TestMath::is_equal() {
+  QOOL_TEST_CASE(is_equal) {
   QFETCH(double, a);
   QFETCH(double, b);
   QFETCH(bool, expected);
 
   QCOMPARE(math::is_equal(a, b), expected);
 }
-
-void TestMath::is_zero_data() {
+  QOOL_TEST_CASE(is_zero_data) {
   QTest::addColumn<double>("value");
   QTest::addColumn<bool>("expected");
 
@@ -103,15 +67,13 @@ void TestMath::is_zero_data() {
   QTest::newRow("ordinary") << 0.001 << false;
   QTest::newRow("negative") << -0.001 << false;
 }
-
-void TestMath::is_zero() {
+  QOOL_TEST_CASE(is_zero) {
   QFETCH(double, value);
   QFETCH(bool, expected);
 
   QCOMPARE(math::is_zero(value), expected);
 }
-
-void TestMath::auto_bound_data() {
+  QOOL_TEST_CASE(auto_bound_data) {
   QTest::addColumn<double>("left");
   QTest::addColumn<double>("x");
   QTest::addColumn<double>("right");
@@ -127,8 +89,7 @@ void TestMath::auto_bound_data() {
   QTest::newRow("reversed above") << 10.0 << 11.0 << 0.0 << 10.0;
   QTest::newRow("point interval") << 0.0 << 5.0 << 0.0 << 0.0;
 }
-
-void TestMath::auto_bound() {
+  QOOL_TEST_CASE(auto_bound) {
   QFETCH(double, left);
   QFETCH(double, x);
   QFETCH(double, right);
@@ -136,8 +97,7 @@ void TestMath::auto_bound() {
 
   QCOMPARE(math::auto_bound(left, x, right), expected);
 }
-
-void TestMath::set_precision_data() {
+  QOOL_TEST_CASE(set_precision_data) {
   QTest::addColumn<double>("number");
   QTest::addColumn<int>("precision");
   QTest::addColumn<double>("expected");
@@ -151,8 +111,7 @@ void TestMath::set_precision_data() {
   QTest::newRow("negative precision") << 1.23456 << -2 << 1.23;
   QTest::newRow("integer") << 3.0 << 2 << 3.0;
 }
-
-void TestMath::set_precision() {
+  QOOL_TEST_CASE(set_precision) {
   QFETCH(double, number);
   QFETCH(int, precision);
   QFETCH(double, expected);
@@ -164,8 +123,7 @@ void TestMath::set_precision() {
                  .arg(precision)
                  .arg(expected)));
 }
-
-void TestMath::remap_data() {
+  QOOL_TEST_CASE(remap_data) {
   QTest::addColumn<double>("input");
   QTest::addColumn<double>("in_min");
   QTest::addColumn<double>("in_max");
@@ -190,8 +148,7 @@ void TestMath::remap_data() {
   QTest::newRow("degenerate in range") << 5.0 << 3.0 << 3.0 << 0.0 << 100.0
                                        << 0.0;
 }
-
-void TestMath::remap() {
+  QOOL_TEST_CASE(remap) {
   QFETCH(double, input);
   QFETCH(double, in_min);
   QFETCH(double, in_max);
@@ -212,8 +169,7 @@ void TestMath::remap() {
                  .arg(expected)
                  .arg(actual)));
 }
-
-void TestMath::cycle_in_range_data() {
+  QOOL_TEST_CASE(cycle_in_range_data) {
   QTest::addColumn<double>("min");
   QTest::addColumn<double>("value");
   QTest::addColumn<double>("max");
@@ -234,8 +190,7 @@ void TestMath::cycle_in_range_data() {
   QTest::newRow("fractional") << 0.0 << 2.5 << 10.0 << 2.5;
   QTest::newRow("fractional wrap") << 0.0 << 11.5 << 10.0 << 1.5;
 }
-
-void TestMath::cycle_in_range() {
+  QOOL_TEST_CASE(cycle_in_range) {
   QFETCH(double, min);
   QFETCH(double, value);
   QFETCH(double, max);
@@ -251,8 +206,7 @@ void TestMath::cycle_in_range() {
                  .arg(expected)
                  .arg(actual)));
 }
-
-void TestMath::average() {
+  QOOL_TEST_CASE(average) {
   // 注意：average 接受 std::initializer_list，模板推导依赖列表元素，
   // 空列表必须显式指定类型（average<double>({}) 返回 0——"空集均值 = 0"
   // 为调用方依赖的自洽约定）
@@ -267,9 +221,8 @@ void TestMath::average() {
   QCOMPARE(math::average<int>({}), 0);
 }
 
-// ===================== math::geometry =====================
-
-void TestMath::normalize_degrees_data() {
+  // ---- math::geometry ----
+  QOOL_TEST_CASE(normalize_degrees_data) {
   QTest::addColumn<double>("degrees");
   QTest::addColumn<double>("expected");
 
@@ -283,8 +236,7 @@ void TestMath::normalize_degrees_data() {
   QTest::newRow("half circle") << 540.0 << 180.0;
   QTest::newRow("fractional") << 359.5 << 359.5;
 }
-
-void TestMath::normalize_degrees() {
+  QOOL_TEST_CASE(normalize_degrees) {
   QFETCH(double, degrees);
   QFETCH(double, expected);
 
@@ -296,8 +248,7 @@ void TestMath::normalize_degrees() {
                  .arg(expected)
                  .arg(actual)));
 }
-
-void TestMath::normalize_degrees_180_data() {
+  QOOL_TEST_CASE(normalize_degrees_180_data) {
   QTest::addColumn<double>("degrees");
   QTest::addColumn<double>("expected");
 
@@ -314,8 +265,7 @@ void TestMath::normalize_degrees_180_data() {
   QTest::newRow("exact 180") << 180.0 << 180.0;
   QTest::newRow("negative 180") << -180.0 << 180.0;
 }
-
-void TestMath::normalize_degrees_180() {
+  QOOL_TEST_CASE(normalize_degrees_180) {
   QFETCH(double, degrees);
   QFETCH(double, expected);
 
@@ -327,8 +277,7 @@ void TestMath::normalize_degrees_180() {
                  .arg(expected)
                  .arg(actual)));
 }
-
-void TestMath::normalize_radians_data() {
+  QOOL_TEST_CASE(normalize_radians_data) {
   QTest::addColumn<double>("radians");
   QTest::addColumn<double>("expected");
 
@@ -339,8 +288,7 @@ void TestMath::normalize_radians_data() {
   QTest::newRow("negative quarter") << -M_PI / 2 << 3 * M_PI / 2;
   QTest::newRow("negative full") << -2 * M_PI << 0.0;
 }
-
-void TestMath::normalize_radians() {
+  QOOL_TEST_CASE(normalize_radians) {
   QFETCH(double, radians);
   QFETCH(double, expected);
 
@@ -352,8 +300,7 @@ void TestMath::normalize_radians() {
                  .arg(expected)
                  .arg(actual)));
 }
-
-void TestMath::polar_roundtrip() {
+  QOOL_TEST_CASE(polar_roundtrip) {
   // 直角坐标 → 极坐标 → 直角坐标 往返一致
   const auto [r1, a1] = math::polar_from_xy(3.0f, 4.0f);
   QVERIFY2(
@@ -381,8 +328,7 @@ void TestMath::polar_roundtrip() {
   QVERIFY(fuzzy_eq(r4, 0.0));
   QVERIFY(fuzzy_eq(a4, 0.0));
 }
-
-void TestMath::hypotenuse_data() {
+  QOOL_TEST_CASE(hypotenuse_data) {
   QTest::addColumn<double>("leg1");
   QTest::addColumn<double>("leg2");
   QTest::addColumn<double>("expected");
@@ -393,8 +339,7 @@ void TestMath::hypotenuse_data() {
   QTest::newRow("single leg") << 0.0 << 6.0 << 6.0;
   QTest::newRow("large") << 1e8 << 1e8 << std::sqrt(2.0) * 1e8;
 }
-
-void TestMath::hypotenuse() {
+  QOOL_TEST_CASE(hypotenuse) {
   QFETCH(double, leg1);
   QFETCH(double, leg2);
   QFETCH(double, expected);
@@ -409,9 +354,8 @@ void TestMath::hypotenuse() {
                  .arg(actual)));
 }
 
-// ===================== math::RangeCounter =====================
-
-void TestMath::range_counter_data() {
+  // ---- math::RangeCounter ----
+  QOOL_TEST_CASE(range_counter_data) {
   QTest::addColumn<int>("first");
   QTest::addColumn<int>("last");
   QTest::addColumn<int>("step");
@@ -427,8 +371,7 @@ void TestMath::range_counter_data() {
   // count 整数截断（区间跨度为 step 非整数倍时步数向下取整——刻意语义）
   QTest::newRow("truncated") << 0 << 11 << 3 << 3 << 8;
 }
-
-void TestMath::range_counter() {
+  QOOL_TEST_CASE(range_counter) {
   QFETCH(int, first);
   QFETCH(int, last);
   QFETCH(int, step);
@@ -452,14 +395,47 @@ void TestMath::range_counter() {
   }
 }
 
-// ===================== benchmark =====================
-
-void TestMath::benchmark_remap() {
+  // ---- 基准测试示范 ----
+  QOOL_TEST_CASE(benchmark_remap) {
   QBENCHMARK {
     const auto v = math::remap<int, int>(123, 0, 255, 0, 100);
     Q_UNUSED(v);
   }
 }
+};
+
+// ===================== math::utils =====================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ===================== math::geometry =====================
+
+
+
+
+
+
+
+
+
+
+// ===================== math::RangeCounter =====================
+
+
+
+// ===================== benchmark =====================
+
 
 QTEST_MAIN(TestMath)
 

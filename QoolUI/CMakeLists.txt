@@ -47,9 +47,3 @@ add_subdirectory(QoolFile)
 add_subdirectory(QoolDebug)
 
 add_subdirectory(plugins)
-
-# ---- 测试设施 ----
-# 顶层已 include(CTest)（BUILD_TESTING 开关）；此处仅按开关加入测试目录
-if(BUILD_TESTING)
-  add_subdirectory(tests)
-endif()

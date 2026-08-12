@@ -138,14 +138,7 @@ cmake --install build
 
 ## 测试设施
 
-`QoolUI/tests/`（Qt Test + Qt Quick Test 双栈，使用手册见 `QoolUI/tests/README.md`）：
-
-- **三层被测面**：`common/`（QoolCommon 纯 C++ 模板）、`core/`（Qool 核心 C++ 类型）、`qml/`（QML 组件行为契约，harness 自动扫描 tst_*.qml）
-- **运行通道**：`cmake --build build --target run-tests`（日常首选，失败即红）/ `ctest --preset dev`（CI）/ 直接运行 exe；Windows 一键 `pwsh -File scripts/win_build_test.ps1`
-- **开关**：顶层 `include(CTest)` 提供 `BUILD_TESTING`（默认 ON，`-DBUILD_TESTING=OFF` 关闭）
-- **新增测试**：C++ 用 `qoolui_add_cpp_test()`（tests/CMakeLists.txt 公共函数）；QML 直接加 `tst_*.qml` 到 `qml/` 无需改 CMake；QML 测试**每函数独立实例**（createTemporaryObject）——TestCase 共享实例且按函数名排序，共享状态必然跨测试泄漏
-- **Windows 特有经验**（全部 `if(WIN32)` 包裹，其它平台零污染）：Qt DLL 由 POST_BUILD 部署到 exe 目录（`$<TARGET_RUNTIME_DLLS>`）；DLL 部署使 Qt 前缀推导失效 → 需注入 `QT_PLUGIN_PATH`/`QML_IMPORT_PATH`；CTest 的 `ENVIRONMENT` 设 PATH 在 Windows 按 `;` 拆分损坏（用 `ENVIRONMENT_MODIFICATION`）；**MSYS bash 管道下 QtTest stdout 输出丢失且退出码不可信**——判定测试结果必须从真实 Windows 控制台运行
-- 测试设施建成即逮住 3 个真实缺陷（Vector2D 拷贝构造笔误、NumberRanger format 字符串分支不可达、'g' 精度语义），均已有回归测试守护
+`QoolUITests` 为项目的测试设施（Qt Test + Qt Quick Test 双栈；术语、测试方法规范、测试策略与 CMake 组织定案见 `QoolUITests/AGENTS.md`，使用手册见 `QoolUITests/README.md`）。
 
 ## 编码规范
 
@@ -221,6 +214,9 @@ QAbstractItemModel 子类**遵循 Qt 官方线程规范：不加锁**（QAbstrac
 统一用 `QoolCommon/qoolcommon/debug.hpp` 宏（带类名 token 与颜色），**禁止裸 qDebug()**：
 - `xDebugQ` / `xInfoQ` / `xWarningQ` / `xCriticalQ` / `xFatalQ`（带 `[类名]` token）
 - 颜色 token `xDBGYellow` 等；容器输出 `xDBGVariant` / `xDBGList` / `xDBGMap` / `xDBGQPropertyList`
+
+### 槽/信号标注
+**禁止 `private slots:` / `public signals:` 区语法**，一律以 `Q_SLOT` / `Q_SIGNAL` 宏直接标注成员函数（如 `Q_SLOT void when_xxxChanged()`）。目的：保证与宏体系一致性——`Q_SLOT`/`Q_SIGNAL` 是 moc 认识的宏，宏展开内可安全使用；而 `private slots:` 区语法入宏后 moc 不收集（Qt 6.11 实证）。
 
 ### 信号命名
 信号是**瞬时状态变化的宣告**（过去式语义 `somethingHappened`——事件已发生），
