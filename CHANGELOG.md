@@ -11,6 +11,7 @@
 
 ### 变更
 
+- 新增 `docs/agents/`（agent 工程技能设施配置）：issue-tracker.md（本地 markdown tracker：`.scratch/<feature-slug>/` 结构、spec.md + 编号票 + wayfinder 操作）/ triage-labels.md（默认五标签映射）/ domain.md（单 context 领域文档消费规则）；AGENTS.md 追加 `## Agent skills` 节指向三者；`.scratch/` 清空历史内容（家目录保留，gitignore 已覆盖）
 - Qool.Controls.Components.ScrollBar、Qool.Controls.Components.BasicScrollView → **移入 Qool.Controls 并改名**（BasicScrollView → **ScrollView**——滚动条/滚动视图为控件层成员、非基础原件，去 Basic 前缀；依赖方向符合 R4：Qool.Controls 由 Components 与 Qool 主题组合；滚动组件归位控件层，与 ScrollIndicator 同层）。EditableTextBox 依赖同步（ScrollView 同模块隐式可见；BasicTextArea 仍在 Components——`import Qool.Controls.Components` 保留）；FileInfoListControl、QoolUIExample 消费方 import 已覆盖（均有 `import Qool.Controls`），无需改
 - Qool.Controls.Components.Crystal → **移入 Qool 模块**（基础形状件归位——与 HalfCrystal 同层，`import Qool` 即可用）；移除 `control` 属性（单层简单组件不暴露几何——与 QoolBox 系列的多层公用场景区分，ShapeControl + CrystalGadget 内联为 Shape 子对象）；Slider/VerticalSlider 移除对 Qool.Controls.Components 的依赖（其仅依赖 Crystal，归位后经 Qool 可用），QDoc 链接更新（`{Qool::Crystal}`）；手柄 MouseArea 注释更新（Crystal 掩码已精确，手柄仍不设 containmentMask 是刻意的——NoButton 仅光标反馈、hover 域宽松）
 

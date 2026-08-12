@@ -332,3 +332,17 @@ rm -rf build/CMakeCache.txt build/CMakeFiles
 | 命名空间定义 | [includes/qoolns.hpp.config](file:///d:/workspace/QoolUI4/QoolUI/includes/qoolns.hpp.config) |
 | 插件接口 | [interfaces/](file:///d:/workspace/QoolUI4/QoolUI/interfaces/) |
 | 变更记录 | [CHANGELOG.md](file:///d:/workspace/QoolUI4/CHANGELOG.md) |
+
+## Agent skills
+
+### Issue tracker
+
+Issue 与 spec 存于本仓库 `.scratch/<feature-slug>/` 下的 markdown 文件。见 `docs/agents/issue-tracker.md`。
+
+### Triage labels
+
+五个规范角色使用默认标签字符串：`needs-triage`、`needs-info`、`ready-for-agent`、`ready-for-human`、`wontfix`。见 `docs/agents/triage-labels.md`。
+
+### Domain docs
+
+单 context 布局：仓库根部一个 `CONTEXT.md` + `docs/adr/`。见 `docs/agents/domain.md`。
