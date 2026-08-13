@@ -88,6 +88,19 @@ qoolui_add_cpp_test(
 target_include_directories(tst_qool_crystalgadget PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
 target_link_libraries(tst_qool_crystalgadget PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
 
+# QoolBoxGadget（八点 + shrink 半平面交集 + contains + referenceBox）——
+# 链依赖：ShapeControl + ShapeControlGadget 基类 + SmartObject
+qoolui_add_cpp_test(
+  tst_qool_qoolboxgadget
+  tst_qoolboxgadget.cpp
+  "${QOOL_SRC}/shapecontrol/qool_shapecontrol.cpp"
+  "${QOOL_SRC}/shapecontrol/qool_shapecontrol_gadget.cpp"
+  "${QOOL_SRC}/shapecontrol/gadgets/qool_shapegadget_qoolbox.cpp"
+  "${QOOL_SRC}/utils/qool_smartobj.cpp"
+)
+target_include_directories(tst_qool_qoolboxgadget PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
+target_link_libraries(tst_qool_qoolboxgadget PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
+
 # HalfCrystalGadget contains 契约（geometrySource = RectGadget 画布）
 qoolui_add_cpp_test(
   tst_qool_halfcrystalgadget

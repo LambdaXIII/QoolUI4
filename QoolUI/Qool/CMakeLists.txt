@@ -103,6 +103,8 @@ qt_add_qml_module(
           shapecontrol/gadgets/qool_shapegadget_crystal.cpp
   SOURCES shapecontrol/gadgets/qool_shapegadget_halfcrystal.h
           shapecontrol/gadgets/qool_shapegadget_halfcrystal.cpp
+  SOURCES shapecontrol/gadgets/qool_shapegadget_qoolbox.h
+          shapecontrol/gadgets/qool_shapegadget_qoolbox.cpp
   SOURCES utils/qool_numbermapper.h utils/qool_numbermapper.cpp
   SOURCES utils/qool_colormapper.h utils/qool_colormapper.cpp
   SOURCES qool_numbernotifier.h qool_numbernotifier.cpp
