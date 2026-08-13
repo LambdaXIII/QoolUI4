@@ -113,6 +113,15 @@ qoolui_add_cpp_test(
 target_include_directories(tst_qool_rectgadget PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
 target_link_libraries(tst_qool_rectgadget PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
 
+# OffsetProjector（位移映射节点：投影/退化/短路/符号规则——直接编译被测源）
+qoolui_add_cpp_test(
+  tst_qool_offsetprojector
+  tst_qool_offsetprojector.cpp
+  "${QOOL_SRC}/shapecontrol/qool_offsetprojector.cpp"
+)
+target_include_directories(tst_qool_offsetprojector PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
+target_link_libraries(tst_qool_offsetprojector PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
+
 # 端到端 hover：真实窗口 + QTest::mouseMove 下 HalfCrystal 掩码判定域与
 # 渲染一致（QML 测试批次的 TestCase.mouseMove 在 offscreen 不注入事件，
 # 引擎真实鼠标路径在本层验证——见 tst_hover_e2e.cpp 头注释）。
