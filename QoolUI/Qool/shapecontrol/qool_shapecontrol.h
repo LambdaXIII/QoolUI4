@@ -30,8 +30,10 @@ private:
   void setup_properties();
 
   QBINDABLE_WRITABLE_PROPERTY(ShapeControl, QQuickItem*, target, FINAL)
+  // xy仅为target属性的绑定，不代表target内部状态！
   QBINDABLE_WRITABLE_PROPERTY(ShapeControl, qreal, x, FINAL)
   QBINDABLE_WRITABLE_PROPERTY(ShapeControl, qreal, y, FINAL)
+
   QBINDABLE_WRITABLE_PROPERTY(ShapeControl, qreal, width, FINAL)
   QBINDABLE_WRITABLE_PROPERTY(ShapeControl, qreal, height, FINAL)
 

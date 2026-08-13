@@ -78,66 +78,6 @@
 */
 
 /*!
-    \qmlproperty Item Qool::ShapeControl::target
-    \brief 几何来源 Item。缺省绑定为父对象（componentComplete 时自动设置）。
-*/
-
-/*!
-    \qmlproperty real Qool::ShapeControl::x
-    \brief 目标几何 x（只读绑定，跟随 target；target 为空时取 0）。
-*/
-
-/*!
-    \qmlproperty real Qool::ShapeControl::y
-    \brief 目标几何 y（只读绑定，跟随 target；target 为空时取 0）。
-*/
-
-/*!
-    \qmlproperty real Qool::ShapeControl::width
-    \brief 目标几何宽（只读绑定，跟随 target）。
-*/
-
-/*!
-    \qmlproperty real Qool::ShapeControl::height
-    \brief 目标几何高（只读绑定，跟随 target）。
-*/
-
-/*!
-    \qmlproperty real Qool::ShapeControl::longEdge
-    \brief 长边（max(width, height)）。
-*/
-
-/*!
-    \qmlproperty real Qool::ShapeControl::shortEdge
-    \brief 短边（min(width, height)）。
-*/
-
-/*!
-    \qmlproperty real Qool::ShapeControl::aspectRatio
-    \brief 宽高比（height 为 0 时取 -1）。
-*/
-
-/*!
-    \qmlproperty point Qool::ShapeControl::center
-    \brief 中心点（halfWidth, halfHeight）。
-*/
-
-/*!
-    \qmlproperty real Qool::ShapeControl::halfWidth
-    \brief 半宽。
-*/
-
-/*!
-    \qmlproperty real Qool::ShapeControl::halfHeight
-    \brief 半高。
-*/
-
-/*!
-    \qmlproperty rect Qool::ShapeControl::boundingRect
-    \brief 外接矩形（x, y, width, height）。
-*/
-
-/*!
     \qmlproperty QoolBoxSettings Qool::QoolBoxShapeControl::settings
     \brief 形状外观设置（裁剪尺寸、边框、填充、偏移），驱动全部控制点计算。
 */
