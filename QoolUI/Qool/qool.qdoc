@@ -293,3 +293,27 @@
     \qmlproperty real Qool::QoolBoxShapeControl::rightSpace
     \brief 右侧可用空间（供宿主布局 padding 使用）。
 */
+
+/*!
+    \qmlproperty vector2d Qool::OffsetProjector::direction
+    \brief 位移方向（期望移动方向）。默认 (1, 0)。计算时归一化；与
+    \c refDirection 的点积必须 > 0（见 OffsetProjector 符号规则）。
+*/
+
+/*!
+    \qmlproperty vector2d Qool::OffsetProjector::refDirection
+    \brief 距离的度量方向。默认 (1, 0)。计算时归一化；与 \c direction
+    的点积必须 > 0（见 OffsetProjector 符号规则）。
+*/
+
+/*!
+    \qmlproperty real Qool::OffsetProjector::refDistance
+    \brief 沿 \c refDirection 方向的移动距离。默认 0。为 0 时 offset
+    恒为零向量（方向输入变化不产生 offsetChanged 通知）。
+*/
+
+/*!
+    \qmlproperty vector2d Qool::OffsetProjector::offset
+    \brief 实际位移向量（只读）。满足 offset ∥ direction_unit 且
+    offset·refDirection_unit == refDistance（见 OffsetProjector 类文档）。
+*/

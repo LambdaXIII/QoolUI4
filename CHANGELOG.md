@@ -17,6 +17,8 @@
 
 ### 新增
 
+- **OffsetProjector（QML 类型，`Qool` 模块）**：位移映射节点——输入位移方向 `direction`/距离度量方向 `refDirection`/沿度量方向的移动距离 `refDistance`，输出实际位移向量 `offset`（`v = direction_unit × refDistance / (direction_unit · refDirection_unit)`，满足 `offset ∥ direction_unit` 且 `offset·refDirection_unit == refDistance`）。凸多边形内描边场景的通用位移折算（Crystal 内描边方向对数据属各 gadget，消费端另行实现）；输入 QOBJECT 族宏 + 输出 QBINDABLE 绑定链（CirclePoint 先例），单绑定 lambda 内归一化/点积/退化短路。退化契约：零向量输入、refDistance==0、两方向正交 → offset 零向量（qFuzzyIsNull 容差）；输出值相等守卫——结果不变不传播通知。符号规则不校验（点积必须 > 0，配错症状 = offset 反向，QDoc 调试指引）。QoolCommon 零改动（全部计算用 Qt 原生 QVector2D）
+
 - **单例组件设计模式固化**（AGENTS.md「单例」节 + ADR-0001 + 根 CONTEXT.md）：形态三选一（纯 QML 文件单例 / C++-only 单例 / 三件套 DB+HQ+HQModel）；硬约束——禁止进程级 C++ 单例经 QML_SINGLETON 暴露、接口双侧保留、模型非单例化、插件/数据 App 级集束。设计产物归档：`docs/adr/0001-qml-singleton-contract.md`（定案版含实施验证结论）、根 `CONTEXT.md`（术语表：全局单例/QML 单例/违规模式/HQ/消费者-提供者关系等）
 - 主题总览列表模型 **ThemeHQModel**（QML 类型，`Qool` 模块）：roles 与源模型一致（name/theme/metadata/constants/active/inactive/disabled/custom）；installTheme 后 rowsInserted 实时转发；多视图各自实例化数据一致；`metadata` role 当前源模型 data() 无 case（取空）——视图需要元数据时经 theme role 的 Theme.metadata() 读取（QDoc 已记录）
 

@@ -49,6 +49,8 @@ qt_add_qml_module(
           shapecontrol/qool_qoolbox_shapecontrol.cpp
           shapecontrol/qool_shapecontainmentmask.h
           shapecontrol/qool_shapecontainmentmask.cpp
+          shapecontrol/qool_offsetprojector.h
+          shapecontrol/qool_offsetprojector.cpp
           shapecontrol/gadgets/qool_shapegadget_triangle.h
           shapecontrol/gadgets/qool_shapegadget_triangle.cpp
           style/qool_style.h
