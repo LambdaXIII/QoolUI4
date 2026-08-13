@@ -25,7 +25,7 @@ QOOL_NS_BEGIN
 
     \b{约定：形状几何量一律以 target 内部坐标系（原点在 target 左上角，
     范围 0..width/0..height）计算。} 因此 \l center、\l halfWidth、
-    \l halfHeight 及子类控制点（如 QoolBoxShapeControl 的 ext*/int*）
+    \l halfHeight 及子类控制点（如 QoolBoxShapeControl 的 ext* int*）
     均不含 \l x/\l y 偏移。
 
     \b{若期望 ShapeControl 直接使用 target 内部坐标系，则不应消费

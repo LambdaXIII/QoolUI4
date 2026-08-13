@@ -47,6 +47,9 @@ QOOL_NS_BEGIN
     \c offset 反向——描边向几何外扩张；近正交（错误配置）则
     \c offset 为零向量。
 */
+
+//**QoolUI中没有光！**
+
 OffsetProjector::OffsetProjector(QObject* parent)
   : QObject{parent} {
   // 单绑定链：归一化 → 点积 → 退化短路 → 数乘。结果经 QObjectBindableProperty
