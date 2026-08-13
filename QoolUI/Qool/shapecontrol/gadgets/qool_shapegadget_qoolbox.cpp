@@ -8,7 +8,7 @@ QOOL_NS_BEGIN
 
 namespace {
 
-// —— shrink 层几何常量（design.md 4.5/4.5.2/4.5.7 定案）——
+// —— shrink 层几何常量（平移半平面交集，推导见模块文档《几何与内缩算法》）——
 // 8 条平移线（Ax+By=C 表示；s = 半平面符号：+1 内部在 ≥ C 侧、−1 在 ≤ C 侧）
 struct QoolBoxLine {
   qreal a, b;
@@ -82,11 +82,11 @@ QPointF nearest_vertex(const QPointF& p, const QList<QPointF>& verts) {
     \brief 八边形控制点计算器（Gadget）：cut 硬参数 + 期望尺寸的单一 8 点模型。
 
     挂载于标准 \l ShapeControl 之下（ShapeControl 子对象自动关联
-    \c control），输出单一 8 点 \c pointTL..pointLT（每点另有 \c point*x/
-    \c point*y 分量）——由 \c borderWidth 参数化形态：0 为外轮廓，
-    > 0 时 8 点沿各边法线内缩（边平移半平面交集——任意参数下凸、无自交、
-    连续），< 0 为外扩。双实例描边 = 宿主实例化两个 gadget（外环
-    \c borderWidth 0 / 内环 = d），组件字面只有 8 点。
+    \c control），输出单一 8 点 \c pointTL..pointLT（每点另有
+    \c pointTLx/\c pointTLy 等分量）——由 \c borderWidth 参数化形态：
+    0 为外轮廓，> 0 时 8 点沿各边法线内缩，< 0 为外扩。
+    双实例描边 = 宿主实例化两个 gadget（外环 \c borderWidth 0 /
+    内环 = 目标描边宽度），组件字面只有 8 点。
 
     \section1 语义
 
@@ -96,26 +96,41 @@ QPointF nearest_vertex(const QPointF& p, const QList<QPointF>& verts) {
     负 cut 归零（直角点）。所有退化状态（矩形/菱形/三角形/凸多边形/
     点重合/线段）都是定义良好的合法极限形态。
 
-    命名规范：首字母 = 点所在边、次字母 = 该边端点位置——\c TL = Top 边
-    Left 端点、\c LT = Left 边 Top 端点（8 个命名互不混淆）；\c vec* 与
-    \c shrink* 为同构中间量（向量空间，原点 0,0）。
+    \section1 输入接线
 
-    \section2 锚定
+    \list
+    \li \c cutTL..cutBR：四角切角尺寸（硬参数，默认 0 = 直角）；
+    \li \c borderWidth：内缩距离（默认 0 = 外轮廓；双实例描边时内环
+        实例设为目标描边宽度）；
+    \li \c offsetX/\c offsetY：整体平移（唯一位置输入）；
+    \li \c width/\c height：经 \c control 读取（期望尺寸）——宿主设置
+        \c target 的几何即可，无需为 gadget 另设尺寸；
+    \li \c referenceBox：几何参考源（见下）。
+    \endlist
 
-    \c pointA = origin + offset + vecA + shrinkA——origin 为期望尺寸中心
-    （control.center），offset 为平移（唯一位置输入，只进锚定层一次）。
+    \section1 命名规范
 
-    \section2 referenceBox（几何参考源）
+    首字母 = 点所在边、次字母 = 该边端点位置——\c TL = Top 边 Left
+    端点、\c LT = Left 边 Top 端点（8 个命名互不混淆）。每点另有
+    \c pointTLx/\c pointTLy 等分量属性。
 
-    \c referenceBox 赋另一个 gadget 时，本 gadget 的 \c origin/\c offset/
-    \c vec*、\c used*、\c cut* 经其覆盖（ref 优先），仅 \c borderWidth 与
-    shrink 层自行处理——几何完全委托。赋值校验：目标自身已有 reference
-    时赋值无效（链式引用与环被阻止），本 gadget 的 referenceBox 置 null。
+    \section1 referenceBox（几何参考源）
 
-    \section2 命中判定
+    \c referenceBox 赋另一个 gadget 时，本 gadget 的 \c origin、\c offset、
+    \c vec*、\c used*、\c cut* 经其覆盖（ref 优先），仅 \c borderWidth
+    与 shrink 层自行处理——几何完全委托。赋值校验：目标自身已有
+    reference 时赋值无效（链式引用与环被阻止），本 gadget 的
+    referenceBox 置 null。
 
-    \l {contains()} 采用 O(1) 线性不等式：used 矩形粗判 + 四角切角三角形
-    排除（开集语义：斜边/边/顶点命中）。\c borderWidth 不影响判定。
+    \section1 命中判定
+
+    \l {contains()} 精确命中八边形：斜边/边/顶点命中（开集语义），
+    切角区域不命中；\c borderWidth 不影响判定。
+
+    \section1 算法
+
+    点定位与内缩（shrink）算法、临界距离解析式的推导与边界条件详见
+    \l {qoolbox-geometry.html} {QoolBoxGadget 几何与内缩算法}。
 */
 
 QoolBoxGadget::QoolBoxGadget(QObject* parent)
@@ -154,7 +169,7 @@ QoolBoxGadget::QoolBoxGadget(QObject* parent)
       usedHalfHeight, [&] { return m_usedHeight.value() / 2; });
 
   // —— ③ vec×8（ref 介入：ref.vec : 符号表）——
-  // 符号表（design.md 4.2）：角点在 x 方向注入 cut、边端点在 y 方向注入
+  // 符号表：角点在 x 方向注入 cut、边端点在 y 方向注入
   // cut——注入轴 = 点所在斜边的法线轴；8 点保证 |x| ≤ uW/2 ∧ |y| ≤ uH/2
   // （形状 ⊆ used 矩形，相切）。
   QBINDABLE_SET_BINDING(vecTL, [&] {
@@ -209,7 +224,7 @@ QoolBoxGadget::QoolBoxGadget(QObject* parent)
 
   // —— ④ dStar（12 候选 min，O(1) 无二分；cuts 读取介入——ref 模式经
   // ref 读取；used 已介入）——
-  // 对偶 LP 推导（design.md 4.5.7）：8 法线恰成 4 对相反，平衡组合只有
+  // 对偶 LP 推导：8 法线恰成 4 对相反，平衡组合只有
   // 平行对（4 个）与三线组合（8 个）可行——12 候选无冗余无遗漏；
   // 非负性由 used ≥ 对角 cut 和构造性保证。
   QBINDABLE_SET_BINDING(dStar, [&] {
@@ -260,7 +275,7 @@ QoolBoxGadget::QoolBoxGadget(QObject* parent)
   });
 
   // —— ⑥ linesC（8 条平移线常量，Ax+By=C；cuts 读取介入）——
-  // 平移线公式（design.md 4.5）：每条边沿法线内错 d——shrink 语义 = 边平移
+  // 平移线公式：每条边沿法线内错 d——shrink 语义 = 边平移
   QBINDABLE_SET_BINDING(linesC, [&] {
     const auto ref = bindable_referenceBox().value();
     const qreal sTL = qMax(0.0,
@@ -306,7 +321,7 @@ QoolBoxGadget::QoolBoxGadget(QObject* parent)
 
   // —— ⑧ shrink×8（每点 = 身份候选交点有效取之 / 失效归入最近交集顶点，
   // 再 − vecA 得位移）——
-  // 专项注释（design.md 4.5.6）：8 个命名点是 8 个不同对象，各自依赖正确
+  // 专项注释：8 个命名点是 8 个不同对象，各自依赖正确
   // 的来源线对（身份候选 = 相邻平移线对交点，勿与 135° 位移表混淆）；
   // 候选与交集顶点用同一 linesC 求值 ⟹ 有效候选精确 ∈ 交集顶点（浮点一致）
 #define SETUP_SHRINK(_N_, _I_, _J_)                                   \
@@ -368,15 +383,12 @@ QoolBoxGadget::QoolBoxGadget(QObject* parent)
 
 /*!
     \qmlmethod bool QoolBoxGadget::contains(point point)
-    \brief 精确命中判定：used 矩形粗判 + 四角切角三角形排除。
+    \brief 精确命中判定：八边形内命中，切角区域不命中。
 
-    算法（design.md 4.4）：p' = p − origin − offset；|x'| > usedHalfW 或
-    |y'| > usedHalfH 不命中（used 矩形 = 形状紧外接边界——vec 层符号表
-    保证）；四角每角判定 dx + dy < s 不命中（dx/dy = 相对该角 used 角点的
-    距离——粗判已蕴含角域 dx ≥ 0 ∧ dy ≥ 0，无需象限门；象限门在 cut 溢出
-    时会漏排除）。开集语义：斜边/边/顶点命中（< 才排除）。\c borderWidth
-    不影响判定（公式不含 border——双实例描边中任选实例语义一致）。
-    ref 模式自算即等价（used/cuts/origin/offset 已介入），无需委托。
+    开集语义：斜边/边/顶点命中（边界本身算命中）。\c borderWidth
+    不影响判定（双实例描边中任选实例语义一致）。\c referenceBox
+    模式下自动跟随几何参考。算法细节见
+    \l {qoolbox-geometry.html} {QoolBoxGadget 几何与内缩算法}。
 */
 bool QoolBoxGadget::contains(const QPointF& point) const {
   const auto ref = m_referenceBox.value();

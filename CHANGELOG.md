@@ -4,6 +4,11 @@
 
 ## [4.0.0] — 2026-08-14
 
+### 文档
+
+- **QoolBoxGadget 算法独立 qdoc 文章**（`qool_qoolbox_geometry.qdoc`，\page qoolbox-geometry.html）：点定位与内缩算法的详细论述——几何模型（三层单向依赖：派生 used 标量 → 向量层 vec/shrink → 锚定层）、used 派生（max 构造性保证/角间零交互）、向量符号表规律（cut 注入轴 = 斜边法线轴）、锚定（期望中心对称溢出，used 无矩形实体）、**shrink 原理与推导**（边平移定义 → 8 条平移半平面交集几何真值 → 命名点身份候选/归入极值收敛 → d\* 临界距离与 d_eff 钳制）、**d\* 解析式对偶线性规划推导**（8 法线 4 对相反 → 平行对 4 + 三线组合 8 = 12 候选，无冗余无遗漏）、**解析公式蕴含的边界条件**（非负性构造保证/边消失与溢出/退化链与临界区形态——三线瓶颈 = 点、平行对瓶颈 = 线段/直角角归入 = 角平分线精确 d√2/负 border 外扩/浮点注意）
+- **QoolBoxGadget 类型文档精简为用法导向**（语义契约/输入接线/命名规范/referenceBox 用法/命中判定契约，算法细节链接文章）；contains \qmlmethod 注释同步精简；代码注释清理不可解析的 .scratch 设计文档引用（关键理由内联自足——半平面判定勿写 +C、命名点身份候选勿与 135° 位移表混淆、归入勿无条件钳制等保留为专项注释）
+
 ### 新增
 
 - **QoolBoxGadget（QML 类型，`Qool` 模块，八边形控制点计算器——原 QoolBoxShapeControl 重构设计落地）**：gadget 模式（挂载于标准 ShapeControl 之下，对齐 CrystalGadget）。**语义**（spec `qoolbox-shapecontrol-redesign` 定案）：cutSizes 为硬参数（形状由 cut 决定，不因尺寸不足而压缩）、width/height 为期望尺寸（极限情况图形从期望中心对称溢出而非压缩 cut）；负 cut 归零直角点；全部退化状态（矩形/菱形/三角形/凸多边形/点重合/线段）为定义良好的合法极限形态。**单一 8 点输出**（`pointTL..pointLT` + 每点 x/y 分量——首字母 = 所在边、次字母 = 端点位置，TL ≠ LT），由 `borderWidth` 参数化形态（0 = 外轮廓 / >0 = 边平移内缩 / <0 = 外扩）；双实例描边 = 宿主实例化两个 gadget（外环 0 / 内环 d），"内点"概念与 ext/int 双套弃用。**shrink 层 = 几何真值**：8 条平移半平面交集（24 对非平行线交点满足全部 8 半平面），命名点 = 身份候选（相邻平移线对交点）有效取之 / 失效归入最近交集顶点（极值收敛），d_eff = min(border, d\*) 钳制交集永不空（d\* = 12 候选 O(1) 解析式，对偶 LP 推导，vs 二分基准 3000 组 max_err 9.6e-10）；直角角自动归入角平分线精确内缩 d√2（宽度精确化，无需特判）。**架构**：三层单向（输入 → 派生 used 标量 → 向量层 vec/shrinkA → 锚定层 pointA = origin + offset + vecA + shrinkA），11 级 bindable 链逐级缓存（O(1) 常数总成本），全程不读宿主几何。**referenceBox**（几何参考源，手写 setter 例外）：5 介入点（origin/offset/vec/used/cuts）ref 优先 null 回退，仅 borderWidth + shrink 层自行处理；赋值校验单层保证（目标已有 reference → 警告 + 置 null，链式与环同阻）。**contains**：O(1) 线性不等式（used 矩形粗判 + 四角切角三角形排除，开集语义，border 不影响判定；旧 BL 行误用 safeTL 疑点随公式模板推导自动消解）。**旧 `QoolBoxShapeControl`/safe 链原样保留**（消费端接线与旧版处理不在本次范围，另行 spec）。测试：core `tst_qool_qoolboxgadget`（18 用例——used/vec/point 锚定/边消失不漂移/退化形态；**oracle 正确点坐标算法**：测试内置独立几何真值实现（平移边 → 24 对求交 → 过滤），d\* 用二分独立求解不复制实现公式，逐点坐标断言；临界区档位 d=0.99/0.999/1.0/1.5·d\*（d\* 处交集退化——点/线段瓶颈两种收敛态，退化场景集合归属断言）+ 负 border 外扩 + 退化链线段态（长度 71.7 = 2×(50−10√2)）+ contains 矩阵（含 cut 溢出象限门反例）+ referenceBox 跟随/单层保证 + bindable 传播）；`dstar_parity` 随机 200 组 vs 二分 < 1e-6）

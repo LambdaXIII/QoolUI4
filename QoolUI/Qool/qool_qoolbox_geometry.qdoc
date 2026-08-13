@@ -1,0 +1,217 @@
+/*!
+    \page qoolbox-geometry.html
+    \brief QoolBoxGadget 点定位与内缩算法：几何模型、推导过程与边界条件。
+
+    \l QoolBoxGadget 输出八边形的 8 个控制点（\c pointTL..pointLT，
+    由 \c borderWidth 参数化形态）。本文论述这些点的定位算法——
+    几何模型、内缩（shrink）的原理与推导、以及解析公式中蕴含的
+    边界条件。本文是设计文档，面向需要理解或扩展几何行为的读者；
+    使用方式见 \l QoolBoxGadget 类型文档。
+
+    \section1 几何模型：三层单向依赖
+
+    8 点计算分为三层，单向依赖、无回环：
+
+    \list 1
+    \li 派生层：\c usedWidth/\c usedHeight 两个标量（由期望尺寸与切角
+        尺寸派生，见下）；
+    \li 向量层：8 个形状向量 \c vecTL..vecLT 与 8 个内缩向量
+        \c shrinkTL..shrinkLT——纯函数，原点为 (0,0)，无任何"中心系"概念；
+    \li 锚定层：\c pointA = origin + offset + vecA + shrinkA——唯一位置
+        状态是 \c offset；\c origin 为期望尺寸中心（\c control.center）。
+    \endlist
+
+    全程不读宿主坐标系；\c used 永远是两个标量，不存在 used 矩形实体
+    （若把 used 中心实现为锚定基准，极限形态下图形会整体偏移，破坏
+    对称溢出语义）。
+
+    \section1 期望尺寸与 used 派生
+
+    \c width/\c height 是期望尺寸，\c cutTL..cutBR 是硬参数。派生：
+
+    \badcode
+    s*  = max(0, cut*)                 // 负切角无几何意义，归零（直角点）
+    usedW = max(width, max(sTL+sTR, sBL+sBR))
+    usedH = max(height, max(sTL+sBL, sTR+sBR))
+    \endcode
+
+    \c used 的语义 = "要保出完整四边所需的最小尺寸"：期望宽度，或
+    "顶边+底边需求"（\c sTL+sTR 与 \c sBL+sBR 取大），谁大取谁。
+
+    \section2 构造性保证与角间零交互
+
+    \c usedW ≥ \c sTL+sTR 保证顶边长度 \c usedW−sTL−sTR ≥ 0——四边
+    长度非负由 max 直接构造，不存在"负长度"状态。每个 \c s 只参与
+    自己的对角对求和，与其它角无约束——同一组 cut 的几何结果与
+    输入顺序无关（旧 safe 链的"切角优先级"挤占行为完全不需要）。
+
+    由此消解一组边界问题：cut 固定时图形不因尺寸变化漂移；边归零后
+    重合点不再移动；多边归零、极端 cut、尺寸归零等全部变为定义良好
+    的合法极限形态（矩形/菱形/三角形/凸多边形/点重合/线段）。
+
+    \section1 向量符号表
+
+    8 个形状向量（uW = usedWidth、uH = usedHeight）：
+
+    \badcode
+    vecTL = (−uW/2+sTL, −uH/2)     vecTR = (uW/2−sTR, −uH/2)
+    vecRT = (uW/2,       −uH/2+sTR) vecRB = (uW/2,       uH/2−sBR)
+    vecBR = (uW/2−sBR,   uH/2)      vecBL = (−uW/2+sBL,  uH/2)
+    vecLB = (−uW/2,       uH/2−sBL) vecLT = (−uW/2,      −uH/2+sTL)
+    \endcode
+
+    规律：角点（TL/TR/BL/BR）在 x 方向注入 cut，边端点（LT/RT/LB/RB）
+    在 y 方向注入 cut——注入轴 = 该点所在斜边的法线轴。每个点都是
+    符号表（±半标量 ± cut）的组合，无分支无状态。8 点保证
+    |x| ≤ uW/2 且 |y| ≤ uH/2——形状包含于 used 矩形且相切，这是
+    \l QoolBoxGadget::contains 粗判的紧外接边界。
+
+    \section1 锚定
+
+    \c pointA = origin + offset + vecA + shrinkA。\c origin 用期望尺寸
+    中心而非 used 中心，两个关键性质：
+
+    \list 1
+    \li 正常形态（used == 期望尺寸）下 8 点覆盖 (0,0)-(width,height)，
+        offset 默认 0 时与宿主期望的默认位置一致；
+    \li 极限形态（cut 需求超过期望尺寸）下图形从期望中心对称溢出——
+        锚点钉在期望中心，向四周对称长大，而非向右下扩张。
+    \endlist
+
+    \c offset 是唯一位置输入（平移语义），只进锚定层一次——逐点
+    偏移加法（旧实现的 20+ 处）全部收敛到这一处。
+
+    \section1 shrink：边平移与半平面交集
+
+    \section2 内缩的定义：边平移
+
+    shrink 的语义是**边平移**：每条边沿法线方向内错 \c border（标量 d）。
+    结果性约束（硬标准）：内多边形各边平行于外多边形对应边——平行性
+    是 shrink 的定义，不是可放弃的约束。任何"固定方向分量展开"
+    （135° 位移表之类）都不满足此定义，在极限参数下会产生反向三角形、
+    垂直段残留、描边带骤窄等畸形。
+
+    \section2 平移半平面交集（几何真值）
+
+    每条边平移 d 后，内多边形 = 8 条平移半平面的交集。8 条平移线
+    （Ax+By=C 表示，d 为内错距离、K = √2）：
+
+    \badcode
+    顶  y = −uH/2 + d                 底  y = uH/2 − d
+    左  x = −uW/2 + d                 右  x = uW/2 − d
+    左斜  x+y = −uW/2−uH/2 + sTL + dK  右斜  x−y = uW/2+uH/2 − sTR − dK
+    右底斜 x+y = uW/2+uH/2 − sBR − dK  左底斜 x−y = −uW/2−uH/2 + sBL + dK
+    \endcode
+
+    8 条线含 4 对平行（顶/底、左/右、左斜/右底斜、右斜/左底斜）——
+    无交点；其余 C(8,2)−4 = 24 对非平行线的交点中，满足全部 8 条
+    半平面（s·(A·x+B·y−C) ≥ 0，s 为半平面符号）者即交集顶点。
+    交集恒为凸多边形（或退化），无自交、随 d 连续。
+
+    \section2 命名点：身份候选与归入
+
+    8 个内点各有稳定几何身份：身份候选 = 相邻平移线对的交点——
+    沿外多边形相邻两条边平移线求交：
+
+    \list
+    \li TL = 顶×左斜；TR = 顶×右斜；RT = 右×右斜；RB = 右×右底斜；
+    \li BR = 底×右底斜；BL = 底×左底斜；LB = 左×左底斜；LT = 左×左斜。
+    \endlist
+
+    候选满足全部半平面（即位于交集内）→ 直接采用；候选失效（被其它
+    约束裁剪，如退化场景）→ 归入**最近的有效交集顶点**。归入点恰是
+    候选沿其所在平移线移动、与约束边界交汇的位置——"极值收敛"：
+    命名点止于自然重合位置（如 TL/TR 同时止于左斜×右斜尖点）。
+    直角角（cut=0）是归入机制的典型受益者：身份候选（底×右底斜）
+    失效后归入右×底交点——沿角平分线精确内缩 d√2，描边宽度精确，
+    无需任何近似公式或特判。
+
+    \section2 临界距离 d\* 与 d_eff 钳制
+
+    d 增大时交集收缩；存在临界距离 d\* = 交集非空的最大内缩距离
+    （等价于 Chebyshev 半径，即内切圆半径）。实现取
+    \c d_eff = min(border, d\*)——d 层面钳制，交集永不空、命名点恒有
+    定义。负 border 自然走外扩分支（min(负, d\*) = 负），凸多边形
+    外扩保持凸、点间距单调增大。
+
+    \section1 d\* 解析式的推导（对偶线性规划）
+
+    问题：\c max t s.t. aᵢ·x ≥ cᵢ + t，aᵢ 为指向内部的单位法线。
+    对偶 LP：\c min Σλᵢcᵢ，约束 λ ≥ 0、Σλ = 1、Σλᵢaᵢ = 0（λ 为
+    法线的"平衡组合"）。8 个法线方向恰成 4 对相反（N/S、W/E、
+    NE/SW、NW/SE），平衡组合只有两类可行顶点：
+
+    \list 1
+    \li 平行对（支持 2 条法线）：λ 平分给相反方向对——4 个；
+    \li 三线组合（支持 3 条法线）：0 在三个方向张成的凸锥内
+        （充要：相邻角度最大间隙 < 180°）——8 个。
+    \endlist
+
+    12 个候选（uW/uH = used、s\* = max(0, cut\*)、K = √2）：
+
+    \badcode
+    d1  = uH/2                            N/S 平行对
+    d2  = uW/2                            W/E 平行对
+    d3  = (uW+uH−sTL−sBR) / (2K)          TL斜 vs BR斜（平行对）
+    d4  = (uW+uH−sTR−sBL) / (2K)          TR斜 vs BL斜（平行对）
+    d5  = (uW+uH−sBR) / (2+K)             E + N + BR斜
+    d6  = (uW+uH−sTL) / (2+K)             W + S + TL斜
+    d7  = (uW+uH−sBL) / (2+K)             W + N + BL斜
+    d8  = (uW+uH−sTR) / (2+K)             E + S + TR斜
+    d9  = (uW+2uH−sBR−sBL) / (K(2+K))     N + BR斜 + BL斜
+    d10 = (uW+2uH−sTL−sTR) / (K(2+K))     S + TL斜 + TR斜
+    d11 = (2uW+uH−sTL−sBL) / (K(2+K))     W + TL斜 + BL斜
+    d12 = (2uW+uH−sTR−sBR) / (K(2+K))     E + TR斜 + BR斜
+    \endcode
+
+    \c d\* = min(以上 12 项)。O(1) 求值，无二分无迭代、无超越函数
+    （K 为常量）。20 万组随机搜索确认 12 候选**无冗余无遗漏**——
+    每个候选都在对应参数区成为过唯一瓶颈，删除任何一个都会产生
+    错误 d\*。数值对照：解析式 vs 二分基准 3000 组随机，
+    max_err 9.6e-10。
+
+    \section1 解析公式蕴含的边界条件
+
+    \section2 非负性（构造性）
+
+    \c used ≥ 对角 cut 和 ⟹ 每个候选 ≥ 0（如
+    \c d9 = (uW+2uH−sBR−sBL)/K(2+K) ≥ 0 因 uW ≥ sBR+sBL）。退化一致：
+    cuts 全 0（矩形）→ d\* = min(uH/2, uW/2)；正方形 → 边长/2
+    （内切圆半径）。
+
+    \section2 边消失与尺寸不足（溢出）
+
+    边消失条件（如 sTL+sTR ≥ width）由 used 的 max 钉住——图形保持
+    完整，从期望中心对称溢出，不压缩 cut。消失边两端点重合；继续
+    缩小尺寸不改变 used 几何（组件坐标随期望中心移动）。
+
+    \section2 退化链与临界区形态
+
+    d 连续增大时：多边形（顶点数递减）→ 线段态（持续）→ 面积 0 的
+    退化态 → d\* 处锁定（d > d\* 输出恒等于 d\* 处）。退化态的形状
+    由瓶颈类型决定：
+
+    \list 1
+    \li **三线组合瓶颈**（d5-d12 为 min）：交集收缩为单点，8 命名点
+        全部重合于临界点；
+    \li **平行对瓶颈**（d1-d4 为 min）：交集退化为线段，命名点分归
+        两端（止于自然重合位置）。
+    \endlist
+
+    临界区内命名点位置连续，但 d 接近 d\* 时单步位移显著增大
+    （顶点归入切换）；线方向固定 45° 网格，非平行对 det 恒 ≥ 0.707，
+    求交无真病态。
+
+    \section2 直角角与负 border
+
+    直角角（cut=0）：归入机制自动达成角平分线精确内缩 d√2（见上）。
+    负 border：外扩，凸保持、点间距单调增大，无需额外处理。
+
+    \section2 浮点注意
+
+    重合点是不同运算路径的近似求值（如 \c −uW/2+sTL 与 \c uW/2−sTR
+    当 uW = sTL+sTR），IEEE 舍入下差可达 1 ulp 级——不保证位级相等，
+    视觉尺度无假重合/假分离抖动。半平面判定用
+    \c s·(A·x+B·y−C) ≥ −1e-9 容差（吸收交点求值舍入），勿写 +C
+    （曾致交集恒空）。
+*/

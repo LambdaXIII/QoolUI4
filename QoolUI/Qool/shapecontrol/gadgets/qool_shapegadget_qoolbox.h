@@ -14,7 +14,7 @@ QOOL_NS_BEGIN
 
 // QoolBoxGadget：八边形控制点计算器（原 QoolBoxShapeControl 重构）。
 //
-// 语义（design.md 已定案）：cutSizes 是硬参数——形状由 cut 决定，不因尺寸
+// 语义：cutSizes 是硬参数——形状由 cut 决定，不因尺寸
 // 不足而压缩；width/height 是期望尺寸——极限情况图形从期望中心对称溢出。
 // 单一 8 点输出（borderWidth 参数化形态：0 = 外轮廓，> 0 = 边平移内缩，
 // shrink = 8 条平移半平面交集——几何真值）；双实例描边 = 宿主实例化两个

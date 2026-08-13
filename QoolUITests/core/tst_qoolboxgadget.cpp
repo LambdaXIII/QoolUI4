@@ -18,7 +18,7 @@
 // （appendChild 自动 set_control——宏生成 setter 在 protected 作用域，
 // 测试子类用 using 声明提升为 public）。
 //
-// oracle 平移线公式 = 几何定义（design.md 4.5）：顶 y=−uH/2+d、底 y=uH/2−d、
+// oracle 平移线公式 = 几何定义：顶 y=−uH/2+d、底 y=uH/2−d、
 // 左 x=−uW/2+d、右 x=uW/2−d、左斜 x+y=−uW/2−uH/2+sTL+d√2、右斜
 // x−y=uW/2+uH/2−sTR−d√2、右底斜 x+y=uW/2+uH/2−sBR−d√2、左底斜
 // x−y=−uW/2−uH/2+sBL+d√2；半平面判定 s*(A·x+B·y−C) ≥ −1e-9（与实现同容差）。
