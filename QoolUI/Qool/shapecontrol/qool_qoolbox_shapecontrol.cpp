@@ -27,11 +27,10 @@
 
     \section1 settings 与替换语义
 
-    \c settings（\l {QoolBoxSettingsBase} 的派生实例，QML 侧为
-    \l QoolBoxSettings）：实例替换时全部 gadget 输入自动重挂；\c settings
-    为 null 时按 0 输入退化计算（不崩溃）。引用语义：整组赋值共享实例，
-    独立副本 = 新建实例。settings 由信号连接同步（QObject 连接在 settings
-    销毁时自动断开——settings 生命周期短于本对象是安全的）。
+    \c settings（\l QoolBoxSettings）：实例替换时全部 gadget 输入自动重挂；
+    \c settings 为 null 时按 0 输入退化计算（不崩溃）。引用语义：整组赋值
+    共享实例，独立副本 = 新建实例。settings 由信号连接同步（QObject 连接
+    在 settings 销毁时自动断开——settings 生命周期短于本对象是安全的）。
 
     \section1 命中判定
 
@@ -106,13 +105,13 @@ void QoolBoxShapeControl::connect_settings() {
   }
   m_connectedSettings = s;
   const auto sync = [this] { sync_settings_to_gadgets(); };
-  connect(s, &QoolBoxSettingsBase::cutSizeTLChanged, this, sync);
-  connect(s, &QoolBoxSettingsBase::cutSizeTRChanged, this, sync);
-  connect(s, &QoolBoxSettingsBase::cutSizeBLChanged, this, sync);
-  connect(s, &QoolBoxSettingsBase::cutSizeBRChanged, this, sync);
-  connect(s, &QoolBoxSettingsBase::borderWidthChanged, this, sync);
-  connect(s, &QoolBoxSettingsBase::offsetXChanged, this, sync);
-  connect(s, &QoolBoxSettingsBase::offsetYChanged, this, sync);
+  connect(s, &QoolBoxSettings::cutSizeTLChanged, this, sync);
+  connect(s, &QoolBoxSettings::cutSizeTRChanged, this, sync);
+  connect(s, &QoolBoxSettings::cutSizeBLChanged, this, sync);
+  connect(s, &QoolBoxSettings::cutSizeBRChanged, this, sync);
+  connect(s, &QoolBoxSettings::borderWidthChanged, this, sync);
+  connect(s, &QoolBoxSettings::offsetXChanged, this, sync);
+  connect(s, &QoolBoxSettings::offsetYChanged, this, sync);
   sync_settings_to_gadgets();
 }
 

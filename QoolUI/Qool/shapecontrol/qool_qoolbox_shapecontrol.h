@@ -1,7 +1,7 @@
 #ifndef QOOL_QOOLBOX_SHAPECONTROL_H
 #define QOOL_QOOLBOX_SHAPECONTROL_H
 
-#include "qool_qoolbox_settings_base.h"
+#include "qool_qoolbox_settings.h"
 #include "qool_shapecontrol.h"
 #include "qoolcommon/macro_foreach.hpp"
 #include "qoolns.hpp"
@@ -30,7 +30,7 @@ class QoolBoxGadget;
 // vec + shrink）：消费方（变体 path/掩码/HUD）均挂接在 target（QoolBox）
 // 内部，本地系一致（spec D1 注释）。
 //
-// settings（QoolBoxSettingsBase*，可绑定）：实例替换时 gadget 输入经
+// settings（QoolBoxSettings*，可绑定）：实例替换时 gadget 输入经
 // QProperty 依赖追踪自动重挂（绑定 lambda 读 settings 链）；settings 为
 // null 时按 0 输入退化计算（点退化为矩形原点，不崩溃）。
 class QoolBoxShapeControl : public ShapeControl {
@@ -38,7 +38,7 @@ class QoolBoxShapeControl : public ShapeControl {
   QML_ELEMENT
 
   QBINDABLE_WRITABLE_PROPERTY(
-      QoolBoxShapeControl, QoolBoxSettingsBase*, settings)
+      QoolBoxShapeControl, QoolBoxSettings*, settings)
 
 public:
   explicit QoolBoxShapeControl(QObject* parent = nullptr);
@@ -73,7 +73,7 @@ private:
   QoolBoxGadget* m_inner = nullptr;
   // 当前已连接字段信号的 settings 实例（QPointer——settings 析构自动置
   // null，disconnect 安全）。
-  QPointer<QoolBoxSettingsBase> m_connectedSettings;
+  QPointer<QoolBoxSettings> m_connectedSettings;
 
   void setup_gadgets();
   void connect_settings();

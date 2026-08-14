@@ -2,19 +2,20 @@ import QtQuick
 import QtTest
 import Qool
 
-// QoolBoxSettings 双类型测试（Qool/shapecontrol/qool_qoolbox_settings.*）
+// QoolBoxSettings 测试（Qool/shapecontrol/qool_qoolbox_settings.*）
 //
-// 被测契约（spec D2 fallback 定案 + 09 票验收清单）：
+// 被测契约（spec D2 最终定案：单一类型——QML 继承 Base 主路径实证否定后
+// Base 删除，属性类型直接为本类；ADR-0005 修订）：
 // - QoolBoxSettings 是 C++ 类型（QML_ELEMENT，可实例化）；类型默认值 = C++
 //   常量（cut* 0、borderWidth 0、borderColor red、fillColor yellow、
-//   offsetX/Y 0、curved false）——fallback 形态：无 Style 默认，主题联动由
-//   消费方（QoolBox 等）在实例化处显式绑定
+//   offsetX/Y 0、curved false）——无 Style 默认，主题联动由消费方
+//   （QoolBox 等）在实例化处显式绑定
 // - 9 属性可读写（写后读回）；变化发 *_Changed 信号；同值赋值不发信号
 //   （属性宏体系相等守卫）
 // - 字段可绑定（绑定到可驱动值，变化后读取跟随）与动画（Behavior 可挂字段、
 //   NumberAnimation 作用于字段）
-// - 多态：control.settings（属性类型 QoolBoxSettingsBase*）接受
-//   QoolBoxSettings 实例；settings 实例替换后绑定链路自动重挂
+// - control.settings（属性类型 QoolBoxSettings*）接受 QoolBoxSettings
+//   实例（内联/引用赋值类型完全匹配）；settings 实例替换后绑定链路自动重挂
 // - 引用语义（QDoc 契约）：整组赋值共享实例（一处修改另一处可见、字段绑定
 //   作用于共享对象）；独立副本 = 新建实例赋值（互不影响）
 // - QoolBox 默认 wiring：settings 非 null、control.settings === settings、
@@ -226,8 +227,8 @@ TestCase {
 
     function test_controlAcceptsSettingsInstance() {
         const control = createTemporaryObject(controlComp, root)
-        // 多态：settings 属性类型为 QoolBoxSettingsBase*，接受 QoolBoxSettings
-        // 派生实例（QML 内联对象赋值）
+        // 属性类型为 QoolBoxSettings*，接受 QoolBoxSettings 实例
+        // （QML 内联对象赋值）
         verify(control.settings !== null)
         compare(control.settings.cutSizeTL, 12)
         compare(control.settings.borderWidth, 3)

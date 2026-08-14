@@ -137,13 +137,12 @@ target_link_libraries(tst_qool_offsetprojector PRIVATE Qool QoolCommon QoolUITes
 
 # QoolBoxShapeControl（重写 gadget 化）——settings 信号同步/替换重挂、
 # 16 点转发对照、*Space 公式、contains、referenceBox 链、null 退化、
-# 析构安全。链依赖：control + settings 双类型 + ShapeControl + gadget 基类
-# + SmartObject（同 tst_qool_qoolboxgadget 模式）
+# 析构安全。链依赖：control + settings（单一类型）+ ShapeControl + gadget
+# 基类 + SmartObject（同 tst_qool_qoolboxgadget 模式）
 qoolui_add_cpp_test(
   tst_qool_qoolboxshapecontrol
   tst_qoolboxshapecontrol.cpp
   "${QOOL_SRC}/shapecontrol/qool_qoolbox_shapecontrol.cpp"
-  "${QOOL_SRC}/shapecontrol/qool_qoolbox_settings_base.cpp"
   "${QOOL_SRC}/shapecontrol/qool_qoolbox_settings.cpp"
   "${QOOL_SRC}/shapecontrol/qool_shapecontrol.cpp"
   "${QOOL_SRC}/shapecontrol/qool_shapecontrol_gadget.cpp"

@@ -4,10 +4,7 @@
     \nativetype qoolui::QoolBoxSettings
     \brief 八边形外观设置（四角切角/边框/填充/偏移/圆角开关）。
 
-    QoolBox 的形状与外观统一配置入口。属性定义在 C++ 基类
-    QoolBoxSettingsBase（QML_UNCREATABLE 注册——QML 中类型名可见但不可
-    实例化，供 \c settings 属性类型解析与子类检查）；本类型承载 QML
-    注册（可实例化），宿主以 \c settings 属性访问：
+    QoolBox 的形状与外观统一配置入口，宿主以 \c settings 属性访问：
     \qml
     QoolBox {
         settings {
@@ -49,7 +46,17 @@
 QOOL_NS_BEGIN
 
 QoolBoxSettings::QoolBoxSettings(QObject* parent)
-  : QoolBoxSettingsBase { parent } {
+  : QObject { parent } {
+  // 默认值保持旧 QoolBoxSettings 语义（cut* 由 qreal 默认 0；curved 默认
+  // false 由 bool 默认——显式设置以明示契约）。borderColor/fillColor 的
+  // 红/黄是 C++ 常量兜底：单一类型定案下 Style 默认由消费方（QoolBox 等）
+  // 在实例化处显式绑定覆盖，未绑定前的瞬时值沿用旧类行为。
+  QBINDABLE_SET_VALUE(offsetX, 0);
+  QBINDABLE_SET_VALUE(offsetY, 0);
+  QBINDABLE_SET_VALUE(borderWidth, 0);
+  QBINDABLE_SET_VALUE(borderColor, Qt::red);
+  QBINDABLE_SET_VALUE(fillColor, Qt::yellow);
+  QBINDABLE_SET_VALUE(curved, false);
 }
 
 QOOL_NS_END

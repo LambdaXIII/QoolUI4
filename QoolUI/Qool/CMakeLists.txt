@@ -43,8 +43,6 @@ qt_add_qml_module(
           shapecontrol/qool_shapecontrol.cpp
           shapecontrol/qool_qoolbox_settings.h
           shapecontrol/qool_qoolbox_settings.cpp
-          shapecontrol/qool_qoolbox_settings_base.h
-          shapecontrol/qool_qoolbox_settings_base.cpp
           shapecontrol/qool_shapecontrol_gadget.h
           shapecontrol/qool_shapecontrol_gadget.cpp
           shapecontrol/qool_qoolbox_shapecontrol.h

@@ -30,7 +30,6 @@
 
 #include "shapecontrol/qool_qoolbox_shapecontrol.h"
 #include "shapecontrol/qool_qoolbox_settings.h"
-#include "shapecontrol/qool_qoolbox_settings_base.h"
 #include "shapecontrol/gadgets/qool_shapegadget_qoolbox.h"
 
 #include <cmath>
@@ -122,7 +121,7 @@ class QoolBoxControlFixture {
 public:
   QQuickItem target;
   TestControl control;
-  QoolBoxSettingsBase settings;
+  QoolBoxSettings settings;
 
   QoolBoxControlFixture() {
     control.set_target(&target);
@@ -234,7 +233,7 @@ class TestQoolBoxShapeControlUnit : public QObject {
     target.setHeight(80);
     QCoreApplication::processEvents(); // 延迟同步 flush
 
-    QoolBoxSettingsBase a;
+    QoolBoxSettings a;
     a.set_cutSizeTL(10);
     a.set_cutSizeTR(20);
     a.set_cutSizeBL(30);
@@ -245,7 +244,7 @@ class TestQoolBoxShapeControlUnit : public QObject {
     QSignalSpy spy(&control, &QoolBoxShapeControl::settingsChanged);
     QVERIFY(spy.isValid());
 
-    // 新实例用 QoolBoxSettings（Base 派生、QML 注册类型）——类型多态
+    // 新实例用独立 QoolBoxSettings（单一类型——属性类型即本类）
     QoolBoxSettings b;
     b.set_cutSizeTL(60);
     b.set_cutSizeTR(50);
@@ -491,7 +490,7 @@ class TestQoolBoxShapeControlUnit : public QObject {
     target.setHeight(80);
     QCoreApplication::processEvents(); // 延迟同步 flush
     {
-      QoolBoxSettingsBase s;
+      QoolBoxSettings s;
       control.set_settings(&s);
       s.set_cutSizeTL(10);
       s.set_cutSizeTR(20);
@@ -510,7 +509,7 @@ class TestQoolBoxShapeControlUnit : public QObject {
     // control 先析构（settings 存活）：连接随 receiver 销毁自动移除——
     // 不崩溃，settings 仍可用
     QQuickItem target2;
-    QoolBoxSettingsBase s2;
+    QoolBoxSettings s2;
     {
       TestControl c2;
       c2.set_target(&target2);
@@ -528,7 +527,7 @@ class TestQoolBoxShapeControlUnit : public QObject {
     {
       QQuickItem target3;
       auto* c3 = new TestControl;
-      auto* s3 = new QoolBoxSettingsBase(c3);
+      auto* s3 = new QoolBoxSettings(c3);
       c3->set_target(&target3);
       target3.setWidth(100); // 与第一段同尺寸——期望 (10,0) 成立
       target3.setHeight(80);
