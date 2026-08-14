@@ -1,0 +1,3 @@
+# QoolBoxSettings 双类型 + cut 命名规范
+
+settings 分两层：`QoolBoxSettingsBase`（C++ 类，定义全部属性：cutSizeTL/TR/BL/BR、borderWidth、borderColor、fillColor、offsetX/offsetY、curved）+ `QoolBoxSettings`（QML 类型，QML 侧继承 Base，用 Style 初始化默认值——主题联动，宿主实例化即得当前主题外观）。`QoolBoxShapeControl.settings` 期待 Base 类型，接受子类实例（多态：`control.settings: QoolBoxSettings {...}`）。cut 面只留四角 `cutSizeTL/TR/BL/BR` 规范命名（砍 singular `cutSize` 与 uniform `cutSizes`；后者仅一个消费方在 Example，不在兼容范围）。统一设置能力高度可选，不塞进每个实例（独立 CutSizeLocker 待有真实消费方时按可插拔形态实现）。**settings 是 QObject 引用属性**：`qbox1.settings: qbox2.settings` 共享实例（改任一方影响所有引用者；字段级绑定/动画作用于共享对象）；需要独立副本 → 新建 `QoolBoxSettings` 实例赋值（QDoc 契约明示）。原因：字段级绑定/动画是 settings 的主流用法（值类型不可行）；Qt 官方先例 Control.palette（QObject 外观组）。

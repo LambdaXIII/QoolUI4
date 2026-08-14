@@ -1,6 +1,6 @@
-# CONTEXT — 单例组件设计模式（QoolUI4）
+# CONTEXT — QoolUI4
 
-术语为稳定命名，跨会话、跨文档一律使用全称。决策记录见 `docs/adr/0001-qml-singleton-contract.md`；实现规范见根 `AGENTS.md`「单例」节。
+术语为稳定命名，跨会话、跨文档一律使用全称。决策记录见 `docs/adr/`；实现规范见根 `AGENTS.md`。
 
 ## 术语表
 
@@ -32,3 +32,24 @@
 
 - Qore / PixelFont / GlobalChatRoom —— QML 文件单例，per-engine 天然安全
 - SystemTheme / ChatRoomManager —— C++-only，不暴露 QML
+
+## 形状体系（QoolBox）
+
+决策记录见 `docs/adr/architecture/0001-qml-singleton-contract.md`、`docs/adr/qoolbox/0002-qoolbox-space-layout.md`、`docs/adr/qoolbox/0003-qoolbox-single-shape.md`、`docs/adr/qoolbox/0004-qoolboxshapecontrol-rewrite.md`、`docs/adr/qoolbox/0005-qoolboxsettings-qml-cut-naming.md`、`docs/adr/qoolbox/0006-qoolboxgadget-internals.md`、`docs/adr/qoolbox/0007-qoolbox-role-split-public-surface.md`、`docs/adr/qoolbox/0008-qoolboxhud-whitebox.md`。
+
+| 术语 | 定义 |
+|---|---|
+| **cut（切角）** | 八边形四角切角尺寸，规范命名 `cutSizeTL/TR/BL/BR`（四角独立）；无 singular `cutSize` 别名、无 uniform `cutSizes`。cut 是硬参数：形状由 cut 决定，尺寸不足时图形溢出而非压缩 cut。 |
+| **used（usedWidth/usedHeight）** | 八边形实际承载尺寸 = max(期望尺寸, 对角 cut 和)，构造性保证边长度非负。 |
+| **shrink（内缩）** | 边平移语义的内缩：内多边形 = 8 条平移半平面交集，`borderWidth` 参数化（0 = 外轮廓）。 |
+| **`*Space`** | topSpace/bottomSpace/leftSpace/rightSpace，内容内缩布局量（宿主排版 padding 用），QoolBoxShapeControl（C++）计算：`max(0, max(相邻 cut) − (used − 期望)/2)`，QoolBox 转发公开；同系组件（QoolBGBox 等）覆盖同名属性是期望行为（同系同类语义）。 |
+| **referenceBox** | gadget 几何委托源（5 介入点 ref 优先 null 回退）；双实例描边的内环 gadget 用它引用外环。 |
+| **QoolBoxGadget** | 八边形控制点计算器（gadget 模式，挂标准 ShapeControl 之下），纯坐标数学：cut*/borderWidth → 8 点 + contains，不碰样式与 settings。由 QoolBoxShapeControl（C++）构造时安装（outer + inner 双实例，referenceBox 链）；保留公开注册，可独立使用。 |
+| **settings（QoolBoxSettings / QoolBoxSettingsBase）** | 外观束（几何 cut/offset/curved + 样式 border/fill/width）。双类型：QoolBoxSettingsBase（C++，属性定义处）+ QoolBoxSettings（QML 类型，继承 Base、Style 初始化默认值）。Style 供默认、settings 供实例覆盖；QObject 引用语义（整组赋值共享实例，QDoc 契约明示）。 |
+| **退行** | QoolBox 在 curved 且 cut 满足判定时退行到原生 Rectangle（非 Shape）。 |
+| **gadget 模式** | 坐标计算器挂标准 ShapeControl 之下：gadget = 纯坐标数学，ShapeControl = 几何基座（target → width/height/center 等派生量）。Crystal/Circle/Triangle/QoolBox 等 gadget 共用。 |
+| **双实例描边** | border 环 = 外环 gadget（borderWidth 0）+ 内环 gadget（borderWidth = 描边宽度，referenceBox 指外环）挖空；填充 = 内环单独。单 Shape 内两个 ShapePath 分别消费。 |
+| **QoolBoxHud** | QoolBox 专用调试工具（OctagonShapeHud 重定位）：`box` 属性，读 `box.control` 的 ext*/int* 16 控制点（control 是 QoolBox 公开属性，无白盒契约）。 |
+| **内弧半径** | 圆角变体内弧半径 = 内环相邻点弦长/√2（|intRT − intTR|/√2 等四角，Shape 自身从 control 的内环点推出；control 不加派生属性；退化弦长 0 → 半径 0）。 |
+| **低级 API 组件** | OctagonShape/OctagonCurvedShape 的定位：`required` 整个 control（QoolBoxShapeControl）注入、纯消费（点/space/settings）、不持有几何——独立使用不自洽是刻意的（低级组成件，供 QoolBox 组装）。 |
+| **QoolBoxShapeControl** | 八边形几何单元（ShapeControl 子类，C++）：内部安装两个 QoolBoxGadget，转发 ext*/int* 16 点、usedWidth/usedHeight、四个 *Space、contains，公开 settings（QoolBoxSettingsBase*）——可替换/共享（QoolBox 公开 control 属性）。 |
