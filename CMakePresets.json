@@ -6,7 +6,7 @@
       "name": "dev-msvc-debug",
       "displayName": "QoolUI dev (MSVC, Ninja, Debug)",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build-msvc-Debug",
+      "binaryDir": "${sourceDir}/build/build-msvc-Debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "BUILD_TESTING": "ON",
@@ -17,7 +17,7 @@
       "name": "dev-msvc-release",
       "displayName": "QoolUI dev (MSVC, Ninja, Release)",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build-msvc-Release",
+      "binaryDir": "${sourceDir}/build/build-msvc-Release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_TESTING": "ON",
@@ -28,7 +28,7 @@
       "name": "dev-clang-debug",
       "displayName": "QoolUI dev (Clang, Ninja, Debug)",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build-clang-Debug",
+      "binaryDir": "${sourceDir}/build/build-clang-Debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "BUILD_TESTING": "ON",
@@ -39,7 +39,7 @@
       "name": "dev-clang-release",
       "displayName": "QoolUI dev (Clang, Ninja, Release)",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build-clang-Release",
+      "binaryDir": "${sourceDir}/build/build-clang-Release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_TESTING": "ON",
@@ -50,7 +50,7 @@
       "name": "dev-gcc-debug",
       "displayName": "QoolUI dev (GCC, Ninja, Debug)",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build-gcc-Debug",
+      "binaryDir": "${sourceDir}/build/build-gcc-Debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "BUILD_TESTING": "ON",
@@ -61,7 +61,7 @@
       "name": "dev-gcc-release",
       "displayName": "QoolUI dev (GCC, Ninja, Release)",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build-gcc-Release",
+      "binaryDir": "${sourceDir}/build/build-gcc-Release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_TESTING": "ON",

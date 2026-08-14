@@ -7,7 +7,7 @@
 //
 // 注意：本测试走 Qool/QoolColor/QoolFile 模块插件（QML 类型注册在
 // Qool.dll 等内），import path 由 QOOLUI_TEST_QML_IMPORT_PATH 注入
-// （构建树 build/qml）。QML 类型随插件注册，跨 engine 由 Qt 原生
+// （构建树 build/build-<kit>-<Type>/qml）。QML 类型随插件注册，跨 engine 由 Qt 原生
 // 机制重新实例化——本测试验证的正是该契约。
 
 #include <QtTest>

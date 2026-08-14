@@ -6,7 +6,8 @@
 //   QUICK_TEST_SOURCE_DIR       — 批次目录（该 QML 测试批次全部 tst_*.qml
 //                                 所在源码目录，递归扫描；assets/ 内文件
 //                                 不得以 tst_ 开头）
-//   QOOLUI_TEST_QML_IMPORT_PATH — Qool 模块构建输出目录（build/qml），
+//   QOOLUI_TEST_QML_IMPORT_PATH — Qool 模块构建输出目录
+//                                 （build/build-<kit>-<Type>/qml），
 //                                 qmlEngineAvailable 时注入引擎——tst_*.qml
 //                                 即可 `import Qool` 并使用真实模块
 // 注意：QUICK_TEST_MAIN_WITH_SETUP 的 name 参数（qoolqml）仅为 QTest 显示名，

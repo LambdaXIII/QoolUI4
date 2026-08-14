@@ -15,7 +15,7 @@
 # 运行：add_test 统一带 -platform offscreen（无头；目视渲染直接跑 exe 无参）
 #
 # 输出树下沉（原 spec 6.1，定案见 AGENTS.md「CMake 组织」）：本层 exe 输出到
-# build/QoolUITests/qml/。本层与 core 层是唯二需要 qt.conf 的层（QML 测试
+# build/build-<kit>-<Type>/QoolUITests/qml/。本层与 core 层是唯二需要 qt.conf 的层（QML 测试
 # 加载平台插件与 Qool QML 模块；core 层链接 Qt6::Quick → QTEST_MAIN 展开为
 # QGuiApplication 构造加载平台插件；common 层纯 QCoreApplication 无需）。
 # qt.conf 生成目标 = 本层输出目录。目录级变量只影响本目录树，不碰主设置。
@@ -67,7 +67,7 @@ set(QOOLUI_TEST_ARGS_tst_qool_qml "-platform;offscreen" CACHE INTERNAL "")
 
 # 依赖 DLL 复制到 exe 目录（与 qoolui_add_cpp_test 相同的部署策略）。
 # 注意：Qool.dll（Qool 模块共享库）不在 $<TARGET_RUNTIME_DLLS:tst_qool_qml>
-# 内（非本 target 链接依赖）——QML 引擎从 build/qml/Qool/ 加载
+# 内（非本 target 链接依赖）——QML 引擎从 build/build-<kit>-<Type>/qml/Qool/ 加载
 # Qoolplugin.dll，其依赖链（Qool.dll + QuickControls2/Templates2/Xml 等）
 # 必须出现在 exe 的 DLL 搜索路径（exe 目录优先）。用 Qool target 自己的
 # RUNTIME_DLLS + TARGET_FILE 一并复制：qml 层 DLL 集 = Qt DLL（双源并集，
@@ -115,7 +115,7 @@ endif()
 # 覆盖 Qool.Controls（含 Qool.Controls.Components）消费方迁移回归：QoolBGBox
 # 与 BasicLabel 的 *Space 语义（spec「Testing Decisions」消费方迁移回归段）。
 # 除 Qool 外，本批次 QML 还实例化 Qool.Controls 与 Qool.Controls.Components
-# 模块类型——QML 引擎从 build/qml/Qool/Controls*/ 加载其插件
+# 模块类型——QML 引擎从 build/build-<kit>-<Type>/qml/Qool/Controls*/ 加载其插件
 # （QoolControlsplugin.dll / QoolControlsComponentsplugin.dll），插件依赖的
 # 模块 DLL（QoolControls.dll / QoolControlsComponents.dll）不在
 # $<TARGET_RUNTIME_DLLS:tst_qoolcontrols_qml> 内（非本 target 链接依赖），

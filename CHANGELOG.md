@@ -4,6 +4,10 @@
 
 ## [4.0.0] — 2026-08-14
 
+### 变更（build-dir-parent，构建目录归置 build/ 之下）
+
+- **构建目录归置 `build/` 之下**：编译产物目录由仓库根的 `build-<kit>-<Type>/` 移入 `build/build-<kit>-<Type>/`（如 `dev-msvc-debug` → `build/build-msvc-Debug`）。机制两处硬改动：`CMakePresets.json` 六处 preset 的 `binaryDir`（`${sourceDir}/build/build-<kit>-<Type>`）；`Scripts/qoolui_build_common.py` 的 `build_dir()`（`REPO / "build" / f"build-{kit}-{Type}"`）——脚本全部命令经此函数定位构建目录，自动跟随。文档同步：根 `AGENTS.md`（构建命令注释 / kit×type 矩阵 / 插件路径示意 / 缓存清理命令）、`QoolUITests/AGENTS.md` 与 `README.md`（运行通道 / 输出树 / import path / 调试路径）全部 `build-<kit>-<Type>` → `build/build-<kit>-<Type>`；CMake 与测试源码注释中残留的旧 `build/` 泛称（历史遗留，实际已为 `build-<kit>-<Type>`）一并修正为准确路径。`.gitignore` 的 `/build*/` 已覆盖 `build/` 无需改动；旧根级构建目录为 gitignored 遗留（未删除）。
+
 ### 变更（crystal-octagonshape-refactor，Crystal 重构为 OctagonShape 特化）
 
 - **Crystal 重构（spec `.scratch/crystal-octagonshape-refactor`）**：根组件由「Item + 内部 Shape + ShapeControl + CrystalGadget 单层外轮廓模型」改为 **OctagonShape 特化**——内部注入 QoolBoxShapeControl（target = 自身）+ QoolBoxSettings 特化（四角 cut 恒绑定 shortEdge/2、borderWidth=1 内缩描边环、borderColor=strokeColor、fillColor=color）；三形态（宽六边形/菱形/瘦六边形）即 QoolBoxGadget cut = shortEdge/2 特化（半平面交集模型下退化形态合法——旧"切角极限反向三角形"警告基于已删除的 pCtrl 内弧算法，已证伪并清除全部残留表述：Crystal.qml/Slider.qml/VerticalSlider.qml 注释、HalfCrystalGadget QDoc 引用改写）。公开面：color/strokeColor/fillGradient/fillItem/掩码契约保留；**cutSize 不作公开接口**（内部 QtObject pCtrl 中间量单点定义，settings 四角绑定共享——切角是几何契约非可配置状态）；默认逻辑尺寸 = width/height 显式 20（implicit 声明被引擎覆盖的机制替代）；Shape 根使 preferredRendererType 等渲染器面开放（Slider 手柄 CurveRenderer 用法恢复生效）。Crystal 不暴露 settings（文档契约）；control 可替换（高级用法，QoolBox 同哲学）

@@ -131,16 +131,16 @@ flowchart TB
 # Windows/MSVC（默认 kit=msvc, type=debug——开发期默认，xDebug 输出可见）
 python Scripts/qoolui_build_windows.py configure --qt C:/Qt/6.11.1
 python Scripts/qoolui_build_windows.py build --jobs 8
-python Scripts/qoolui_build_windows.py test          # ctest 聚合，输出落盘 build-<kit>-<Type>/test.log
+python Scripts/qoolui_build_windows.py test          # ctest 聚合，输出落盘 build/build-<kit>-<Type>/test.log
 python Scripts/qoolui_build_windows.py run           # 启动 QoolUIExample（需 --qt 或环境 QT_DIR——开发模式 Qt 运行时注入依赖它）
-python Scripts/qoolui_build_windows.py install       # 输出到 build-<kit>-<Type>/install（含 Qt 部署脚本收集的依赖）
+python Scripts/qoolui_build_windows.py install       # 输出到 build/build-<kit>-<Type>/install（含 Qt 部署脚本收集的依赖）
 python Scripts/qoolui_build_windows.py deploy        # install + zip 归档
 # MinGW：--kit gcc；Clang：--kit clang（Qt 安装根自动按 kit 选工具链目录）
 ```
 
 > **install/deploy 部署的是 QoolUIExample 产物**（消费 QoolUI 的宿主应用）：QML 模块、Qt 运行时与翻译是 exampleapp 的运行依赖，随部署打包。QoolUI 库本身的交付包（可删减 QML 模块 + Includes 头文件 + qdoc 文档）方案未定，另立 spec，不走本通道。
 
-**kit×type 矩阵**（CMakePresets.json）：`dev-<kit>-<type>` preset 对应用户目录 `build-<kit>-<Type>`（如 `dev-msvc-debug` → `build-msvc-Debug`）。kit = 编译方式（msvc/clang/gcc），type = debug/release（默认 debug）。编译器由脚本环境准备决定，preset 不指定——构建目录按 kit 隔离保证工具链不混。CMake 原生通道（无脚本环境准备时）亦可直接 `cmake --preset dev-msvc-debug`。
+**kit×type 矩阵**（CMakePresets.json）：`dev-<kit>-<type>` preset 对应用户目录 `build/build-<kit>-<Type>`（如 `dev-msvc-debug` → `build/build-msvc-Debug`）。kit = 编译方式（msvc/clang/gcc），type = debug/release（默认 debug）。编译器由脚本环境准备决定，preset 不指定——构建目录按 kit 隔离保证工具链不混。CMake 原生通道（无脚本环境准备时）亦可直接 `cmake --preset dev-msvc-debug`。
 
 平台概念约定：**以编译方式（kit）区分命名**（对齐 Qt 安装器布局 msvc2022_64/mingw_64），不以操作系统命名；脚本结构按操作系统拆分（分支逻辑聚簇处），Unix 入口待真平台落地时完善。
 
@@ -344,7 +344,7 @@ qt_add_qml_module(ModuleName
 ### 2. 插件加载路径
 `qoolplugins/` 目录必须与可执行文件同级目录:
 ```
-build-<kit>-<Type>/           # 如 build-msvc-Debug/
+build/build-<kit>-<Type>/           # 如 build/build-msvc-Debug/
 ├── QoolUIExample.exe
 ├── qml/
 └── qoolplugins/  ← 必须在此位置
@@ -353,7 +353,7 @@ build-<kit>-<Type>/           # 如 build-msvc-Debug/
 ### 3. CMake 缓存问题
 修改 QML 模块结构后需清理缓存:
 ```bash
-rm -rf build-<kit>-<Type>/CMakeCache.txt build-<kit>-<Type>/CMakeFiles
+rm -rf build/build-<kit>-<Type>/CMakeCache.txt build/build-<kit>-<Type>/CMakeFiles
 ```
 
 ### 4. 私有 QML 文件

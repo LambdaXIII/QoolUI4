@@ -1,7 +1,7 @@
 # QoolCommon 纯 C++ 模板库测试（Qt Test）
 # 被测面：qoolcommon/math/*（纯函数/纯模板，QCoreApplication 环境即可）
 #
-# 输出树下沉（原 spec 6.1）：本层 exe 输出到 build/QoolUITests/common/，
+# 输出树下沉（原 spec 6.1）：本层 exe 输出到 build/build-<kit>-<Type>/QoolUITests/common/，
 # DLL 按层共享一份（copy_if_different 幂等）。目录级变量只影响本目录树，
 # 不碰主设置（CMAKE_RUNTIME_OUTPUT_DIRECTORY=${CMAKE_BINARY_DIR}）。
 #

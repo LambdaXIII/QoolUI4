@@ -8,7 +8,7 @@
 
 约定内置（不随环境变化）：
   - kit×type preset 映射：dev-<kit>-<type>（CMakePresets.json）
-  - 构建目录：build-<kit>-<Type>
+  - 构建目录：build/build-<kit>-<Type>
   - deploy = install + zip 归档；release = deploy + 版本归档名
 
 QML 测试无头（offscreen）由测试注册机制保证（add_test 参数 +
@@ -68,7 +68,7 @@ def preset_name(kit: str, type_: str) -> str:
 
 
 def build_dir(kit: str, type_: str) -> Path:
-    return REPO / f"build-{kit}-{type_.capitalize()}"
+    return REPO / "build" / f"build-{kit}-{type_.capitalize()}"
 
 
 def run_cmd(cmd, cwd=None, env=None, log_path=None, check=True):

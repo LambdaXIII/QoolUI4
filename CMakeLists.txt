@@ -35,7 +35,7 @@ project(QoolUIBundle
 
 # ---- 测试设施 ----
 # CTest 顶层启用：enable_testing() 必须顶层调用，ctest --preset dev 才在
-# build/ 找到 CTestTestfile.cmake 并递归发现 QoolUITests 的测试（落地实测：
+# build/build-<kit>-<Type>/ 找到 CTestTestfile.cmake 并递归发现 QoolUITests 的测试（落地实测：
 # include(CTest) 内聚到测试树时全新 configure 后 ctest 找不到测试——决策 6
 # 修正为顶层条件化）。include(CTest) 在 QOOL_BUILD_TESTS 内 → 关闭时宿主
 # 仍零 CTest 痕迹；BUILD_TESTING 为标准注册侧开关（-DBUILD_TESTING=OFF =

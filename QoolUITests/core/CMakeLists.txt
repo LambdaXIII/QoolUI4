@@ -1,7 +1,7 @@
 # Qool 核心 C++ 类型测试（Qt Test）
 # 被测面：Qool 模块的 C++ 类型（值类型 / QObject 属性宏体系产物）
 #
-# 输出树下沉（原 spec 6.1）：本层 exe 输出到 build/QoolUITests/core/。
+# 输出树下沉（原 spec 6.1）：本层 exe 输出到 build/build-<kit>-<Type>/QoolUITests/core/。
 # 目录级变量只影响本目录树，不碰主设置。
 #
 # 链接策略说明（重要）：
@@ -174,7 +174,7 @@ set(QOOL_FILE_SRC "${CMAKE_CURRENT_LIST_DIR}/../../QoolUI/QoolFile")
 
 # 跨 engine 契约（QML 面，4 HQ 参数化）
 # 注：QoolFile 是 MODULE_LIBRARY（插件形态），不可被 target_link_libraries
-# 链接——QML 引擎经 import path（build/qml）直接加载其插件 DLL，
+# 链接——QML 引擎经 import path（build/build-<kit>-<Type>/qml）直接加载其插件 DLL，
 # 依赖链（Qool.dll/Qt DLL）由 Qool/QoolColor 链接复制到 exe 目录满足。
 qoolui_add_cpp_test(
   tst_qool_singleton_contract

@@ -40,21 +40,21 @@ QoolUITests/
 
 ## 运行（三条通道，同一批标准 Qt Test exe）
 
-通道命令表（单一事实源）见 `AGENTS.md`「运行通道」——`cmake --build build-<kit>-<Type> --target run-tests`（聚合）/ `ctest --preset dev-<kit>-<type>`（CTest）/ `build-<kit>-<Type>/QoolUITests/<层>/tst_*.exe -txt`（直接运行）。本手册只补充操作性语法：
+通道命令表（单一事实源）见 `AGENTS.md`「运行通道」——`cmake --build build/build-<kit>-<Type> --target run-tests`（聚合）/ `ctest --preset dev-<kit>-<type>`（CTest）/ `build/build-<kit>-<Type>/QoolUITests/<层>/tst_*.exe -txt`（直接运行）。本手册只补充操作性语法：
 
 - **ctest 筛选**：单个 `ctest -R tst_qool_vector2d`；按前缀 `ctest -R "tst_qool_"`（core 层 4 个 + qml harness）；注意 CTest 正则**不支持 `|` 交替**，多组筛选分开跑或只保留共同前缀
 - **失败重跑**：`ctest --rerun-failed`
 - **CI 报告**：`ctest --output-junit result.xml`（配合 `--output-on-failure`）
 - **QML 无头**：QML 测试已内置 `-platform offscreen`（测试注册机制保证，见 AGENTS.md「CMake 组织」），无需手动加
 
-> 测试 exe 输出在 `build-<kit>-<Type>/QoolUITests/{common,core,qml}` 三层；测试 target 在默认构建（all）中——`cmake --build build-<kit>-<Type>` 即构建测试（落地修正：EXCLUDE_FROM_ALL 导致 QtCreator 面板运行前构建不含测试、exe 缺失全红，已移除）。
+> 测试 exe 输出在 `build/build-<kit>-<Type>/QoolUITests/{common,core,qml}` 三层；测试 target 在默认构建（all）中——`cmake --build build/build-<kit>-<Type>` 即构建测试（落地修正：EXCLUDE_FROM_ALL 导致 QtCreator 面板运行前构建不含测试、exe 缺失全红，已移除）。
 
 ### Windows 一键（环境+配置+构建+测试）
 
 ```bash
 python Scripts/qoolui_build_windows.py configure --qt C:/Qt/6.11.1   # 首次必带 --qt（脚本内置 vcvars/MinGW 环境准备）
 python Scripts/qoolui_build_windows.py build
-python Scripts/qoolui_build_windows.py test                          # ctest 聚合，输出落盘 build-<kit>-<Type>/test.log
+python Scripts/qoolui_build_windows.py test                          # ctest 聚合，输出落盘 build/build-<kit>-<Type>/test.log
 ```
 
 MinGW 工具链加 `--kit gcc`。`run`（启动 QoolUIExample）同需 `--qt`（或环境 `QT_DIR`）——开发模式 Qt 运行时注入依赖它，缺失时 exe 启动即退出。一键操作流程的唯一事实源在本手册（AGENTS.md 仅一行引用）。
@@ -86,7 +86,7 @@ MinGW 工具链加 `--kit gcc`。`run`（启动 QoolUIExample）同需 `--qt`（
 ### QML 测试（按 Qool 模块分 QML 测试批次）
 
 1. 在对应模块的**批次目录**（如 `qml/tst_qool_qml/`）下建 `tst_<组件>.qml`：`import QtQuick; import QtTest; import Qool` + `TestCase { name: ... }`
-2. harness（共享模板 `qml_test_main.cpp`）递归扫描批次目录下所有 `tst_*.qml`；Qool 模块 import path 已注入（`QOOLUI_TEST_QML_IMPORT_PATH` → `build-<kit>-<Type>/qml`）
+2. harness（共享模板 `qml_test_main.cpp`）递归扫描批次目录下所有 `tst_*.qml`；Qool 模块 import path 已注入（`QOOLUI_TEST_QML_IMPORT_PATH` → `build/build-<kit>-<Type>/qml`）
 3. 测试资源放批次目录 `assets/` 子目录（文件系统相对路径访问）；**`assets/` 内不得有 `tst_` 前缀文件**（递归扫描误判）
 4. **状态隔离是硬要求**：TestCase 的各测试函数**共享同一实例**且按函数名顺序执行——共享状态会跨测试泄漏（曾踩：interval 被前一个测试改写导致后一个断言失败）。每个测试函数用 `createTemporaryObject(component, root)` 创建独立实例 + 动态创建 SignalSpy（见 tst_timerlatch.qml 的 `makeLatch`/`makeSpy`）
 5. 时序断言用 `tryCompare(obj, prop, value, timeout)`（内部跑事件循环，Timer 驱动可测）
@@ -104,7 +104,7 @@ MinGW 工具链加 `--kit gcc`。`run`（启动 QoolUIExample）同需 `--qt`（
 4. **MSYS/Git-Bash 管道伪象（重大）**：从 MSYS bash 管道运行 Qt Test 程序时，**stdout logger 输出完全丢失**且退出码不可信（表现为「无声退出 0」或虚假的 0xC0000409 崩溃）。测试本体正常执行。**判定测试结果必须从真实 Windows 控制台（cmd/Windows Terminal/PTY）运行**。这是观测通道问题，不是测试或 Qt 的问题。
 5. **bat 脚本的雷**（如果写 Windows 脚本，优先 pwsh）：`for /f in (...)` 内路径含 `(x86)` 破坏括号块；调 bat 必须 `call` 否则控制权不返回；UTF-8 注释在默认代码页解析出错；必须 CRLF 行尾。全部踩过，pwsh 无此问题。
 6. **Ninja 并行 POST_BUILD 竞争**：多个测试 target 的 POST_BUILD 并发复制同一目录（如 plugins/platforms）可能 Permission denied——重跑增量构建即可（本设施已消除该复制，仅当新增同类复制时注意）。
-7. **AUTOGEN 状态残留（C1083 排查）**：测试 target 的源文件列表经历过「空 → 有」的 configure（如中间版本配置错误导致 add_executable 无源）后，autogen timestamp 可能残留为最新（比源文件新）→ 后续正确 configure 不重置 autogen → 构建跳过 moc 生成 → `fatal error C1083: "tst_xxx.moc": No such file or directory`（build.make 中该 target 无 moc 规则可佐证）。**修复：删除构建目录中对应测试目录（如 `build-<kit>-<Type>/QoolUITests`）强制重新 configure**——仅重跑 cmake 不重置（实测）。
+7. **AUTOGEN 状态残留（C1083 排查）**：测试 target 的源文件列表经历过「空 → 有」的 configure（如中间版本配置错误导致 add_executable 无源）后，autogen timestamp 可能残留为最新（比源文件新）→ 后续正确 configure 不重置 autogen → 构建跳过 moc 生成 → `fatal error C1083: "tst_xxx.moc": No such file or directory`（build.make 中该 target 无 moc 规则可佐证）。**修复：删除构建目录中对应测试目录（如 `build/build-<kit>-<Type>/QoolUITests`）强制重新 configure**——仅重跑 cmake 不重置（实测）。
 8. **Qt 前缀定位**：`${Qt6_DIR}/../../..` = Qt 安装前缀（Qt6_DIR = `<前缀>/lib/cmake/Qt6`）。
 9. **QML 插件依赖的 Qt DLL（新增模块测试必查）**：`$<TARGET_RUNTIME_DLLS>` 只覆盖**链接依赖**——QML 引擎运行时加载的插件（如 `QtQuick.Shapes` 的 qmlshapesplugin）依赖的 Qt DLL（如 `Qt6QuickShapesd.dll`）不在任何 target 的 RUNTIME_DLLS 里，测试首次 import 该模块时插件加载失败（`Cannot load library ... qmlshapesplugind.dll`）。**解法**：`find_file` 按构建类型定位 DLL（`Qt6QuickShapes$<$<CONFIG:Debug>:d>.dll` 需分开 find） + 条件 POST_BUILD 复制（见 `qml/CMakeLists.txt` 的 QuickShapes 段，模板可直接复制）。任何新用到的 QML 插件模块都要检查一遍。
 
@@ -137,8 +137,8 @@ MinGW 工具链加 `--kit gcc`。`run`（启动 QoolUIExample）同需 `--qt`（
 
 ## 常用调试技巧
 
-- 单个函数：`build-<kit>-<Type>/QoolUITests/common/tst_math.exe cycle_in_range`（函数名参数）
+- 单个函数：`build/build-<kit>-<Type>/QoolUITests/common/tst_math.exe cycle_in_range`（函数名参数）
 - 数据子集：`... cycle_in_range:wrap_above`（`:数据行`）
 - 函数清单：`-functions`；详细输出：`-v1`/`-v2`
 - 显式日志格式：`-o -,txt`（或 `-txt`）
-- 目视渲染 QML 测试：`build-<kit>-<Type>/QoolUITests/qml/tst_qool_qml.exe`（不带 `-platform offscreen`）
+- 目视渲染 QML 测试：`build/build-<kit>-<Type>/QoolUITests/qml/tst_qool_qml.exe`（不带 `-platform offscreen`）
