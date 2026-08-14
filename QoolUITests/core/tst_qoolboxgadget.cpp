@@ -465,6 +465,28 @@ class TestQoolBoxGadgetUnit : public QObject {
     comparePoint(t.gadget.pointLT(), 0, 100, "单角 LT（重合）");
   }
 
+  QOOL_TEST_CASE(shrink_diamond_limit) {
+    // 菱形（切角极限：cut = 半尺寸）+ 小内缩（borderWidth = 1）——Crystal
+    // 重构的核心信任点：旧"切角极限内边缘反向三角形"警告基于已删除的
+    // pCtrl 内弧算法；半平面交集模型下菱形内缩 = 更小菱形（合法极限——
+    // shrink 时 8 命名点身份候选（顶×斜线）全部失效，归入斜线交点）。
+    QoolBoxFixture f;
+    f.setSize(100, 100);
+    f.setCuts(50, 50, 50, 50);
+    f.gadget.set_borderWidth(1);
+    assertShrinkAgainstOracle(f, Oracle(100, 100, 50, 50, 50, 50, 1));
+    // 内环 = 原点对称菱形：斜线法线平移 d → 常数变化 d√2（|x|+|y| ≤
+    // 50 − √2 ≈ 48.586）——语义值抽查（顶点 = 斜线交点归入）
+    const qreal inset = 50 - 1.4142135623730951; // 50 − √2
+    QVERIFY2(fuzzy_eq(f.gadget.pointTL().y(), 50 - inset, 1e-4)
+            && fuzzy_eq(f.gadget.pointTL().x(), 50, 1e-4),
+        qPrintable(QString("菱形内顶尖期望 %1,%2 实际 %3,%4")
+                       .arg(50)
+                       .arg(50 - inset)
+                       .arg(f.gadget.pointTL().x())
+                       .arg(f.gadget.pointTL().y())));
+  }
+
   QOOL_TEST_CASE(shrink_oracle_normal) {
     // 正常内缩（d < d*：全部身份候选有效）——oracle 逐点坐标断言
     QoolBoxFixture f;

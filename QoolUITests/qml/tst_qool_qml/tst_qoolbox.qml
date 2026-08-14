@@ -9,9 +9,9 @@ import Qool
 //   shape（= loader.item 委托，containmentMask 同步委托）
 // - *Space 四值：转发 control，公式 max(0, max(相邻 cut) − (used − 期望)/2)
 //   （used = max(期望, 对角 cut 和)——cut 硬参数溢出语义），含钳 0
-// - 退行判定：!fillItem && curved && (四角 cut 均 ≤ 短边/2 || 四角全 0)
-//   && animatingHint == false → 内联 Rectangle（无 control，cut* 作圆角
-//   半径）；否则 curved ? OctagonCurvedShape : OctagonShape
+// - 退行判定：!fillItem && !fillGradient && curved && (四角 cut 均 ≤ 短边/2
+//   || 四角全 0) && animatingHint == false → 内联 Rectangle（无 control，
+//   cut* 作圆角半径）；否则 curved ? OctagonCurvedShape : OctagonShape
 // - 变体 required control 注入：shape.control === box.control；独立实例化
 //   OctagonShape + 注入 control 渲染接线（掩码直挂 control + 路径消费
 //   ext*/int* 起点）；不注入时拒绝实例化（创建为 null，required 契约）
@@ -223,6 +223,27 @@ TestCase {
         // 清空 fillItem → 恢复退行
         box.fillItem = null
         expectShapeType(box, "rect", "fillItem 清空")
+    }
+
+    function test_fillGradientExcludesFallback() {
+        // fillGradient 补面（spec D6）：公开属性默认 null；非空 → 排除退行
+        // （与 fillItem 同款门控——Rectangle 渐变与 Shape 渐变不兼容，退行
+        // 形态保持"无填充通道"语义边界）；转发到变体 fillShape。
+        const box = makeBox(100, 60)
+        verify(box.fillGradient === null, "fillGradient 默认 null")
+        box.settings.curved = true
+        setCuts(box, 5, 5, 5, 5) // 小 cut（≤ half）——本应退行
+        expectShapeType(box, "rect", "无 fillGradient")
+        box.fillGradient = createTemporaryQmlObject(
+            "import QtQuick; import QtQuick.Shapes; LinearGradient { GradientStop { position: 0; color: 'red' } GradientStop { position: 1; color: 'blue' } }", root)
+        expectShapeType(box, "curved", "fillGradient 非空")
+        verify(box.shape.control === box.control, "fillGradient 门控下仍应注入 control")
+        // 转发到变体（变体公开 fillGradient alias → fillShape.fillGradient）
+        tryVerify(function() { return box.shape.fillGradient === box.fillGradient }, 1000,
+            "fillGradient 应转发到变体")
+        // 清空 → 恢复退行
+        box.fillGradient = null
+        expectShapeType(box, "rect", "fillGradient 清空")
     }
 
     function test_animatingHintSkipsFallback() {

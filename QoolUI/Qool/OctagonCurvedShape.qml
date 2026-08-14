@@ -34,6 +34,8 @@ Shape {
     required property QoolBoxShapeControl control
     /*! \qmlproperty Item 填充到八边形内部区域的任意 Item（Qt 6.8 ShapePath::fillItem）。 */
     property alias fillItem: fillShape.fillItem
+    /*! \qmlproperty ShapeGradient 渐变填充通道（默认 null——纯色；fillItem 优先于渐变）。注意：ShapePath.fillGradient 官方要求 ShapeGradient 新 API（LinearGradient 等），旧 Gradient 类型不可用。 */
+    property alias fillGradient: fillShape.fillGradient
 
     OctagonCurvedExternalShapePath {
         control: root.control

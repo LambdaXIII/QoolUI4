@@ -1,13 +1,13 @@
 // Qool.Controls.Slider：v3 Color 水平滑块（ColorSlider 视觉族）的通用化实现。
 //
 // 设计来源（用户裁决 2026-08-10——放弃首版 Box 设计）：
-//   - 轨道与手柄统一为**水晶六边形模型**（Crystal 组件 + CrystalShapeControl
-//     ——Qool ShapeControl 体系）：上下 45° 斜切、左右尖点；轨道为宽条六边形、
-//     手柄为方形（w = h 自然闭合菱形——旋转 45° 正方形）。同模型斜边斜率
-//     一致——天然对齐（水晶顶点贴轨道斜边）。
-//   - 单层外轮廓模型（无内缩边框环）：细描边/无描边——不存在 OctagonShape
-//     双层模型在切角极限（顶点重合）时内边缘反向三角形的问题（OctagonShape
-//     该机制为已知 bug，八边形正常、不计划修复——六边形/菱形勿用）。
+//   - 轨道与手柄统一为**水晶六边形模型**（Crystal 组件——OctagonShape
+//     特化，QoolBoxGadget cut = shortEdge/2）：上下 45° 斜切、左右尖点；
+//     轨道为宽条六边形、手柄为方形（w = h 自然闭合菱形——旋转 45°
+//     正方形）。同模型斜边斜率一致——天然对齐（水晶顶点贴轨道斜边）。
+//   - OctagonShape 双层模型（borderWidth=1 内缩描边环）：切角极限形态
+//     合法——QoolBoxGadget 半平面交集模型下菱形/瘦六边形均为定义良好的
+//     极限（旧"反向三角形"警告基于已删除的 pCtrl 内弧算法）。
 //   - 轨道默认填充 text→color 水平渐变（锚定切角内侧——Crystal 渐变锚点
 //     语义，用轨道局部尺寸计算）；渐变内联不可替换（v4 收缩裁定：换色走
 //     color 属性，不再提供 fillGradient/fillItem 透传通道）。
@@ -145,12 +145,13 @@ T.Slider {
     }
 
     // —— 轨道（六边形）：Crystal 组件（六边形模型——与手柄同模型、斜边斜率
-    // 一致天然对齐；单层外轮廓——无 OctagonShape 双层内缩在切角极限（顶点
-    // 重合）时的反向三角形 bug，性能亦轻）。显式绑定控件尺寸（覆盖 Crystal
-    // 的 implicit 默认——background 自动 fill 在 Crystal 有尺寸绑定时未生效，
-    // 曾致轨道缩成 20×20 菱形在左上角）。轨道恒为常态高度（preferredHeight，
-    // 不随展开变）+ 垂直居中——三心对齐（水晶中心 = 轨道中心 = 控件中心，
-    // 水晶常态与轨道同高贴斜边；展开时水晶顶出轨道但不出控件）
+    // 一致天然对齐；OctagonShape 双层模型——QoolBoxGadget 半平面交集下
+    // 切角极限形态合法，Crystal 即 cut = shortEdge/2 特化）。显式绑定控件
+    // 尺寸（覆盖 Crystal 的默认 20×20——background 自动 fill 在 Crystal 有
+    // 尺寸绑定时未生效，曾致轨道缩成 20×20 菱形在左上角）。轨道恒为常态
+    // 高度（preferredHeight，不随展开变）+ 垂直居中——三心对齐（水晶中心
+    // = 轨道中心 = 控件中心，水晶常态与轨道同高贴斜边；展开时水晶顶出
+    // 轨道但不出控件）
     background: Crystal {
         id: track
         width: root.width

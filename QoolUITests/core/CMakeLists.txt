@@ -75,19 +75,6 @@ qoolui_add_cpp_test(
 target_include_directories(tst_qool_multirowselectionmodel PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
 target_link_libraries(tst_qool_multirowselectionmodel PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
 
-# CrystalGadget（八点几何 + contains 精确命中）——链依赖：
-# ShapeControl（target→control 几何链）+ ShapeControlGadget 基类 + SmartObject
-qoolui_add_cpp_test(
-  tst_qool_crystalgadget
-  tst_crystalgadget.cpp
-  "${QOOL_SRC}/shapecontrol/qool_shapecontrol.cpp"
-  "${QOOL_SRC}/shapecontrol/qool_shapecontrol_gadget.cpp"
-  "${QOOL_SRC}/shapecontrol/gadgets/qool_shapegadget_crystal.cpp"
-  "${QOOL_SRC}/utils/qool_smartobj.cpp"
-)
-target_include_directories(tst_qool_crystalgadget PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
-target_link_libraries(tst_qool_crystalgadget PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
-
 # QoolBoxGadget（八点 + shrink 半平面交集 + contains + referenceBox）——
 # 链依赖：ShapeControl + ShapeControlGadget 基类 + SmartObject
 qoolui_add_cpp_test(

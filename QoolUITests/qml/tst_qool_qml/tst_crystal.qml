@@ -2,17 +2,19 @@ import QtQuick
 import QtTest
 import Qool
 
-// Crystal 组件测试（Qool/Crystal.qml）
+// Crystal 组件测试（Qool/Crystal.qml——OctagonShape 特化底座）
 //
 // 被测契约：
-// - 默认状态自洽（implicit 20×20、color 默认 Style.accent、strokeColor 自动对比）
-// - cutSize 派生跟随尺寸（= shortEdge/2）
-// - containmentMask 接入（CrystalGadget，非 null）
+// - 默认状态自洽（默认逻辑尺寸 20×20——width/height 显式默认，implicit
+//   由引擎驱动 = 路径边界；color 默认 Style.accent、strokeColor 自动对比）
+// - 四角 cut 恒等契约（settings.cutSizeTL/TR/BL/BR 相等且 = shortEdge/2，
+//   随尺寸变化）——切角是几何契约（内部中间量实现），非公开接口
+// - containmentMask 接入（QoolBoxShapeControl，非 null）
 // - 掩码契约（直接调用掩码 contains——与 C++ 测试同契约，组件级验证）：
 //   中心命中、四角切角域不命中、斜边/顶点开集命中、矩形外不命中（三形态）
 //
 // 隔离策略：每个测试函数 createTemporaryObject 独立实例；绑定传播异步，
-// 尺寸变化后 tryCompare 轮询 cutSize 再断言掩码。
+// 尺寸变化后 tryCompare 轮询 settings 四角再断言掩码。
 
 TestCase {
     id: root
@@ -33,9 +35,15 @@ TestCase {
         Crystal {}
     }
 
-    // 掩码契约辅助：等待几何绑定传播后断言掩码判定
+    // 掩码契约辅助：等待几何绑定传播后断言掩码判定。target 尺寸经
+    // ShapeControl 信号延迟同步（queued——避免隐式尺寸绑定环），掩码
+    // 判定用 control 尺寸缓存——必须先轮询到同步完成，否则 origin/used
+    // 停留在旧尺寸（中心点会被错误的角域排除）。
     function expectContains(crystal, px, py, expected, tag) {
-        tryCompare(crystal, "cutSize", Math.min(crystal.width, crystal.height) / 2, 1000)
+        tryCompare(crystal.control, "width", crystal.width, 1000)
+        tryCompare(crystal.control, "height", crystal.height, 1000)
+        tryCompare(crystal.control.settings, "cutSizeTL",
+            Math.min(crystal.width, crystal.height) / 2, 1000)
         const hit = crystal.containmentMask.contains(Qt.point(px, py))
         if (expected)
             verify(hit, tag + " 应命中 (" + px + "," + py + ")")
@@ -45,14 +53,19 @@ TestCase {
 
     function test_defaults() {
         const c = makeCrystal({ w: 20, h: 20 })
-        compare(c.implicitWidth, 20)
-        compare(c.implicitHeight, 20)
+        compare(c.width, 20)
+        compare(c.height, 20)
+        tryCompare(c, "implicitWidth", 20, 1000) // 引擎 implicit = 路径边界 = 几何
         compare(c.color, c.Style.accent)
         verify(c.strokeColor !== undefined)
         verify(c.containmentMask !== null)
+        verify(c.containmentMask instanceof QoolBoxShapeControl,
+            "掩码应委托 QoolBoxShapeControl")
+        verify(c.fillGradient === null, "fillGradient 默认 null")
+        verify(c.fillItem === null, "fillItem 默认 null")
     }
 
-    function test_cutSizeFollowsSize() {
+    function test_cutContractFollowsSize() {
         // 期望 WARN（测试环境无主题插件）：本函数是 QML 批次第一个实例化
         // Qool 组件的测试——触发 ThemeDB 初始化 → PluginLoader 扫描不到
         // qoolplugins/（插件随 example 部署，测试 exe 目录无）→
@@ -61,10 +74,33 @@ TestCase {
         // （未出现会提示——届时说明 ThemeDB 初始化位置变化，需移动本注册）。
         ignoreWarning(new RegExp("No ThemeLoader installed.*"))
         const c = makeCrystal({ w: 100, h: 80 })
-        tryCompare(c, "cutSize", 40, 1000)
+        // 四角 cut 恒等契约 = shortEdge/2（内部中间量单点定义，settings 绑定）
+        tryCompare(c.control.settings, "cutSizeTL", 40, 1000)
+        tryCompare(c.control.settings, "cutSizeTR", 40, 1000)
+        tryCompare(c.control.settings, "cutSizeBL", 40, 1000)
+        tryCompare(c.control.settings, "cutSizeBR", 40, 1000)
+        // 描边环契约：borderWidth 固定 1（内缩环承接 1px 描边）
+        compare(c.control.settings.borderWidth, 1)
+        // 样式通道映射：fillColor = color、borderColor = strokeColor
+        compare(c.control.settings.fillColor, c.color)
+        compare(c.control.settings.borderColor, c.strokeColor)
         c.width = 60
         c.height = 60
-        tryCompare(c, "cutSize", 30, 1000)
+        tryCompare(c.control.settings, "cutSizeTL", 30, 1000)
+        tryCompare(c.control.settings, "cutSizeTR", 30, 1000)
+    }
+
+    function test_fillGradientChannel() {
+        // 渐变通道类型链路：ShapePath.fillGradient 官方要求 ShapeGradient
+        // 新 API（LinearGradient 等，旧 Gradient 不可用）——Crystal 根 =
+        // OctagonShape，fillGradient 即 fillShape 的 alias（ShapeGradient
+        // 类型），LinearGradient 赋值必须成功（Slider 轨道渐变同链路）。
+        const c = makeCrystal({ w: 60, h: 40 })
+        const grad = createTemporaryQmlObject(
+            "import QtQuick; import QtQuick.Shapes; LinearGradient { GradientStop { position: 0; color: 'red' } GradientStop { position: 1; color: 'blue' } }", root)
+        c.fillGradient = grad
+        tryVerify(function() { return c.fillGradient === grad }, 1000,
+            "LinearGradient 应成功赋给 fillGradient（ShapeGradient 类型）")
     }
 
     function test_maskWideHexagon() {

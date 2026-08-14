@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Shapes
 import Qool
 
 /*!
@@ -34,10 +35,10 @@ import Qool
     \section1 退行（性能模式）
 
     \c curved 为 true 且 \c settings 的四角 cut 满足判定（全 ≤ 短边一半，
-    或全 0）、\c fillItem 为空且 \c animatingHint 为 false 时，退行为原生
-    圆角矩形（Rectangle，四角 cut* 作圆角半径、offset 作 x/y）——非
-    Shape 渲染，性能最优。\c animatingHint 为 true（动画期间）跳过退行
-    判定，保持 Shape 渲染。
+    或全 0）、\c fillItem 与 \c fillGradient 均为空且 \c animatingHint 为
+    false 时，退行为原生圆角矩形（Rectangle，四角 cut* 作圆角半径、offset
+    作 x/y）——非 Shape 渲染，性能最优。\c animatingHint 为 true（动画
+    期间）跳过退行判定，保持 Shape 渲染。
 
     \section1 命中判定
 
@@ -48,7 +49,8 @@ import Qool
 
     \l {fillItem} {fillItem} 为填充到八边形内部区域的任意 Item
     （Qt 6.8 ShapePath::fillItem，如 Image 或 ShaderEffectSource）；
-    fillItem 非空时退行判定被排除。
+    \l {fillGradient} {fillGradient} 为渐变填充通道（fillItem 优先于
+    渐变）。fillItem/fillGradient 任一非空时退行判定被排除。
 */
 Item {
     id: root
@@ -66,6 +68,8 @@ Item {
     }
     /*! \qmlproperty Item 填充到八边形内部区域的任意 Item（纹理填充；非空时排除退行）。 */
     property Item fillItem: null
+    /*! \qmlproperty ShapeGradient 渐变填充通道（默认 null——纯色；fillItem 优先于渐变；非空时排除退行——Rectangle 渐变与 Shape 渐变不兼容，退行形态保持"无填充通道"语义）。注意：ShapePath.fillGradient 官方要求 ShapeGradient 新 API（LinearGradient 等），旧 Gradient 类型不可用。 */
+    property ShapeGradient fillGradient: null
 
     readonly property alias shape: loader.item
 
@@ -89,6 +93,7 @@ Item {
             OctagonShape {
                 control: root.control
                 fillItem: root.fillItem
+                fillGradient: root.fillGradient
             }
         }
 
@@ -97,6 +102,7 @@ Item {
             OctagonCurvedShape {
                 control: root.control
                 fillItem: root.fillItem
+                fillGradient: root.fillGradient
             }
         }
 
@@ -127,7 +133,7 @@ Item {
         anchors.fill: parent
         sourceComponent: {
             if (root.animatingHint == false) {
-                let cond1 = !root.fillItem && root.settings.curved;
+                let cond1 = !root.fillItem && !root.fillGradient && root.settings.curved;
                 const half = Math.min(root.width, root.height) / 2;
                 let cond2 = root.settings.cutSizeTL <= half
                     && root.settings.cutSizeTR <= half

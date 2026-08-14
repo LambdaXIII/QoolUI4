@@ -19,7 +19,6 @@ QoolUITests/
 │   ├── tst_numberranger.cpp        # target: tst_qool_numberranger        属性宏体系：默认值/守卫信号/校验逻辑/Q_PROPERTY 契约
 │   ├── tst_polar2d.cpp             # target: tst_qool_polar2d             Polar2D：转换/乘除/运算语义
 │   ├── tst_multirowselectionmodel.cpp # target: tst_qool_multirowselectionmodel 模型：行选择状态/信号契约
-│   ├── tst_crystalgadget.cpp       # target: tst_qool_crystalgadget       CrystalGadget：八点几何三形态 + contains 精确命中契约
 │   ├── tst_halfcrystalgadget.cpp   # target: tst_qool_halfcrystalgadget   HalfCrystalGadget：全方向 contains 契约（无源/半区/菱形/跟随）
 │   └── tst_rectgadget.cpp          # target: tst_qool_rectgadget          RectGadget：九点/半区矩形/内接外接正方形派生几何
 └── qml/                    # QML 测试批次层（Qt Quick Test harness）

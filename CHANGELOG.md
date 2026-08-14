@@ -4,6 +4,13 @@
 
 ## [4.0.0] — 2026-08-14
 
+### 变更（crystal-octagonshape-refactor，Crystal 重构为 OctagonShape 特化）
+
+- **Crystal 重构（spec `.scratch/crystal-octagonshape-refactor`）**：根组件由「Item + 内部 Shape + ShapeControl + CrystalGadget 单层外轮廓模型」改为 **OctagonShape 特化**——内部注入 QoolBoxShapeControl（target = 自身）+ QoolBoxSettings 特化（四角 cut 恒绑定 shortEdge/2、borderWidth=1 内缩描边环、borderColor=strokeColor、fillColor=color）；三形态（宽六边形/菱形/瘦六边形）即 QoolBoxGadget cut = shortEdge/2 特化（半平面交集模型下退化形态合法——旧"切角极限反向三角形"警告基于已删除的 pCtrl 内弧算法，已证伪并清除全部残留表述：Crystal.qml/Slider.qml/VerticalSlider.qml 注释、HalfCrystalGadget QDoc 引用改写）。公开面：color/strokeColor/fillGradient/fillItem/掩码契约保留；**cutSize 不作公开接口**（内部 QtObject pCtrl 中间量单点定义，settings 四角绑定共享——切角是几何契约非可配置状态）；默认逻辑尺寸 = width/height 显式 20（implicit 声明被引擎覆盖的机制替代）；Shape 根使 preferredRendererType 等渲染器面开放（Slider 手柄 CurveRenderer 用法恢复生效）。Crystal 不暴露 settings（文档契约）；control 可替换（高级用法，QoolBox 同哲学）
+- **fillGradient 补面（遗漏修复）**：OctagonShape/OctagonCurvedShape 补 `fillGradient` alias（转发 fillShape——Shape 无此属性，是 ShapePath 面）；QoolBox 补 `fillGradient` 公开属性（类型 ShapeGradient——ShapePath.fillGradient 官方要求新渐变 API，旧 Gradient 类型不可用，属性类型与转发目标一致）并将退行排除条件扩展为 `!fillItem && !fillGradient`（Rectangle 渐变与 Shape 渐变不兼容，退行形态保持"无填充通道"语义边界）。附带修复：Slider 轨道渐变（LinearGradient）在旧 Crystal `property Gradient` 转发链上类型不匹配而失效的隐藏缺陷——重构后直连 ShapeGradient 类型生效
+- **CrystalGadget 删除（公开类型移除，用户裁决——4.0.0 未发布）**：源文件 + Qool 模块 CMakeLists 注册 + tst_crystalgadget + QoolUITests core CMakeLists/README 条目全量清理；掩码契约由 QoolBoxShapeControl::contains 承接（同族算法，数学等价）
+- **测试**：tst_qoolboxgadget 补 `shrink_diamond_limit` 用例（菱形切角极限 + borderWidth>0 内缩——oracle 真值断言，本次重构的几何信任基石）；tst_crystal.qml 重写（掩码对象换 QoolBoxShapeControl、四角 cut 恒等契约替代 cutSize 派生断言、默认逻辑尺寸、fillGradient/fillItem 通道）；tst_qoolbox.qml 补 fillGradient 退行排除用例
+
 ### 变更（qoolbox-shapecontrol-redesign 执行，spec D1-D8）
 
 - **QoolBoxShapeControl 重写（gadget 化，ADR-0004/0006/0007）**：公开类型保留，内部替换为两个 QoolBoxGadget（outer borderWidth 0 + inner borderWidth=settings.borderWidth、referenceBox 指 outer）；转发 ext*/int* 16 点 + x/y 分量（坐标系刻意变化：由旧"期望尺寸本地系"变为"target 内部坐标系绝对点"——center 锚定，消费方均挂接 target 内本地系一致）、usedWidth/usedHeight、*Space（新公式 max(0, max(相邻 cut) − (used − 期望)/2)，ADR-0002）、contains。settings 属性类型改 QoolBoxSettings*（单一类型，ADR-0005 修订）；**settings 同步用信号连接**（QProperty 绑定会注册对 settings 字段 QProperty 的依赖——settings 先析构时绑定重算读已析构对象崩溃；信号连接析构自动断开）；显式析构断链（转发绑定 takeBinding + inner 先于 outer 删除——QProperty 析构通知语义，依赖方须早于被依赖方析构）。删除旧面：safe*/safeBorderWidth/borderShrinkSize、intOffsetX/Y、intPolygon/extPolygon、dumpInfo 覆写（继承基类）

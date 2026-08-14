@@ -10,8 +10,8 @@
 //     竖直布局下模板点击/拖动会错位——本组件用全区域 MouseArea（picker）
 //     垂直映射（y → value：底部 from）取代模板交互（模板 press 被拦截
 //     失效）；键盘 Up/Down → increase/decrease（模板 Left/Right 由基座保留）。
-//   - 其余与 Slider 完全一致：水晶六边形模型/单层外轮廓/渐变内联/
-//     TimerLatch + NumberNotifier 锁存/动画门控/三心对齐/展开反馈。
+//   - 其余与 Slider 完全一致：水晶六边形模型（OctagonShape 特化）/
+//     渐变内联/TimerLatch + NumberNotifier 锁存/动画门控/三心对齐/展开反馈。
 //
 // 视觉（默认 25 × 80）：轨道为瘦六边形（上下尖 + 左右直边——水晶 w<h
 // 形态），渐变自底部 text → 顶部 color（底部 = from 端）。
@@ -143,13 +143,13 @@ T.Slider {
     Keys.onDownPressed: root.decrease()
 
     // —— 轨道（瘦六边形）：Crystal 组件（六边形模型——与手柄同模型、斜边
-    // 斜率一致天然对齐；单层外轮廓——无 OctagonShape 双层内缩在切角极限
-    // （顶点重合）时的反向三角形 bug，性能亦轻）。显式绑定控件尺寸（覆盖
-    // Crystal 的 implicit 默认——background 自动 fill 在 Crystal 有尺寸绑定
-    // 时未生效，曾致轨道缩成 20×20 菱形在左上角）。轨道恒为常态宽度
-    // （preferredWidth，不随展开变）+ 水平居中——三心对齐（水晶中心 = 轨道
-    // 中心 = 控件中心，水晶常态与轨道同宽贴斜边；展开时水晶顶出轨道但不出
-    // 控件）
+    // 斜率一致天然对齐；OctagonShape 双层模型——QoolBoxGadget 半平面交集
+    // 下切角极限形态合法，Crystal 即 cut = shortEdge/2 特化）。显式绑定控件
+    // 尺寸（覆盖 Crystal 的默认 20×20——background 自动 fill 在 Crystal 有
+    // 尺寸绑定时未生效，曾致轨道缩成 20×20 菱形在左上角）。轨道恒为常态
+    // 宽度（preferredWidth，不随展开变）+ 水平居中——三心对齐（水晶中心 =
+    // 轨道中心 = 控件中心，水晶常态与轨道同宽贴斜边；展开时水晶顶出轨道
+    // 但不出控件）
     background: Crystal {
         id: track
         width: root.preferredWidth

@@ -12,7 +12,8 @@ QOOL_NS_BEGIN
 
     \c contains 为 C++ 覆写（Q_INVOKABLE——containmentMask 要求掩码对象
     metaObject 上有 \c contains(QPointF) 方法，QML function 不满足，故不走
-    QtObject 包装路径）。算法与 CrystalGadget 同族：
+    QtObject 包装路径）。算法与 QoolBoxGadget::contains 同族（矩形粗判 +
+    角域排除）：
 
     \list 1
         \li shapeRect 粗判（含边界）——direction 为 N/S/W/E 时取
