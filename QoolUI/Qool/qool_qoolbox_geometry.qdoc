@@ -26,7 +26,8 @@
     \li 派生层：\c usedWidth/\c usedHeight 两个标量（由期望尺寸与切角
         尺寸派生，见下）；
     \li 向量层：8 个形状向量 \c vecTL..vecLT 与 8 个内缩向量
-        \c shrinkTL..shrinkLT——纯函数，原点为 (0,0)，无任何"中心系"概念；
+        \c shrinkTL..shrinkLT——纯函数，原点为 (0,0)，无任何"中心系"概念
+        （实现类型 QVector2D——自由位移向量，QPointF 是位置类型）；
     \li 锚定层：\c pointA = origin + offset + vecA + shrinkA——唯一位置
         状态是 \c offset；\c origin 为期望尺寸中心（\c control.center）。
     \endlist
@@ -165,6 +166,10 @@
     \c d_eff = min(border, d\*)——d 层面钳制，交集永不空、命名点恒有
     定义。负 border 自然走外扩分支（min(负, d\*) = 负），凸多边形
     外扩保持凸、点间距单调增大。
+
+    代码命名（gadget 内部中间量，本文沿用数学记号）：d\* =
+    \c maxShrinkDistance、d_eff = \c shrinkDistance——内部降权量
+    （无 Q_PROPERTY、无 signal，普通 getter 供测试读取；见 ADR-0006）。
 
     \section1 d\* 解析式的推导（对偶线性规划）
 

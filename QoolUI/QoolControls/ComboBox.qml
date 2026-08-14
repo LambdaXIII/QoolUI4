@@ -115,7 +115,10 @@ T.ComboBox {
         borderWidth: root.Style.controlBorderWidth
         borderColor: root.Style.controlBorderColor
         fillColor: root.Style.controlBackgroundColor
-        cutSizes: root.Style.buttonCutSize
+        cutSizeTL: root.Style.buttonCutSize
+        cutSizeTR: root.Style.buttonCutSize
+        cutSizeBL: root.Style.buttonCutSize
+        cutSizeBR: root.Style.buttonCutSize
         curved: true
     }
 

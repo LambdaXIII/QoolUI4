@@ -1,355 +1,226 @@
-#include "qool_qoolbox_shapecontrol.h"
-
-#include "qoolcommon/debug.hpp"
-#include "qoolcommon/math.hpp"
-QOOLCOMMON_MATH_MARK
-#include <cmath>
-
-QOOL_NS_BEGIN
-
 /*!
     \qmltype QoolBoxShapeControl
     \inqmlmodule Qool
     \nativetype qoolui::QoolBoxShapeControl
-    \brief 八边形（QoolBox）形状控制点计算器。
+    \brief 八边形几何单元（数值控制点 + 命中判定 + 内容内缩量）。
 
-    由 \l QoolBoxSettings 的角部裁剪尺寸与边框宽度计算八边形
-    外部 8 点（\c ext*）与内部 8 点（\c int*），供形状路径与
-    命中判定使用。\c offsetX/offsetY 平移外轮廓（含命中判定），
-    \c intOffsetX/intOffsetY 仅平移内部填充区域。
+    由 \l QoolBox 默认构造并公开为 \c control 属性；也可独立实例化
+    （低级几何单元，配合 \l OctagonShape/\l OctagonCurvedShape 使用）。
+    几何计算由内部两个 \l QoolBoxGadget 完成（outer 外轮廓 + inner
+    内缩描边环）——本类型仅转发，不持有算法。
 
-    \l {contains()}{contains()} 采用 O(1) 线性不等式判定：先经
-    外接矩形粗判，再对四个切角分别做斜边直线判定。位移 \c offset
-    后判定区跟随平移，与视觉形状一致。
+    \section1 控制点（ext* / int*）
 
-    \note 圆角形态（curved）的数值判定尚未实现，圆角形状的命中
-    判定由 Shape.FillContains 承担。
+    \c extTL..extBR 8 个外轮廓点与 \c intTL..intBR 8 个内轮廓点（每点另有
+    \c x/\c y 分量属性）——target 内部坐标系绝对点（含中心锚定与 offset
+    平移）。命名：首字母 = 点所在边、次字母 = 该边端点位置（\c extTL =
+    Top 边 Left 端点、\c intLT = Left 边 Top 端点）。供自绘/动画沿八边形
+    移动使用。
+
+    \section1 承载尺寸与内缩量
+
+    \c usedWidth/\c usedHeight 为实际承载尺寸（= max(期望尺寸, 对角 cut
+    和)，溢出语义见 \l QoolBoxGadget）。\c topSpace/\c bottomSpace/
+    \c leftSpace/\c rightSpace 为内容内缩布局量（宿主排版 padding 用）：
+    \c max(0, max(相邻 cut) − (used − 期望)/2)——cut 硬参数溢出时内容盒
+    从 used 坐标系换算回期望坐标系。
+
+    \section1 settings 与替换语义
+
+    \c settings（\l {QoolBoxSettingsBase} 的派生实例，QML 侧为
+    \l QoolBoxSettings）：实例替换时全部 gadget 输入自动重挂；\c settings
+    为 null 时按 0 输入退化计算（不崩溃）。引用语义：整组赋值共享实例，
+    独立副本 = 新建实例。settings 由信号连接同步（QObject 连接在 settings
+    销毁时自动断开——settings 生命周期短于本对象是安全的）。
+
+    \section1 命中判定
+
+    \c contains(point) 精确命中八边形（含 offset 平移后的判定区），
+    委托 outer gadget 的 O(1) 线性不等式判定；可作为 containmentMask
+    直接挂载（QObject 掩码，见 AGENTS.md 已知陷阱 5）。
 */
-QoolBoxShapeControl::QoolBoxShapeControl(QObject* parent)
-  : ShapeControl{parent}
-  , m_settings{new QoolBoxSettings(this)} {
-  __setup_reference_values();
-  __setup_ext_points();
-  __setup_int_points();
-  __connect_points();
+#include "qool_qoolbox_shapecontrol.h"
 
-  __setup_helper_properties();
+#include "gadgets/qool_shapegadget_qoolbox.h"
+
+#include <QQuickItem>
+
+QOOL_NS_BEGIN
+
+QoolBoxShapeControl::QoolBoxShapeControl(QObject* parent)
+  : ShapeControl { parent } {
+  // settings 属性变化（实例替换/引擎绑定更新）→ 重连字段信号并同步。
+  connect(this, &QoolBoxShapeControl::settingsChanged, this,
+      [this] { connect_settings(); });
+  setup_gadgets();
+  connect_settings();
+  setup_point_bindings();
+  setup_helper_bindings();
 }
 
-void QoolBoxShapeControl::dumpInfo() const {
-  ShapeControl::dumpInfo();
-  xDebugQ << "设定信息：";
-  m_settings.value()->dumpInfo();
+QoolBoxShapeControl::~QoolBoxShapeControl() {
+  // 断链顺序（QProperty 析构通知语义——依赖方必须早于被依赖方析构，
+  // 否则被依赖方析构时通知依赖方绑定重算、读取已析构对象导致崩溃）：
+  // 1) 断开 control→gadget 的全部转发绑定（依赖 gadget 的 QProperty）；
+  // 2) inner 依赖 outer（referenceBox）——inner（依赖方）先删。
+  take_forward_bindings();
+  m_inner->setParent(nullptr);
+  delete m_inner;
+  m_outer->setParent(nullptr);
+  delete m_outer;
+}
 
-  const auto format_point = [](const QPointF& p) {
-    return QString(
-        "[" xDBGGreen "%1" xDBGReset "," xDBGGreen "%2" xDBGReset "]")
-        .arg(p.x(), 3, 'g', -1, u' ')
-        .arg(p.y(), 3, 'g', -1, u' ');
-  };
+void QoolBoxShapeControl::setup_gadgets() {
+  m_outer = new QoolBoxGadget(this);
+  m_inner = new QoolBoxGadget(this);
 
-  xDebugQ << xDBGYellow << "CutSizes" << xDBGCyan << safeTL() << safeTR()
-          << safeBL() << safeBR() << xDBGReset;
-  xDebugQ << xDBGYellow << "BorderWidth" << xDBGCyan
-          << m_safeBorderWidth.value() << xDBGYellow << "BorderShrinkSize"
-          << xDBGCyan << m_borderShrinkSize.value() << xDBGReset;
-  ;
+  // 双实例描边链（ADR-0006）：outer = 外轮廓（borderWidth 0）、inner =
+  // 内缩环（borderWidth = settings.borderWidth；referenceBox 指 outer——
+  // 5 介入点 ref 优先 null 回退，inner 的 used/vec/cut 全部跟随 outer）。
+  m_inner->set_referenceBox(m_outer);
 
-#define DEBUG_P(A)                                                          \
-  xDebugQ << xDBGYellow << #A << xDBGCyan << format_point(m_ext##A.value()) \
-          << format_point(m_int##A.value()) << xDBGReset;
-  QOOL_FOREACH_8(DEBUG_P, TL, TR, RT, RB, BR, BL, LB, LT);
-#undef DEBUG_P
+  // gadget 几何基座：从本 control 读期望尺寸/中心（ShapeControl target 链）。
+  m_outer->set_control(this);
+  m_inner->set_control(this);
 
-  xDebugQ << "safe values:" << "TL" << safeTL() << "TR" << safeTR() << "BL"
-          << safeBL() << "BR" << safeBR();
+  // outer 恒为外轮廓。
+  m_outer->set_borderWidth(0);
+}
+
+// settings → gadget 输入同步（信号连接而非 QProperty 绑定）：
+// QProperty 绑定会注册对 settings 字段 QProperty 的依赖——settings 对象
+// 析构时（字段 QProperty 先于 ~QObject 析构）触发绑定重算，读取已析构
+// 对象崩溃。信号连接在 settings 析构时由 QObject 自动断开——settings
+// 生命周期短于本对象是安全的（spec D1「绑定/信号连接」选信号连接）。
+void QoolBoxShapeControl::connect_settings() {
+  // 先断开旧实例连接（记录在 m_connectedSettings——settings 属性变化时
+  // bindable_settings() 已返回新值，不能从新值反查旧连接）。
+  if (m_connectedSettings) {
+    disconnect(m_connectedSettings, nullptr, this, nullptr);
+    m_connectedSettings = nullptr;
+  }
+  const auto s = bindable_settings().value();
+  if (!s) {
+    sync_settings_to_gadgets();
+    return;
+  }
+  m_connectedSettings = s;
+  const auto sync = [this] { sync_settings_to_gadgets(); };
+  connect(s, &QoolBoxSettingsBase::cutSizeTLChanged, this, sync);
+  connect(s, &QoolBoxSettingsBase::cutSizeTRChanged, this, sync);
+  connect(s, &QoolBoxSettingsBase::cutSizeBLChanged, this, sync);
+  connect(s, &QoolBoxSettingsBase::cutSizeBRChanged, this, sync);
+  connect(s, &QoolBoxSettingsBase::borderWidthChanged, this, sync);
+  connect(s, &QoolBoxSettingsBase::offsetXChanged, this, sync);
+  connect(s, &QoolBoxSettingsBase::offsetYChanged, this, sync);
+  sync_settings_to_gadgets();
+}
+
+void QoolBoxShapeControl::sync_settings_to_gadgets() {
+  const auto s = bindable_settings().value();
+  const qreal tl = s ? s->cutSizeTL() : 0.0;
+  const qreal tr = s ? s->cutSizeTR() : 0.0;
+  const qreal bl = s ? s->cutSizeBL() : 0.0;
+  const qreal br = s ? s->cutSizeBR() : 0.0;
+  const qreal ox = s ? s->offsetX() : 0.0;
+  const qreal oy = s ? s->offsetY() : 0.0;
+  m_outer->set_cutTL(tl);
+  m_outer->set_cutTR(tr);
+  m_outer->set_cutBL(bl);
+  m_outer->set_cutBR(br);
+  m_outer->set_offsetX(ox);
+  m_outer->set_offsetY(oy);
+  m_inner->set_cutTL(tl);
+  m_inner->set_cutTR(tr);
+  m_inner->set_cutBL(bl);
+  m_inner->set_cutBR(br);
+  m_inner->set_offsetX(ox);
+  m_inner->set_offsetY(oy);
+  m_inner->set_borderWidth(s ? s->borderWidth() : 0.0);
+}
+
+void QoolBoxShapeControl::setup_point_bindings() {
+  // ext* = outer 外轮廓点、int* = inner 内缩环点；分量 = 点属性再投影
+  //（依赖整个点——单轴变化多触发一次加法，属性面简洁优先）。
+#define CONNECT_EXT(_N_)                                                      \
+  m_ext##_N_.setBinding([&] { return m_outer->point##_N_(); });               \
+  m_ext##_N_##x.setBinding([&] { return m_ext##_N_.value().x(); });           \
+  m_ext##_N_##y.setBinding([&] { return m_ext##_N_.value().y(); });
+  QOOL_FOREACH_8(CONNECT_EXT, TL, TR, RT, RB, BR, BL, LB, LT)
+#undef CONNECT_EXT
+
+#define CONNECT_INT(_N_)                                                      \
+  m_int##_N_.setBinding([&] { return m_inner->point##_N_(); });               \
+  m_int##_N_##x.setBinding([&] { return m_int##_N_.value().x(); });           \
+  m_int##_N_##y.setBinding([&] { return m_int##_N_.value().y(); });
+  QOOL_FOREACH_8(CONNECT_INT, TL, TR, RT, RB, BR, BL, LB, LT)
+#undef CONNECT_INT
+}
+
+void QoolBoxShapeControl::setup_helper_bindings() {
+  // 承载尺寸 = 外环 used（inner 经 referenceBox 链与 outer 一致）。
+  m_usedWidth.setBinding([&] { return m_outer->usedWidth(); });
+  m_usedHeight.setBinding([&] { return m_outer->usedHeight(); });
+
+  // *Space（ADR-0002 定案公式）：max(0, max(相邻 cut) − (used − 期望)/2)。
+  // top/bottom 取垂直轴（usedHeight vs height）、left/right 取水平轴
+  //（usedWidth vs width）；相邻 cut 按边取两角（top = TL/TR 等）。cut 为
+  // 硬参数——溢出时内容盒从 used 系换算回期望系（每侧减溢出/2）；钳 0
+  // 因 *Space 是排版参考值，负值徒增消费复杂度。
+  // cut 读数取 outer gadget 的 cut 输入（信号同步更新，settings 析构
+  // 安全——不直接依赖 settings 字段 QProperty；析构序内受
+  // take_forward_bindings 覆盖）。
+  m_topSpace.setBinding([&] {
+    const qreal cut = qMax(m_outer->bindable_cutTL().value(),
+        m_outer->bindable_cutTR().value());
+    return qMax(0.0,
+        cut - (m_outer->usedHeight() - bindable_height().value()) / 2.0);
+  });
+  m_bottomSpace.setBinding([&] {
+    const qreal cut = qMax(m_outer->bindable_cutBL().value(),
+        m_outer->bindable_cutBR().value());
+    return qMax(0.0,
+        cut - (m_outer->usedHeight() - bindable_height().value()) / 2.0);
+  });
+  m_leftSpace.setBinding([&] {
+    const qreal cut = qMax(m_outer->bindable_cutTL().value(),
+        m_outer->bindable_cutBL().value());
+    return qMax(0.0,
+        cut - (m_outer->usedWidth() - bindable_width().value()) / 2.0);
+  });
+  m_rightSpace.setBinding([&] {
+    const qreal cut = qMax(m_outer->bindable_cutTR().value(),
+        m_outer->bindable_cutBR().value());
+    return qMax(0.0,
+        cut - (m_outer->usedWidth() - bindable_width().value()) / 2.0);
+  });
+}
+
+void QoolBoxShapeControl::take_forward_bindings() {
+  // 断开全部依赖 gadget 的转发绑定（析构序：被依赖方 gadget 稍后析构，
+  // 若此处不先断开，gadget 析构时通知这些绑定重算——读取已析构的
+  // gadget 崩溃）。
+#define TAKE_POINT(_N_)              \
+  m_##_N_.takeBinding();             \
+  m_##_N_##x.takeBinding();          \
+  m_##_N_##y.takeBinding();
+  QOOL_FOREACH_8(TAKE_POINT, extTL, extTR, extLT, extLB, extRT, extRB, extBL,
+      extBR)
+  QOOL_FOREACH_8(TAKE_POINT, intTL, intTR, intLT, intLB, intRT, intRB, intBL,
+      intBR)
+#undef TAKE_POINT
+  m_usedWidth.takeBinding();
+  m_usedHeight.takeBinding();
+  m_topSpace.takeBinding();
+  m_bottomSpace.takeBinding();
+  m_leftSpace.takeBinding();
+  m_rightSpace.takeBinding();
 }
 
 bool QoolBoxShapeControl::contains(const QPointF& point) const {
-  const QPointF p(point.x() - m_offsetX.value(),
-                  point.y() - m_offsetY.value());
-  const auto x = p.x();
-  const auto y = p.y();
-  const bool in_bound = ShapeControl::contains(p);
-  if (! in_bound) return false;
-  if (x + y < m_safeTL) return false;
-  if (m_width - x + y < m_safeTR) return false;
-  if (x + m_height - y < m_safeTL) return false;
-  if (m_width - x + m_height - y < m_safeBR) return false;
-  return true;
-}
-
-void QoolBoxShapeControl::__setup_reference_values() {
-#define SHORT_EDGE bindable_shortEdge().value()
-  m_safeTL.setBinding([&] {
-    const qreal x = bindable_settings().value()->bindable_cutSizeTL().value();
-    return math::auto_bound(0.0, x, SHORT_EDGE);
-  });
-
-  m_safeTR.setBinding([&] {
-    const qreal x = bindable_settings().value()->bindable_cutSizeTR().value();
-    const qreal max =
-        qMin(SHORT_EDGE, bindable_width().value() - m_safeTL.value());
-    return math::auto_bound(0.0, x, max);
-  });
-  m_safeBL.setBinding([&] {
-    const qreal x = bindable_settings().value()->bindable_cutSizeBL().value();
-    const qreal max =
-        qMin(SHORT_EDGE, bindable_height().value() - m_safeTL.value());
-    return math::auto_bound(0.0, x, max);
-  });
-  m_safeBR.setBinding([&] {
-    const qreal x = bindable_settings().value()->bindable_cutSizeBR().value();
-    const qreal max =
-        std::min({SHORT_EDGE, bindable_width().value() - m_safeBL.value(),
-          bindable_height().value() - m_safeTR.value()});
-    return math::auto_bound(0.0, x, max);
-  });
-#undef SHORT_EDGE
-
-  m_safeBorderWidth.setBinding([&] {
-    return qMax(
-        0.0, bindable_settings().value()->bindable_borderWidth().value());
-  });
-
-  m_borderShrinkSize.setBinding([&] {
-    const qreal border = m_safeBorderWidth.value();
-    if (border <= 0) return 0.0;
-    static const qreal _tan = std::tan(22.5 * M_PI / 180.0);
-    return qMax(_tan * border, 1.0);
-  });
-
-} //__setup_reference_values
-
-void QoolBoxShapeControl::__connect_points() {
-#define CONNECT_P(_N_)                                                  \
-  m_##_N_.setBinding(                                                   \
-      [&] { return QPointF(m_##_N_##x.value(), m_##_N_##y.value()); });
-  QOOL_FOREACH_8(
-      CONNECT_P, intTL, intTR, intLT, intLB, intRT, intRB, intBL, intBR)
-  QOOL_FOREACH_8(
-      CONNECT_P, extTL, extTR, extLT, extLB, extRT, extRB, extBL, extBR)
-#undef CONNECT_P
-}
-
-void QoolBoxShapeControl::__setup_ext_points() {
-#define W bindable_width().value()
-#define H bindable_height().value()
-  m_extTLx.setBinding([&] { return m_safeTL.value() + m_offsetX.value(); });
-  m_extTLy.setBinding([&] { return 0 + m_offsetY.value(); });
-  m_extTRx.setBinding([&] { return W - m_safeTR.value() + m_offsetX.value(); });
-  m_extTRy.setBinding([&] { return 0 + m_offsetY.value(); });
-
-  m_extBLx.setBinding([&] { return m_safeBL.value() + m_offsetX.value(); });
-  m_extBLy.setBinding([&] { return H + m_offsetY.value(); });
-  m_extBRx.setBinding([&] { return W - m_safeBR.value() + m_offsetX.value(); });
-  m_extBRy.setBinding([&] { return H + m_offsetY.value(); });
-
-  m_extLTx.setBinding([&] { return 0 + m_offsetX.value(); });
-  m_extLTy.setBinding([&] { return m_safeTL.value() + m_offsetY.value(); });
-  m_extLBx.setBinding([&] { return 0 + m_offsetX.value(); });
-  m_extLBy.setBinding([&] { return H - m_safeBL.value() + m_offsetY.value(); });
-
-  m_extRTx.setBinding([&] { return W + m_offsetX.value(); });
-  m_extRTy.setBinding([&] { return m_safeTR.value() + m_offsetY.value(); });
-  m_extRBx.setBinding([&] { return W + m_offsetX.value(); });
-  m_extRBy.setBinding([&] { return H - m_safeBR.value() + m_offsetY.value(); });
-#undef W
-#undef H
-}
-
-void QoolBoxShapeControl::__setup_int_points() {
-#define W bindable_width().value()
-#define H bindable_height().value()
-#define DEF_COMMON const auto border = m_safeBorderWidth.value();
-#define DEF_SHRINK const auto shrink = m_borderShrinkSize.value();
-
-#define DEF_VALUES_X                        \
-  DEF_COMMON;                               \
-  const auto offset = m_intOffsetX.value();
-
-#define DEF_VALUES_Y                        \
-  DEF_COMMON;                               \
-  const auto offset = m_intOffsetY.value();
-
-#define RETURN_X(V)                                 \
-  const auto __offset_x__ = m_offsetX.value();      \
-  const auto left = border + __offset_x__;          \
-  const auto right = W - border + __offset_x__;     \
-  return math::auto_bound(left, V, right) + offset;
-
-#define RETURN_Y(V)                                 \
-  const auto __offset_y__ = m_offsetY.value();      \
-  const auto top = border + __offset_y__;           \
-  const auto bottom = H - border + __offset_y__;    \
-  return math::auto_bound(top, V, bottom) + offset;
-
-  m_intTLx.setBinding([&] {
-    DEF_VALUES_X
-    DEF_SHRINK
-    const auto base = m_extTLx.value();
-    qreal result = (border == 0) ? base : base + shrink;
-    RETURN_X(result);
-  });
-
-  m_intTLy.setBinding([&] {
-    DEF_VALUES_Y
-    const auto base = m_extTLy.value();
-    const auto result = (border == 0) ? base : base + border;
-    RETURN_Y(result)
-  });
-  m_intTRx.setBinding([&] {
-    DEF_VALUES_X
-    DEF_SHRINK
-    const auto base = m_extTRx.value();
-    const auto result = (border == 0) ? base : base - shrink;
-    RETURN_X(result)
-  });
-  m_intTRy.setBinding([&] {
-    DEF_VALUES_Y
-    const auto base = m_extTRy.value();
-    const auto result = (border == 0) ? base : base + border;
-    RETURN_Y(result)
-  });
-
-  m_intBLx.setBinding([&] {
-    DEF_VALUES_X
-    DEF_SHRINK
-    const auto base = m_extBLx.value();
-    const auto result = (border == 0) ? base : base + shrink;
-    RETURN_X(result);
-  });
-  m_intBLy.setBinding([&] {
-    DEF_VALUES_Y
-    const auto base = m_extBLy.value();
-    const auto result = (border == 0) ? base : base - border;
-    RETURN_Y(result);
-  });
-  m_intBRx.setBinding([&] {
-    DEF_VALUES_X
-    DEF_SHRINK
-    const auto base = m_extBRx.value();
-    const auto result = (border == 0) ? base : base - shrink;
-    RETURN_X(result);
-  });
-  m_intBRy.setBinding([&] {
-    DEF_VALUES_Y
-    const auto base = m_extBRy.value();
-    const auto result = (border == 0) ? base : base - border;
-    RETURN_Y(result)
-  });
-
-  m_intLTx.setBinding([&] {
-    DEF_VALUES_X
-    const auto base = m_extLTx.value();
-    const auto result = (border == 0) ? base : base + border;
-    RETURN_X(result);
-  });
-  m_intLTy.setBinding([&] {
-    DEF_VALUES_Y
-    DEF_SHRINK
-    const auto base = m_extLTy.value();
-    const auto result = (border == 0) ? base : base + shrink;
-    RETURN_Y(result)
-  });
-  m_intLBx.setBinding([&] {
-    DEF_VALUES_X
-    const auto base = m_extLBx.value();
-    const auto result = (border == 0) ? base : base + border;
-    RETURN_X(result)
-  });
-  m_intLBy.setBinding([&] {
-    DEF_VALUES_Y
-    DEF_SHRINK
-    const auto base = m_extLBy.value();
-    const auto result = (border == 0) ? base : base - shrink;
-    RETURN_Y(result)
-  });
-
-  m_intRTx.setBinding([&] {
-    DEF_VALUES_X
-    const auto base = m_extRTx.value();
-    const auto result = (border == 0) ? base : base - border;
-    RETURN_X(result)
-  });
-  m_intRTy.setBinding([&] {
-    DEF_VALUES_Y
-    DEF_SHRINK
-    const auto base = m_extRTy.value();
-    const auto result = (border == 0) ? base : base + shrink;
-    RETURN_Y(result)
-  });
-  m_intRBx.setBinding([&] {
-    DEF_VALUES_X
-    const auto base = m_extRBx.value();
-    const auto result = (border == 0) ? base : base - border;
-    RETURN_X(result)
-  });
-  m_intRBy.setBinding([&] {
-    DEF_VALUES_Y
-    DEF_SHRINK
-    const auto base = m_extRBy.value();
-    const auto result = (border == 0) ? base : base - shrink;
-    RETURN_Y(result)
-  });
-
-#undef RETURN_X
-#undef RETURN_Y
-#undef DEF_VALUES_X
-#undef DEF_VALUES_Y
-#undef DEF_COMMON
-#undef DEF_SHRINK
-#undef H
-#undef W
-}
-
-void QoolBoxShapeControl::__setup_helper_properties() {
-  m_offsetX.setBinding(
-      [&] { return bindable_settings().value()->bindable_offsetX().value(); });
-  m_offsetY.setBinding(
-      [&] { return bindable_settings().value()->bindable_offsetY().value(); });
-
-  m_intOffsetX.setBinding([&] {
-    return bindable_settings().value()->bindable_intOffsetX().value();
-  });
-  m_intOffsetY.setBinding([&] {
-    return bindable_settings().value()->bindable_intOffsetY().value();
-  });
-
-  m_intPoints.setBinding([&] {
-    return QList<QPointF>{m_intTL.value(), m_intTR.value(), m_intRT.value(),
-      m_intRB.value(), m_intBR.value(), m_intBL.value(), m_intLB.value(),
-      m_intLT.value()};
-  });
-
-  m_extPoints.setBinding([&] {
-    return QList<QPointF>{m_extTL.value(), m_extTR.value(), m_extRT.value(),
-      m_extRB.value(), m_extBR.value(), m_extBL.value(), m_extLB.value(),
-      m_extLT.value()};
-  });
-
-  m_intPolygon.setBinding([&] {
-    auto points = m_intPoints.value();
-    auto start_point = points.first();
-    points.append(start_point);
-    return QPolygonF(points);
-  });
-
-  m_extPolygon.setBinding([&] {
-    auto points = m_extPoints.value();
-    auto start_point = points.first();
-    points.append(start_point);
-    return QPolygonF(points);
-  });
-
-  m_topSpace.setBinding(
-      [&] { return qMax(m_safeTL.value(), m_safeTR.value()); });
-  m_bottomSpace.setBinding(
-      [&] { return qMax(m_safeBL.value(), m_safeBR.value()); });
-  m_leftSpace.setBinding(
-      [&] { return qMax(m_safeTL.value(), m_safeBL.value()); });
-  m_rightSpace.setBinding(
-      [&] { return qMax(m_safeTR.value(), m_safeBR.value()); });
+  // 命中判定委托 outer gadget（外轮廓语义；gadget contains 接受 target
+  // 内部坐标系点，内部已做 origin/offset 逆变换——与旧 control 行为等价）。
+  return m_outer->contains(point);
 }
 
 QOOL_NS_END

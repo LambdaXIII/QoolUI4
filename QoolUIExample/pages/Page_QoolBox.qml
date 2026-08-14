@@ -17,13 +17,6 @@ BasicPage {
     title: qsTr("QoolBox")
     note: qsTr("酷酷的 Box")
 
-    OctagonShapeHud {
-        id: hud
-        parent: box_shape.shape
-        showExtPoints: control.showExtPoints
-        showIntPoints: control.showIntPoints
-    }
-
     SplitView {
         id: cc
         anchors.fill: parent
@@ -50,8 +43,19 @@ BasicPage {
                     borderColor: control.borderColor
                     offsetX: control.offsetX
                     offsetY: control.offsetY
+                    // curved 别名撤销（spec D4）——经 settings 访问
+                    //（QoolUIExample 不在兼容范围，改动处注释标记）
+                    curved: control.rounded
                 }
-                curved: control.rounded
+
+                // QoolBoxHud 须直接作 QoolBox 子项（box 属性默认 parent）
+                // ——原 OctagonShapeHud 挂 shape 的方案随重定位同步
+                //（QoolUIExample 不在兼容范围，改动处注释标记）
+                QoolBoxHud {
+                    id: hud
+                    showExtPoints: control.showExtPoints
+                    showIntPoints: control.showIntPoints
+                }
             }
 
             z: -1

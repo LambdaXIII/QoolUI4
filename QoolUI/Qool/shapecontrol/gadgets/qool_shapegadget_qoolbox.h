@@ -8,7 +8,9 @@
 #include <QList>
 #include <QObject>
 #include <QPointF>
+#include <QProperty>
 #include <QQmlEngine>
+#include <QVector2D>
 
 QOOL_NS_BEGIN
 
@@ -23,6 +25,18 @@ QOOL_NS_BEGIN
 // 输入面：ShapeControl 已有的 width/height 经 bindable_control() 读取
 // （不声明）；cutTL..BR / borderWidth / offsetX/Y 自有 WRITABLE；referenceBox
 // 手写 setter（例外：赋值含校验/清除语义）。
+//
+// 中间量分层（为什么这样改——降权）：vec×8 / shrink×8 / usedHalf×2 /
+// maxShrinkDistance / shrinkDistance / origin 是纯内部中间量（无 QML 消费方、
+// 无 signal 监听者），从 QBINDABLE_READONLY_PROPERTY（Q_PROPERTY + NOTIFY
+// signal + bindable 三件套）降为裸 QProperty 成员 + 普通 getter：Q_PROPERTY
+// 与 signal 对纯内部量是死重，QProperty 已提供 setBinding/value/依赖追踪。
+// 降权量不用 QOOL_BINDABLE_MEMBER——该宏生成 signal（见
+// qbindable_property_macros.hpp 宏定义）；本类中仅 insetLineConstants /
+// intersectionVertices 维持该宏（signal 保留属兼容边界，本次不动）。
+// 依赖追踪走 QProperty 绑定机制：绑定求值中读其它 QProperty 的 value()
+// 即注册依赖，与 Q_PROPERTY 无关。普通 getter 保留供单元测试读取
+// （tst_qoolboxgadget.cpp）。
 class QoolBoxGadget : public ShapeControlGadget {
   Q_OBJECT
   QML_ELEMENT
@@ -43,10 +57,33 @@ public:
   }
   Q_SIGNAL void referenceBoxChanged();
 
-  // linesC/intersectVerts：shrink 层中间量（无 Q_PROPERTY——QList<qreal>
-  // 非 QML 标准类型；测试与内部使用，QML 不可见）
-  QList<qreal> linesC() const { return m_linesC; }
-  QList<QPointF> intersectVerts() const { return m_intersectVerts; }
+  // —— 降权中间量（内部裸 QProperty + 普通 getter；见类注释）——
+  // ② usedHalf（used 半量；contains 粗判与 vec 符号表共用）
+  qreal usedHalfWidth() const { return m_usedHalfWidth.value(); }
+  qreal usedHalfHeight() const { return m_usedHalfHeight.value(); }
+  // ④ maxShrinkDistance（12 候选 min）/ ⑤ shrinkDistance（d 层面钳制）
+  qreal maxShrinkDistance() const { return m_maxShrinkDistance.value(); }
+  qreal shrinkDistance() const { return m_shrinkDistance.value(); }
+  // ⑨ origin（ref 介入：ref.origin : control.center）
+  QPointF origin() const { return m_origin.value(); }
+
+  // ③ vec×8 / ⑧ shrink×8：自由位移向量（QVector2D——QPointF 是位置类型，
+  // 位移向量独立于坐标系表示；QVector2D 有 x()/y() 供测试读取）
+#define DECL_INTERNAL_VECTOR_GETTER(_N_)                    \
+  QVector2D vec##_N_() const { return m_vec##_N_.value(); } \
+  QVector2D shrink##_N_() const { return m_shrink##_N_.value(); }
+  QOOL_FOREACH_8(DECL_INTERNAL_VECTOR_GETTER, TL, TR, RT, RB, BR, BL, LB, LT)
+#undef DECL_INTERNAL_VECTOR_GETTER
+
+  // insetLineConstants/intersectionVertices：shrink 层中间量（无
+  // Q_PROPERTY——QList 非 QML 标准类型；测试与内部使用，QML 不可见；
+  // signal 由 QOOL_BINDABLE_MEMBER 生成——兼容边界，保留）
+  QList<qreal> insetLineConstants() const {
+    return m_insetLineConstants.value();
+  }
+  QList<QPointF> intersectionVertices() const {
+    return m_intersectionVertices.value();
+  }
 
 private:
   // —— 输入面（width/height 经 control 读取，不声明）——
@@ -67,32 +104,37 @@ private:
           set_referenceBox NOTIFY referenceBoxChanged BINDABLE
           bindable_referenceBox FINAL)
 
-  // —— 派生链（11 级，全部 READONLY + setBinding，逐级依赖追踪）——
-  // ① used（ref 介入：ref.used : 自算）
+  // —— 派生链（全部 setBinding，逐级依赖追踪）——
+  // ① used（ref 介入：ref.used : 自算）——对外面（QML 输出）
   QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, usedWidth, FINAL)
   QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, usedHeight, FINAL)
-  // ② usedHalf
-  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, usedHalfWidth, FINAL)
-  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, usedHalfHeight, FINAL)
-  // ④ dStar（12 候选 min）/ ⑤ shrinkD（d 层面钳制）
-  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, dStar, FINAL)
-  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, shrinkD, FINAL)
-  // ⑥⑦ shrink 层中间量（QList，无 Q_PROPERTY）
-  QOOL_BINDABLE_MEMBER(QoolBoxGadget, QList<qreal>, linesC)
-  QOOL_BINDABLE_MEMBER(QoolBoxGadget, QList<QPointF>, intersectVerts)
+  // ② usedHalf（降权内部量）
+  QProperty<qreal> m_usedHalfWidth;
+  QProperty<qreal> m_usedHalfHeight;
+  // ④ maxShrinkDistance（12 候选 min）/ ⑤ shrinkDistance（d 层面钳制）
+  QProperty<qreal> m_maxShrinkDistance;
+  QProperty<qreal> m_shrinkDistance;
+  // ⑥⑦ shrink 层中间量（QList，无 Q_PROPERTY；QOOL_BINDABLE_MEMBER 生成
+  // signal——兼容边界，保留）
+  QOOL_BINDABLE_MEMBER(QoolBoxGadget, QList<qreal>, insetLineConstants)
+  QOOL_BINDABLE_MEMBER(QoolBoxGadget, QList<QPointF>, intersectionVertices)
   // ⑨ origin（ref 介入：ref.origin : control.center）
-  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, QPointF, origin, FINAL)
+  QProperty<QPointF> m_origin;
 
-// ③ vec×8 / ⑧ shrink×8 / ⑩ point×8 / ⑪ 分量×16
-// 命名规范：首字母 = 点所在边、次字母 = 该边端点位置（TL = Top 边 Left
-// 端点、LT = Left 边 Top 端点）——8 个命名互不混淆。
+  // ③ vec×8 / ⑧ shrink×8（降权内部量；QVector2D 自由位移向量）
+#define DECL_INTERNAL_VECTOR_MEMBER(_N_)   \
+  QProperty<QVector2D> m_vec##_N_;         \
+  QProperty<QVector2D> m_shrink##_N_;
+  QOOL_FOREACH_8(DECL_INTERNAL_VECTOR_MEMBER, TL, TR, RT, RB, BR, BL, LB, LT)
+#undef DECL_INTERNAL_VECTOR_MEMBER
+
+  // ⑩ point×8 / ⑪ 分量×16（对外面：QML 输出）
+  // 命名规范：首字母 = 点所在边、次字母 = 该边端点位置（TL = Top 边 Left
+  // 端点、LT = Left 边 Top 端点）——8 个命名互不混淆。
 #define DECL_POINT(_N_)                                                \
-  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, QPointF, vec##_N_, FINAL) \
-  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, QPointF, shrink##_N_, FINAL) \
   QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, QPointF, point##_N_, FINAL) \
   QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, point##_N_##x, FINAL) \
   QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, point##_N_##y, FINAL)
-
   QOOL_FOREACH_8(DECL_POINT, TL, TR, RT, RB, BR, BL, LB, LT)
 #undef DECL_POINT
 };

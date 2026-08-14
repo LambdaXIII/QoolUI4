@@ -1,66 +1,32 @@
 #ifndef QOOL_QOOLBOX_SETTINGS_H
 #define QOOL_QOOLBOX_SETTINGS_H
 
-#include "qoolcommon/qbindable_property_macros.hpp"
-#include "qoolcommon/qobject_property_macros.hpp"
+#include "qool_qoolbox_settings_base.h"
 #include "qoolns.hpp"
 
-#include <QColor>
 #include <QObject>
-#include <QObjectBindableProperty>
-#include <QPointF>
 #include <QQmlEngine>
 
 QOOL_NS_BEGIN
 
-class QoolBoxSettings: public QObject {
+// QoolBox 外观设置（QML 面类型，QML_ELEMENT 注册、可实例化）。
+//
+// 双类型结构（ADR-0005 + spec D2 fallback 定案）：全部 9 属性定义与默认值
+// 在基类 QoolBoxSettingsBase（QML_UNCREATABLE 注册——QML 中类型名可见但
+// 不可实例化，供 `settings` 属性类型解析；见 base 头注释）；本类仅承载
+// QML 注册（可实例化）与继承暴露。类型默认值为 C++ 常量（fallback：无
+// Style 默认）——主题联动由消费方（QoolBox/QoolBGBox 等）在实例化处显式
+// 绑定 Style 字段实现（现状模式
+// `settings: QoolBoxSettings { borderWidth: Style.controlBorderWidth; ... }`）。
+//
+// 引用语义（QDoc 契约）：QObject 引用——`qbox1.settings: qbox2.settings`
+// 共享同一实例（字段绑定/动画作用于共享对象）；独立副本 = 新建实例赋值。
+class QoolBoxSettings : public QoolBoxSettingsBase {
   Q_OBJECT
   QML_ELEMENT
 
 public:
   explicit QoolBoxSettings(QObject* parent = nullptr);
-  Q_INVOKABLE void dumpInfo() const;
-
-private:
-  void set_sizes(qreal x);
-  void set_sizes(qreal tl, qreal tr, qreal br, qreal bl);
-  void set_sizes(const std::vector<std::optional<qreal>>& numbers);
-  void set_sizes(const QVariantList& list);
-  void set_sizes(const QString& x);
-  void remove_cutSize_bindings();
-
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxSettings, qreal, cutSizeTL)
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxSettings, qreal, cutSizeTR)
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxSettings, qreal, cutSizeBL)
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxSettings, qreal, cutSizeBR)
-
-  QOBJECT_WRITABLE_PROPERTY_DECLARE(QVariant, cutSizes)
-
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxSettings, qreal, borderWidth)
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxSettings, QColor, borderColor)
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxSettings, QColor, fillColor)
-
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxSettings, qreal, offsetX)
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxSettings, qreal, offsetY)
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxSettings, qreal, intOffsetX)
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxSettings, qreal, intOffsetY)
-
-  QBINDABLE_WRITABLE_PROPERTY(
-    QoolBoxSettings, bool, curved)
-
-  QBINDABLE_READONLY_PROPERTY(
-    QoolBoxSettings, bool, isAllCutSizesEquals)
 };
 
 QOOL_NS_END

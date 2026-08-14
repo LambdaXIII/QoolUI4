@@ -26,7 +26,7 @@ qt_add_qml_module(QoolDebug
     QML_FILES NumberSlider.qml
     QML_FILES ColorButton.qml
     QML_FILES ActionButton.qml
-    QML_FILES OctagonShapeHud.qml
+    QML_FILES QoolBoxHud.qml
     QML_FILES RectIndicator.qml
     QML_FILES QoolWindowHud.qml
     SOURCES

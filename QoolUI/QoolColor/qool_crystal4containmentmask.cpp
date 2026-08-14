@@ -16,9 +16,11 @@ QOOL_NS_BEGIN
     \section2 v4 模式（QQuickItem containmentMask）
 
     QQuickItem 的 \c containmentMask 属性要求 QQuickItem 派生类型。v3 中本掩码是
-    QObject 派生（当时由宿主组件自行桥接判定），v4 按 \l ShapeContainmentMask
-    模式改写为 QQuickItem 派生：重写 \l {QQuickItem::contains()}{contains()}，
-    可直接赋值给 \c containmentMask 属性，坐标变换由 Qt 自动完成。
+    QObject 派生（当时由宿主组件自行桥接判定），v4 改写为 QQuickItem 派生：
+    重写 \l {QQuickItem::contains()}{contains()}，可直接赋值给
+    \c containmentMask 属性，坐标变换由 Qt 自动完成。（Qool 模块的
+    ShapeContainmentMask 已删除——掩码改由 control 直接承载 QObject 掩码；
+    本组件独立实现不受影响。）
 
     \c contains() 收到的点位于掩码自身局部坐标系。掩码作为宿主子项置于 (0,0)
     且尺寸与宿主一致时，掩码局部坐标与宿主局部坐标重合——ColorCrystal /

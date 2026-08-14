@@ -33,7 +33,14 @@ Floater {
 
         background: QoolBox {
             settings {
-                cutSizes: "5 0 20 0"
+                // cutSizes 便捷面删除迁移为四角显式（QoolUIExample 不在兼容
+                // 范围——便捷面删除后本页仍须可编译）。原字符串 "5 0 20 0"
+                // 按旧 set_sizes 解析顺序（TL/TR/BR/BL）展开：TL=5、TR=0、
+                // BR=20、BL=0。
+                cutSizeTL: 5
+                cutSizeTR: 0
+                cutSizeBL: 0
+                cutSizeBR: 20
                 borderWidth: 1
                 borderColor: root.textColor
                 fillColor: Qt.alpha(root.color, 0.75)

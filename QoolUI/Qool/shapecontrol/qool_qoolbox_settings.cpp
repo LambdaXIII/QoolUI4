@@ -1,138 +1,55 @@
+/*!
+    \qmltype QoolBoxSettings
+    \inqmlmodule Qool
+    \nativetype qoolui::QoolBoxSettings
+    \brief 八边形外观设置（四角切角/边框/填充/偏移/圆角开关）。
+
+    QoolBox 的形状与外观统一配置入口。属性定义在 C++ 基类
+    QoolBoxSettingsBase（QML_UNCREATABLE 注册——QML 中类型名可见但不可
+    实例化，供 \c settings 属性类型解析与子类检查）；本类型承载 QML
+    注册（可实例化），宿主以 \c settings 属性访问：
+    \qml
+    QoolBox {
+        settings {
+            cutSizeTL: 12
+            cutSizeTR: 12
+            cutSizeBL: 12
+            cutSizeBR: 12
+            borderWidth: 2
+            borderColor: "white"
+            fillColor: "black"
+            offsetX: 0
+            offsetY: 0
+            curved: true
+        }
+    }
+    \endqml
+
+    全部属性可绑定（如 \c settings.borderWidth: slider.value）与动画
+    （Behavior/NumberAnimation 作用于字段）。
+
+    \section1 引用语义
+
+    settings 是 QObject 引用语义：
+    \list
+    \li \c qbox1.settings: qbox2.settings 共享同一实例——字段级绑定与动画
+        作用于共享对象，一处修改全量生效；
+    \li 独立副本 = 新建实例赋值（互不影响）。
+    \endlist
+
+    \section1 默认值
+
+    类型默认值为 C++ 常量（cutSize*: 0、borderWidth: 0、borderColor:
+    \c red、fillColor: \c yellow、offsetX/Y: 0、curved: \c false）——
+    主题联动默认由消费方（QoolBox、QoolBGBox 等）在实例化处显式绑定
+    Style 字段实现：宿主直接实例化即得当前主题外观，可覆盖个别字段。
+*/
 #include "qool_qoolbox_settings.h"
-
-#include "qoolcommon/debug.hpp"
-
-#include <QRegularExpression>
 
 QOOL_NS_BEGIN
 
 QoolBoxSettings::QoolBoxSettings(QObject* parent)
-  : QObject { parent } {
-  QBINDABLE_SET_VALUE(offsetX, 0);
-  QBINDABLE_SET_VALUE(offsetY, 0);
-  QBINDABLE_SET_VALUE(intOffsetX, 0);
-  QBINDABLE_SET_VALUE(intOffsetY, 0);
-  QBINDABLE_SET_VALUE(borderWidth, 0);
-  QBINDABLE_SET_VALUE(borderColor, Qt::red);
-  QBINDABLE_SET_VALUE(fillColor, Qt::yellow);
-
-  m_isAllCutSizesEquals.setBinding([&] {
-    const auto tl = m_cutSizeTL.value();
-    const auto tr = m_cutSizeTR.value();
-    const auto bl = m_cutSizeBL.value();
-    const auto br = m_cutSizeBR.value();
-    return tl == tr && tl == bl && tl == br;
-  });
-}
-
-void QoolBoxSettings::dumpInfo() const {
-  xDebugQ << "Properties:" << xDBGQPropertyList;
-}
-
-void QoolBoxSettings::set_sizes(qreal x) {
-  set_sizes(x, x, x, x);
-}
-
-void QoolBoxSettings::set_sizes(
-  qreal tl, qreal tr, qreal br, qreal bl) {
-  Qt::beginPropertyUpdateGroup();
-  remove_cutSize_bindings();
-  m_cutSizeTL.setValue(tl);
-  m_cutSizeTR.setValue(tr);
-  m_cutSizeBL.setValue(bl);
-  m_cutSizeBR.setValue(br);
-  Qt::endPropertyUpdateGroup();
-}
-
-void QoolBoxSettings::set_sizes(
-  const std::vector<std::optional<qreal>>& numbers) {
-  if (numbers.empty())
-    return;
-
-  if (numbers.size() == 1 && numbers[0].has_value()) {
-    set_sizes(numbers[0].value());
-    return;
-  }
-
-  Qt::beginPropertyUpdateGroup();
-  remove_cutSize_bindings();
-  if (numbers.size() > 0 && numbers[0].has_value())
-    m_cutSizeTL.setValue(numbers[0].value());
-  if (numbers.size() > 1 && numbers[1].has_value())
-    m_cutSizeTR.setValue(numbers[1].value());
-  if (numbers.size() > 2 && numbers[2].has_value())
-    m_cutSizeBR.setValue(numbers[2].value());
-  if (numbers.size() > 3 && numbers[3].has_value())
-    m_cutSizeBL.setValue(numbers[3].value());
-  Qt::endPropertyUpdateGroup();
-}
-
-void QoolBoxSettings::set_sizes(const QVariantList& list) {
-  static const auto trans = [&](const QVariant& v) {
-    if (v.canConvert<qreal>())
-      return std::make_optional(v.toDouble());
-    return std::optional<qreal>();
-  };
-
-  std::vector<std::optional<qreal>> numbers {};
-  std::transform(list.constBegin(), list.constEnd(),
-    std::back_inserter(numbers), trans);
-
-  set_sizes(numbers);
-}
-
-void QoolBoxSettings::set_sizes(const QString& x) {
-  static const QRegularExpression regex("\\d+(\\.\\d+)?");
-  auto matches = regex.globalMatch(x);
-  std::vector<std::optional<qreal>> numbers;
-  while (matches.hasNext()) {
-    const auto match = matches.next();
-    const QString x = match.captured(0);
-    std::optional<qreal> n = x.isNull() ?
-                               std::optional<qreal>() :
-                               std::make_optional(x.toDouble());
-    numbers.push_back(n);
-  }
-  set_sizes(numbers);
-}
-
-void QoolBoxSettings::remove_cutSize_bindings() {
-  m_cutSizeTL.takeBinding();
-  m_cutSizeTR.takeBinding();
-  m_cutSizeBL.takeBinding();
-  m_cutSizeBR.takeBinding();
-}
-
-QVariant QoolBoxSettings::cutSizes() const {
-  const auto all_equals = m_isAllCutSizesEquals.value();
-  if (all_equals)
-    return QVariant::fromValue<qreal>(cutSizeTL());
-
-  QStringList sizes;
-  sizes << QString::number(cutSizeTL()) << QString::number(cutSizeTR())
-        << QString::number(cutSizeBR()) << QString::number(cutSizeBL());
-  return sizes.join(' ');
-}
-
-void QoolBoxSettings::set_cutSizes(const QVariant& sizes_var) {
-  if (sizes_var.typeId() == QMetaType::Int
-      || sizes_var.typeId() == QMetaType::Double) {
-    const qreal x = sizes_var.toDouble();
-    set_sizes(x);
-    return;
-  }
-
-  if (sizes_var.typeId() == QMetaType::QStringList
-      || sizes_var.typeId() == QMetaType::QVariantList) {
-    const auto list = sizes_var.toList();
-    set_sizes(list);
-    return;
-  }
-
-  if (sizes_var.canConvert<QString>()) {
-    const auto x = sizes_var.toString();
-    set_sizes(x);
-  }
+  : QoolBoxSettingsBase { parent } {
 }
 
 QOOL_NS_END

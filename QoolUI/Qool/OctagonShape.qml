@@ -5,22 +5,20 @@ import Qool
 /*!
     \qmltype OctagonShape
     \inqmlmodule Qool
-    \brief 八边形形状基元：边框环 + 内部填充 + 精确命中判定。
+    \brief 八边形直角形状基元（低级组成件）：边框环 + 内部填充 + 精确命中。
 
-    由 \l QoolBoxShapeControl 计算八边形外部/内部 16 个控制点，
-    渲染边框（OctagonExternalShapePath）与填充（OctagonInternalShapePath）
-    两层。裁剪尺寸四角统一设置（\l {QoolBoxSettings::cutSizes}
-    {cutSizes}），也可四角独立（\c cutSizeTL/TR/BL/BR）。
+    低级 API 组件（spec D5）：\c required 整个 \l QoolBoxShapeControl
+    注入（\c control 属性），纯消费（控制点/space/settings）、不持有
+    几何——独立使用不自洽是刻意的（供 \l QoolBox 组装；宿主直接实例化
+    必须注入 control，样式经 \c control.settings 读取）。四角切角独立
+    设置（\c settings.cutSizeTL/TR/BL/BR）。
 
     \section1 命中判定
 
-    containmentMask 使用 \l ShapeContainmentMask 委托
-    QoolBoxShapeControl::contains() 的 O(1) 线性不等式判定——
-    切角区域点击不命中，且判定不依赖路径填充，性能稳定。
-    位移（offsetX/offsetY）后判定区跟随。
-
-    \note 圆角形态的数值判定尚未实现：圆角形状（OctagonRoundedShape）
-    走 Shape.FillContains 路径判定。
+    containmentMask 直接挂 \c control（QObject 掩码）——委托
+    QoolBoxShapeControl::contains() 的 O(1) 线性不等式判定：切角区域
+    点击不命中，且判定不依赖路径填充，性能稳定。offset 平移后判定区
+    跟随。
 
     \section1 纹理填充
 
@@ -34,15 +32,8 @@ import Qool
 Shape {
     id: root
 
-    /*! \qmlproperty QoolBoxSettings 形状外观设置（裁剪尺寸/边框/填充/偏移）。 */
-    property QoolBoxSettings settings: QoolBoxSettings {
-        // borderWidth: 10
-    }
-    /*! \qmlproperty QoolBoxShapeControl 八边形控制点计算器（只读，随 settings 联动）。 */
-    readonly property QoolBoxShapeControl control: QoolBoxShapeControl {
-        settings: root.settings
-        target: root
-    }
+    /*! \qmlproperty QoolBoxShapeControl 八边形控制点计算源（required——宿主注入，供 QoolBox 组装）。 */
+    required property QoolBoxShapeControl control
     /*! \qmlproperty Item 填充到八边形内部区域的任意 Item（Qt 6.8 ShapePath::fillItem）。 */
     property alias fillItem: fillShape.fillItem
 
@@ -62,8 +53,7 @@ Shape {
         fillColor: root.control.settings.fillColor
     }
 
-    // 命中判定委托数值算法：切角不命中；圆角形态暂走 FillContains（见类型文档）
-    containmentMask: ShapeContainmentMask {
-        control: root.control
-    }
+    // 命中判定委托数值算法（QObject 掩码——AGENTS.md 已知陷阱 5）：
+    // 切角不命中；判定区随 offset 平移。
+    containmentMask: root.control
 }

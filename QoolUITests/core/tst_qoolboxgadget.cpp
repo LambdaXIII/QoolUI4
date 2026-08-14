@@ -25,6 +25,7 @@
 
 #include <QtTest>
 #include <QQuickItem>
+#include <QVector2D>
 
 #include "qool_test.hpp"
 
@@ -61,6 +62,18 @@ void comparePoint(const QPointF& p, qreal ex, qreal ey,
 void comparePoints(const QPointF& actual, const QPointF& expected,
     const char* tag = nullptr) {
   comparePoint(actual, expected.x(), expected.y(), tag);
+}
+
+// vec*/shrink* 读法（改名/改型后为 QVector2D——自由位移向量，float 存储；
+// QVector2D 有 x()/y()/toPointF()）
+void compareVector2D(const QVector2D& actual, qreal ex, qreal ey,
+    const char* tag = nullptr) {
+  comparePoint(actual.toPointF(), ex, ey, tag);
+}
+
+void compareVectors(const QVector2D& actual, const QVector2D& expected,
+    const char* tag = nullptr) {
+  comparePoint(actual.toPointF(), expected.x(), expected.y(), tag);
 }
 
 // 宏生成 setter/追加接口在 protected 作用域——测试经 using 提升
@@ -178,8 +191,9 @@ struct Oracle {
 
   bool nonEmpty() const { return !verts().isEmpty(); }
 
-  // d*：二分交集非空临界（独立于实现的 12 候选解析式）
-  qreal dStar() const {
+  // d* 概念（实现命名 maxShrinkDistance）：二分交集非空临界——
+  // 独立于实现的 12 候选解析式
+  qreal maxShrinkDistance() const {
     qreal lo = 0.0;
     qreal hi = qMin(uW, uH) / 2 + 1;
     for (int k = 0; k < 80; ++k) {
@@ -218,9 +232,9 @@ struct Oracle {
 void assertShrinkAgainstOracle(QoolBoxFixture& f, const Oracle& o,
     qreal ox = 0.0, qreal oy = 0.0) {
   const QPointF origin = f.gadget.origin();
-  // oracle 平移距离 = min(border, d*_oracle)（实现 d_eff 同构）
+  // oracle 平移距离 = min(border, d*_oracle)（实现 shrinkDistance 同构）
   Oracle oo = o;
-  oo.d = qMin(o.d, oo.dStar());
+  oo.d = qMin(o.d, oo.maxShrinkDistance());
   struct Named {
     int i, j;
     QPointF (QoolBoxGadget::*get)() const;
@@ -235,7 +249,11 @@ void assertShrinkAgainstOracle(QoolBoxFixture& f, const Oracle& o,
     const QPointF inner = oo.namedPoint(n.i, n.j); // 向量系内点
     const QPointF expected = origin + QPointF(ox, oy) + inner;
     const QPointF actual = (f.gadget.*(n.get))();
-    QVERIFY2(fuzzy_eq(actual.x(), expected.x()) && fuzzy_eq(actual.y(), expected.y()),
+    // 容差 1e-4（为什么不是 1e-6）：gadget 的 vec/shrink 现为 QVector2D
+    // （float 存储）——与 double oracle 逐点比较须按 float ULP 放宽；
+    // 坐标 ≤ ~200 时误差 ≤ ~1.5e-5，1e-4 仍有裕量，几何意义仍 < 1e-4 px
+    QVERIFY2(fuzzy_eq(actual.x(), expected.x(), 1e-4)
+            && fuzzy_eq(actual.y(), expected.y(), 1e-4),
         qPrintable(QString("oracle 断言失败：期望 %1,%2 实际 %3,%4")
                        .arg(expected.x())
                        .arg(expected.y())
@@ -248,7 +266,7 @@ void assertShrinkAgainstOracle(QoolBoxFixture& f, const Oracle& o,
 // 1e-12 微差敏感，坐标断言退化为"命名点 ∈ oracle 交集顶点集"）
 void assertShrinkInOracleVerts(QoolBoxFixture& f, const Oracle& o) {
   Oracle oo = o;
-  oo.d = qMin(o.d, oo.dStar());
+  oo.d = qMin(o.d, oo.maxShrinkDistance());
   const QList<QPointF> vs = oo.verts();
   QVERIFY2(!vs.isEmpty(), "oracle 交集顶点集为空");
   const QPointF origin = f.gadget.origin();
@@ -261,7 +279,8 @@ void assertShrinkInOracleVerts(QoolBoxFixture& f, const Oracle& o) {
     const QPointF rel = p - origin;
     bool found = false;
     for (const auto& v : vs) {
-      if (fuzzy_eq(rel.x(), v.x()) && fuzzy_eq(rel.y(), v.y())) {
+      // 容差 1e-4：同上（gadget 输出经 QVector2D float 存储量化）
+      if (fuzzy_eq(rel.x(), v.x(), 1e-4) && fuzzy_eq(rel.y(), v.y(), 1e-4)) {
         found = true;
         break;
       }
@@ -311,24 +330,25 @@ class TestQoolBoxGadgetUnit : public QObject {
     f.setSize(100, 80);
     f.setCuts(10, 20, 30, 40);
 
-    comparePoint(f.gadget.vecTL(), -40, -40, "vecTL");
-    comparePoint(f.gadget.vecTR(), 30, -40, "vecTR");
-    comparePoint(f.gadget.vecRT(), 50, -20, "vecRT");
-    comparePoint(f.gadget.vecRB(), 50, 0, "vecRB");
-    comparePoint(f.gadget.vecBR(), 10, 40, "vecBR");
-    comparePoint(f.gadget.vecBL(), -20, 40, "vecBL");
-    comparePoint(f.gadget.vecLB(), -50, 10, "vecLB");
-    comparePoint(f.gadget.vecLT(), -50, -30, "vecLT");
+    compareVector2D(f.gadget.vecTL(), -40, -40, "vecTL");
+    compareVector2D(f.gadget.vecTR(), 30, -40, "vecTR");
+    compareVector2D(f.gadget.vecRT(), 50, -20, "vecRT");
+    compareVector2D(f.gadget.vecRB(), 50, 0, "vecRB");
+    compareVector2D(f.gadget.vecBR(), 10, 40, "vecBR");
+    compareVector2D(f.gadget.vecBL(), -20, 40, "vecBL");
+    compareVector2D(f.gadget.vecLB(), -50, 10, "vecLB");
+    compareVector2D(f.gadget.vecLT(), -50, -30, "vecLT");
 
-    // cut 溢出（s=30×4, used 60）：8 点仍满足 |x| ≤ uW/2 ∧ |y| ≤ uH/2
+    // cut 溢出（cut=30×4, used 60）：8 点仍满足 |x| ≤ usedHalfWidth ∧
+    // |y| ≤ usedHalfHeight
     f.setSize(50, 50);
     f.setCuts(30, 30, 30, 30);
-    comparePoint(f.gadget.vecTL(), 0, -30, "vecTL 溢出");
-    comparePoint(f.gadget.vecTR(), 0, -30, "vecTR 溢出");
-    comparePoint(f.gadget.vecBR(), 0, 30, "vecBR 溢出");
-    comparePoint(f.gadget.vecBL(), 0, 30, "vecBL 溢出");
-    comparePoint(f.gadget.vecRT(), 30, 0, "vecRT 溢出");
-    comparePoint(f.gadget.vecLT(), -30, 0, "vecLT 溢出");
+    compareVector2D(f.gadget.vecTL(), 0, -30, "vecTL 溢出");
+    compareVector2D(f.gadget.vecTR(), 0, -30, "vecTR 溢出");
+    compareVector2D(f.gadget.vecBR(), 0, 30, "vecBR 溢出");
+    compareVector2D(f.gadget.vecBL(), 0, 30, "vecBL 溢出");
+    compareVector2D(f.gadget.vecRT(), 30, 0, "vecRT 溢出");
+    compareVector2D(f.gadget.vecLT(), -30, 0, "vecLT 溢出");
   }
 
   QOOL_TEST_CASE(point_anchor_default) {
@@ -375,8 +395,8 @@ class TestQoolBoxGadgetUnit : public QObject {
     // 组件坐标跟随期望中心（锚定语义）
     f.setSize(30, 100);
     QVERIFY(fuzzy_eq(f.gadget.usedWidth(), 40));
-    comparePoint(f.gadget.vecTL(), 0, -50, "vecTL 不漂移");
-    comparePoint(f.gadget.vecTR(), 0, -50, "vecTR 不漂移");
+    compareVector2D(f.gadget.vecTL(), 0, -50, "vecTL 不漂移");
+    compareVector2D(f.gadget.vecTR(), 0, -50, "vecTR 不漂移");
     comparePoint(f.gadget.pointTL(), 15, 0, "TL 跟随中心");
 
     // 不对称消失：重合点偏离中心 x = (sTL−sTR)/2（相对中心）
@@ -492,7 +512,8 @@ class TestQoolBoxGadgetUnit : public QObject {
             && fuzzy_eq(f.gadget.pointTL().y(), f.gadget.pointTR().y()),
         "线段态顶端重合");
     QVERIFY(fuzzy_eq(f.gadget.pointTL().x(), 10)); // 左约束 x = −10+10 = 0 → 组件 10
-    QVERIFY(fuzzy_eq(f.gadget.pointTL().y(), 50 - len / 2));
+    // y 容差 1e-4：端点 y = 10√2 经 QVector2D float 存储量化（误差 ≤ ~2.4e-6）
+    QVERIFY(fuzzy_eq(f.gadget.pointTL().y(), 50 - len / 2, 1e-4));
   }
 
   QOOL_TEST_CASE(shrink_negative_border) {
@@ -512,26 +533,27 @@ class TestQoolBoxGadgetUnit : public QObject {
     QoolBoxFixture f;
     f.setSize(100, 100);
     f.setCuts(30, 30, 30, 0);
-    const qreal dstar = f.gadget.dStar();
-    QVERIFY(fuzzy_eq(dstar, 49.49747468305833, 1e-9)); // 70/√2
+    const qreal maxShrinkDistance = f.gadget.maxShrinkDistance();
+    QVERIFY(fuzzy_eq(maxShrinkDistance, 49.49747468305833, 1e-9)); // 70/√2
     // d < d*：交集非退化（面积 > 0），归入对 d 微差不敏感——坐标断言
     for (const qreal factor : {0.99, 0.999}) {
-      f.gadget.set_borderWidth(factor * dstar);
-      assertShrinkAgainstOracle(
-          f, Oracle(100, 100, 30, 30, 30, 0, factor * dstar));
+      f.gadget.set_borderWidth(factor * maxShrinkDistance);
+      assertShrinkAgainstOracle(f, Oracle(100, 100, 30, 30, 30, 0,
+          factor * maxShrinkDistance));
     }
     // d = 1.0·d*：交集退化（线段态——TR斜 vs BL斜 平行对瓶颈），
     // 归入对 d 的 1e-12 微差敏感（oracle 二分 vs 实现解析式）——集合归属断言
-    f.gadget.set_borderWidth(dstar);
-    assertShrinkInOracleVerts(f, Oracle(100, 100, 30, 30, 30, 0, dstar));
+    f.gadget.set_borderWidth(maxShrinkDistance);
+    assertShrinkInOracleVerts(
+        f, Oracle(100, 100, 30, 30, 30, 0, maxShrinkDistance));
     // 锁定：d = 1.5·d* 输出 == d* 处输出（逐点）
-    f.gadget.set_borderWidth(dstar);
+    f.gadget.set_borderWidth(maxShrinkDistance);
     const QList<QPointF> atStar = {
         f.gadget.pointTL(), f.gadget.pointTR(), f.gadget.pointRT(),
         f.gadget.pointRB(), f.gadget.pointBR(), f.gadget.pointBL(),
         f.gadget.pointLB(), f.gadget.pointLT(),
     };
-    f.gadget.set_borderWidth(1.5 * dstar);
+    f.gadget.set_borderWidth(1.5 * maxShrinkDistance);
     const QList<QPointF> atOver = {
         f.gadget.pointTL(), f.gadget.pointTR(), f.gadget.pointRT(),
         f.gadget.pointRB(), f.gadget.pointBR(), f.gadget.pointBL(),
@@ -550,7 +572,7 @@ class TestQoolBoxGadgetUnit : public QObject {
     QoolBoxFixture g;
     g.setSize(100, 100);
     g.setCuts(90, 90, 90, 90);
-    g.gadget.set_borderWidth(g.gadget.dStar());
+    g.gadget.set_borderWidth(g.gadget.maxShrinkDistance());
     const QList<QPointF> pts = {
         g.gadget.pointTL(), g.gadget.pointTR(), g.gadget.pointRT(),
         g.gadget.pointRB(), g.gadget.pointBR(), g.gadget.pointBL(),
@@ -571,12 +593,13 @@ class TestQoolBoxGadgetUnit : public QObject {
     QoolBoxFixture f;
     f.setSize(100, 100);
     f.setCuts(30, 30, 30, 0);
-    f.gadget.set_borderWidth(f.gadget.dStar());
-    assertShrinkInOracleVerts(f, Oracle(100, 100, 30, 30, 30, 0, f.gadget.dStar()));
+    f.gadget.set_borderWidth(f.gadget.maxShrinkDistance());
+    assertShrinkInOracleVerts(
+        f, Oracle(100, 100, 30, 30, 30, 0, f.gadget.maxShrinkDistance()));
   }
 
-  QOOL_TEST_CASE(dstar_parity) {
-    // 解析式 d* vs 二分基准（随机 200 组，误差 < 1e-6）
+  QOOL_TEST_CASE(max_shrink_distance_parity) {
+    // 解析式 maxShrinkDistance vs 二分基准（随机 200 组，误差 < 1e-6）
     QoolBoxFixture f;
     f.setSize(1, 1);
     std::mt19937 rng(42);
@@ -588,10 +611,11 @@ class TestQoolBoxGadgetUnit : public QObject {
       const qreal cBL = cut(rng), cBR = cut(rng);
       f.setSize(w, h);
       f.setCuts(cTL, cTR, cBL, cBR);
-      const qreal impl = f.gadget.dStar();
-      const qreal oracle = Oracle(w, h, cTL, cTR, cBL, cBR, 0).dStar();
+      const qreal impl = f.gadget.maxShrinkDistance();
+      const qreal oracle = Oracle(w, h, cTL, cTR, cBL, cBR, 0).maxShrinkDistance();
       QVERIFY2(fuzzy_eq(impl, oracle, 1e-6),
-          qPrintable(QString("d* 偏差：实现 %1 二分 %2 (w=%3 h=%4 cuts %5/%6/%7/%8)")
+          qPrintable(QString("maxShrinkDistance 偏差：实现 %1 二分 %2 "
+                             "(w=%3 h=%4 cuts %5/%6/%7/%8)")
                          .arg(impl)
                          .arg(oracle)
                          .arg(w)
@@ -690,11 +714,11 @@ class TestQoolBoxGadgetUnit : public QObject {
     fb.gadget.set_cutTL(99); // 应被 ref 覆盖
     fb.gadget.set_offsetX(77);
     QVERIFY(fuzzy_eq(fb.gadget.usedWidth(), fa.gadget.usedWidth()));
-    comparePoints(fb.gadget.vecTL(), fa.gadget.vecTL(), "ref vecTL");
-    comparePoints(fb.gadget.vecBR(), fa.gadget.vecBR(), "ref vecBR");
+    compareVectors(fb.gadget.vecTL(), fa.gadget.vecTL(), "ref vecTL");
+    compareVectors(fb.gadget.vecBR(), fa.gadget.vecBR(), "ref vecBR");
     comparePoints(fb.gadget.origin(), fa.gadget.origin(), "ref origin");
-    comparePoints(fb.gadget.vecLT(), fa.gadget.vecLT(), "ref vecLT");
-    comparePoints(fb.gadget.vecRT(), fa.gadget.vecRT(), "ref vecRT");
+    compareVectors(fb.gadget.vecLT(), fa.gadget.vecLT(), "ref vecLT");
+    compareVectors(fb.gadget.vecRT(), fa.gadget.vecRT(), "ref vecRT");
 
     // B 的 borderWidth 独立：B border 0（默认）→ B 点 = origin + vec（外轮廓）
     comparePoint(fb.gadget.pointTL(),
@@ -716,8 +740,8 @@ class TestQoolBoxGadgetUnit : public QObject {
 
     // B 的 border 变化独立（不影响 A）
     fb.gadget.set_borderWidth(10);
-    QVERIFY(fuzzy_eq(fb.gadget.shrinkD(), 10));
-    QVERIFY(fuzzy_eq(fa.gadget.shrinkD(), 8));
+    QVERIFY(fuzzy_eq(fb.gadget.shrinkDistance(), 10));
+    QVERIFY(fuzzy_eq(fa.gadget.shrinkDistance(), 8));
 
     // A 的 offset 变化 → B 8 点整体跟随（介入点 offset；B border 调回与
     // A 一致——border 独立影响 shrink，先对齐再断言全等）

@@ -25,7 +25,10 @@ T.AbstractButton {
     id: root
 
     property QoolBoxSettings backgroundSettings: QoolBoxSettings {
-        cutSizes: root.Style.buttonCutSize
+        cutSizeTL: root.Style.buttonCutSize
+        cutSizeTR: root.Style.buttonCutSize
+        cutSizeBL: root.Style.buttonCutSize
+        cutSizeBR: root.Style.buttonCutSize
         fillColor: root.Style.button
         borderColor: root.Style.controlBorderColor
         borderWidth: root.Style.controlBorderWidth

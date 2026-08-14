@@ -17,7 +17,7 @@ import Qool
     \li \c topSpace = 标签高度 + 边框宽度（有可见标签时），否则仅为边框宽度；
     \li \c left/\c rightSpace：有可见标签时收紧为边框宽度，
         否则使用 \c control.leftSpace/\c control.rightSpace；
-    \li \c bottomSpace：无可见标签时使用 \c control.bottomSpace，否则为 0。
+    \li \c bottomSpace：有可见标签时使用 \c control.bottomSpace，否则为 0。
     \endlist
     全部经 \c label?.visible 空安全判断——未设置 \c label 时为 undefined，
     一律视为无标签。标签按 \c Binding 挂入顶部预留区（dummyTitle），
@@ -29,9 +29,13 @@ QoolBox {
 
     property string title
 
+    // 属性对象须显式挂 parent（QML 属性对象不自动成为声明对象的子项）：
+    // 无 parent 时 effective 可见性恒 false（visible 是 effective 语义），
+    // 标签可见性逻辑全部失效（2026-08-14 测试实证修复）。
     property Item label: BasicControlTitleText {
+        parent: root
         text: root.title
-        visible: text
+        visible: text !== ""
         color: root.settings.borderColor
     }
 

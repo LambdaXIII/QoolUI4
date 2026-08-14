@@ -8,7 +8,7 @@ import Qool
     \brief 带 QoolBox 背景的文本标签控件。
 
     文本颜色自动按 \c color 与当前 \l Style 明暗背景计算对比色；
-    背景为 \l QoolBox，四个角统一圆角（\c cutSizes: 4）。
+    背景为 \l QoolBox，四个角统一圆角（\c cutSizeTL/TR/BL/BR: 4）。
     可通过 \c backgroundSettings 覆写背景外观。
 */
 T.Control {
@@ -31,7 +31,10 @@ T.Control {
     background: QoolBox {
         id: bgBox
         settings {
-            cutSizes: 4
+            cutSizeTL: 4
+            cutSizeTR: 4
+            cutSizeBL: 4
+            cutSizeBR: 4
             borderColor: contentText.color
             fillColor: root.color
         }

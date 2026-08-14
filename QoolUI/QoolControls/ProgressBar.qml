@@ -43,17 +43,29 @@ T.ProgressBar {
     readonly property QoolBoxSettings settings: QoolBoxSettings {
         borderWidth: root.Style.controlBorderWidth
         borderColor: root.Style.mid
+        fillColor: root.backgroundColor
+        cutSizeTL: root.radius
+        cutSizeTR: root.radius
+        cutSizeBL: root.radius
+        cutSizeBR: root.radius
     }
 
-    background: OctagonRoundedShape {
+    // 变体消费 control.settings（spec D5）——两处几何各自注入 control
+    //（target = 各自 Shape，几何源一致时也可共享）。
+    readonly property QoolBoxShapeControl bgControl: QoolBoxShapeControl {
+        target: bgShape
+        settings: root.settings
+    }
+    readonly property QoolBoxShapeControl progressControl: QoolBoxShapeControl {
+        target: progressShape
+        settings: root.settings
+    }
+
+    background: OctagonCurvedShape {
+        id: bgShape
         implicitWidth: 100
         implicitHeight: 20
-        settings {
-            borderWidth: root.settings.borderWidth
-            borderColor: root.settings.borderColor
-            fillColor: root.backgroundColor
-            cutSizes: root.radius
-        }
+        control: root.bgControl
     }
 
     Rectangle {
@@ -95,16 +107,11 @@ T.ProgressBar {
         id: mainItem
         implicitWidth: 100
         implicitHeight: 20
-        OctagonRoundedShape {
+        OctagonCurvedShape {
             id: progressShape
             height: parent.height
             width: parent.width
-            settings {
-                borderWidth: root.settings.borderWidth
-                borderColor: root.settings.borderColor
-                // fillColor: root.highlightColor
-                cutSizes: root.radius
-            }
+            control: root.progressControl
             fillItem: face
         }
     }
@@ -135,7 +142,7 @@ T.ProgressBar {
         }
         Binding {
             when: pCtrl.visualBindingEnabled
-            target: progressShape.control
+            target: progressShape.control.settings
             property: "offsetX"
             value: pCtrl.visualX
             restoreMode: Binding.RestoreValue
@@ -156,7 +163,7 @@ T.ProgressBar {
                 easing.type: Easing.OutBack
             }
             NumberAnimation {
-                target: progressShape.control
+                target: progressShape.control.settings
                 property: "offsetX"
                 to: 0
                 duration: root.Style.transitionDuration
@@ -179,7 +186,7 @@ T.ProgressBar {
                 easing.type: Easing.OutBack
             }
             NumberAnimation {
-                target: progressShape.control
+                target: progressShape.control.settings
                 property: "offsetX"
                 to: pCtrl.visualX
                 duration: Style.transitionDuration
@@ -190,14 +197,14 @@ T.ProgressBar {
             id: indeterminateLoop
             loops: Animation.Infinite
             NumberAnimation {
-                target: progressShape.control
+                target: progressShape.control.settings
                 property: "offsetX"
                 to: mainItem.width - pCtrl.indeterminateWidth
                 duration: root.cycleDuration * 2
                 easing.type: Easing.OutSine
             }
             NumberAnimation {
-                target: progressShape.control
+                target: progressShape.control.settings
                 property: "offsetX"
                 to: 0
                 duration: root.cycleDuration * 2
@@ -207,7 +214,7 @@ T.ProgressBar {
 
         NumberAnimation {
             id: alignmentAnime
-            target: progressShape.control
+            target: progressShape.control.settings
             property: "offsetX"
             to: pCtrl.visualX
             duration: root.Style.transitionDuration

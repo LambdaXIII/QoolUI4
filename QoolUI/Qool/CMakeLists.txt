@@ -14,7 +14,7 @@ qt_add_qml_module(
   URI Qool
   VERSION ${QOOLUI_VERSION_QML}
   NAMESPACE ${QOOL_NS}
-  QML_FILES _private/OctagonRectangleShape.qml _private/QoolWindowBG.qml
+  QML_FILES _private/QoolWindowBG.qml
             _private/QoolWindowCloseButton.qml _private/QoolWindowTitleItem.qml
   QML_FILES Qore.qml
   QML_FILES PixelFont.qml
@@ -43,12 +43,12 @@ qt_add_qml_module(
           shapecontrol/qool_shapecontrol.cpp
           shapecontrol/qool_qoolbox_settings.h
           shapecontrol/qool_qoolbox_settings.cpp
+          shapecontrol/qool_qoolbox_settings_base.h
+          shapecontrol/qool_qoolbox_settings_base.cpp
           shapecontrol/qool_shapecontrol_gadget.h
           shapecontrol/qool_shapecontrol_gadget.cpp
           shapecontrol/qool_qoolbox_shapecontrol.h
           shapecontrol/qool_qoolbox_shapecontrol.cpp
-          shapecontrol/qool_shapecontainmentmask.h
-          shapecontrol/qool_shapecontainmentmask.cpp
           shapecontrol/qool_offsetprojector.h
           shapecontrol/qool_offsetprojector.cpp
           shapecontrol/gadgets/qool_shapegadget_triangle.h
@@ -70,7 +70,7 @@ qt_add_qml_module(
           models/qool_multirowselectionmodel.h
           models/qool_multirowselectionmodel.cpp
   QML_FILES OctagonShape.qml
-            OctagonRoundedShape.qml
+            OctagonCurvedShape.qml
             Crystal.qml
             HalfCrystal.qml
             QoolBox.qml
@@ -86,8 +86,8 @@ qt_add_qml_module(
             QoolPalette.qml
             OctagonInternalShapePath.qml
             OctagonExternalShapePath.qml
-            OctagonRoundedExternalShapePath.qml
-            OctagonRoundedInternalShapePath.qml
+            OctagonCurvedExternalShapePath.qml
+            OctagonCurvedInternalShapePath.qml
             Floater.qml
             CutSizeBinding.qml
             BasicLabel.qml

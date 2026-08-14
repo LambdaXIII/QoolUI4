@@ -111,3 +111,75 @@ elseif(EXISTS "${QT6_QUICKSHAPES_DLL_RELEASE}")
   )
 endif()
 
+# ---- Qool.Controls 模块的 QML 测试批次 ----
+# 覆盖 Qool.Controls（含 Qool.Controls.Components）消费方迁移回归：QoolBGBox
+# 与 BasicLabel 的 *Space 语义（spec「Testing Decisions」消费方迁移回归段）。
+# 除 Qool 外，本批次 QML 还实例化 Qool.Controls 与 Qool.Controls.Components
+# 模块类型——QML 引擎从 build/qml/Qool/Controls*/ 加载其插件
+# （QoolControlsplugin.dll / QoolControlsComponentsplugin.dll），插件依赖的
+# 模块 DLL（QoolControls.dll / QoolControlsComponents.dll）不在
+# $<TARGET_RUNTIME_DLLS:tst_qoolcontrols_qml> 内（非本 target 链接依赖），
+# 须随 Qool 同款策略复制到 exe 目录。QoolControls/QoolControlsComponents
+# 是普通模块库（qt_add_qml_module 目标），$<TARGET_RUNTIME_DLLS> +
+# $<TARGET_FILE> 直接可用；Qt6QuickShapes 复用上方 find_file 结果（同文件
+# 作用域）。LINK_DEPENDS 声明三个模块 DLL——QML 修改只更新 DLL 的 qrc
+# 资源，无此依赖时 exe 不重链、POST_BUILD 不执行，副本过期静默加载旧组件。
+add_executable(tst_qoolcontrols_qml qml_test_main.cpp)
+
+target_link_libraries(
+  tst_qoolcontrols_qml PRIVATE Qt6::QuickTest Qt6::Qml
+)
+
+set_property(TARGET tst_qoolcontrols_qml APPEND PROPERTY
+  LINK_DEPENDS
+    "$<TARGET_FILE:Qool>"
+    "$<TARGET_FILE:QoolControls>"
+    "$<TARGET_FILE:QoolControlsComponents>")
+
+target_compile_definitions(
+  tst_qoolcontrols_qml
+  PRIVATE QUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tst_qoolcontrols_qml"
+  PRIVATE QOOLUI_TEST_QML_IMPORT_PATH="${QT_QML_OUTPUT_DIRECTORY}"
+)
+
+add_test(NAME tst_qoolcontrols_qml COMMAND tst_qoolcontrols_qml -platform offscreen)
+
+list(APPEND QOOLUI_TEST_TARGETS tst_qoolcontrols_qml)
+set(QOOLUI_TEST_TARGETS ${QOOLUI_TEST_TARGETS} CACHE INTERNAL "")
+set(QOOLUI_TEST_ARGS_tst_qoolcontrols_qml "-platform;offscreen" CACHE INTERNAL "")
+
+# 依赖 DLL 复制到 exe 目录（与 tst_qool_qml 同款部署策略，双源并集 +
+# copy_if_different 幂等）：Qt DLL（本 target + 三模块各自的 RUNTIME_DLLS）
+# + 三个模块 DLL（Qool/QoolControls/QoolControlsComponents）本体。
+add_custom_command(
+  TARGET tst_qoolcontrols_qml POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_RUNTIME_DLLS:tst_qoolcontrols_qml> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_RUNTIME_DLLS:Qool> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:Qool> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_RUNTIME_DLLS:QoolControls> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:QoolControls> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_RUNTIME_DLLS:QoolControlsComponents> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_FILE:QoolControlsComponents> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+  COMMAND_EXPAND_LISTS
+)
+if(EXISTS "${QT6_QUICKSHAPES_DLL_DEBUG}")
+  add_custom_command(
+    TARGET tst_qoolcontrols_qml POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${QT6_QUICKSHAPES_DLL_DEBUG}" $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+  )
+elseif(EXISTS "${QT6_QUICKSHAPES_DLL_RELEASE}")
+  add_custom_command(
+    TARGET tst_qoolcontrols_qml POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${QT6_QUICKSHAPES_DLL_RELEASE}" $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+  )
+endif()
+

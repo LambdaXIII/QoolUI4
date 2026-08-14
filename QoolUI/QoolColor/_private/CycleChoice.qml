@@ -158,8 +158,14 @@ T.AbstractButton {
 
     // v4 惯例的 QoolBoxSettings 背景对象；borderColor 由状态驱动
     //（禁用 → 负面色；悬停/选中 → 高亮色；否则背景描边色）。
+    // cutSizes 便捷面删除迁移为四角显式（QoolColor/_private 不在兼容
+    // 范围——便捷面删除后本组件仍须可编译）；四角绑定与原便捷面统一
+    // 赋值等价。
     property QoolBoxSettings backgroundSettings: QoolBoxSettings {
-        cutSizes: root.bgSettings.cutSize
+        cutSizeTL: root.bgSettings.cutSize
+        cutSizeTR: root.bgSettings.cutSize
+        cutSizeBL: root.bgSettings.cutSize
+        cutSizeBR: root.bgSettings.cutSize
         borderWidth: root.bgSettings.strokeWidth
         fillColor: root.bgSettings.color
         borderColor: root._feedbackBorderColor
@@ -292,7 +298,11 @@ T.AbstractButton {
             rightMargin: root.rightInset
         }
         settings: QoolBoxSettings {
-            cutSizes: root.bgSettings.cutSize
+            // cutSizes 便捷面删除迁移为四角显式（同 backgroundSettings 迁移说明）
+            cutSizeTL: root.bgSettings.cutSize
+            cutSizeTR: root.bgSettings.cutSize
+            cutSizeBL: root.bgSettings.cutSize
+            cutSizeBR: root.bgSettings.cutSize
             fillColor: root.highlightColor
             borderWidth: 0
             curved: false
@@ -313,7 +323,11 @@ T.AbstractButton {
             rightMargin: root.rightInset
         }
         settings: QoolBoxSettings {
-            cutSizes: root.bgSettings.cutSize
+            // cutSizes 便捷面删除迁移为四角显式（同 backgroundSettings 迁移说明）
+            cutSizeTL: root.bgSettings.cutSize
+            cutSizeTR: root.bgSettings.cutSize
+            cutSizeBL: root.bgSettings.cutSize
+            cutSizeBR: root.bgSettings.cutSize
             fillColor: root.Style.negative
             borderWidth: 0
             curved: false

@@ -187,6 +187,10 @@ QOOL_NS_END
 - 例外（手写 Q_PROPERTY 而非宏）：多属性共享同一信号（如 `Message::channels`/`channel` 共用 `channelsChanged`）、无成员属性、非宏体系类（如 `Theme`）
 - 批量属性变更用 `Qt::beginPropertyUpdateGroup()` / `endPropertyUpdateGroup()` 包裹，使多次 emit 原子化
 
+**内部中间量约定**（ADR-0006 执行固化）：无 QML 消费方、无 signal 监听者的纯内部派生量用**裸 `QProperty` 成员 + 普通 getter**（无 Q_PROPERTY、无 NOTIFY signal——Q_PROPERTY 与 signal 对内部量是死重；依赖追踪走 QProperty 绑定机制，绑定求值中读其他 QProperty 的 value() 即注册依赖）。仅对外面（QML 输出）用 `QBINDABLE_*_PROPERTY`。先例：QoolBoxGadget 的 vec*/shrink*/maxShrinkDistance 等中间量。
+
+**命名全称**：标识符与注释一律全称少缩写（`maxShrinkDistance` 而非 dStar、`insetLineConstants` 而非 linesC、`shrinkDistance` 而非 shrinkD）；数学记号（√2、θ/2 等）仅限文档公式与算法注释，不进标识符。
+
 ### 批量属性生成
 同型属性清单（如 20 个 QColor）用 `QOOL_FOREACH_N` 宏 + 属性名列表批量生成（`QoolCommon/qoolcommon/macro_foreach.hpp`）：
 ```cpp

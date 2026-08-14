@@ -135,6 +135,36 @@ qoolui_add_cpp_test(
 target_include_directories(tst_qool_offsetprojector PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
 target_link_libraries(tst_qool_offsetprojector PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
 
+# QoolBoxShapeControl（重写 gadget 化）——settings 信号同步/替换重挂、
+# 16 点转发对照、*Space 公式、contains、referenceBox 链、null 退化、
+# 析构安全。链依赖：control + settings 双类型 + ShapeControl + gadget 基类
+# + SmartObject（同 tst_qool_qoolboxgadget 模式）
+qoolui_add_cpp_test(
+  tst_qool_qoolboxshapecontrol
+  tst_qoolboxshapecontrol.cpp
+  "${QOOL_SRC}/shapecontrol/qool_qoolbox_shapecontrol.cpp"
+  "${QOOL_SRC}/shapecontrol/qool_qoolbox_settings_base.cpp"
+  "${QOOL_SRC}/shapecontrol/qool_qoolbox_settings.cpp"
+  "${QOOL_SRC}/shapecontrol/qool_shapecontrol.cpp"
+  "${QOOL_SRC}/shapecontrol/qool_shapecontrol_gadget.cpp"
+  "${QOOL_SRC}/shapecontrol/gadgets/qool_shapegadget_qoolbox.cpp"
+  "${QOOL_SRC}/utils/qool_smartobj.cpp"
+)
+target_include_directories(tst_qool_qoolboxshapecontrol PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
+target_link_libraries(tst_qool_qoolboxshapecontrol PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
+
+# 端到端命中：QoolBox 直角/圆角变体 containmentMask 判定域与渲染一致
+#（真实鼠标路径，tst_hover_e2e 同款——offscreen 由 QOOLUI_TEST_ARGS 注入）
+set(QOOLUI_TEST_ARGS_tst_qool_box_hit "-platform;offscreen" CACHE INTERNAL "")
+qoolui_add_cpp_test(
+  tst_qool_box_hit
+  tst_qoolbox_hit.cpp
+)
+target_link_libraries(tst_qool_box_hit PRIVATE
+  Qool QoolCommon QoolUITestSupport Qt6::Quick Qt6::QuickShapes Qt6::Qml)
+target_compile_definitions(tst_qool_box_hit PRIVATE
+  QOOLUI_TEST_QML_IMPORT_PATH="${QT_QML_OUTPUT_DIRECTORY}")
+
 # 端到端 hover：真实窗口 + QTest::mouseMove 下 HalfCrystal 掩码判定域与
 # 渲染一致（QML 测试批次的 TestCase.mouseMove 在 offscreen 不注入事件，
 # 引擎真实鼠标路径在本层验证——见 tst_hover_e2e.cpp 头注释）。

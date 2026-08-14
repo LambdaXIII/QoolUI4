@@ -11,7 +11,8 @@ import Qool
     \c TopLeftCornerOnly 时仅同步左上角。\c when 为 false、源或目标
     缺少对应属性时，相应绑定不激活。
 
-    供 \l QoolBox 在 \c settings 与内部 \c cutSizes 列表之间同步使用。
+    用于跨对象同步四角切角（如两个 \l QoolBoxSettings 实例之间保持
+    四角一致）；源/目标为任意提供 \c cutSizeTL/TR/BL/BR 属性的对象。
 */
 SmartObject {
     id: root

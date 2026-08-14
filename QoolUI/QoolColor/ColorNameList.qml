@@ -84,7 +84,12 @@ ColumnLayout {
         // 渲染为像素字体 24px（v3 用 PixelFont.normalFont，对位 PixelFont.normal）。
         font: PixelFont.normal
         texts: ColorNameHQ.categories()
-        backgroundSettings.cutSizes: 2
+        // cutSizes 便捷面删除迁移为四角显式：QoolColor 不在兼容范围
+        //（04 票删除旧便捷面后本组件仍须可编译），四角值保持原统一值 2。
+        backgroundSettings.cutSizeTL: 2
+        backgroundSettings.cutSizeTR: 2
+        backgroundSettings.cutSizeBL: 2
+        backgroundSettings.cutSizeBR: 2
         Layout.fillWidth: true
     } //profiler
 
