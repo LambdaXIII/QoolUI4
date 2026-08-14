@@ -27,6 +27,11 @@
   - **AGENTS.md 规范**：编码规范新增「注释与文档」条目——注释/文档不体现修改历史（修改历史归 CHANGELOG）；执行范围 = 本次涉及文件，不排查全仓库
   - 验证：构建通过 + 运行冒泡无 QML 属性警告；外观用户人工验收；未提交（用户验收后定）
 
+### 修复（ShapeControl target 尺寸同步去绑定化——QoolBox 系绑定环）
+
+- **ShapeControl target 尺寸经信号连接同步（基类去绑定化）**：`width/height` 原为 QProperty 绑定 `target.width/height`——ADR-0002 `*Space` 公式含期望尺寸依赖后，隐式尺寸拓扑（控件无显式尺寸）下经宿主控件 padding → *Space → 本对象几何绑定链绕回 target 自身，绑定求值重入成环（QML "Binding loop detected"；QoolBGBox/BasicControl 隐式尺寸实例 + Example 启动日志实证）。改为：target 尺寸经信号连接写入缓存 QProperty（`targetChanged` 时重连 `widthChanged/heightChanged`；**延迟到事件循环写入**——连接器可能在布局/绑定求值栈内执行，同步写缓存触发同栈重算重入；`QTimer::singleShot(0, this)` context 析构自动取消，析构安全）；`width/height` 绑定改读缓存，`x/y` 保持绑定（无环证据）。代价：target 尺寸变化后 control 几何在事件循环内更新（QML 绑定消费方无感知差异）；C++ 测试 fixture 的 `setSize` 补 `QCoreApplication::processEvents()` flush 适配（同步断言语义）。
+- 验证：QML 批次隐式尺寸拓扑（BasicControl/BasicButton 无/有标签）零 Binding loop 警告；Example 启动日志干净；全量 20/20 绿。
+
 ### 文档
 
 - **QoolBoxGadget 算法独立 qdoc 文章**（`qool_qoolbox_geometry.qdoc`，\page qoolbox-geometry.html）：点定位与内缩算法的详细论述——几何模型（三层单向依赖：派生 used 标量 → 向量层 vec/shrink → 锚定层）、used 派生（max 构造性保证/角间零交互）、向量符号表规律（cut 注入轴 = 斜边法线轴）、锚定（期望中心对称溢出，used 无矩形实体）、**shrink 原理与推导**（边平移定义 → 8 条平移半平面交集几何真值 → 命名点身份候选/归入极值收敛 → d\* 临界距离与 d_eff 钳制）、**d\* 解析式对偶线性规划推导**（8 法线 4 对相反 → 平行对 4 + 三线组合 8 = 12 候选，无冗余无遗漏）、**解析公式蕴含的边界条件**（非负性构造保证/边消失与溢出/退化链与临界区形态——三线瓶颈 = 点、平行对瓶颈 = 线段/直角角归入 = 角平分线精确 d√2/负 border 外扩/浮点注意）

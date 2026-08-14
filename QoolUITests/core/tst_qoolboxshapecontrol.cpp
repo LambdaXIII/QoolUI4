@@ -101,6 +101,9 @@ public:
   void setSize(qreal w, qreal h) {
     target.setWidth(w);
     target.setHeight(h);
+    // target 尺寸经 queued timer 同步到 control（ShapeControl 信号同步
+    // 机制——延迟写避免布局/绑定求值栈内重入成环）——flush 后断言
+    QCoreApplication::processEvents();
   }
   void setCuts(qreal tl, qreal tr, qreal bl, qreal br) {
     outer.set_cutTL(tl);
@@ -129,6 +132,7 @@ public:
   void setSize(qreal w, qreal h) {
     target.setWidth(w);
     target.setHeight(h);
+    QCoreApplication::processEvents(); // 同上（延迟同步 flush）
   }
   void setCuts(qreal tl, qreal tr, qreal bl, qreal br) {
     settings.set_cutSizeTL(tl);
@@ -228,6 +232,7 @@ class TestQoolBoxShapeControlUnit : public QObject {
     control.set_target(&target);
     target.setWidth(100);
     target.setHeight(80);
+    QCoreApplication::processEvents(); // 延迟同步 flush
 
     QoolBoxSettingsBase a;
     a.set_cutSizeTL(10);
@@ -464,6 +469,7 @@ class TestQoolBoxShapeControlUnit : public QObject {
     c2.set_target(&target2);
     target2.setWidth(100);
     target2.setHeight(80);
+    QCoreApplication::processEvents(); // 延迟同步 flush
     comparePoint(c2.extTL(), 0, 0, "默认 null extTL");
     comparePoint(c2.extBR(), 100, 80, "默认 null extBR");
 
@@ -483,6 +489,7 @@ class TestQoolBoxShapeControlUnit : public QObject {
     control.set_target(&target);
     target.setWidth(100);
     target.setHeight(80);
+    QCoreApplication::processEvents(); // 延迟同步 flush
     {
       QoolBoxSettingsBase s;
       control.set_settings(&s);
@@ -509,6 +516,7 @@ class TestQoolBoxShapeControlUnit : public QObject {
       c2.set_target(&target2);
       target2.setWidth(100); // 与第一段同尺寸——期望 (10,0) 成立
       target2.setHeight(80);
+      QCoreApplication::processEvents(); // 延迟同步 flush
       c2.set_settings(&s2);
       s2.set_cutSizeTL(10);
       comparePoint(c2.extTL(), 10, 0, "scope 内");
@@ -524,6 +532,7 @@ class TestQoolBoxShapeControlUnit : public QObject {
       c3->set_target(&target3);
       target3.setWidth(100); // 与第一段同尺寸——期望 (10,0) 成立
       target3.setHeight(80);
+      QCoreApplication::processEvents(); // 延迟同步 flush
       c3->set_settings(s3);
       s3->set_cutSizeTL(10);
       comparePoint(c3->extTL(), 10, 0, "子对象 scope");

@@ -104,6 +104,9 @@ public:
   void setSize(qreal w, qreal h) {
     target.setWidth(w);
     target.setHeight(h);
+    // target 尺寸经 queued timer 同步到 control（ShapeControl 信号同步
+    // 机制——延迟写避免布局/绑定求值栈内重入成环）——flush 后断言
+    QCoreApplication::processEvents();
   }
   void setCuts(qreal tl, qreal tr, qreal bl, qreal br) {
     gadget.set_cutTL(tl);
@@ -801,6 +804,7 @@ class TestQoolBoxGadgetUnit : public QObject {
 
     f.target.setWidth(200);
     f.target.setHeight(120);
+    QCoreApplication::processEvents(); // 延迟同步 flush
     QVERIFY(fuzzy_eq(f.gadget.usedWidth(), 200));
     QVERIFY(fuzzy_eq(f.gadget.origin().x(), 100));
     QVERIFY(fuzzy_eq(f.gadget.origin().y(), 60));
