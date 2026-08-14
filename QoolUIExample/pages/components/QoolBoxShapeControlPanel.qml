@@ -160,6 +160,8 @@ Control {
             }
         }
 
+        // TODO(将来实现): 锁定边角——四角联动同步（当前为未接线死按钮；
+        // 勿用 CutSizeBinding——其语义为双对象间四角同步，非单对象联动）
         ActionButton {
             id: lockCornersButton
             checkable: true

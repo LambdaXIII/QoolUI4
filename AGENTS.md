@@ -275,6 +275,9 @@ QAbstractItemModel 子类**遵循 Qt 官方线程规范：不加锁**（QAbstrac
   `when_themeChanged`、`when_parentValueChanged`）
 - 注意 `messageRecieved` 的拼写是**既有 API，勿修正**（多处一致）
 
+### 注释与文档
+代码注释与 QDoc 用法文档只描述当前行为与设计意图，**不体现修改历史**（如"同步修改""不在兼容范围""迁移/改名"类元语境）——修改历史归 CHANGELOG.md。
+
 ### QML 组件规范
 - **多层插拔（v4 设计原则）**：控件/视图功能面按层分解——View / Delegate / Display——每层提供与相邻层配套的默认实现，但每一层都可独立替换，替换不破坏相邻层配套：
   - View 与 Model 配套（特化视图，如 `FileInfoListView` 配 `FileInfoListModel`），用户可自行实现 View

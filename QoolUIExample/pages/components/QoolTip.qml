@@ -1,3 +1,5 @@
+// TODO(将来重设计): 全面重新设计整个 QoolTip 机制（本件 + QoolTipPanel.qml；
+// 当前仅保证无明显非法、可使用）
 import QtQuick
 import Qool.Chat
 

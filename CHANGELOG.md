@@ -18,6 +18,15 @@
 - **QoolBGBox 标签可见性修复（测试暴露的既有缺陷）**：`label` 属性对象未显式挂 parent——QML 属性对象不自动成为声明对象的子项，无 parent 时 effective 可见性恒 false，"有标签形态"（topSpace=标签高+边框宽、left/rightSpace 收紧）从未生效——显式 `parent: root` 修复；QDoc bottomSpace 描述与实现相反同步修正
 - **测试补全（spec 硬性要求）**：新增 core 单测 `tst_qool_qoolboxshapecontrol`（settings 信号同步/替换重挂/16 点对照 gadget/*Space 公式/contains/referenceBox 链/null 退化/析构安全 8 用例）；QML 批次扩展 `tst_qoolboxsettings.qml`（双类型/绑定/动画/多态/共享引用/默认 wiring 11 用例）与 `tst_qoolbox.qml`（公开面/退行边界/变体渲染/圆角半径 13 用例）；C++ 端到端命中 `tst_qool_box_hit`（直角掩码/offset 跟随/圆角 FillContains 真实鼠标）；新增 Qool.Controls 批次 `tst_qoolcontrols_qml`（QoolBGBox/BasicLabel space 语义 11 用例）；全量 20/20 绿
 
+### 变更（qoolui-example-qoolbox-adapt，QoolUIExample QoolBox 适配）
+
+- **QoolUIExample 正式适配 QoolBox 形状体系**（上游重构 `.scratch/qoolbox-shapecontrol-redesign` 完成后补做；spec `.scratch/qoolui-example-qoolbox-adapt`）：
+  - **修复静默回归**：QoolTipPanel 顶层 `curved: true` 指向已撤销的 QoolBox 别名——QML 顶层未知属性赋值创建动态属性（无警告、构建期亦不检测），`curved` 值落到动态属性上、渲染不读它，提示浮层圆角意图丢失（直角）——移入 `settings` 块（`settings.curved`），恢复圆角设计
+  - **注释清理**：删除 3 处"不在兼容范围/同步修改/迁移解析顺序"修改历史注释（元语境渗漏）；Page_QoolBox 顶部 `OctagonShapeHud` 类型名更新为 `QoolBoxHud`，顶部"（修复说明）"字样清理
+  - **TODO 记录**：Page_QoolBox 补 fillItem 演示 TODO（fillItem 为公开属性但 Example 从未演示）；QoolTip.qml/QoolTipPanel.qml 补 QoolTip 机制全面重设计 TODO（当前仅保证无明显非法、可使用，遮蔽 Bug 见既有 TODO）；QoolBoxShapeControlPanel lockCorners 按钮补实现 TODO（死按钮保留；勿用 CutSizeBinding——其语义为双对象间四角同步，非单对象联动）
+  - **AGENTS.md 规范**：编码规范新增「注释与文档」条目——注释/文档不体现修改历史（修改历史归 CHANGELOG）；执行范围 = 本次涉及文件，不排查全仓库
+  - 验证：构建通过 + 运行冒泡无 QML 属性警告；外观用户人工验收；未提交（用户验收后定）
+
 ### 文档
 
 - **QoolBoxGadget 算法独立 qdoc 文章**（`qool_qoolbox_geometry.qdoc`，\page qoolbox-geometry.html）：点定位与内缩算法的详细论述——几何模型（三层单向依赖：派生 used 标量 → 向量层 vec/shrink → 锚定层）、used 派生（max 构造性保证/角间零交互）、向量符号表规律（cut 注入轴 = 斜边法线轴）、锚定（期望中心对称溢出，used 无矩形实体）、**shrink 原理与推导**（边平移定义 → 8 条平移半平面交集几何真值 → 命名点身份候选/归入极值收敛 → d\* 临界距离与 d_eff 钳制）、**d\* 解析式对偶线性规划推导**（8 法线 4 对相反 → 平行对 4 + 三线组合 8 = 12 候选，无冗余无遗漏）、**解析公式蕴含的边界条件**（非负性构造保证/边消失与溢出/退化链与临界区形态——三线瓶颈 = 点、平行对瓶颈 = 线段/直角角归入 = 角平分线精确 d√2/负 border 外扩/浮点注意）

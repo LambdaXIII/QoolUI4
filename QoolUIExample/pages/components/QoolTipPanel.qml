@@ -1,3 +1,5 @@
+// TODO(将来重设计): 全面重新设计整个 QoolTip 机制（本件与 QoolTip.qml 同属
+// 该机制；当前仅保证无明显非法、可使用，遮蔽 Bug 见 QoolTip.qml 既有 TODO）
 import QtQuick
 import QtQuick.Controls
 import Qool
@@ -33,10 +35,6 @@ Floater {
 
         background: QoolBox {
             settings {
-                // cutSizes 便捷面删除迁移为四角显式（QoolUIExample 不在兼容
-                // 范围——便捷面删除后本页仍须可编译）。原字符串 "5 0 20 0"
-                // 按旧 set_sizes 解析顺序（TL/TR/BR/BL）展开：TL=5、TR=0、
-                // BR=20、BL=0。
                 cutSizeTL: 5
                 cutSizeTR: 0
                 cutSizeBL: 0
@@ -44,10 +42,11 @@ Floater {
                 borderWidth: 1
                 borderColor: root.textColor
                 fillColor: Qt.alpha(root.color, 0.75)
+                // curved 属 QoolBoxSettings，非 QoolBox 顶层属性
+                curved: true
             }
             BasicColorBehavior on settings.fillColor {}
             BasicColorBehavior on settings.borderColor {}
-            curved: true
         }
 
         leftPadding: 10
