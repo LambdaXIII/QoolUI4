@@ -4,6 +4,21 @@
 
 ## [4.0.0] — 2026-08-14
 
+### 变更（halfcrystal-shape-redesign，HalfCrystal 重做 + Crystal 描边属性公开）
+
+- **HalfCrystal 重做（用户裁决 2026-08-16）**：根组件由「Item + 内部 Shape + 双 RectGadget 画布链 + HalfCrystalGadget 掩码 + pCtrl 四点」改为 **Shape 根**（显式 width/height 20 默认逻辑尺寸——implicit 声明被引擎覆盖的机制同 Crystal）——pCtrl 升级为 ShapeControl 实例（target 自动 = 根），内建三个内描边中间量（直角内缩 = √2·b、尖角内缩x = (1+√2)·b、尖角内缩y = b——环宽均匀推导；effInset 钳制防反卷）+ 八点模型（外四点 pN/pS/pW/pE = 内接矩形四边中点、内四点 iN/iS/iW/iE = 外点 + 形态相关内缩向量，ShapePath 直接消费）。渲染 = 双层内描边模型（外路径 borderColor 描边环 + 内路径 color 填充面，strokeWidth 0——ε=0）。**五种形态经 states（when: direction 条件）定义**——菱形（非 NSWE）为默认状态（默认绑定即菱形，零 State），N/S/W/E 四态各仅绑定 4 个差异值（一对隐藏点：对侧外点落中心 + 其内点；2 个尖角内点）——公式绑定进各 State，表达式不含 direction。Transition 动画（NumberAnimation，Style.movementDuration/animationEnabled 门控）——仅方向变化呈现动画（尺寸变化直接跳变，Behavior 时代无此精确性）
+- **implicit 不承诺（Crystal 同哲学）**：Shape 引擎在路径变化时强制 setImplicitSize(路径边界)——三角形态下 implicit 报告半组件（如 N 态 20×10）；显式默认 width/height 20 不被引擎触碰，布局一律用显式尺寸。初版曾加「伴生透明全矩形路径钉 implicit」防御（透明路径计入 boundingRect 的实证），经讨论撤销——显式 w/h 已兜底，额外路径开销无必要
+- **HalfCrystalGadget 删除（公开类型移除，用户裁决——4.0.0 未发布）**：源文件 + Qool 模块 CMakeLists 注册 + tst_halfcrystalgadget + QoolUITests core CMakeLists/README 条目全量清理
+- **命中掩码 = gB（用户裁决——禁止的是 FillContains 判定，非掩码本身）**：根 containmentMask = gB（RectGadget——数值矩形 contains，非路径填充面判定，无 FillContains 性能代价）；命中 = 内接画布矩形（三角外左右条带排除；精确三角判定不提供——RectGadget 仅矩形 contains）；宿主 MouseArea 精确 hover 需显式挂载（Qt hover 分发不检查祖先掩码——AGENTS.md 陷阱 5）；tst_hover_e2e 改写为掩码契约（非方形 120×80 验证条带排除）；AGENTS.md 陷阱 5 HalfCrystal 补入带掩码组件示例；Page_HalfCrystal hover 演示改掩码对照（vs Crystal 八边形精确掩码）
+- **Crystal/HalfCrystal 公开属性调整（用户裁决）**：`strokeColor` → `borderColor`（语义不变：内描边环色，ThemeHQ.recommendForeground 自动对比）；新增 `borderWidth`（默认 1——原固定值公开化，Crystal settings 跟随绑定；HalfCrystal 内描边宽度）
+- **borderWidth < 1 不描边（用户裁决——阈值语义）**：effInset 在 borderWidth < 1 时取 0（内四点 = 外四点——fillPath 覆盖 borderPath，纯色填充；负数同样落 0，顺带消除反向描边反卷）
+- **RectGadget x/y 取消默认绑定 target 位置（修复）**：x/y 固定 0（QBINDABLE_SET_VALUE）——派生矩形（九点/半区/maxInnerSquareRect 等）不再含父容器位移，一律本地画布坐标；gB 由四元平移绑定简化为一步 `rect: gA.maxInnerSquareRect`（QDoc 同步）
+- **测试**：tst_halfcrystal.qml 重写（默认状态/显式尺寸契约/五形态几何/内描边/borderWidth 跟随与 <1 阈值/非方形画布语义/掩码存在性——渲染路径经 objectName 读取）；tst_crystal.qml 断言更新（borderColor/borderWidth 跟随契约）；tst_hover_e2e 改写（掩码契约——内接画布矩形 hover 域）
+- **RectGadget 派生几何单一数据源契约（用户规范 2026-08-16）**：派生量（九点/四半区矩形/maxInnerSquareRect/minOutterSquareRect/shortEdge/longEdge/isSquare/halfWidth/halfHeight）统一基于 rect（m_rect 为唯一数据源）计算——修复「rect 被外部绑定（如 QML 绑定 gB.rect = gA.maxInnerSquareRect，替换合成绑定）时，contains 判定域（基于 rect）与其余派生几何（基于 x/y/w/h 残留值）脱钩」；x/y/w/h 保持联动分量语义（写入口，设置即覆盖绑定——含初始化 target 绑定）。无外部绑定时行为逐位等价（rect 即四分量拼装），坐标基准语义不变；九点分量绑定直接读 rect（m_left/m_top/m_right/m_bottom/m_hcenter/m_vcenter 中间量层删除——依赖一跳）
+- **测试（RectGadget 契约锁定）**：tst_rectgadget 新增 5 用例——target 尺寸跟随（绑定 width/height 而非 boundingRect——位置/变换不影响）、target 绑定覆盖（设置分量只覆盖自身绑定，其余保留）、set_rect 覆盖全部初始化绑定、分量粒度联动（设置 x 只改 x）、rect 外部绑定单一数据源（核心契约——重构前实测失败暴露脱钩，重构后通过）
+- **HalfCrystal 内部恢复 RectGadget gB + 测试修复**：dummy SmartObject 残留删除（用户换回 `RectGadget { rect: gA.maxInnerSquareRect }` 后死代码）；内描边无边框分支笔误修复（b < 1 时内四点曾误取位移向量 vN/vS/vW——fillPath 塌缩到原点附近；改取外点 pN/pS/pW——与 iE 一致，内=外纯色填充）；tst_halfcrystal 全部 expected 路径数组补闭合点（路径 = start + 4 PathLine 共 5 点，断言此前 4 点恒失败）+ 调试探针清理；头注释/QDoc 同步当前算法（内缩量 = √2·b / (1+√2)·b / b 线性推导，无收缩极限钳制——用户裁决弃 effInset；Transition 动画未启用）；tst_qool_qml 94/94、tst_qool_hover_e2e 3/3（掩码契约随 RectGadget gB 恢复）、全量 18/18 绿
+- **Transition 动画移除（用户裁决 2026-08-16）**：HalfCrystal 不提供方向切换动画——point 属性（pN 等）经 PropertyAnimation 插值不可靠（point 为多分量值属性），试验不正常后裁定直接去除；transitions 块删除、QDoc 动画段改写（states 直接切换——中间态恒为菱形）、测试头注释同步
+
 ### 变更（build-dir-parent，构建目录归置 build/ 之下）
 
 - **构建目录归置 `build/` 之下**：编译产物目录由仓库根的 `build-<kit>-<Type>/` 移入 `build/build-<kit>-<Type>/`（如 `dev-msvc-debug` → `build/build-msvc-Debug`）。机制两处硬改动：`CMakePresets.json` 六处 preset 的 `binaryDir`（`${sourceDir}/build/build-<kit>-<Type>`）；`Scripts/qoolui_build_common.py` 的 `build_dir()`（`REPO / "build" / f"build-{kit}-{Type}"`）——脚本全部命令经此函数定位构建目录，自动跟随。文档同步：根 `AGENTS.md`（构建命令注释 / kit×type 矩阵 / 插件路径示意 / 缓存清理命令）、`QoolUITests/AGENTS.md` 与 `README.md`（运行通道 / 输出树 / import path / 调试路径）全部 `build-<kit>-<Type>` → `build/build-<kit>-<Type>`；CMake 与测试源码注释中残留的旧 `build/` 泛称（历史遗留，实际已为 `build-<kit>-<Type>`）一并修正为准确路径。`.gitignore` 的 `/build*/` 已覆盖 `build/` 无需改动；旧根级构建目录为 gitignored 遗留（未删除）。

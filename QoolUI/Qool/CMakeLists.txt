@@ -97,8 +97,6 @@ qt_add_qml_module(
           shapecontrol/gadgets/qool_shapegadget_rect.cpp
   SOURCES shapecontrol/gadgets/qool_shapegadget_circlepoint.h
           shapecontrol/gadgets/qool_shapegadget_circlepoint.cpp
-  SOURCES shapecontrol/gadgets/qool_shapegadget_halfcrystal.h
-          shapecontrol/gadgets/qool_shapegadget_halfcrystal.cpp
   SOURCES shapecontrol/gadgets/qool_shapegadget_qoolbox.h
           shapecontrol/gadgets/qool_shapegadget_qoolbox.cpp
   SOURCES utils/qool_numbermapper.h utils/qool_numbermapper.cpp

@@ -1,5 +1,6 @@
 // HalfCrystal 展示与验证页：四方向切换/菱形保留/样式通道/非方形尺寸/
-// 掩码 hover 演示，与 Crystal 同台展示（T07）。
+// hover 演示（内接画布矩形掩码 vs Crystal 八边形精确掩码对照），与
+// Crystal 同台展示（T07）。
 //
 // 尺寸约定：HalfCrystal implicit 20×20（组件默认自洽）。Qt Quick Layouts
 // 中 implicit > 0 优先于显式 width/height（qquicklayout.cpp GATHER PREFERRED
@@ -16,7 +17,7 @@ import "components"
 BasicPage {
     id: root
     title: qsTr("HalfCrystal")
-    note: qsTr("三角版 Crystal——四点模型方向切换/菱形保留/掩码/动画")
+    note: qsTr("三角版 Crystal——四点模型方向切换/菱形保留/画布矩形掩码命中/动画")
 
     implicitHeight: cc.implicitHeight
 
@@ -154,9 +155,10 @@ BasicPage {
             }
         }
 
-        // —— 掩码 hover 演示（与 Crystal 同台对照）——
+        // —— hover 演示（HalfCrystal 画布矩形掩码 vs Crystal 八边形精确
+        // 掩码对照——两者都需显式挂载，Qt hover 分发不检查祖先掩码）——
         QoolControl {
-            title: qsTr("掩码 hover 演示")
+            title: qsTr("hover 演示")
             width: 320
 
             contentItem: ColumnLayout {
@@ -164,18 +166,17 @@ BasicPage {
                     Layout.alignment: Qt.AlignHCenter
                     spacing: 16
 
+                    // 非方形 120×80：内接画布 = 80×80（居中）——掩码 =
+                    // 画布矩形——左右条带（三角外）不 hover
                     HalfCrystal {
                         id: masked
                         width: 120
-                        height: 120
+                        height: 80
                         MouseArea {
                             id: maskedMouse
                             anchors.fill: parent
                             hoverEnabled: true
-                            // Qt 的 hover 分发只检查 item 自身的 contains（不
-                            // 检查祖先掩码）——必须显式复用组件掩码才能获得
-                            // 精确 hover（HalfCrystal QDoc「命中掩码」）
-                            containmentMask: masked.containmentMask
+                            containmentMask: parent.containmentMask
                         }
                     }
 
@@ -185,7 +186,8 @@ BasicPage {
                         MouseArea {
                             anchors.fill: parent
                             hoverEnabled: true
-                            // 同 HalfCrystal：hover 需显式挂组件掩码
+                            // Crystal 掩码契约：hover 需显式挂组件掩码
+                            // （Qt hover 分发不检查祖先掩码）
                             containmentMask: parent.containmentMask
                         }
                     }

@@ -1,24 +1,23 @@
 // Qool 端到端 hover 测试：真实窗口 + 真实鼠标事件路径下，HalfCrystal 的
-// containmentMask 判定域与渲染形状一致。
+// hover 判定域（掩码契约——内接画布矩形判定）。
 //
-// 背景（2026-08-13 修复）：
-// - Qt 6.11 的 QHoverEvent 分发（QQuickDeliveryAgent::deliverHoverEvent
-//   Recursive）对每个 item 独立调用其自身 contains——**不检查祖先 Item 的
-//   containmentMask**。组件 root 上的掩码只约束 QPointerEvent（点击/按下）
-//   路径；宿主 MouseArea 的 hover 走自身 contains（无掩码 = 矩形判定）。
-// - 因此带掩码组件 + 宿主 MouseArea 的 hover 是矩形域（三角外误 hover）。
-//   修复 = 宿主 MouseArea 显式挂载组件掩码（坐标基准一致：MouseArea
-//   anchors.fill 时本地坐标即组件本地）。
-// - 回归验证：本测试即正确用法（MouseArea containmentMask 绑定组件掩码）
-//   下，hover 精确（三角内 hover、三角外不 hover）。
+// 背景（2026-08-16 HalfCrystal 重做）：用户裁决禁止 FillContains 掩码
+// 判定（性能代价过大）——containsMode 不设；命中掩码由 gB（RectGadget，
+// 数值矩形 contains——非路径填充面判定）承接：根 containmentMask = gB，
+// 命中域 = 内接画布矩形（三角外的左右条带被排除；精确三角判定不提供）。
+// Qt 6.11 的 QHoverEvent 分发（QQuickDeliveryAgent::deliverHoverEvent
+// Recursive）对每个 item 独立调用其自身 contains——MouseArea 不挂掩码时
+// hover 域 = 自身矩形；挂 \c{containmentMask: hc.containmentMask}
+// （anchors.fill 时本地坐标一致）才获得画布矩形精确 hover。
 //
 // 注：QML 测试批次（qml/）TestCase.mouseMove 在 offscreen 平台不注入事件
-// （连无掩码矩形 hover 都不生效）——真实鼠标路径在本层用 QTest::mouseMove
-// （Qt 官方 QQuickTest 同款通道）验证。
+// ——真实鼠标路径在本层用 QTest::mouseMove（Qt 官方 QQuickTest 同款通道）
+// 验证。
 //
-// 场景 = 测试页"掩码 hover 演示"masked：HalfCrystal 120×120，direction=N
-// （默认）。N 三角顶点（组件本地）：north(60,0) east(120,60) west(0,60)。
-// 判定契约：三角内 hover、三角外（下半/左右）不 hover。
+// 场景 = HalfCrystal 120×80（非方形——内接画布 80×80 居中 (20,0)，
+// 掩码 = x∈[20,100]、y∈[0,80]），direction=N（默认）。判定契约：画布
+// 内 hover（含三角外区域——掩码是矩形非三角）、左右条带（x<20/x>100）
+// 不 hover、组件外不 hover、containmentMask 非空。
 
 #include <QtTest>
 
@@ -35,7 +34,7 @@ class TestHoverE2E : public QObject {
   Q_OBJECT
 
 private slots:
-  void halfCrystalMaskEndToEnd();
+  void halfCrystalMaskContract();
 };
 
 namespace {
@@ -47,7 +46,7 @@ QPoint windowPos(int localX, int localY) {
 
 } // namespace
 
-void TestHoverE2E::halfCrystalMaskEndToEnd() {
+void TestHoverE2E::halfCrystalMaskContract() {
   // 期望 WARN（测试环境无主题插件）：本测试实例化 Qool 组件 → ThemeDB
   // 初始化 → PluginLoader 扫描不到 qoolplugins/（插件随 example 部署，
   // 测试 exe 目录无）→ "No ThemeLoader installed" WARN，ThemeDB 回退
@@ -77,13 +76,13 @@ Item {
         x: 20
         y: 20
         width: 120
-        height: 120
+        height: 80
         MouseArea {
             id: hcArea
             anchors.fill: parent
             hoverEnabled: true
-            // 修复验证：宿主 MouseArea 复用组件掩码（Qt hover 分发不检查
-            // 祖先掩码——需显式挂到 MouseArea 自身）
+            // 掩码契约：挂组件掩码（= gB 内接画布矩形——anchors.fill
+            // 时本地坐标一致）——左右条带（三角外）不 hover
             containmentMask: hc.containmentMask
         }
     }
@@ -121,27 +120,29 @@ Item {
   QVERIFY(hcArea);
   QVERIFY(plainArea);
 
+  // ---- 掩码契约断言：containmentMask = gB（非空）----
+  QVERIFY2(hc->containmentMask() != nullptr,
+      "HalfCrystal 命中掩码 = gB（内接画布矩形——RectGadget 数值 contains）");
+
   // ---- 对照：无掩码矩形（注入通道可用性）----
   QTest::mouseMove(&window, QPoint(200 + 60, 20 + 45));
   QTRY_VERIFY(plainArea->property("containsMouse").toBool());
 
-  // ---- 原掩码（HalfCrystalGadget）：直接调用 vs 引擎路径对照 ----
-  QObject* origMask = hc->containmentMask();
-  QVERIFY(origMask);
-  QCOMPARE(hcArea->containmentMask(), origMask); // MouseArea QML 绑定已挂同掩码
-
-  // 直接调用 QQuickItem::contains（= 引擎 hitTest 同款检查，含掩码）
-  QCOMPARE(hc->contains(QPointF(60, 45)), true);
-  QCOMPARE(hc->contains(QPointF(60, 90)), false);
-
-  // ---- 引擎路径：MouseArea 挂掩码（Qt hover 分发不检查祖先掩码——
-  // 组件掩码须显式挂到宿主 MouseArea 自身，见 HalfCrystal QDoc）----
-  // 三角内：hover
+  // ---- 引擎路径：MouseArea 挂掩码，hover 域 = 内接画布矩形 ----
+  // 120×80 N 态：画布 x∈[20,100] y∈[0,80]——三角内（60,45）：hover
   QTest::mouseMove(&window, windowPos(60, 45));
   QTRY_VERIFY(hcArea->property("containsMouse").toBool());
 
-  // 下半（三角外）：不 hover（用户报告误判区域）
-  QTest::mouseMove(&window, windowPos(60, 90));
+  // 画布内、三角外（60,70——y>40 下半）：掩码为矩形——仍 hover
+  QTest::mouseMove(&window, windowPos(60, 70));
+  QTRY_VERIFY(hcArea->property("containsMouse").toBool());
+
+  // 左条带（10,40——x<20，画布外）：掩码排除——不 hover
+  QTest::mouseMove(&window, windowPos(10, 40));
+  QTRY_VERIFY(!hcArea->property("containsMouse").toBool());
+
+  // 右条带（110,40——x>100，画布外）：掩码排除——不 hover
+  QTest::mouseMove(&window, windowPos(110, 40));
   QTRY_VERIFY(!hcArea->property("containsMouse").toBool());
 
   // 移出组件（窗口左上角，hc 外）：不应 hover

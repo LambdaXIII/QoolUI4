@@ -20,8 +20,6 @@ public:
   bool contains(const QPointF&) const override;
 
 private:
-  QProperty<qreal> m_left, m_right, m_top, m_bottom, m_hcenter, m_vcenter;
-
   QBINDABLE_WRITABLE_PROPERTY(RectGadget, qreal, x, FINAL)
   QBINDABLE_WRITABLE_PROPERTY(RectGadget, qreal, y, FINAL)
   QBINDABLE_WRITABLE_PROPERTY(RectGadget, qreal, width, FINAL)

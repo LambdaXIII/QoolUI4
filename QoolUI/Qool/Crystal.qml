@@ -6,9 +6,9 @@
 //     宽六边形（w > h）/ 菱形（w = h——旋转 45° 正方形，四点重合收缩）/
 //     瘦六边形（w < h——上下尖 + 左右直边）。统一 8 点路径对三种形态都
 //     合法（重合/共线点是合法冗余），无需路径分支。
-//   - **双层模型**（OctagonShape 边框环 + 填充环）：borderWidth = 1 内缩
-//     环承接原单层 1px 线中心描边（视觉差异 0.5px 级：描边移至内侧、填充
-//     区内缩 1px、外轮廓无描边伸出）。旧"切角极限内边缘反向三角形"警告
+//   - **双层模型**（OctagonShape 边框环 + 填充环）：borderWidth（默认 1）
+//     内缩环承接原单层 1px 线中心描边（视觉差异 0.5px 级：描边移至内侧、
+//     填充区内缩 1px、外轮廓无描边伸出）。旧"切角极限内边缘反向三角形"警告
 //     基于已删除的 pCtrl 内弧算法——QoolBoxGadget 半平面交集模型下菱形/
 //     瘦六边形均为合法极限形态（tst_qoolboxgadget shrink_diamond_limit
 //     用例固化）。
@@ -47,7 +47,7 @@ import Qool
     \l {Qool::OctagonShape}{OctagonShape} 特化形态：内部注入
     \l {Qool::QoolBoxShapeControl}{QoolBoxShapeControl}（target = 自身），
     settings 四角切角恒绑定 shortEdge/2（内部中间量单点定义——八点几何
-    契约），\c borderWidth 固定 1（内缩描边环）。三种形态即
+    契约），\c borderWidth（默认 1）内缩描边环。三种形态即
     \l {Qool::QoolBoxGadget}{QoolBoxGadget} 的 cut = shortEdge/2 特化
     （半平面交集模型下退化形态合法——菱形/瘦六边形均为定义良好的极限）。
 
@@ -65,17 +65,16 @@ import Qool
     \endlist
 
     \section2 描边
-    \c borderWidth 固定 1：内缩描边环（全在内侧——外轮廓无描边伸出，
-    填充区内缩 1px）。\c strokeColor 即环色（单层线中心描边的语义由
-    双层模型承接，视觉差异 0.5px 级）。
+    \c borderWidth（默认 1）：内缩描边环（全在内侧——外轮廓无描边伸出，
+    填充区内缩 borderWidth）。\c borderColor 即环色（单层线中心描边的
+    语义由双层模型承接，视觉差异 0.5px 级）。
 
     \section2 命中掩码
     掩码委托 \l {Qool::QoolBoxShapeControl}{QoolBoxShapeControl} 的
     \c contains（外接矩形内四角切角域排除，斜边与顶点命中——开集语义，
     与可见形状一致）。\b hover 需显式挂载：Qt 的 hover 分发只检查 item
     自身的 \c contains（不检查祖先掩码）——宿主 MouseArea 挂
-    \c{containmentMask: 组件id.containmentMask} 才获得精确 hover（与
-    HalfCrystal 同机制，用法见 HalfCrystal「命中掩码」章节）。
+    \c{containmentMask: 组件id.containmentMask} 才获得精确 hover。
 
     \section2 低级组成件契约
     \c control 为 OctagonShape 的 required 属性（本组件内默认实例化）——
@@ -88,8 +87,10 @@ OctagonShape {
 
     /*! \qmlproperty color 填充色，默认 Style.accent（独立使用默认自洽）。 */
     property color color: root.Style.accent
-    /*! \qmlproperty color 描边色，默认按填充色自动对比（ThemeHQ.recommendForeground）。 */
-    property color strokeColor: ThemeHQ.recommendForeground(root.color)
+    /*! \qmlproperty color 内描边环色，默认按填充色自动对比（ThemeHQ.recommendForeground）。 */
+    property color borderColor: ThemeHQ.recommendForeground(root.color)
+    /*! \qmlproperty real 内描边环宽度（默认 1——外轮廓向内缩进形成描边环）。 */
+    property real borderWidth: 1
 
     // 默认逻辑尺寸（机制见文件头"结构决策"——implicit 声明被引擎覆盖，
     // 显式 width/height 不被触碰；引擎 implicit = 路径边界 = 几何）
@@ -104,8 +105,8 @@ OctagonShape {
     }
 
     // required control 组件内默认实例化满足（宿主可替换——高级用法）；
-    // settings = 内部八点契约（四角 cut 恒等 = shortEdge/2 + borderWidth 1
-    // 内缩环 + 样式通道映射）
+    // settings = 内部八点契约（四角 cut 恒等 = shortEdge/2 + borderWidth
+    // 默认 1 内缩环 + 样式通道映射）
     control: QoolBoxShapeControl {
         target: root
         settings: QoolBoxSettings {
@@ -113,8 +114,8 @@ OctagonShape {
             cutSizeTR: pCtrl.cutSize
             cutSizeBL: pCtrl.cutSize
             cutSizeBR: pCtrl.cutSize
-            borderWidth: 1 // 内缩描边环（双层模型承接 1px 描边语义）
-            borderColor: root.strokeColor
+            borderWidth: root.borderWidth // 内缩描边环（双层模型承接描边语义）
+            borderColor: root.borderColor
             fillColor: root.color
         }
     }

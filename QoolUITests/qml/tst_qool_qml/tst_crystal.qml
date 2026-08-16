@@ -6,7 +6,7 @@ import Qool
 //
 // 被测契约：
 // - 默认状态自洽（默认逻辑尺寸 20×20——width/height 显式默认，implicit
-//   由引擎驱动 = 路径边界；color 默认 Style.accent、strokeColor 自动对比）
+//   由引擎驱动 = 路径边界；color 默认 Style.accent、borderColor 自动对比、borderWidth 默认 1）
 // - 四角 cut 恒等契约（settings.cutSizeTL/TR/BL/BR 相等且 = shortEdge/2，
 //   随尺寸变化）——切角是几何契约（内部中间量实现），非公开接口
 // - containmentMask 接入（QoolBoxShapeControl，非 null）
@@ -57,7 +57,8 @@ TestCase {
         compare(c.height, 20)
         tryCompare(c, "implicitWidth", 20, 1000) // 引擎 implicit = 路径边界 = 几何
         compare(c.color, c.Style.accent)
-        verify(c.strokeColor !== undefined)
+        verify(c.borderColor !== undefined)
+        compare(c.borderWidth, 1)
         verify(c.containmentMask !== null)
         verify(c.containmentMask instanceof QoolBoxShapeControl,
             "掩码应委托 QoolBoxShapeControl")
@@ -79,11 +80,14 @@ TestCase {
         tryCompare(c.control.settings, "cutSizeTR", 40, 1000)
         tryCompare(c.control.settings, "cutSizeBL", 40, 1000)
         tryCompare(c.control.settings, "cutSizeBR", 40, 1000)
-        // 描边环契约：borderWidth 固定 1（内缩环承接 1px 描边）
-        compare(c.control.settings.borderWidth, 1)
-        // 样式通道映射：fillColor = color、borderColor = strokeColor
+        // 描边环契约：borderWidth 默认 1（内缩环承接 1px 描边；公开可配置
+        // ——settings 跟随公开属性）
+        compare(c.control.settings.borderWidth, c.borderWidth)
+        c.borderWidth = 3
+        tryCompare(c.control.settings, "borderWidth", 3, 1000)
+        // 样式通道映射：fillColor = color、borderColor = borderColor
         compare(c.control.settings.fillColor, c.color)
-        compare(c.control.settings.borderColor, c.strokeColor)
+        compare(c.control.settings.borderColor, c.borderColor)
         c.width = 60
         c.height = 60
         tryCompare(c.control.settings, "cutSizeTL", 30, 1000)

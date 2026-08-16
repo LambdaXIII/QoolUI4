@@ -88,19 +88,6 @@ qoolui_add_cpp_test(
 target_include_directories(tst_qool_qoolboxgadget PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
 target_link_libraries(tst_qool_qoolboxgadget PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
 
-# HalfCrystalGadget contains 契约（geometrySource = RectGadget 画布）
-qoolui_add_cpp_test(
-  tst_qool_halfcrystalgadget
-  tst_halfcrystalgadget.cpp
-  "${QOOL_SRC}/shapecontrol/qool_shapecontrol.cpp"
-  "${QOOL_SRC}/shapecontrol/qool_shapecontrol_gadget.cpp"
-  "${QOOL_SRC}/shapecontrol/gadgets/qool_shapegadget_rect.cpp"
-  "${QOOL_SRC}/shapecontrol/gadgets/qool_shapegadget_halfcrystal.cpp"
-  "${QOOL_SRC}/utils/qool_smartobj.cpp"
-)
-target_include_directories(tst_qool_halfcrystalgadget PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
-target_link_libraries(tst_qool_halfcrystalgadget PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
-
 # RectGadget 派生几何契约（HalfCrystal 画布依赖 + 通用消费面）
 qoolui_add_cpp_test(
   tst_qool_rectgadget

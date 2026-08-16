@@ -364,10 +364,10 @@ rm -rf build/build-<kit>-<Type>/CMakeCache.txt build/build-<kit>-<Type>/CMakeFil
 
 ### 5. containmentMask 不约束子 MouseArea 的 hover（Qt 6.11 实证）
 
-Qt 的 QHoverEvent 分发（`QQuickDeliveryAgent::deliverHoverEventRecursive`）对每个 item **独立调用其自身 `contains`**，不检查祖先 Item 的 containmentMask——组件 root 上的掩码只约束 QPointerEvent（点击/按下）路径；宿主 MouseArea 的 hover 走自身 contains（无掩码 = 矩形判定，形状外误 hover）。**带掩码组件（Crystal/HalfCrystal 等）+ 宿主 MouseArea 需要精确 hover 时，须把掩码显式挂到 MouseArea**（anchors.fill 时本地坐标即组件本地，坐标基准一致）：
+Qt 的 QHoverEvent 分发（`QQuickDeliveryAgent::deliverHoverEventRecursive`）对每个 item **独立调用其自身 `contains`**，不检查祖先 Item 的 containmentMask——组件 root 上的掩码只约束 QPointerEvent（点击/按下）路径；宿主 MouseArea 的 hover 走自身 contains（无掩码 = 矩形判定，形状外误 hover）。**带掩码组件（Crystal/HalfCrystal 等）**+ 宿主 MouseArea 需要精确 hover 时，须把掩码显式挂到 MouseArea**（anchors.fill 时本地坐标即组件本地，坐标基准一致）：
 
 ```qml
-HalfCrystal {
+Crystal {
     id: crystal
     MouseArea {
         anchors.fill: parent
@@ -377,7 +377,7 @@ HalfCrystal {
 }
 ```
 
-掩码对象非 QQuickItem（Gadget 为 QObject）可被多 Item 引用，无注册冲突。契约说明见 HalfCrystal/Crystal QDoc「命中掩码」；回归测试 `tst_qool_hover_e2e`（真实鼠标路径，offscreen）。
+掩码对象非 QQuickItem（QoolBoxShapeControl / RectGadget 为 QObject）可被多 Item 引用，无注册冲突。
 
 ## 关键文件路径
 

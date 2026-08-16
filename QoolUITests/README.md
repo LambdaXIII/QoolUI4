@@ -19,7 +19,6 @@ QoolUITests/
 │   ├── tst_numberranger.cpp        # target: tst_qool_numberranger        属性宏体系：默认值/守卫信号/校验逻辑/Q_PROPERTY 契约
 │   ├── tst_polar2d.cpp             # target: tst_qool_polar2d             Polar2D：转换/乘除/运算语义
 │   ├── tst_multirowselectionmodel.cpp # target: tst_qool_multirowselectionmodel 模型：行选择状态/信号契约
-│   ├── tst_halfcrystalgadget.cpp   # target: tst_qool_halfcrystalgadget   HalfCrystalGadget：全方向 contains 契约（无源/半区/菱形/跟随）
 │   └── tst_rectgadget.cpp          # target: tst_qool_rectgadget          RectGadget：九点/半区矩形/内接外接正方形派生几何
 └── qml/                    # QML 测试批次层（Qt Quick Test harness）
     ├── CMakeLists.txt
@@ -30,11 +29,11 @@ QoolUITests/
         ├── tst_cutsizebinding.qml # CutSizeBinding：尺寸/圆角绑定传播
         ├── tst_dummyitem.qml      # 基准组件：测试设施自身用（属性回显/信号记录）
         ├── tst_crystal.qml        # Crystal：默认状态/cutSize 派生/掩码契约（contains 直接调用）
-        ├── tst_halfcrystal.qml    # HalfCrystal：direction 切换/掩码契约（四向 + 菱形 + 非正方形）
+        ├── tst_halfcrystal.qml    # HalfCrystal：方向切换/形态几何（四向三角 + 菱形）/内描边/implicit 钉定契约
         └── assets/             # QML 测试批次资源（不得有 tst_ 前缀文件）
 ```
 
-**规模口径**：测试单元共 **15 个**（C++ 侧按 CMake Target 计 9 个——common 2 + core 7；QML 侧按 `tst_*.qml` 文件计 6 个）。CTest 注册 **10 个测试**：9 个 C++ target 各 1 个 + 6 个 QML 单元并入 1 个 harness target（`tst_qool_qml`）。
+**规模口径**：测试单元共 **14 个**（C++ 侧按 CMake Target 计 8 个——common 2 + core 6；QML 侧按 `tst_*.qml` 文件计 6 个）。CTest 注册 **9 个测试**：8 个 C++ target 各 1 个 + 6 个 QML 单元并入 1 个 harness target（`tst_qool_qml`）。
 
 **分层与被测面一一对应**：`common` 测脱离 Qool 的纯逻辑（QCoreApplication 即可），`core` 测 Qool 的 C++ 类型，`qml` 测公开 QML 组件的行为契约（按 Qool 模块分 QML 测试批次）。
 
