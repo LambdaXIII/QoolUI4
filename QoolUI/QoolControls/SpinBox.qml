@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Templates as T
 import QtQuick.Controls
-import Qool.Controls.Components
 import Qool.Controls as Q
 import Qool
 
@@ -256,39 +255,45 @@ T.DoubleSpinBox {
     leftPadding: root.mirrored ? root.up.indicator.width : root.down.indicator.width
     rightPadding: root.mirrored ? root.down.indicator.width : root.up.indicator.width
 
-    /* up/down 指示器：BasicArrow（方向箭头——2026-08-10 替换 Rectangle
-       占位；左右方向：右条 ▶（增加）、左条 ◀（减少））。机制（对照官方
-       Basic 默认实现）：up/down 是模板安装的 SpinButton（全宽上下半布局，
-       模板管几何与命中分区——up 上半、down 下半，到达 from/to 边界自动
-       禁用）；indicator 是按钮的内容项，anchors.centerIn 居中于按钮。
-       注意视觉与命中的官方语义：指示器只是方向装饰，命中始终按按钮分区
-       （点右条上半命中 up）。隐藏时用 visible 关断（Qt Quick 事件系统不向
-       不可见项派发指针事件 → 隐藏即不可点；// 行为待验证：模板 contains()
-       是否带可见性检查，实测确认）。
-       淡入保留动画（visible 翻转后 opacity 0→1 经 BasicNumberBehavior），
-       淡出随 visible 立即消失（隐藏优先于淡出动画）。 */
-    up.indicator: BasicArrow {
+    /* up/down 指示器：HalfCrystal（三角版 Crystal——方向箭头；左右方向：
+       右条 ▶（增加）、左条 ◀（减少））。机制（对照官方 Basic 默认实现）：
+       up/down 是模板安装的 SpinButton（全宽上下半布局，模板管几何与命中
+       分区——up 上半、down 下半，到达 from/to 边界自动禁用）；indicator
+       是按钮的内容项，anchors.centerIn 居中于按钮。注意视觉与命中的官方
+       语义：指示器只是方向装饰，命中始终按按钮分区（点右条上半命中 up）。
+       隐藏时用 visible 关断（Qt Quick 事件系统不向不可见项派发指针事件 →
+       隐藏即不可点；// 行为待验证：模板 contains() 是否带可见性检查，实测
+       确认）。淡入保留动画（visible 翻转后 opacity 0→1 经
+       BasicNumberBehavior），淡出随 visible 立即消失（隐藏优先于淡出
+       动画）。 */
+    up.indicator: HalfCrystal {
         borderWidth: 0
-        fillColor: Style.buttonText
+        color: Style.buttonText
+        // 显式尺寸（HalfCrystal 默认 20×20 超出半高按钮——12 与旧指示器
+        // 同尺寸，位置公式不变）
+        width: 12
+        height: 12
         // 右缘条（镜像左缘）——按钮全宽（模板分区 up 上半），须显式 x
         // 钉在右缘（anchors.centerIn 会居中于全宽按钮——水平居中错误）
         x: root.mirrored ? 0 : parent.width - width
         y: (parent.height - height) / 2
-        // 左右方向（2026-08-10 裁定）：右条 = 增加（▶ 右箭头）
+        // 左右方向：右条 = 增加（▶ 右箭头）
         direction: root.mirrored ? Qore.W : Qore.E
         visible: root.hovered || root.activeFocus
         opacity: visible ? 1 : 0
         BasicNumberBehavior on opacity {}
     }//up.indicator
 
-    down.indicator: BasicArrow {
+    down.indicator: HalfCrystal {
         borderWidth: 0
-        fillColor: Style.buttonText
+        color: Style.buttonText
+        width: 12
+        height: 12
         // 左缘条（镜像右缘）——按钮全宽（模板分区 down 下半），须显式 x
         // 钉在左缘（anchors.centerIn 会居中于全宽按钮——水平居中错误）
         x: root.mirrored ? parent.width - width : 0
         y: (parent.height - height) / 2
-        // 左右方向（2026-08-10 裁定）：左条 = 减少（◀ 左箭头）
+        // 左右方向：左条 = 减少（◀ 左箭头）
         direction: root.mirrored ? Qore.E : Qore.W
         visible: root.hovered || root.activeFocus
         opacity: visible ? 1 : 0

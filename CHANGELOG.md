@@ -4,6 +4,11 @@
 
 ## [4.0.0] — 2026-08-14
 
+### 变更（spinbox-halfcrystal-indicator，SpinBox 指示器换 HalfCrystal + BasicArrow 删除）
+
+- **SpinBox up/down 指示器：BasicArrow → HalfCrystal**（用户指令）：属性映射 fillColor→color、borderWidth 0（不描边）不变、direction E/W 不变（HalfCrystal 四向三角形覆盖 SpinBox 的左右向）；显式 12×12（HalfCrystal 默认 20×20 超出半高按钮——与原指示器同尺寸，位置公式不变）；`import Qool.Controls.Components` 移除（EditableText 走 Qool.Controls 前缀——Components import 仅服务 BasicArrow）
+- **BasicArrow 删除（用户指令）**：组件文件 + QoolControlsComponents CMake 注册清理；Qore.Directions 注释去 BasicArrow 引用（八向枚举本身保留——HalfCrystal/方向组件通用）；BasicRotationBehavior 零内部引用但保留（Qool 公开类型——公开即承诺）
+
 ### 变更（halfcrystal-shape-redesign，HalfCrystal 重做 + Crystal 描边属性公开）
 
 - **HalfCrystal 重做（用户裁决 2026-08-16）**：根组件由「Item + 内部 Shape + 双 RectGadget 画布链 + HalfCrystalGadget 掩码 + pCtrl 四点」改为 **Shape 根**（显式 width/height 20 默认逻辑尺寸——implicit 声明被引擎覆盖的机制同 Crystal）——pCtrl 升级为 ShapeControl 实例（target 自动 = 根），内建三个内描边中间量（直角内缩 = √2·b、尖角内缩x = (1+√2)·b、尖角内缩y = b——环宽均匀推导；effInset 钳制防反卷）+ 八点模型（外四点 pN/pS/pW/pE = 内接矩形四边中点、内四点 iN/iS/iW/iE = 外点 + 形态相关内缩向量，ShapePath 直接消费）。渲染 = 双层内描边模型（外路径 borderColor 描边环 + 内路径 color 填充面，strokeWidth 0——ε=0）。**五种形态经 states（when: direction 条件）定义**——菱形（非 NSWE）为默认状态（默认绑定即菱形，零 State），N/S/W/E 四态各仅绑定 4 个差异值（一对隐藏点：对侧外点落中心 + 其内点；2 个尖角内点）——公式绑定进各 State，表达式不含 direction。Transition 动画（NumberAnimation，Style.movementDuration/animationEnabled 门控）——仅方向变化呈现动画（尺寸变化直接跳变，Behavior 时代无此精确性）
