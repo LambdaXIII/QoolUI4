@@ -17,7 +17,7 @@ BasicPage {
     id: root
 
     title: qsTr("输入控件（二）")
-    note: qsTr("Slider（六边形渐变轨道 + 水晶手柄）与 Dial（彩色弧转盘）")
+    note: qsTr("Slider / RangeSlider 与 Dial——滑块、区间滑块与转盘")
 
     implicitHeight: cc.implicitHeight
 
@@ -175,6 +175,46 @@ BasicPage {
             }
             QoolTip {
                 text: qsTr("两处独立替换：\n- **color 属性**（上）——换渐变右端色（默认 Style.accent），手柄采样自动跟随——宿主无需碰手柄。\n- **自定义 handle**（下）——替换水晶菱形（矩形手柄）；**handle delegate 须自写 x/y 定位**（T.Slider 模板不注入定位——官方公式：x = leftPadding + visualPosition * (availableWidth - width)，y 同理垂直居中）。\n- 轨道渐变内联默认（text→color，锚定切角内侧）——整体替换不再提供（v4 收缩）；换色走 **color** 属性。")
+            }
+        }
+
+        // —— RangeSlider：区间滑块 ——
+        QoolControl {
+            title: qsTr("RangeSlider 区间滑块")
+            width: 260
+            contentItem: ColumnLayout {
+                spacing: 12
+                RangeSlider {
+                    id: rangeSlider
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 100
+                }
+                Text {
+                    Layout.fillWidth: true
+                    text: qsTr("范围：%1 – %2").arg(Math.round(rangeSlider.first.value)).arg(Math.round(rangeSlider.second.value))
+                    color: Style.text
+                }
+                RangeSlider {
+                    id: progRangeSlider
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 100
+                    first.value: 20
+                    second.value: 80
+                }
+                Timer {
+                    interval: 1500
+                    running: true
+                    repeat: true
+                    onTriggered: {
+                        const v = (progRangeSlider.first.value + 15) % 101
+                        progRangeSlider.setValues(v, Math.min(v + 40, 100))
+                    }
+                }
+            }
+            QoolTip {
+                text: qsTr("RangeSlider：Slider 的区间版（基于 HalfCrystal）——first/second 两个手柄界定范围。\n- **轨道六边形基底 Style.text（无渐变——与 Slider 的区别）；first 与 second 之间以 color（默认 Style.accent）平切填充已选区域**；轨道始终完整显示（未选段 + 已选段）。\n- 手柄 = HalfCrystal 水晶三角形（first 尖朝左、second 尖朝右——平边相对夹住已选段，尖角朝外）；first 手柄色 = Style.text（基底段）、second = color（已选段）——段色采样。\n- 交互为官方模板行为：点击跳转最近手柄、拖动连续、方向键步进；反馈与 Slider 同款（hover/按下/刚移动展开 + justMoved 锁存 500ms——本组下方 Timer 程序化写入演示锁存）。\n- 注意：首次设置两手柄值用 **setValues()**——first/second 循环依赖契约（组件完成前分别赋值可能互相钳制）。")
             }
         }
 

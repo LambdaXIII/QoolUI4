@@ -36,7 +36,7 @@ ListModel {
 
     ListElement {
         title: qsTr("输入控件（二）")
-        note: qsTr("Slider 与 Dial——滑块与转盘")
+        note: qsTr("Slider / RangeSlider 与 Dial——滑块、区间滑块与转盘")
         page: "Page_InputControls2.qml"
     }
 

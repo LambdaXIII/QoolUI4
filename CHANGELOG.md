@@ -4,6 +4,13 @@
 
 ## [4.0.0] — 2026-08-14
 
+### 新增（rangeslider，Qool.Controls.RangeSlider 区间滑块）
+
+- **RangeSlider 组件（用户指令 2026-08-16——基于 HalfCrystal、仿照 Slider；与 Slider 的区别：轨道非渐变，Style.accent 填充已选区域）**：`T.RangeSlider` 模板根（交互官方默认——点击跳转最近手柄、拖动连续、键盘步进，接口兼容 QtQuick.Templates.RangeSlider）。视觉（v3 Color 滑块视觉族区间扩展）：轨道 = Crystal 六边形基底（Style.text——Slider 渐变左端色，**无渐变**）；已选段 = 平切矩形（color 默认 Style.accent，两端贴手柄平边）；**手柄 = HalfCrystal 三角形**（first direction W 尖朝左 / second direction E 尖朝右——平边相对夹已选段，尖角朝外指向各自未选段；HalfCrystal 三角形态平边 = 组件中线 = 手柄中心线——已选段端面天然对齐）。手柄段色采样（Slider 渐变采样在纯色两段下的特化）：first = Style.text（基底段）、second = color（已选段）。展开反馈照 Slider 核心（hover/按下/justMoved 锁存 500ms → 展开到控件全高，常态 = preferredHeight = Qore.bound(3, 高×25%, 25)；三角形尖角常态缩进轨道内、展开顶到轨道端——反馈位移比菱形更明显）；animationEnabled 链式门控 + CurveRenderer 切换同 Slider。锁存 = TimerLatch + 双 Connections（first/second valueChanged）——**不暴露 valueVelocity**（Slider 的 NumberNotifier 挂单一 value，RangeSlider 双值无单一载体——justMoved 窗口由每次 valueChanged 滑动保持，用户可见行为等价）。已选段几何：x/右缘 = 两手柄中心线（width = secondCenter − firstCenter ≥ 0 恒成立——模板保证 first.position ≤ second.position，正/倒置范围数学恒等，无需防御）；值相等退化 = 宽 0 + 两三角平边重合成完整菱形（水晶语言自洽）。默认值 = 官方模板（first 0 / second 1——满幅区间）
+- **测试（tst_rangeslider.qml，tst_qoolcontrols_qml 批次 9 用例）**：默认状态（implicit 80×25、second 默认 1）、手柄形态与段色（direction W/E、first text / second color）、已选段/轨道几何（中心线公式、多值点跟随）、justMoved 锁存窗口（first/second 双触发、500ms 滑动）、展开反馈（锁存窗口内全高、落后回常态）、倒置范围（已选段仍正向）、值相等退化（宽 0）。注：模板鼠标交互不在 QML 批次测——环境限制（探针实测官方 T.RangeSlider 与 Qool Slider 点击/拖动均无效果），交互回归靠示例页人工验收
+- **示例页**：Page_InputControls2 加「RangeSlider 区间滑块」组（基础 + 实时值显示 + 程序化写入锁存演示——setValues 演示官方循环依赖契约用法）；页面 note 与 PageListModel 同步更新
+
+
 ### 变更（spinbox-halfcrystal-indicator，SpinBox 指示器换 HalfCrystal + BasicArrow 删除）
 
 - **SpinBox up/down 指示器：BasicArrow → HalfCrystal**（用户指令）：属性映射 fillColor→color、borderWidth 0（不描边）不变、direction E/W 不变（HalfCrystal 四向三角形覆盖 SpinBox 的左右向）；显式 12×12（HalfCrystal 默认 20×20 超出半高按钮——与原指示器同尺寸，位置公式不变）；`import Qool.Controls.Components` 移除（EditableText 走 Qool.Controls 前缀——Components import 仅服务 BasicArrow）
