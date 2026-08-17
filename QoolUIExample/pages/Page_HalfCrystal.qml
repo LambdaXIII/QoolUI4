@@ -108,23 +108,33 @@ BasicPage {
             title: qsTr("样式通道")
             width: 320
 
-            contentItem: HalfCrystal {
-                id: styled
-                width: 100
-                height: 100
-                color: root.Style.accent
-                fillGradient: LinearGradient {
-                    x1: 0
-                    y1: 0
-                    x2: styled.width
-                    y2: styled.height
-                    GradientStop {
-                        position: 0
-                        color: "#33ccff"
-                    }
-                    GradientStop {
-                        position: 1
-                        color: "#ff8800"
+            // 内容项 = 定尺寸 Item（implicit 稳定 100×100），HalfCrystal
+            // 经 anchors.fill 跟随内容区（等价原 contentItem 语义：控件
+            // 重设尺寸时 Shape 响应）——控件 implicitHeight 读 Item 而非
+            // Shape 的动态 implicit，避免「resizeContent 改 Shape 尺寸 →
+            // 引擎改 implicit → 控件 implicit 反馈」的收敛环（压扁+循环
+            // 警告）；Item implicit 固定故控件高度稳定。
+            contentItem: Item {
+                implicitWidth: 100
+                implicitHeight: 100
+
+                HalfCrystal {
+                    id: styled
+                    anchors.fill: parent
+                    color: root.Style.accent
+                    fillGradient: LinearGradient {
+                        x1: 0
+                        y1: 0
+                        x2: styled.width
+                        y2: styled.height
+                        GradientStop {
+                            position: 0
+                            color: "#33ccff"
+                        }
+                        GradientStop {
+                            position: 1
+                            color: "#ff8800"
+                        }
                     }
                 }
             }

@@ -23,6 +23,12 @@
 - **公开类型源码注释规范对齐**：迁移后公开类型文件头不留成篇中文文档（内容已进 reference），保留点状就地注释（设计意图/非显然行为/陷阱）+ reference 路径指引，符合根 AGENTS「注释点状就地、文档成篇完整」分工
 - **验证**：grep 全仓 `/*!`、`\qml*`、`\section`、`\list`、`\brief`、`\class` 等 QDoc 命令零残留（含 QoolUI/QoolUITests/docs/Scripts/Example）；build 全量成功；测试 18/18 全绿
 
+### 修复（halfcrystal-style-channel-implicit-loop，Shape 作 contentItem 的收敛反馈环）
+
+- **Page_HalfCrystal「样式通道」QoolControl 绑定循环 + 压扁**：`QQuickControlPrivate::resizeContent()` 无条件把 contentItem 重设为内容区尺寸（qquickcontrol.cpp:376-381）→ Shape(HalfCrystal) 路径绑定自身尺寸 → 引擎 `setImplicitSize(路径边界)` → BasicControl.implicitHeight（读 implicitContentHeight）反馈回控件高度 → 收敛环。ε=0（strokeWidth 0）不发散，但收敛到 `contentItem ≈ 2×padding`：styled 100×100 被压成 10px 高、控件高 12，并报 `Binding loop detected for property implicitHeight`（仅此段触发——全仓库唯一「尺寸绑定型 Shape 直接作 contentItem」处，`QoolWindowCloseButton` 路径绑固定尺寸无 C 条件，安全）
+- **修复**：contentItem 改为定尺寸 Item（implicit 100×100），HalfCrystal 作其子项 `anchors.fill` 跟随内容区（保留原 contentItem 响应控件尺寸的语义）——控件读 Item 稳定 implicit 而非 Shape 动态 implicit，环在接缝断开
+- **验证**：QML 编译通过；harness（tst_qoolcontrols_qml offscreen）实测修复后 `styled` 100×100、控件高 102、无循环；响应性等价（ctl 宽 320→400 时 styled 宽 304→384 跟随）；修复前对照 `styled.height=10`、控件高 12
+
 ## [4.0.0] — 2026-08-14
 
 ### 新增（rangeslider，Qool.Controls.RangeSlider 区间滑块）
