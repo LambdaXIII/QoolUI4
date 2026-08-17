@@ -20,8 +20,9 @@
 # - 需要 qt.conf 的层：qml/（平台插件 + Qool QML 模块）、core/（链接
 #   Qt6::Quick → QTEST_MAIN 展开为 QGuiApplication，构造加载平台插件）；
 #   common/ 纯 QCoreApplication，不加载插件，无需
-# - Linux/macOS：系统 Qt 安装在标准路径，无需任何注入——qt.conf 生成
-#   逻辑不依赖平台，但 QOOLUI_QT6_PREFIX 推导在标准安装下亦正确
+# - Linux/macOS：系统 Qt 安装在标准路径，无需任何注入——qt.conf 仅
+#   if(WIN32) 生成（Linux 上生成 Prefix=/usr 的 qt.conf 反而破坏
+#   QLibraryInfo 路径推导），QOOLUI_QT6_PREFIX 在标准安装下亦正确
 # - 勿引入 ENVIRONMENT/ENVIRONMENT_MODIFICATION 设 PATH 的 Windows 魔法：
 #   ENVIRONMENT 的值按 ';' 拆分，多路径注入会损坏（CTest 已知陷阱）。
 
@@ -69,13 +70,17 @@ function(qoolui_add_cpp_test name)
   else()
     add_test(NAME ${name} COMMAND ${name})
   endif()
-  # 依赖 DLL 复制到 exe 目录（Windows 生效，其余平台展开为空）
-  add_custom_command(
-    TARGET ${name} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_RUNTIME_DLLS:${name}> $<TARGET_FILE_DIR:${name}>
-    COMMAND_EXPAND_LISTS
-  )
+  # 依赖 DLL 复制到 exe 目录（仅 Windows 需要；$<TARGET_RUNTIME_DLLS>
+  # 在非 Windows 平台展开为空，必须整段跳过，否则 copy_if_different
+  # 只剩目标目录一个参数而报错）
+  if(WIN32)
+    add_custom_command(
+      TARGET ${name} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              $<TARGET_RUNTIME_DLLS:${name}> $<TARGET_FILE_DIR:${name}>
+      COMMAND_EXPAND_LISTS
+    )
+  endif()
   list(APPEND QOOLUI_TEST_TARGETS ${name})
   set(QOOLUI_TEST_TARGETS ${QOOLUI_TEST_TARGETS} CACHE INTERNAL "")
 endfunction()

@@ -36,21 +36,30 @@ DEFAULT_VERSION = "4.0.0"
 
 REPO = Path(__file__).resolve().parent.parent
 
-# Qt 官方安装器按工具链分目录的惯例子目录（kit → 候选子目录）
+# Qt 官方安装器按工具链分目录的惯例子目录（kit → 候选子目录）。
+# Windows：msvc2022_64 / mingw_64；Linux：gcc_64（clang 与 gcc 共用
+# libstdc++ ABI，因此也接受 gcc_64，若存在 clang_64 则优先）。
 QT_KIT_SUBDIRS = {
     "msvc": ("msvc2022_64",),
     "gcc": ("mingw_64",),
     "clang": ("mingw_64",),
 }
+if sys.platform.startswith("linux"):
+    QT_KIT_SUBDIRS = {
+        "msvc": (),
+        "gcc": ("gcc_64",),
+        "clang": ("clang_64", "gcc_64"),
+    }
 
 
 def qt_kit_dir(qt_dir: str, kit: str) -> str:
     """把 --qt 参数归一化为具体工具链目录。
 
-    --qt 可能传 Qt 安装根（C:\\Qt\\6.11.1）或具体工具链目录
-    （C:\\Qt\\6.11.1\\msvc2022_64）。后者直接用；前者按 kit 惯例
-    子目录补全（Qt 官方安装器布局）。找不到时原样返回（报错留给
-    cmake 的 find_package）。
+    --qt 可能传 Qt 安装根（如 C:\\Qt\\6.11.1 或 ~/Qt/6.11.1）或
+    具体工具链目录（如 C:\\Qt\\6.11.1\\msvc2022_64 或
+    ~/Qt/6.11.1/gcc_64）。后者直接用；前者按 kit 惯例子目录补全
+    （Qt 官方安装器布局，Linux 为 gcc_64）。找不到时原样返回（报错
+    留给 cmake 的 find_package）。
     """
     if not qt_dir:
         return qt_dir
@@ -129,25 +138,87 @@ def test(kit: str, type_: str, extra: list, env=None):
 
 def _find_example_exe(kit: str, type_: str) -> Path:
     root = build_dir(kit, type_)
-    for p in sorted(root.rglob("appQoolUIExample.exe")):
-        return p
+    # Windows 产物为 appQoolUIExample.exe；Linux/macOS 产物无扩展名
+    for name in ("appQoolUIExample", "appQoolUIExample.exe"):
+        for p in sorted(root.rglob(name)):
+            if p.is_file():
+                return p
     raise SystemExit(f"找不到 QoolUIExample 可执行文件（{root}），请先 build")
+
+
+def _prepend_path(env: dict, name: str, entries: list):
+    """把 entries 中存在的目录前置到 env[name]，保留已有值并去重。"""
+    values = []
+    for entry in entries:
+        if entry:
+            s = str(entry)
+            if s not in values and Path(s).exists():
+                values.append(s)
+    existing = env.get(name)
+    if existing:
+        for entry in existing.split(os.pathsep):
+            if entry and entry not in values:
+                values.append(entry)
+    if values:
+        env[name] = os.pathsep.join(values)
+
+
+def _qt_query(qt_dir: str, var: str, env: dict) -> str:
+    """用 Qt 自带的 qmake6/qmake 查询安装路径；失败返回空串。"""
+    candidates = []
+    for name in ("qmake6", "qmake"):
+        p = Path(qt_dir) / "bin" / name
+        if p.exists():
+            candidates.append(str(p))
+    if not candidates:
+        for name in ("qmake6", "qmake"):
+            p = shutil.which(name)
+            if p:
+                candidates.append(p)
+                break
+    qenv = dict(env or os.environ)
+    # 让 qmake 自身能加载 Qt 库：先按惯用布局前置 lib/bin
+    lib_dir = Path(qt_dir) / "lib"
+    bin_dir = Path(qt_dir) / "bin"
+    if lib_dir.exists():
+        qenv["LD_LIBRARY_PATH"] = str(lib_dir) + os.pathsep + qenv.get("LD_LIBRARY_PATH", "")
+    if bin_dir.exists():
+        qenv["PATH"] = str(bin_dir) + os.pathsep + qenv.get("PATH", "")
+    for qmake in candidates:
+        try:
+            out = subprocess.check_output([qmake, "-query", var],
+                                          text=True, errors="replace",
+                                          env=qenv).strip()
+            if out:
+                return out
+        except Exception:
+            continue
+    return ""
 
 
 def run_app(kit: str, type_: str, args: list, env=None):
     exe = _find_example_exe(kit, type_)
     env = dict(env or os.environ)
     # 开发模式运行依赖：Qt 运行时不在构建目录（QtCreator 从 Qt 前缀注入，
-    # 脚本需自行补）——DLL/插件/Qt 自带 QML 模块路径
+    # 脚本需自行补）——动态库/插件/Qt 自带 QML 模块路径
     qt_dir = env.get("QT_DIR")
     if qt_dir:
-        bin_dir = Path(qt_dir) / "bin"
-        env["PATH"] = str(bin_dir) + os.pathsep + env.get("PATH", "")
-        env.setdefault("QT_PLUGIN_PATH", str(Path(qt_dir) / "plugins"))
-        qml_paths = [str(Path(qt_dir) / "qml"),
-                     str(build_dir(kit, type_) / "qml")]  # Qool 模块在构建目录
-        env["QML_IMPORT_PATH"] = os.pathsep.join(
-            [p for p in qml_paths if Path(p).exists()])
+        if sys.platform.startswith("win"):
+            _prepend_path(env, "PATH", [Path(qt_dir) / "bin"])
+            _prepend_path(env, "QT_PLUGIN_PATH", [Path(qt_dir) / "plugins"])
+            _prepend_path(env, "QML_IMPORT_PATH",
+                          [Path(qt_dir) / "qml",
+                           build_dir(kit, type_) / "qml"])
+        else:
+            lib_dir = _qt_query(qt_dir, "QT_INSTALL_LIBS", env) or str(Path(qt_dir) / "lib")
+            bin_dir = _qt_query(qt_dir, "QT_INSTALL_BINS", env) or str(Path(qt_dir) / "bin")
+            qml_dir = _qt_query(qt_dir, "QT_INSTALL_QML", env) or str(Path(qt_dir) / "qml")
+            plugin_dir = _qt_query(qt_dir, "QT_INSTALL_PLUGINS", env) or str(Path(qt_dir) / "plugins")
+            _prepend_path(env, "LD_LIBRARY_PATH", [lib_dir])
+            _prepend_path(env, "PATH", [bin_dir])
+            _prepend_path(env, "QT_PLUGIN_PATH", [plugin_dir])
+            _prepend_path(env, "QML_IMPORT_PATH",
+                          [qml_dir, build_dir(kit, type_) / "qml"])
     print(f">>> {exe} {' '.join(args)}", flush=True)
     return subprocess.call([str(exe), *args], env=env)
 

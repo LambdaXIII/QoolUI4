@@ -32,15 +32,18 @@ set(QOOL_SRC_PRIVATE_INCLUDES
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/QoolUITests/core")
 
-# qt.conf：本层测试链接 Qt6::Quick（QT_GUI_LIB）→ QTEST_MAIN
-# 展开为 QGuiApplication，构造时加载平台插件——DLL 复制使前缀推导失效，
-# 需 qt.conf 覆盖（见总入口策略说明）。common/ 纯 QCoreApplication 无需。
-file(MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-configure_file(
-  "${CMAKE_CURRENT_LIST_DIR}/../qt.conf.in"
-  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/qt.conf"
-  @ONLY
-)
+# qt.conf：仅 Windows 需要（DLL 复制使 Qt 前缀推导失效，需 qt.conf 覆盖；
+# 见总入口策略说明）。Linux/macOS 系统 Qt 按标准路径定位插件，生成
+# Prefix=/usr 的 qt.conf 反而会破坏 QLibraryInfo 路径推导，故跳过。
+# common/ 纯 QCoreApplication 无需。
+if(WIN32)
+  file(MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+  configure_file(
+    "${CMAKE_CURRENT_LIST_DIR}/../qt.conf.in"
+    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/qt.conf"
+    @ONLY
+  )
+endif()
 
 qoolui_add_cpp_test(
   tst_qool_vector2d

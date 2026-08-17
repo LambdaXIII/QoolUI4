@@ -22,6 +22,7 @@
 #include "style/qool_theme_hq.h"
 
 #include <QQmlEngine>
+#include <QDir>
 #include <QTemporaryDir>
 #include <QFile>
 
@@ -80,9 +81,14 @@ class TestSingletonDb : public QObject {
               .isEmpty());
     QVERIFY(db->requrestUrl(QStringLiteral("qoolui_no_such_icon"))
               .isEmpty());
-    // iconUrl 能力面 = compileUrl 静态
-    QCOMPARE(db->iconUrl(QUrl::fromLocalFile("C:/x/y.png")),
-      FileIconImageProvider::compileUrl("C:/x/y.png"));
+    // iconUrl 能力面 = compileUrl(fileUrl.toString(QUrl::PreferLocalFile))。
+    // 使用可移植的本目录绝对路径，避免 Windows 盘符路径在 Linux 上被
+    // fromLocalFile 加前导斜杠导致两边编码不一致。
+    const QUrl fileUrl =
+      QUrl::fromLocalFile(QDir::current().filePath("x/y.png"));
+    QCOMPARE(db->iconUrl(fileUrl),
+      FileIconImageProvider::compileUrl(
+        fileUrl.toString(QUrl::PreferLocalFile)));
   }
 
   QOOL_TEST_CASE(fileinfo_db_contract) {

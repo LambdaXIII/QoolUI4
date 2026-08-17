@@ -22,16 +22,18 @@
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/QoolUITests/qml")
 
-# qt.conf（Qt 官方自包含机制）：配置期生成到 exe 旁——
-# QLibraryInfo 读取，Prefix 覆盖 Qt 安装前缀推导（DLL 复制使推导失效），
-# Plugins/QmlImports 路径随之正确；任何运行通道（QtCreator 面板/run-tests/
-# ctest/直跑）无需环境注入。改模板后需重新 configure 生效。
-file(MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-configure_file(
-  "${CMAKE_CURRENT_LIST_DIR}/../qt.conf.in"
-  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/qt.conf"
-  @ONLY
-)
+# qt.conf（Qt 官方自包含机制）：仅 Windows 需要——DLL 复制使 Qt 前缀
+# 推导失效，需 qt.conf 覆盖。Linux/macOS 系统 Qt 按标准路径定位插件与
+# QML 模块，生成 Prefix=/usr 的 qt.conf 反而破坏 QLibraryInfo 路径推导，
+# 故跳过。改模板后需重新 configure 生效。
+if(WIN32)
+  file(MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+  configure_file(
+    "${CMAKE_CURRENT_LIST_DIR}/../qt.conf.in"
+    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/qt.conf"
+    @ONLY
+  )
+endif()
 
 # ---- Qool 模块的 QML 测试批次 ----
 # 加入默认构建（all）：
@@ -87,16 +89,25 @@ find_file(QT6_QUICKSHAPES_DLL_RELEASE
   HINTS "${QOOLUI_QT6_PREFIX}/bin"
   NO_DEFAULT_PATH
 )
-add_custom_command(
-  TARGET tst_qool_qml POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          $<TARGET_RUNTIME_DLLS:tst_qool_qml> $<TARGET_FILE_DIR:tst_qool_qml>
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          $<TARGET_RUNTIME_DLLS:Qool> $<TARGET_FILE_DIR:tst_qool_qml>
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          $<TARGET_FILE:Qool> $<TARGET_FILE_DIR:tst_qool_qml>
-  COMMAND_EXPAND_LISTS
-)
+if(WIN32)
+  add_custom_command(
+    TARGET tst_qool_qml POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:tst_qool_qml> $<TARGET_FILE_DIR:tst_qool_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:Qool> $<TARGET_FILE_DIR:tst_qool_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:Qool> $<TARGET_FILE_DIR:tst_qool_qml>
+    COMMAND_EXPAND_LISTS
+  )
+else()
+  # Linux/macOS：$<TARGET_RUNTIME_DLLS> 为空，只复制模块库本体
+  add_custom_command(
+    TARGET tst_qool_qml POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:Qool> $<TARGET_FILE_DIR:tst_qool_qml>
+  )
+endif()
 if(EXISTS "${QT6_QUICKSHAPES_DLL_DEBUG}")
   add_custom_command(
     TARGET tst_qool_qml POST_BUILD
@@ -151,24 +162,37 @@ set(QOOLUI_TEST_ARGS_tst_qoolcontrols_qml "-platform;offscreen" CACHE INTERNAL "
 # 依赖 DLL 复制到 exe 目录（与 tst_qool_qml 同款部署策略，双源并集 +
 # copy_if_different 幂等）：Qt DLL（本 target + 三模块各自的 RUNTIME_DLLS）
 # + 三个模块 DLL（Qool/QoolControls/QoolControlsComponents）本体。
-add_custom_command(
-  TARGET tst_qoolcontrols_qml POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          $<TARGET_RUNTIME_DLLS:tst_qoolcontrols_qml> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          $<TARGET_RUNTIME_DLLS:Qool> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          $<TARGET_FILE:Qool> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          $<TARGET_RUNTIME_DLLS:QoolControls> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          $<TARGET_FILE:QoolControls> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          $<TARGET_RUNTIME_DLLS:QoolControlsComponents> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          $<TARGET_FILE:QoolControlsComponents> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
-  COMMAND_EXPAND_LISTS
-)
+if(WIN32)
+  add_custom_command(
+    TARGET tst_qoolcontrols_qml POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:tst_qoolcontrols_qml> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:Qool> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:Qool> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:QoolControls> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:QoolControls> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:QoolControlsComponents> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:QoolControlsComponents> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+    COMMAND_EXPAND_LISTS
+  )
+else()
+  # Linux/macOS：$<TARGET_RUNTIME_DLLS> 为空，只复制模块库本体
+  add_custom_command(
+    TARGET tst_qoolcontrols_qml POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:Qool> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:QoolControls> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:QoolControlsComponents> $<TARGET_FILE_DIR:tst_qoolcontrols_qml>
+  )
+endif()
 if(EXISTS "${QT6_QUICKSHAPES_DLL_DEBUG}")
   add_custom_command(
     TARGET tst_qoolcontrols_qml POST_BUILD

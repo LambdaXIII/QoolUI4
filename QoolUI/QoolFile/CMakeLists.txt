@@ -38,6 +38,15 @@ set_target_properties(QoolFile PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
+    # 构建树产物必须带一条 RUNPATH 条目（Linux/macOS）：
+    # 当依赖全在系统默认路径（如发行版系统 Qt + QoolCommon 仅头文件）时
+    # CMake 不写 RUNPATH；Qt 部署脚本（qt6_deploy_qml_imports）对 QML 插件
+    # 用 file(RPATH_SET) 重写 RUNPATH——该命令只能改写既有条目、不能新增，
+    # 缺条目即报 "No valid ELF RPATH or RUNPATH entry exists"。
+    # $ORIGIN/../../../../ 指向构建根；构建树中该条目实际不被使用，仅作
+    # 部署改写所需的既有占位（官方 Qt 安装器场景链非系统路径、CMake 自动
+    # 写 RUNPATH，此处冗余但无害，部署时同样被整体重写）。
+    BUILD_RPATH "$ORIGIN/../../../../"
 )
 
 target_compile_definitions(QoolFile
