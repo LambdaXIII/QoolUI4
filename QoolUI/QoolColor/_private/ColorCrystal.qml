@@ -9,7 +9,7 @@
 //     因此消费方（ColorCursor）把本件 x/y 定位到"想要菱形中心所在的位置"——
 //     ColorCursor 中 crystal.x = parent.width/2、y = parent.height/2。
 //   - containmentMask 用 v4 Crystal4ContainmentMask，centerPoint 默认 (0,0)，
-//     与"菱形中心在掩码原点"天然重合（v4 Crystal4ContainmentMask 的 QDoc 亦
+//     与"菱形中心在掩码原点"天然重合（v4 Crystal4ContainmentMask 的文档亦
 //     明确 ColorCrystal 依赖此默认，勿传 centerPoint）。
 //   - strokeWidth 固定 1（v3 原样）。
 
@@ -20,21 +20,15 @@ import QtQuick.Shapes
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype ColorCrystal
-    \inqmlmodule Qool.Color
-    \brief 水晶4菱形色块（v3 逐字迁移）：以 \c size 为外接框的菱形，中心在组件原点。
-
-    \c color / \c strokeColor 分别控制填充与描边；默认 \c size 25。
-    菱形中心在组件坐标原点（见文件头注释），消费方以 x/y 把中心放到目标位置。
-
-    \section2 易误解点
-    \list
-    \li 菱形中心不在左上角——若误以为菱形锚定 (0,0) 左上，会把它放偏半个对角线。
-    \li containmentMask 的默认 centerPoint (0,0) 是刻意依赖（与 v3 一致），
-        菱形命中域 = 掩码外接框的内接菱形。
-    \endlist
-*/
+// 水晶4菱形色块（v3 逐字迁移）：以 `size` 为外接框的菱形，中心在组件原点。
+//
+// `color` / `strokeColor` 分别控制填充与描边；默认 `size` 25。
+// 菱形中心在组件坐标原点（见文件头注释），消费方以 x/y 把中心放到目标位置。
+//
+// 易误解点
+// - 菱形中心不在左上角——若误以为菱形锚定 (0,0) 左上，会把它放偏半个对角线。
+// - containmentMask 的默认 centerPoint (0,0) 是刻意依赖（与 v3 一致），
+//   菱形命中域 = 掩码外接框的内接菱形。
 Shape {
     id: root
 

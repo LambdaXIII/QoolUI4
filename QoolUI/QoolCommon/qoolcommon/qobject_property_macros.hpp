@@ -6,7 +6,7 @@
 // 可传 T{}）；... 为 Q_PROPERTY 附加选项通道（CONSTANT/FINAL 等，勿传
 // 默认值——会静默进入 Q_PROPERTY 尾部导致 moc Parse error）。
 // DECLARE 版(_T_, _N_, ...)不生成成员与实现，仅声明，实现归类/类外手写。
-// 详细文档见 qoolcommon/property_macros.qdoc。
+// 详细文档见 docs/reference/QoolCommon/property-macros.md。
 #include "_property_helpers.hpp"
 
 #define QOBJECT_WRITABLE_PROPERTY(_T_, _N_, _D_, ...)                          \

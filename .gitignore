@@ -22,7 +22,6 @@ core
 tags
 .DS_Store
 .directory
-*.debug
 Makefile*
 *.prl
 *.app
@@ -62,8 +61,6 @@ CMakeLists.txt.user*
 *vcxproj.*
 
 # MinGW generated files
-*.Debug
-*.Release
 
 # Python byte code
 *.pyc

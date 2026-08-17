@@ -159,7 +159,7 @@ def install(kit: str, type_: str, prefix: str, extra: list, env=None):
     qt_generate_deploy_qml_app_script（windeployqt）收集的 QML 模块、
     Qt 运行时、翻译均为 exampleapp 的运行依赖，不是 QoolUI 库本体被
     安装。QoolUI 库的交付包（按模块可删减的 qml 目录 + Includes/interfaces
-    头文件 + qdoc 文档包）是另一条待设计通道——打包方案定案前，
+    头文件 + Markdown 文档包）是另一条待设计通道——打包方案定案前，
     不要误用本通道产物当库交付基础。
     """
     prefix = prefix or str(build_dir(kit, type_) / "install")

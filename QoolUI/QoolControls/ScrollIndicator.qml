@@ -2,25 +2,10 @@ import QtQuick
 import QtQuick.Templates as T
 import Qool
 
-/*!
-    \qmltype ScrollIndicator
-    \inqmlmodule Qool.Controls
-    \brief 基于 T.ScrollIndicator 的 QoolUI 风格滚动指示条。
-
-    \c color 控制指示条颜色；\c alwaysOn 决定常显。\c showIndicator 为
-    只读状态：内容不满一屏（size 为 1）时始终隐藏；\c alwaysOn 时恒显；
-    否则仅当滚动条 active 且 size 小于 1 时显示。\c scrollPosition 将
-    原生 position 重映射（Qore.remap 到 0..1-size），供外部做精确位移。
-    指示条尺寸按 \c horizontal 在两套 Binding 间切换（竖条 2x100 /
-    横条 100x2，四周留 2px）。
-
-    \section2 两态驱动（刻意设计）
-    指示条透明度由 latch 两态驱动：滚动（scrollPosition 变化）后的
-    1750ms 窗口内瞬时显现为 1，窗口结束回落常态 visualOpacity
-    （alwaysOn 时 0.25，否则 0）。不得改用命令式赋值驱动 opacity——
-    赋值会杀死下方绑定（绑定永久失效，showIndicator 变化不再反映到
-    透明度）；两态过渡由 BasicNumberBehavior 负责。
-*/
+// 两态驱动（刻意设计）：透明度由 latch 两态驱动——滚动后 1750ms 窗口内
+// 瞬时显现为 1，窗口结束回落常态 visualOpacity。不得改用命令式赋值驱动
+// opacity（会杀死下方绑定）；过渡由 BasicNumberBehavior 负责。详细契约见
+// docs/reference/Qool.Controls/ScrollIndicator.md。
 
 T.ScrollIndicator {
     id: root

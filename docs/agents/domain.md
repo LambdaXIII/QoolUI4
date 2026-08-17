@@ -4,39 +4,10 @@
 
 ## 探索前先读
 
-- 仓库根部的 **`CONTEXT.md`**，或
-- 若存在 **`CONTEXT-MAP.md`** —— 它指向每个 context 的一份 `CONTEXT.md`。读取与主题相关的每个文件。
-- **`docs/adr/`** —— 阅读与你即将工作的区域相关的 ADR。多 context 仓库中还需检查 `src/<context>/docs/adr/` 的 context 级决策。
+- 仓库根部的 **`CONTEXT.md`**。
+- **`docs/adr/`** —— 阅读与你即将工作的区域相关的 ADR。决策按 `docs/adr/<子项目>/<模块>/` 组织：决策属于哪个子项目就查哪个目录（跨模块的子项目级决策在 `docs/adr/<子项目>/`）。
 
 若这些文件不存在，**静默继续**。不要标记缺失；不要主动建议创建。`/domain-modeling` 技能（经 `/grill-with-docs` 与 `/improve-codebase-architecture` 触达）会在术语或决策真正落定时惰性创建它们。
-
-## 文件结构
-
-单 context 仓库（大多数仓库）：
-
-```
-/
-├── CONTEXT.md
-├── docs/adr/
-│   ├── 0001-event-sourced-orders.md
-│   └── 0002-postgres-for-write-model.md
-└── src/
-```
-
-多 context 仓库（根部存在 `CONTEXT-MAP.md`）：
-
-```
-/
-├── CONTEXT-MAP.md
-├── docs/adr/                          ← 系统级决策
-└── src/
-    ├── ordering/
-    │   ├── CONTEXT.md
-    │   └── docs/adr/                  ← context 级决策
-    └── billing/
-        ├── CONTEXT.md
-        └── docs/adr/
-```
 
 ## 使用术语表的词汇
 
@@ -48,4 +19,4 @@
 
 若你的输出与既有 ADR 矛盾，显式提出而非静默覆盖：
 
-> _与 ADR-0007（event-sourced orders）矛盾——但值得重新讨论，因为……_
+> _与 ADR 0001（QML 单例契约）矛盾——但值得重新讨论，因为……_

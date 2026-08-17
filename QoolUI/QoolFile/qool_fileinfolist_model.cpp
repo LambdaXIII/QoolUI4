@@ -7,48 +7,6 @@
 
 QOOL_NS_BEGIN
 
-/*!
-    \qmltype FileInfoListModel
-    \inqmlmodule Qool.File
-    \nativetype qoolui::FileInfoListModel
-    \brief 以 FileInfo 为数据项的 QAbstractListModel，文件列表视图的数据源。
-
-    内部持有 FileInfoList（默认内部列表，亦可经 \c fileInfos 属性整体
-    替换为外部列表）。公开角色：\c fileInfo（FileInfo 对象）、
-    \c absoluteFilePath、\c url、\c isFile、\c isDir、\c displayName、
-    \c fileName、\c baseName、\c suffix、\c exists、\c size、
-    \c birthTime、\c lastModified、\c icon。
-
-    \section1 单线程契约
-    本模型所有 API 仅在所属线程（默认主线程）调用。曾用 QRecursiveMutex
-    包裹全部操作，但无任何跨线程调用方——锁是死代码，且违背 Qt 模型线程
-    规范（QAbstractItemModel 非线程安全，官方约定跨线程访问一律经
-    Queued 信号/连接转发，由接收线程独占访问）。若需引入跨线程调用，
-    应转发至模型线程而非重新加锁。
-
-    \section1 索引与越界防御
-    \c data() 等高频查询入口对非法行号一律返回空值而不越界（部分视图
-    实现会把非法 row 传入 data()，at(row) 越界属 UB）；removeAt、
-    takeAt 对越界索引发出警告并忽略，removeRange 用断言约束区间。
-    批量操作先经 validateIndexes 过滤非法/重复索引、排序去重，再以
-    QPersistentModelIndex 固化位置，保证多次移除期间索引漂移不误删元素。
-
-    \section1 move 语义
-    \c move(from, to) 遵循 beginMoveRows 的 destinationChild
-    "目标行之前的插入点"语义：向下移动时最终落点为 to - 1，故内部
-    传 to + 1（Qt 源码 QList::move 落点已含此差一），向上移动传 to。
-    \c move(rows, to) 批量移动先把选中行全部移除（持久化索引），再在
-    目标行处整体插回；\c to 等于列表长度表示移到末尾（此时 index(to)
-    无效，目标行取移除后的列表长度追加）。
-
-    \section1 批量操作契约
-    insert/append 的批量重载对空列表直接返回，避免 beginInsertRows
-    （first > last）的非法调用；移除类操作在 endRemoveRows 之后统一
-    发出 fileInfosRemoved；排序去重类操作（sortInfos、clear、
-    forceResetInfos）经 beginResetModel/endResetModel 整体重置，
-    fileInfosRemoved 必须延迟到 endResetModel 之后发出——reset 期间
-    视图处于中间状态，此时带旧数据 emit 违反模型/视图信号契约。
-*/
 FileInfoListModel::FileInfoListModel(QObject* parent)
   : QAbstractListModel { parent }
   , m_intInfos { new FileInfoList }

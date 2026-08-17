@@ -25,7 +25,7 @@ public:
 
 protected:
   // 专项注释（缺陷修复）：迁移静默丢失了 v3 的 QML 只读属性 previous（默认
-  // Qt::white、带 previousChanged 信号），只剩私有成员且初值为无效色；v4 QDoc
+  // Qt::white、带 previousChanged 信号），只剩私有成员且初值为无效色；v4 文档
   // 仍写明"previous 为默认白色"，与代码矛盾。用宏恢复（宏展开成员非 mutable，
   // 故 generate()/check_previous() 同步恢复非 const——与 v3 签名一致）。
   QOBJECT_READONLY_PROPERTY(QColor, previous, Qt::white)
@@ -38,7 +38,7 @@ protected:
 
 // 专项注释（缺陷修复）：属性名必须与 v3 的 minimumX/maximumX 一致——迁移
 // 静默改名为 minX/maxX（QML 对未知属性赋值静默忽略，v3 风格消费方写入全部
-// 落空、退回默认区间，生成颜色范围改变；v4 QDoc 属性块仍用 v3 旧名，证明
+// 落空、退回默认区间，生成颜色范围改变；v4 文档属性块仍用 v3 旧名，证明
 // 改名并非有意决策）。恢复 v3 名。
 #define DECL(N, MIN, MAX, PREF)                                          \
   QOBJECT_WRITABLE_PROPERTY(qreal, minimum##N, MIN)                      \

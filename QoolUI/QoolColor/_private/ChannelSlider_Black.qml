@@ -12,18 +12,12 @@ import QtQuick
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype ChannelSlider_Black
-    \inqmlmodule Qool.Color
-    \brief 黑色通道滑块（v3 逐字迁移）：竖直 ChannelBar + blackF 双向绑定。
-
-    \section2 易误解点
-    \list
-    \li \c channelColor 是 "darkgrey" 而非 "black"——深色主题下纯黑填充不可见，
-        v3 刻意选择深灰，勿"修正"。
-    \li 标题 "BLAK" 是 v3 刻意 4 字母缩写，勿"修正"。
-    \endlist
-*/
+// 黑色通道滑块（v3 逐字迁移）：竖直 ChannelBar + blackF 双向绑定。
+//
+// 易误解点
+// - `channelColor` 是 "darkgrey" 而非 "black"——深色主题下纯黑填充不可见，
+//   v3 刻意选择深灰，勿"修正"。
+// - 标题 "BLAK" 是 v3 刻意 4 字母缩写，勿"修正"。
 ChannelSlider {
     id: root
 

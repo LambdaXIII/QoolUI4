@@ -20,24 +20,18 @@ import Qool
 import "NumTools.js" as Tools
 import Qool.Color
 
-/*!
-    \qmltype HSLBox
-    \inqmlmodule Qool.Color
-    \brief HSL 平面取色框（v3 逐字迁移）：HSLSurface + 矩形拖动映射 + 光标。
-
-    \c colorAssistant 为数据源（默认自带）；交互期间写
-    \c hslSaturationF / \c hslLightnessF（hue 由外部滑块控制，本件只取
-    饱和度与明度，并在 hue 无效时置 0）。
-
-    \section2 易误解点
-    \list
-    \li 与 HSVWheel 不同，本件命中域无圆环钳制——鼠标在矩形内直接裁剪
-        （clamp），映射是线性平面（sat = x/w，ltn = 1 - y/h）。
-    \li reset 到 sat=1、ltn=0.5（纯色中点）而非圆心/无彩色——两表面
-        reset 语义不同是 v3 原样，勿统一。
-    \li hue < 0 → 0 的处置同时出现在 setValues 与 reset（v3 两处都有）。
-    \endlist
-*/
+// HSL 平面取色框（v3 逐字迁移）：HSLSurface + 矩形拖动映射 + 光标。
+//
+// `colorAssistant` 为数据源（默认自带）；交互期间写
+// `hslSaturationF` / `hslLightnessF`（hue 由外部滑块控制，本件只取
+// 饱和度与明度，并在 hue 无效时置 0）。
+//
+// 易误解点
+// - 与 HSVWheel 不同，本件命中域无圆环钳制——鼠标在矩形内直接裁剪
+//   （clamp），映射是线性平面（sat = x/w，ltn = 1 - y/h）。
+// - reset 到 sat=1、ltn=0.5（纯色中点）而非圆心/无彩色——两表面
+//   reset 语义不同是 v3 原样，勿统一。
+// - hue < 0 → 0 的处置同时出现在 setValues 与 reset（v3 两处都有）。
 Item {
     id: root
 

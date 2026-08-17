@@ -22,22 +22,16 @@ import QtQuick.Shapes
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype ColorSliderBackground
-    \inqmlmodule Qool.Color
-    \brief 滑块轨道背景（六边形，v3 逐字迁移）：切角尺寸固定为高度一半。
-
-    \c strokeWidth / \c strokeColor / \c fillColor / \c fillGradient 为 ShapePath
-    的透传别名；\c leftPoint / \c rightPoint 只读，供渐变锚定有效轨道段。
-
-    \section2 易误解点
-    \list
-    \li 切角 = 高度一半（\c cutSize: height / 2），改变高度会同时改变切角，
-        六边形始终内切于矩形。
-    \li leftPoint/rightPoint 是 \b 渐变锚点而非边框点——消费方渐变
-        （ColorSlider_Hue 彩虹等）的 x1/y1/x2/y2 直接取它们，勿改为顶点。
-    \endlist
-*/
+// 滑块轨道背景（六边形，v3 逐字迁移）：切角尺寸固定为高度一半。
+//
+// `strokeWidth` / `strokeColor` / `fillColor` / `fillGradient` 为 ShapePath
+// 的透传别名；`leftPoint` / `rightPoint` 只读，供渐变锚定有效轨道段。
+//
+// 易误解点
+// - 切角 = 高度一半（`cutSize`: height / 2），改变高度会同时改变切角，
+//   六边形始终内切于矩形。
+// - leftPoint/rightPoint 是渐变锚点而非边框点——消费方渐变
+//   （ColorSlider_Hue 彩虹等）的 x1/y1/x2/y2 直接取它们，勿改为顶点。
 Shape {
     id: root
 

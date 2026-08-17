@@ -3,34 +3,6 @@
 #include <QTimer>
 #include <utility>
 
-/*!
-    \qmltype PositionTracker
-    \inqmlmodule Qool
-    \nativetype qoolui::PositionTracker
-    \brief 2D 位置追踪器：追踪 target 局部点 point 的场景坐标与屏幕坐标。
-
-    给定 \c target（QQuickItem）与 \c point（target 局部坐标点，默认原点），
-    逐层监听 target 祖先链的坐标/变换/拓扑变化，维护该点的 \c scenePos
-    （场景坐标）、\c globalPos（屏幕坐标）与 \c currentWindow（所在场景）。
-
-    祖先链任意层平移/缩放/旋转自动触发重算；坐标变化通知按事件循环批次
-    合并（延迟至多一帧），值未变不重复通知。\c target 未显式设置时默认
-    追踪声明父；\c target 为 null 时输出透传 \c point 原值；target 无窗口
-    时 \c globalPos 等于 \c scenePos。
-
-    \section1 信号
-
-    所有属性均经 Qt 自动生成的 \c xxxChanged 信号通知（值守卫：实际值
-    变化才发出，不重复通知）。输出属性 \c scenePosChanged /
-    \c globalPosChanged / \c currentWindowChanged 是位置更新通知——
-    强制重算（\c update()）后值若变化同样经此通知；输入属性
-    \c targetChanged / \c pointChanged 是配置变化通知。
-
-    QWidget 混合场景（QQuickWidget）中
-    \c currentWindow 是内部离屏渲染窗口（非显示容器），\c globalPos
-    不反映真实屏幕位置——\c scenePos 不受影响。
-*/
-
 QOOL_NS_BEGIN
 
 PositionTracker::PositionTracker(QObject* parent)

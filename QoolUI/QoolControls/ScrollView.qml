@@ -16,50 +16,6 @@ import QtQuick.Controls as QC
 // 尺寸 + padding——照抄 Windows 样式公式）：Basic 样式无此设置，不显式
 // 声明则 Basic 样式下滚动条遮内容、行为随宿主样式漂移。
 
-/*!
-    \qmltype ScrollView
-    \inqmlmodule Qool.Controls
-    \inherits QtQuick.Controls::ScrollView
-
-    \brief 带 Qool 主题滚动条的滚动视图——官方 ScrollView 成品
-    （Controls 版）+ 预设 Qool 主题滚动条。
-
-    ScrollView 是 Qool 的滚动视图：官方 Qt Quick Controls
-    的 \l {QtQuick.Controls::ScrollView} 全部行为（内容尺寸自动接驳、背景
-    不随内容滚动、自动裁剪、滚动转发），加上预设的 Qool 主题滚动条
-    （垂直/水平均为 Qool ScrollBar——非 Qt 默认样式）——宿主零配置获得
-    Qool 主题滚动。
-
-    \section1 接口兼容性
-
-    继承 Qt Quick Controls 的 \l {QtQuick.Controls::ScrollView}（其继承
-    Pane）——官方 API
-    全部可用（contentData / effectiveScrollBarWidth /
-    effectiveScrollBarHeight 等），宿主可参照官方文档。本类型不改变官方
-    行为，仅预设滚动条与内容让位，以下仅文档化 Qool 设置部分。
-
-    \section1 滚动条
-
-    内置垂直/水平滚动条——均为 Qool ScrollBar（主题样式、可交互拖动）。
-    默认 AsNeeded 策略（内容不足视口时隐藏）；布局按官方 ScrollView 样式
-    公式（垂直贴右侧、水平贴底部、随内容区全高/全宽、双条互让）。滚动条
-    为官方 ScrollView 附加属性实例（ScrollBar.vertical /
-    ScrollBar.horizontal）——宿主可参照官方 ScrollView 文档的附加属性
-    语义访问。
-
-    \section1 行为
-
-    \list
-    \li 内容区自动让位：滚动条可见时内容区宽度/高度扣除滚动条占用
-        （rightPadding/bottomPadding = 滚动条尺寸 + padding）——滚动条
-        不遮内容，跨样式一致（官方 Basic 样式无此设置，本类型显式声明）。
-    \li 滚动条策略经官方 policy 属性控制：AlwaysOff 时完全隐藏且内容区
-        不缩（effectiveScrollBar 尺寸归零，让位自动消失）。
-    \li 默认尺寸由内容决定（官方 ScrollView 行为）：无内容时隐式尺寸为
-        0，宿主应给定尺寸（width/height 或 anchors.fill）。
-    \endlist
-*/
-
 QC.ScrollView {
     id: root
 

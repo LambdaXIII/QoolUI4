@@ -14,52 +14,6 @@ import QtQuick.Layouts
 import Qool
 import "_private"
 
-/*!
-    \qmltype CMYKPanel
-    \inqmlmodule Qool.Color
-    \brief CMYK 色彩空间面板（v3 CMYKPanel 迁移）：青/品红/黄/黑通道滑块行。
-
-    单行竖直通道滑块组合（GridLayout 一行四列，横向铺满）：
-    \l {ChannelSlider_Cyan}{ChannelSlider_Cyan}、
-    \l {ChannelSlider_Magenta}{ChannelSlider_Magenta}、
-    \l {ChannelSlider_Yellow}{ChannelSlider_Yellow}、
-    \l {ChannelSlider_Black}{ChannelSlider_Black}。
-
-    \section1 交互（v3 照迁）
-
-    \list
-    \li 每个滑块竖直拖动改值（自下而上 0→1），通道值写 \c colorAssistant
-        的 \c cyanF/magentaF/yellowF/blackF。
-    \li 双击滑块重置为通道默认值 1（满通道）。
-    \li 滑块内嵌数值输入（\l NumInput）：点击进入编辑，\c x > 1 时按
-        \c x / 1000 处理并限幅到 [0, 1]（见下"输入约定"）。
-    \endlist
-
-    \section1 输入约定（易误解，特别说明）
-
-    通道输入沿用 v3 数值约定：\b 输入 \c x > 1 时按 \c x / 1000 处理——
-    允许直接键入 0..1000 的整数表示 0..1 的比例（如 \c 350 表示 0.35），
-    结果限幅到 [0, 1]。这是 v3 面板行为，\b 不是 bug，勿"修复"为普通除法。
-    实现收拢在 \l {NumInput::parseChannelValue}{NumInput.parseChannelValue}。
-
-    \section1 默认状态自洽
-
-    默认 \c colorAssistant 自带默认色
-    \c {ColorAssistant { color: Style.highlight }}——独立使用（不注入）即成立。
-    面板本身不设默认尺寸（v3 同），宿主决定宽高；滑块在网格中均分宽度。
-
-    \section1 属性
-
-    \qmlproperty ColorAssistant CMYKPanel::colorAssistant
-    颜色数据源（v3 同名 API 照迁）。默认自带 \c Style.highlight 的实例；
-    宿主可注入共享 \l ColorAssistant（多面板同步同一实例）。
-
-    \qmlproperty bool CMYKPanel::animationEnabled
-    动画总开关，默认继承父级或 \l {Style}{Style.animationEnabled}（v4 惯例）。
-    注意：v3 本面板不向滑块显式传递此属性（滑块各自取
-    \l {Style}{Style.animationEnabled}），v4 照迁，故本属性在本面板仅作
-    API 面存在。
-*/
 GridLayout {
     id: root
 

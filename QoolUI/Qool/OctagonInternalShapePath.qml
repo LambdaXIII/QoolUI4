@@ -2,20 +2,11 @@ import QtQuick
 import QtQuick.Shapes
 import Qool
 
-/*!
-    \qmltype OctagonInternalShapePath
-    \inqmlmodule Qool
-    \brief 八边形内部填充形状路径，绘制 QoolBox 的填充区域。
-
-    由内部 8 点（\c int*）构成闭合多边形，控制点委托给
-    \l QoolBoxShapeControl 计算。边框宽度大于 0 时内部点相对
-    外轮廓向内收缩，使填充区域与边框区域不相交。
-
-    供 \l QoolBox 内部使用；宿主一般不需要直接实例化。
-*/
+// 八边形内部填充形状路径：控制点委托 QoolBoxShapeControl；供 QoolBox
+// 内部使用。详细契约见 docs/reference/Qool/OctagonInternalShapePath.md。
 ShapePath {
     id: root
-    /*! \qmlproperty QoolBoxShapeControl 八边形控制点计算源（来自宿主 QoolBox 的 control）。 */
+    // 八边形控制点计算源（来自宿主 QoolBox 的 control）
     property QoolBoxShapeControl control
 
     strokeWidth: 0

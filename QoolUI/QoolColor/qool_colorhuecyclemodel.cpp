@@ -4,61 +4,8 @@
 
 QOOL_NS_BEGIN
 
-/*!
-    \qmltype ColorHueCycleModel
-    \inqmlmodule Qool.Color
-    \nativetype qoolui::ColorHueCycleModel
-    \brief 色相环等分循环模型：number 个等分槽位，每槽一个环上等距的颜色。
-
-    供色相环类视图（如 HSVWheel）作为列表模型数据源使用。每个槽位
-    （row）给出五个角色：color / hue / saturation / value / position。
-
-    \section2 角色
-
-    \table
-    \header \li 角色 \li 类型 \li 含义
-    \row \li color \li color \li 槽位颜色：QColor::fromHsvF(hue, saturation, value)
-    \row \li hue \li real \li 循环折返后的色相（0..1）
-    \row \li saturation \li real \li 当前饱和度（全行一致）
-    \row \li value \li real \li 当前明度（全行一致）
-    \row \li position \li real \li 槽位归一化位置（0..1）
-    \endtable
-
-    其中 position = row / number，hue = position + hueOffset（超出 0..1
-    按模数循环折返，环状语义）。position / hue 的 0..1 归一化取值与
-    ColorAssistant 的 hsvF 系列一致，可直接用于 QColor::fromHsvF 等
-    浮点构造。
-
-    \section2 变更语义
-
-    \list
-    \li \l number 变化：槽位数改变 → 整体模型重置
-        （beginResetModel / endResetModel）；
-    \li \l hueOffset 变化：全行 dataChanged（hue、color 角色）；
-    \li \l saturation 变化：全行 dataChanged（saturation、color 角色）；
-    \li \l value 变化：全行 dataChanged（value、color 角色）。
-    \endlist
-*/
-
-/*!
-    \qmlproperty int Qool.Color::ColorHueCycleModel::number
-    \brief 等分槽位数（模型行数）。变化时整体重置模型。默认 16。
-*/
-
-/*!
-    \qmlproperty real Qool.Color::ColorHueCycleModel::hueOffset
-    \brief 色相偏移（0..1 归一化；超出区间自动循环折返）。默认 0。
-*/
-
-/*!
-    \qmlproperty real Qool.Color::ColorHueCycleModel::saturation
-    \brief 全行统一的饱和度（0..1）。默认 1。
-*/
-
-/*!
-    \qmlproperty real Qool.Color::ColorHueCycleModel::value
-    \brief 全行统一的明度（0..1）。默认 1。
-*/
+// 角色语义（color/hue/saturation/value/position）与变更语义见
+// docs/reference/Qool.Color/ColorHueCycleModel.md。
 
 std::pair<qreal, qreal> ColorHueCycleModel::hue_and_position(
   int index) const {
@@ -78,6 +25,7 @@ ColorHueCycleModel::ColorHueCycleModel(QObject* parent)
   : QAbstractListModel(parent) {
 }
 
+// number：槽位数（行数）变化 → 整体模型重置。
 int ColorHueCycleModel::number() const {
   return m_number;
 }
@@ -91,6 +39,7 @@ void ColorHueCycleModel::set_number(const int& new_number) {
   emit numberChanged();
 }
 
+// saturation：全行统一（dataChanged 只带 saturation、color 角色）。
 qreal ColorHueCycleModel::saturation() const {
   return m_saturation;
 }
@@ -104,6 +53,7 @@ void ColorHueCycleModel::set_saturation(const qreal& new_saturation) {
   emit saturationChanged();
 }
 
+// value：全行统一（dataChanged 只带 value、color 角色）。
 qreal ColorHueCycleModel::value() const {
   return m_value;
 }
@@ -117,6 +67,7 @@ void ColorHueCycleModel::set_value(const qreal& new_value) {
   emit valueChanged();
 }
 
+// hueOffset：色相偏移（dataChanged 只带 hue、color 角色）。
 qreal ColorHueCycleModel::hueOffset() const {
   return m_hueOffset;
 }

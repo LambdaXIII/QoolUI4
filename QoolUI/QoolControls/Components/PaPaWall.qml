@@ -1,27 +1,9 @@
 import QtQuick
 import Qool
 
-/*!
-    \qmltype PaPaWall
-    \inqmlmodule Qool.Controls.Components
-    \brief 在配色背景上随机轮换显示大字的装饰墙。
-
-    \c highColor/\c lowColor 控制背景与文字颜色，\c words 提供词库
-    （默认 Style.papaWords），\c font 与 \c text 控制文字外观与当前内容，
-    \c textSizeMode 选择字号策略。调用 \c refresh() 随机换词，并施加
-    随机偏移、缩放与 ±45° 旋转。
-
-    \section2 textSizeMode 三模式语义
-    \list
-    \li \c DependsOnFontSize（默认）：1-2 倍随机缩放，尊重字体设置、
-        与控件边缘无关；
-    \li \c LargerTextSize：按较大边缘（宽高取大）缩放；
-    \li \c SmallerTextSize：按较小边缘（宽高取小）缩放。
-    \endlist
-    修复说明：旧代码曾引用不存在的 RespectFontSize/LargetTextSize
-    枚举成员，运行时 ReferenceError 使功能整体失效；当前有效枚举为
-    LargerTextSize / SmallerTextSize / DependsOnFontSize。
-*/
+// 在配色背景上随机轮换显示大字的装饰墙；refresh() 随机换词并施加
+// 随机偏移、缩放与 ±45° 旋转。详细契约见
+// docs/reference/Qool.Controls/PaPaWall.md。
 
 Item {
     id: root

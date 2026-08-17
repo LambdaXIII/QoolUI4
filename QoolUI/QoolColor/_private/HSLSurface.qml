@@ -24,24 +24,18 @@ import QtQuick
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype HSLSurface
-    \inqmlmodule Qool.Color
-    \brief HSL 颜色平面（v3 逐字迁移）：色相固定、饱和度×明度的二维表面。
-
-    \c hslHue 决定整个平面的色相；\c saturationAt / \c lightnessAt /
-    \c position 提供坐标↔HSL 映射（消费方 HSLBox 使用）。
-
-    \section2 易误解点
-    \list
-    \li 明度 y 轴向下：y = 0 是"顶/白/明度 1"，与直觉"上小下大"相反，
-        映射公式 1 - y/height 是刻意设计，勿改。
-    \li 中间层 lightnessBox 用"白→透明→黑"而非"白→中灰→黑"——透明层露出
-        satBox 的色相×饱和度面，这是 v3 的分层技巧。
-    \li strokeBox 的 z 为 -10 垫底（黑→standardColor 渐变），其颜色动画
-        只作用于第二个 GradientStop（v3 原样，行为在 Qt6 下与 v3 一致）。
-    \endlist
-*/
+// HSL 颜色平面（v3 逐字迁移）：色相固定、饱和度×明度的二维表面。
+//
+// `hslHue` 决定整个平面的色相；`saturationAt` / `lightnessAt` /
+// `position` 提供坐标↔HSL 映射（消费方 HSLBox 使用）。
+//
+// 易误解点
+// - 明度 y 轴向下：y = 0 是"顶/白/明度 1"，与直觉"上小下大"相反，
+//   映射公式 1 - y/height 是刻意设计，勿改。
+// - 中间层 lightnessBox 用"白→透明→黑"而非"白→中灰→黑"——透明层露出
+//   satBox 的色相×饱和度面，这是 v3 的分层技巧。
+// - strokeBox 的 z 为 -10 垫底（黑→standardColor 渐变），其颜色动画
+//   只作用于第二个 GradientStop（v3 原样，行为在 Qt6 下与 v3 一致）。
 Item {
     id: root
 

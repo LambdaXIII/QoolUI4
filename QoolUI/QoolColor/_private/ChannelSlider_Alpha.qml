@@ -11,18 +11,12 @@ import QtQuick
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype ChannelSlider_Alpha
-    \inqmlmodule Qool.Color
-    \brief 透明度通道滑块（v3 逐字迁移）：竖直 ChannelBar + alphaF 双向绑定。
-
-    \section2 易误解点
-    \list
-    \li 与 ColorSlider_Alpha 同样操作 alphaF；本件是 CMYK 面板的透明度通道
-        （channelColor 灰色），勿与 HSV 面板的 ALPHA 滑块（渐变轨道）混淆。
-    \li 标题 "ALFA" 是 v3 刻意 4 字母缩写，勿"修正"。
-    \endlist
-*/
+// 透明度通道滑块（v3 逐字迁移）：竖直 ChannelBar + alphaF 双向绑定。
+//
+// 易误解点
+// - 与 ColorSlider_Alpha 同样操作 alphaF；本件是 CMYK 面板的透明度通道
+//   （channelColor 灰色），勿与 HSV 面板的 ALPHA 滑块（渐变轨道）混淆。
+// - 标题 "ALFA" 是 v3 刻意 4 字母缩写，勿"修正"。
 ChannelSlider {
     id: root
 

@@ -19,58 +19,38 @@ import QtQuick.Templates as T
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype ColorBankSlotButton
-    \inqmlmodule Qool.Color
-    \brief 色银行槽位按钮（v3 ColorBankSlotButton 拍平）：色槽预览 + L/S 双区。
-
-    单个色银行槽位的交互格：背景为 \l ColorPreviewer（显示 \c slotColor，
-    含前景对比边框）；中央显示槽号，左右两半分别提供
-    \c L（载入）/ \c S（存入）操作区。悬停时槽号淡出、L/S 字母淡入；
-    按下（L 或 S 区）时前景半透明高亮覆盖。
-
-    \section1 L/S 交互（易误解，特别说明）
-
-    \list
-    \li 左半 \b L（Load）：发出 \l wannaLoad——宿主把 \c slotColor
-        载入当前颜色（\l ColorBankPanel 中写 \c colorAssistant.color）。
-        \b 仅在 \l loadEnabled 且 \c slotColor 有效（ColorAssistant
-        解析成功）时可点；禁用时光标为禁止符。
-    \li 右半 \b S（Save）：发出 \l wannaSave——宿主把当前颜色存入
-        本槽（\l ColorBankPanel 中写 \c colorBank.setColor）。
-        \b 仅在 \l saveEnabled 时可点。
-    \li 本组件\b 不自行读写 \l ColorBank——槽位数据与当前色通过
-        \c slotColor 属性双向由宿主接线（v3 同构）。
-    \endlist
-
-    \section1 属性
-
-    \qmlproperty int ColorBankSlotButton::slotNumber
-    槽位编号，仅用于中央槽号显示（v3 同构）。
-
-    \qmlproperty color ColorBankSlotButton::slotColor
-    本槽颜色（数据面，宿主绑定 \c colorBank.color(n)）。\b 注意：
-    属性被宿主赋值后绑定断开（v3 同构），由宿主负责写回
-    \l {ColorBank}{ColorBank.setColor}。
-
-    \qmlproperty bool ColorBankSlotButton::loadEnabled
-    L 区可点开关，默认 true。L 区额外要求 \c slotColor 有效。
-
-    \qmlproperty bool ColorBankSlotButton::saveEnabled
-    S 区可点开关，默认 true。
-
-    \qmlproperty bool ColorBankSlotButton::animationEnabled
-    动画总开关，默认继承父级或 \l {Style}{Style.animationEnabled}
-    （v4 惯例）。
-
-    \section1 信号
-
-    \qmlsignal ColorBankSlotButton::wannaSave()
-    S 区被点击时发出（宿主负责存入 \l {ColorBank}{ColorBank}）。
-
-    \qmlsignal ColorBankSlotButton::wannaLoad()
-    L 区被点击时发出（宿主负责载入当前色）。
-*/
+// 色银行槽位按钮（v3 ColorBankSlotButton 拍平）：色槽预览 + L/S 双区。
+//
+// 单个色银行槽位的交互格：背景为 ColorPreviewer（显示 `slotColor`，
+// 含前景对比边框）；中央显示槽号，左右两半分别提供
+// `L`（载入）/ `S`（存入）操作区。悬停时槽号淡出、L/S 字母淡入；
+// 按下（L 或 S 区）时前景半透明高亮覆盖。
+//
+// L/S 交互（易误解，特别说明）
+// - 左半 L（Load）：发出 wannaLoad——宿主把 `slotColor`
+//   载入当前颜色（ColorBankPanel 中写 `colorAssistant.color`）。
+//   仅在 `loadEnabled` 且 `slotColor` 有效（ColorAssistant
+//   解析成功）时可点；禁用时光标为禁止符。
+// - 右半 S（Save）：发出 wannaSave——宿主把当前颜色存入
+//   本槽（ColorBankPanel 中写 `colorBank.setColor`）。
+//   仅在 `saveEnabled` 时可点。
+// - 本组件不自行读写 ColorBank——槽位数据与当前色通过
+//   `slotColor` 属性双向由宿主接线（v3 同构）。
+//
+// 属性
+// - 属性 `slotNumber`（int）：槽位编号，仅用于中央槽号显示（v3 同构）。
+// - 属性 `slotColor`（color）：本槽颜色（数据面，宿主绑定
+//   `colorBank.color(n)`）。注意：属性被宿主赋值后绑定断开（v3 同构），
+//   由宿主负责写回 ColorBank.setColor。
+// - 属性 `loadEnabled`（bool）：L 区可点开关，默认 true。
+//   L 区额外要求 `slotColor` 有效。
+// - 属性 `saveEnabled`（bool）：S 区可点开关，默认 true。
+// - 属性 `animationEnabled`（bool）：动画总开关，默认继承父级或
+//   Style.animationEnabled（v4 惯例）。
+//
+// 信号
+// - 信号 wannaSave()：S 区被点击时发出（宿主负责存入 ColorBank）。
+// - 信号 wannaLoad()：L 区被点击时发出（宿主负责载入当前色）。
 T.Control {
     id: root
 

@@ -24,23 +24,17 @@ import QtQuick.Shapes
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype ColorSlider_Hue
-    \inqmlmodule Qool.Color
-    \brief 色相滑块（v3 逐字迁移）：彩虹渐变轨道 + 环绕式数值同步。
-
-    \c colorAssistant 为通道数据源（默认自带 ColorAssistant{}）。交互期间
-    写 \c hsvHueF，非交互期间由 \c hsvHueFChanged 反向同步 \c value。
-
-    \section2 易误解点
-    \list
-    \li 无效色相特殊处理（\c hsvHueF < 0 → 先写 \c hsvSaturationF = 0.001）：
-        详见文件头注释 1，这是 spec §7-9 明示的刻意设计。
-    \li \c value 经 CycleBetweenEdges 环绕（含 -1 修正）——hue 短暂越界时
-        环绕而非裁剪，是 v3 实数 cycle 的逐字行为。
-    \li 双击重置：value → defaultValue（0），与 Value/Alpha 的 1 不同。
-    \endlist
-*/
+// 色相滑块（v3 逐字迁移）：彩虹渐变轨道 + 环绕式数值同步。
+//
+// `colorAssistant` 为通道数据源（默认自带 ColorAssistant{}）。交互期间
+// 写 `hsvHueF`，非交互期间由 `hsvHueFChanged` 反向同步 `value`。
+//
+// 易误解点
+// - 无效色相特殊处理（`hsvHueF` < 0 → 先写 `hsvSaturationF` = 0.001）：
+//   详见文件头注释 1，这是 spec §7-9 明示的刻意设计。
+// - `value` 经 CycleBetweenEdges 环绕（含 -1 修正）——hue 短暂越界时
+//   环绕而非裁剪，是 v3 实数 cycle 的逐字行为。
+// - 双击重置：value → defaultValue（0），与 Value/Alpha 的 1 不同。
 ColorSlider {
     id: root
 

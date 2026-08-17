@@ -10,7 +10,7 @@
 //     时 direction/refDirection 变化不传播）；恢复非零后链条自动恢复
 //   - 符号规则——点积 ≤ 0 不校验，offset 反向（方向对配错的可观察症状）
 //
-// 契约依据（spec.md「Solution」「实现方案」+ qool_offsetprojector.cpp QDoc）：
+// 契约依据（spec.md「Solution」「实现方案」+ qool_offsetprojector.cpp 文件头文档）：
 //   offset 满足 offset ∥ direction_unit 且 offset·refDirection_unit ==
 //   refDistance；默认值 (1,0)/(1,0)/0 → 独立使用 offset 恒零向量。
 

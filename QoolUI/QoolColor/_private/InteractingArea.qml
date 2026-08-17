@@ -16,23 +16,18 @@ import QtQuick
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype InteractingArea
-    \inqmlmodule Qool.Color
-    \brief 拖动交互区（v3 逐字迁移）：只负责按下/释放切换 \c userInteracting，拖动语义由消费方实现。
-
-    本件刻意不做任何数值映射——各消费方的映射不同（水平滑块以鼠标 x 计算、
-    竖直滑块以 y 计算、表面控件以二维坐标计算），统一在此处会引入两套行为，
-    与 v3 滑块架构裁定（不合并基类）同理，映射留在消费方。
-
-    \section2 易误解点
-    \list
-    \li \c userInteracting 只在按下/释放时切换；消费方必须在 \c onPositionChanged
-        中自行检查它（v3 惯用法），本件不会"拦截"拖动事件做任何事。
-    \li \c cursorShape 在按下期间为 \c Qt.BlankCursor（隐藏光标，拖动时不遮挡取色
-        视觉），其余为 \c Qt.CrossCursor——这是 v3 的刻意交互反馈，勿删。
-    \endlist
-*/
+// 拖动交互区（v3 逐字迁移）：只负责按下/释放切换 `userInteracting`，
+// 拖动语义由消费方实现。
+//
+// 本件刻意不做任何数值映射——各消费方的映射不同（水平滑块以鼠标 x 计算、
+// 竖直滑块以 y 计算、表面控件以二维坐标计算），统一在此处会引入两套行为，
+// 与 v3 滑块架构裁定（不合并基类）同理，映射留在消费方。
+//
+// 易误解点
+// - `userInteracting` 只在按下/释放时切换；消费方必须在 `onPositionChanged`
+//   中自行检查它（v3 惯用法），本件不会"拦截"拖动事件做任何事。
+// - `cursorShape` 在按下期间为 `Qt.BlankCursor`（隐藏光标，拖动时不遮挡取色
+//   视觉），其余为 `Qt.CrossCursor`——这是 v3 的刻意交互反馈，勿删。
 MouseArea {
     id: root
     property bool userInteracting: false

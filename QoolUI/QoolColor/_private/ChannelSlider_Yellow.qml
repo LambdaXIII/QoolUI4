@@ -11,16 +11,10 @@ import QtQuick
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype ChannelSlider_Yellow
-    \inqmlmodule Qool.Color
-    \brief 黄色通道滑块（v3 逐字迁移）：竖直 ChannelBar + yellowF 双向绑定。
-
-    \section2 易误解点
-    \list
-    \li 标题 "YELO" 是 v3 刻意 4 字母缩写，勿"修正"。
-    \endlist
-*/
+// 黄色通道滑块（v3 逐字迁移）：竖直 ChannelBar + yellowF 双向绑定。
+//
+// 易误解点
+// - 标题 "YELO" 是 v3 刻意 4 字母缩写，勿"修正"。
 ChannelSlider {
     id: root
 

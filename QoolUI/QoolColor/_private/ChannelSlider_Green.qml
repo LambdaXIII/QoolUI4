@@ -11,17 +11,11 @@ import QtQuick
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype ChannelSlider_Green
-    \inqmlmodule Qool.Color
-    \brief 绿色通道滑块（v3 逐字迁移）：竖直 ChannelBar + greenF 双向绑定。
-
-    \section2 易误解点
-    \list
-    \li 标题 "GRIN" 是 v3 刻意采用的 4 字母缩写（GREEN→GRIN），非拼写错误；
-        整套 ChannelSlider 变体（BRIT/ALFA/MAGT/YELO/BLAK 等）均为此风格。
-    \endlist
-*/
+// 绿色通道滑块（v3 逐字迁移）：竖直 ChannelBar + greenF 双向绑定。
+//
+// 易误解点
+// - 标题 "GRIN" 是 v3 刻意采用的 4 字母缩写（GREEN→GRIN），非拼写错误；
+//   整套 ChannelSlider 变体（BRIT/ALFA/MAGT/YELO/BLAK 等）均为此风格。
 ChannelSlider {
     id: root
 

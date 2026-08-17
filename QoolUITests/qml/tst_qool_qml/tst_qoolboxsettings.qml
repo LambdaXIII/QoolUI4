@@ -16,7 +16,7 @@ import Qool
 //   NumberAnimation 作用于字段）
 // - control.settings（属性类型 QoolBoxSettings*）接受 QoolBoxSettings
 //   实例（内联/引用赋值类型完全匹配）；settings 实例替换后绑定链路自动重挂
-// - 引用语义（QDoc 契约）：整组赋值共享实例（一处修改另一处可见、字段绑定
+// - 引用语义（文档契约）：整组赋值共享实例（一处修改另一处可见、字段绑定
 //   作用于共享对象）；独立副本 = 新建实例赋值（互不影响）
 // - QoolBox 默认 wiring：settings 非 null、control.settings === settings、
 //   字段默认来自 Style 绑定（borderWidth == Style.controlBorderWidth、

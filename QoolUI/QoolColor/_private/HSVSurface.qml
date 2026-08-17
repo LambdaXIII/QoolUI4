@@ -37,25 +37,19 @@ import Qool
 import "NumTools.js" as Tools
 import Qool.Color
 
-/*!
-    \qmltype HSVSurface
-    \inqmlmodule Qool.Color
-    \brief HSV 色轮表面（v3 逐字迁移）：色相环 + 饱和度径向 + 明度压暗三层叠加。
-
-    消费方（HSVWheel）通过 \c hueAt / \c saturationAt / \c position /
-    \c check_point 做坐标↔HSV 映射；\c hsvValue 控制黑色压暗层的 alpha。
-
-    \section2 易误解点
-    \list
-    \li 色相映射 hue = angle - 0.75（红在圆顶）与 position 的 (hue - 0.25)·2π
-        是互逆的一对，改一个必须改另一个，否则光标与点击位置错位。
-    \li 半径是内切圆 min(w,h)/2——非方形容器下色轮是内切圆而非外接圆。
-    \li \c hsvValue = 1 时黑色层 alpha 0（不压暗）；\c hsvValue 越小压暗越重
-        （fillColor 黑色 + alpha 1 - hsvValue）。
-    \li v3 的 CircleGadget containmentMask 是死代码（见文件头注释），
-        本件没有圆形成员掩码——命中域由消费方的矩形 surface 掩码决定。
-    \endlist
-*/
+// HSV 色轮表面（v3 逐字迁移）：色相环 + 饱和度径向 + 明度压暗三层叠加。
+//
+// 消费方（HSVWheel）通过 `hueAt` / `saturationAt` / `position` /
+// `check_point` 做坐标↔HSV 映射；`hsvValue` 控制黑色压暗层的 alpha。
+//
+// 易误解点
+// - 色相映射 hue = angle - 0.75（红在圆顶）与 position 的 (hue - 0.25)·2π
+//   是互逆的一对，改一个必须改另一个，否则光标与点击位置错位。
+// - 半径是内切圆 min(w,h)/2——非方形容器下色轮是内切圆而非外接圆。
+// - `hsvValue` = 1 时黑色层 alpha 0（不压暗）；`hsvValue` 越小压暗越重
+//   （fillColor 黑色 + alpha 1 - hsvValue）。
+// - v3 的 CircleGadget containmentMask 是死代码（见文件头注释），
+//   本件没有圆形成员掩码——命中域由消费方的矩形 surface 掩码决定。
 Shape {
     id: root
 

@@ -5,92 +5,13 @@ import Qool.Controls.Components
 import Qool.Controls as Q
 import Qool
 
-/*!
-    \qmltype ComboBox
-    \inqmlmodule Qool.Controls
-    \brief 基于 QtQuick.Templates.ComboBox 的下拉选择框，支持可编辑文本与可配置的弹出方向。
-
-    ComboBox 是按钮与弹出列表的组合控件，用于从一组选项中选择一项。
-    本类型继承 QtQuick.Templates.ComboBox，接口与 QtQuick.Controls.ComboBox
-    完全兼容——\c model、\c currentIndex、\c currentText、\c editable、
-    \c editText、\c accepted()、\c find()、\c validator 等 Qt 官方 API
-    全部可用，宿主可参照 Qt 官方文档使用。在官方接口之上，本类型提供
-    外观定制（\c backgroundSettings、\c title、\c label）、内容内边距
-    （\c contentPadding 系列）与弹出方向控制（\c popupDirection）。
-
-    \section1 属性文档
-
-    \qmlproperty string ComboBox::title
-    标题文字，透传至背景盒顶部显示。
-
-    \qmlproperty string ComboBox::label
-    标签文字，透传至背景盒内部显示。
-
-    \qmlproperty real ComboBox::contentPadding
-    内容区四边统一内边距，默认 0。
-
-    \qmlproperty real ComboBox::contentTopPadding
-    \qmlproperty real ComboBox::contentBottomPadding
-    \qmlproperty real ComboBox::contentLeftPadding
-    \qmlproperty real ComboBox::contentRightPadding
-    内容区单边内边距，覆盖 \c contentPadding 的对应边，默认 0。
-
-    \qmlproperty int ComboBox::horizontalAlignment
-    显示文本水平对齐，默认 \c Text.AlignHCenter。
-
-    \qmlproperty int ComboBox::verticalAlignment
-    显示文本垂直对齐，默认 \c Text.AlignVCenter。
-
-    \qmlproperty int ComboBox::popupDirection
-    弹出层方向。\c Qore.Covered（默认）：弹出层覆盖在控件上；
-    \c Qore.Below：弹出层顶边紧贴控件底边；\c Qore.Above：弹出层底边
-    紧贴控件顶边。
-
-    \qmlproperty real ComboBox::popupOffsetX
-    \qmlproperty real ComboBox::popupOffsetY
-    弹出层相对默认位置的额外偏移（像素），默认 0。
-
-    \qmlproperty QoolBoxSettings ComboBox::backgroundSettings
-    背景外观设置（边框宽度/颜色、填充色、裁剪角），默认跟随
-    \c Style 的控件外观（\c controlBorderWidth、\c controlBorderColor、
-    \c controlBackgroundColor、\c controlCutSize）。
-
-    \section1 信号文档
-
-    \qmlsignal ComboBox::accepted()
-    继承自 Qt 官方接口，在可编辑模式下编辑结束尝试被接受时发出（输入
-    通过校验且与当前文本不一致），宿主在 \c onAccepted 中处理提交的
-    编辑文本（见"可编辑模式"）。
-
-    \qmlsignal ComboBox::rejected()
-    Qool 扩展——编辑结束尝试被拒绝时发出（校验不通过；文本保持原值、
-    model 不变），宿主可提示用户。
-
-    \section1 可编辑模式（editable）
-    \c editable 为 \c true 时，控件以 Qool EditableText（双层强化版——展示层
-    + 编辑会话）呈现文本，并支持文本选择（\c selectTextByMouse）等文本域
-    能力；编辑域状态机由 EditableText 承担（统一收尾/判定信号）。
-
-    输入内容的处理路径：设置 \c validator 对输入校验——编辑结束尝试
-    （Enter/失焦/Esc）时判定：输入可接受（\c acceptableInput）→ 发出
-    \c accepted() 并结束编辑；不可接受 → 发出 \c rejected()（Qool 扩展）
-    并结束编辑，文本保持原值（\b 契约差异：官方实现校验不通过时保持
-    编辑状态——本类型统一结束并宣告拒绝）。\c accepted() 发出后
-    \c editText 已同步为用户输入，宿主可在 \c onAccepted 中配合
-    \c find() 匹配模型项、设置 \c currentIndex，或将新文本加入模型——
-    注意 currentIndex/currentText 不会随提交自动更新，需宿主自行处理
-    （编辑接受不改写 model 文本——显示以 currentText 为准，宿主处理后
-    拉回；不处理则保留编辑文本）。popup 打开时按 Enter 激活高亮项，
-    不经过编辑提交路径。
-
-    \section1 flat 与委托
-    \c flat 且未悬浮、弹出层未打开、文本域未聚焦时背景完全透明。
-    delegate 默认使用 BasicItemDelegate，经 \c Style.follow 显式跟随
-    控件样式；宿主可替换 \c delegate 自定义列表项外观。
-*/
+// 可编辑模式：编辑域由 EditableText 承担（统一收尾/判定信号）——可接受 →
+// accepted()（editText 已同步为用户输入，currentIndex/currentText 不随提交
+// 自动更新，宿主自行处理）；不可接受 → rejected()（文本保持原值）。详细
+// 契约见 docs/reference/Qool.Controls/ComboBox.md。
 
 // 撤销编辑（Esc/校验失败）：由编辑域 EditableText 的统一收尾承担——拒绝
-// 判定（rejected）时文本保持原值（model 不变）——见 QDoc「可编辑模式」。
+// 判定（rejected）时文本保持原值（model 不变）——见 docs/reference/Qool.Controls/ComboBox.md。
 
 T.ComboBox {
     id: root

@@ -2,24 +2,9 @@ import QtQuick
 import QtQuick.Templates as T
 import QtQuick.Layouts
 
-/*!
-    \qmltype IndexIndicator
-    \inqmlmodule Qool.Controls.Components
-    \brief 指示当前索引的圆点指示器（ComboBox 等控件的 indicator 用）。
-
-    \c model 提供点位数量，\c currentIndex 高亮对应位（默认 -1 全不高亮）；
-    \c delegate 可整体替换点位外观，默认为 4x4 圆点（高亮色/普通色，
-    高亮位不透明，普通位 0.35 透明度）。\c implicitDelegateWidth/
-    \c implicitDelegateHeight 调整默认点位尺寸。\c orientation 决定排布
-    方向（默认 Qt.Vertical）。
-
-    \section2 单列/单行按 count 排布（刻意设计）
-    纵向（Qt.Vertical）时固定 \c columns 为 1、按 count 向下排布；
-    横向（Qt.Horizontal）时固定 \c rows 为 1、向右排布。此前 rows 曾
-    绑定 grid.height、columns 绑定 grid.width，形成自引用环（高度→行数
-    →高度），绑定循环求值不稳定；固定单列/单行同时保证 delegate
-    行高/列宽自适应，等宽覆盖场景可独立使用。
-*/
+// 指示当前索引的圆点指示器。单列/单行按 count 排布是刻意设计（此前
+// rows/columns 绑定 grid 尺寸形成自引用环，绑定循环求值不稳定）。详细
+// 契约见 docs/reference/Qool.Controls/IndexIndicator.md。
 
 T.Control {
     id: root

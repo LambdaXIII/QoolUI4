@@ -4,47 +4,6 @@
 
 QOOL_NS_BEGIN
 
-/*!
-    \qmltype ThemeHQ
-    \inqmlmodule Qool
-    \nativetype qoolui::ThemeHQ
-    \brief 主题 QML 面单例：主题查询、安装与前景对比色推荐。
-
-    ThemeHQ 是 \l Qool 模块的 QML 单例，**每 QQmlEngine 一个独立实例**
-    （经 \c create() 创建，parent = engine）——多 engine 场景（QML 测试
-    框架每文件建独立 engine、多窗口/多视图宿主）下各 engine 使用各自的
-    ThemeHQ 对象，互不共享。主题数据本身是 \b App 级共享的：底层
-    ThemeDB（进程级 C++ 全局单例）持有全部主题与插件，任意 engine 的
-    ThemeHQ 查询到的都是同一份数据；\c installTheme() 的安装结果对全部
-    engine 立即可见（\c themeInstalled 信号在安装发生的 engine 内重发）。
-
-    主题数据来源与注入方式：默认主题由系统调色板派生（\l SystemTheme）；
-    主题插件经 \c PluginLoader 自动安装。宿主需要在启动前决策主题时，
-    可在 C++ 侧操作 ThemeDB 预置数据（本类仅供 QML 面使用）。
-
-    \section1 行为
-
-    \list
-    \li \c theme(name) —— 按名取主题（值类型 \l Theme）；未知名回退到
-        已安装的首个主题。
-    \li \c anyValue(group/key) —— 跨主题扫描：首个包含该键的主题的值
-        胜出，全部无结果时返回默认值。
-    \li \c installTheme(theme) —— 安装主题（写面）；重名或空名被拒绝
-        且不发 \c themeInstalled。安装同时经底层模型发出 \c rowsInserted
-        （\l ThemeHQModel 视图实时更新）。
-    \li \c recommendForeground(bgColor, light, dark) / \c visualBrightness
-        —— 静态工具：背景 → 黑/白对比前景推荐（亮度阈值 0.4/0.6）与
-        感知亮度（0.299/0.587/0.114 加权）。
-    \endlist
-
-    \section1 属性
-
-    \list
-    \li \c themes —— 已安装主题名列表（只读）。
-    \li \c count —— 已安装主题数量（只读）。
-    \endlist
-*/
-
 ThemeHQ::ThemeHQ(QObject* parent)
   : QObject(parent) {
   // 信号重发：DB 是进程级单例（构造先于本类——instance() 首次调用

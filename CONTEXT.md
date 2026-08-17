@@ -8,7 +8,7 @@
 |---|---|
 | **全局单例（DB）** | 进程级 C++ 单例（`QOOL_SIMPLE_SINGLETON_*` 三件套），承载 C++ 世界的能力（数据/算法/写接口），供 C++ 消费者使用。**不暴露 QML**。命名统一 **XxxDB**（Database → DB，文件名同步）。 |
 | **QML 单例** | QML 类型系统中的单例概念：`QML_SINGLETON` 类型或 `pragma Singleton` QML 文件——**engine 级**概念（每 engine 至多一个实例）。 |
-| **违规模式** | "C++ 进程单例 + QML_SINGLETON 暴露"：同一 QObject 跨 engine 共享，违反 Qt 契约（"There can only be one engine accessing the singleton"），实测崩溃（ThemeDB SEGFAULT 0xc0000005）。 |
+| **违规模式** | "C++ 进程单例 + QML_SINGLETON 暴露"：同一 QObject 跨 engine 共享，违反 Qt 契约（"There can only be one engine accessing the singleton"），会崩溃（ThemeDB SEGFAULT 0xc0000005）。 |
 | **QML 侧配套对象（HQ）** | 全局单例的**消费者**：把 C++ 能力组织成 QML 可见形态（属性/方法/信号/模型）。**一定存在**（否则该能力对 QML 完全不可见）；形态自由（C++ 类 or QML 文件、单例 or 非单例）。统一命名 **XxxHQ**（类名 = QML 注册名），QML 单例每 engine 实例，**转发全部原暴露接口**（Q_INVOKABLE 方法为主，含 static/属性/信号），实现调 DB。 |
 | **消费者—提供者关系** | 配套对象与全局单例之间不是转发壳（壳调用核），是消费者按自身需要组织接口；全局单例提供服务，配套对象转译成 QML 形态。 |
 | **QML 文件单例** | `pragma Singleton` + CMake `QT_QML_SINGLETON_TYPE` 注册的 .qml 文件。每 engine 独立实例化，**天然安全**（不涉及跨 engine 共享）。实例：Qore / PixelFont / GlobalChatRoom。 |
@@ -19,7 +19,7 @@
 | **FileIconHQ** | QML 单例（每 engine 实例）：转发 iconUrl（Q_INVOKABLE 面）；requestPath/requrestUrl 纯 C++ 面不转发。iconUrl 实现直接调 `FileIconImageProvider::compileUrl` 静态（不经 DB）。 |
 | **FileInfoHQ** | QML 单例（每 engine 实例）：转发 getFileInfo ×2，实现调 FileInfoDB（命中共享缓存）。 |
 
-## 违规集（已全部改造，2026-08-13）
+## 违规集（已全部改造）
 
 | 类（DB） | QML 面（HQ） | 模块 | App 级状态 | C++ `instance()` 消费者 |
 |---|---|---|---|---|
@@ -35,7 +35,7 @@
 
 ## 形状体系（QoolBox）
 
-决策记录见 `docs/adr/architecture/0001-qml-singleton-contract.md`、`docs/adr/qoolbox/0002-qoolbox-space-layout.md`、`docs/adr/qoolbox/0003-qoolbox-single-shape.md`、`docs/adr/qoolbox/0004-qoolboxshapecontrol-rewrite.md`、`docs/adr/qoolbox/0005-qoolboxsettings-qml-cut-naming.md`、`docs/adr/qoolbox/0006-qoolboxgadget-internals.md`、`docs/adr/qoolbox/0007-qoolbox-role-split-public-surface.md`、`docs/adr/qoolbox/0008-qoolboxhud-whitebox.md`。
+决策记录见 `docs/adr/QoolUI/0001-qml-singleton-contract.md`、`docs/adr/QoolUI/Qool/0002-qoolbox-space-layout.md`、`docs/adr/QoolUI/Qool/0003-qoolbox-single-shape.md`、`docs/adr/QoolUI/Qool/0004-qoolboxshapecontrol-rewrite.md`、`docs/adr/QoolUI/Qool/0005-qoolboxsettings-qml-cut-naming.md`、`docs/adr/QoolUI/Qool/0006-qoolboxgadget-internals.md`、`docs/adr/QoolUI/Qool/0007-qoolbox-role-split-public-surface.md`、`docs/adr/QoolUI/Qool/0008-qoolboxhud-whitebox.md`。
 
 | 术语 | 定义 |
 |---|---|
@@ -45,7 +45,7 @@
 | **`*Space`** | topSpace/bottomSpace/leftSpace/rightSpace，内容内缩布局量（宿主排版 padding 用），QoolBoxShapeControl（C++）计算：`max(0, max(相邻 cut) − (used − 期望)/2)`，QoolBox 转发公开；同系组件（QoolBGBox 等）覆盖同名属性是期望行为（同系同类语义）。 |
 | **referenceBox** | gadget 几何委托源（5 介入点 ref 优先 null 回退）；双实例描边的内环 gadget 用它引用外环。 |
 | **QoolBoxGadget** | 八边形控制点计算器（gadget 模式，挂标准 ShapeControl 之下），纯坐标数学：cut*/borderWidth → 8 点 + contains，不碰样式与 settings。由 QoolBoxShapeControl（C++）构造时安装（outer + inner 双实例，referenceBox 链）；保留公开注册，可独立使用。 |
-| **settings（QoolBoxSettings）** | 外观束（几何 cut/offset/curved + 样式 border/fill/width）。单一类型（QML_ELEMENT 可实例化，ADR-0005 修订——QML 继承 Base 主路径实证否定后 Base 删除）；类型默认值 = C++ 常量，Style 默认由消费方在实例化处显式绑定。Style 供默认、settings 供实例覆盖；QObject 引用语义（整组赋值共享实例，QDoc 契约明示）。 |
+| **settings（QoolBoxSettings）** | 外观束（几何 cut/offset/curved + 样式 border/fill/width）。单一类型（QML_ELEMENT 可实例化，ADR-0005 修订——QML 继承 Base 主路径实证否定后 Base 删除）；类型默认值 = C++ 常量，Style 默认由消费方在实例化处显式绑定。Style 供默认、settings 供实例覆盖；QObject 引用语义（整组赋值共享实例，文档契约明示）。 |
 | **退行** | QoolBox 在 curved 且 cut 满足判定时退行到原生 Rectangle（非 Shape）。 |
 | **gadget 模式** | 坐标计算器挂标准 ShapeControl 之下：gadget = 纯坐标数学，ShapeControl = 几何基座（target → width/height/center 等派生量）。Crystal/Circle/Triangle/QoolBox 等 gadget 共用。 |
 | **双实例描边** | border 环 = 外环 gadget（borderWidth 0）+ 内环 gadget（borderWidth = 描边宽度，referenceBox 指外环）挖空；填充 = 内环单独。单 Shape 内两个 ShapePath 分别消费。 |

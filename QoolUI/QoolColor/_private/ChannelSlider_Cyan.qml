@@ -10,11 +10,7 @@ import QtQuick
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype ChannelSlider_Cyan
-    \inqmlmodule Qool.Color
-    \brief 青色通道滑块（v3 逐字迁移）：竖直 ChannelBar + cyanF 双向绑定。
-*/
+// 青色通道滑块（v3 逐字迁移）：竖直 ChannelBar + cyanF 双向绑定。
 ChannelSlider {
     id: root
 

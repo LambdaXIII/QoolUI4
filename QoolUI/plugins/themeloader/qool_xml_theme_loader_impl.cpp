@@ -12,39 +12,37 @@
 
 QOOL_NS_BEGIN
 
-/*!
-    \class XMLThemeLoaderImpl
-    \brief XML 主题文件的解析实现：把分层主题段求解为五组 QVariantMap。
-
-    \c XMLThemeLoader（门面）的 pimpl 实现体。\c load() 解析 XML 后填充
-    \c metadata、\c constants、\c active、\c inactive、\c disabled、
-    \c custom 六组映射，供门面只读暴露。
-
-    \section1 分层结构（刻意设计）
-    按 \c constants → \c active/inactive/disabled/custom 的顺序分层解析：
-    \c constants 段最先加载，作为全局引用基准；其余四段以
-    \c constants 叠加 \c active 的结果（refValues）为引用基准求解。
-    \c custom 段独立保存，不再并入 \c active——历史实现误写入
-    \c active，导致 custom 映射恒为空。
-
-    \section1 copy 前向引用求解（刻意设计）
-    \c copy 属性可引用同组内后声明的属性（前向引用）。\c has_ref 与
-    \c get_ref 必须查询同一集合：只从已求解的 \c result 与 \c refValues
-    取值，若 \c has_ref 额外命中未求解的 copy 属性，前向引用会取到空值
-    （如 \c decorativeTextSize copy toolTipTextSize 得 0.0）。copy 链经
-    多轮循环求解（上限为属性数的两倍），声明在前的属性先入 \c result，
-    后续轮次自然命中。
-
-    \section1 name 兜底（刻意设计）
-    \c load() 在开头与 \c load_metadata 整体覆盖后各补一次文件名基名：
-    XML 根元素无 \c name 属性时，\c metadata 的 \c name 恒为
-    \c QFileInfo(filename).baseName()，主题名始终可用。
-
-    值类型处理：\c color（\c darker/\c lighter）、\c number（\c add/
-    \c multiply）、\c string（\c prepend/\c append）、\c bool（真值集为
-    \c yes/\c true/\c ok，\c "no" 不在真值集）、\c list 与 \c stringlist
-    按元素求解。
-*/
+// 类：XMLThemeLoaderImpl
+// XML 主题文件的解析实现：把分层主题段求解为五组 QVariantMap。
+//
+// `XMLThemeLoader`（门面）的 pimpl 实现体。`load()` 解析 XML 后填充
+// `metadata`、`constants`、`active`、`inactive`、`disabled`、
+// `custom` 六组映射，供门面只读暴露。
+//
+// 分层结构（刻意设计）
+// 按 `constants` → `active/inactive/disabled/custom` 的顺序分层解析：
+// `constants` 段最先加载，作为全局引用基准；其余四段以
+// `constants` 叠加 `active` 的结果（refValues）为引用基准求解。
+// `custom` 段独立保存，不再并入 `active`——历史实现误写入
+// `active`，导致 custom 映射恒为空。
+//
+// copy 前向引用求解（刻意设计）
+// `copy` 属性可引用同组内后声明的属性（前向引用）。`has_ref` 与
+// `get_ref` 必须查询同一集合：只从已求解的 `result` 与 `refValues`
+// 取值，若 `has_ref` 额外命中未求解的 copy 属性，前向引用会取到空值
+// （如 `decorativeTextSize` copy toolTipTextSize 得 0.0）。copy 链经
+// 多轮循环求解（上限为属性数的两倍），声明在前的属性先入 `result`，
+// 后续轮次自然命中。
+//
+// name 兜底（刻意设计）
+// `load()` 在开头与 `load_metadata` 整体覆盖后各补一次文件名基名：
+// XML 根元素无 `name` 属性时，`metadata` 的 `name` 恒为
+// `QFileInfo(filename).baseName()`，主题名始终可用。
+//
+// 值类型处理：`color`（`darker`/`lighter`）、`number`（`add`/
+// `multiply`）、`string`（`prepend`/`append`）、`bool`（真值集为
+// `yes`/`true`/`ok`，`"no"` 不在真值集）、`list` 与 `stringlist`
+// 按元素求解。
 
 void XMLThemeLoaderImpl::load(const QString& filename) {
   this->filename = filename;

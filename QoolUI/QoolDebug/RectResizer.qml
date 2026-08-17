@@ -1,28 +1,6 @@
 import QtQuick
 import Qool
 
-/*!
-    \qmltype RectResizer
-    \inqmlmodule Qool.Debug
-    \brief 六手柄尺寸调整框：拖动手柄调整宿主（父项）的几何。
-
-    调试用装饰控件：六个手柄（Floater content 渲染在 Overlay 层）围绕
-    宿主四周——左右手柄调宽、上下手柄调高、四角手柄双向调整（拖动直接
-    修改宿主的 x/y/width/height，属调试语义：赋值会破坏宿主既有尺寸
-    绑定，宿主自行决定是否可接受）。手柄位置由 Floater 内置
-    PositionTracker 自动跟随祖先链变化（平移/缩放/旋转），无需手动刷新。
-
-    \section1 使用
-
-    直接作为目标的子项声明（\c anchors.fill: parent 自动铺满）：
-
-    \qml
-    Dial { RectResizer {} }
-    \endqml
-
-    手柄外观经 \c color / \c spacing / \c handleWidth 配置。
-*/
-
 Item {
     id: root
 
@@ -175,18 +153,3 @@ Item {
         y: root.height + root.spacing
     }
 }
-
-/*!
-    \qmlproperty color Qool::RectResizer::color
-    \brief 手柄颜色。默认取 Style.toolTipBase。
-*/
-
-/*!
-    \qmlproperty real Qool::RectResizer::spacing
-    \brief 手柄与宿主的间距（默认 20）。
-*/
-
-/*!
-    \qmlproperty real Qool::RectResizer::handleWidth
-    \brief 手柄厚度（默认 10）。
-*/

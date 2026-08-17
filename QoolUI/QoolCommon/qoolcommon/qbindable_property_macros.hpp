@@ -11,7 +11,7 @@
 // QOOL_MAKE_PROPERTY_BINDABLE：给非宏体系的普通 Q_PROPERTY 补 bindable
 // 访问（QBindable{this, name} 形态，用于绑定表达式读取，不用于实现
 // BINDABLE——依赖追踪限制见 Qt 文档）。
-// 详细文档见 qoolcommon/property_macros.qdoc。
+// 详细文档见 docs/reference/QoolCommon/property-macros.md。
 #include "_property_helpers.hpp"
 
 #include <QBindable>

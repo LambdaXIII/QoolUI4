@@ -5,22 +5,16 @@
 
 QOOL_NS_BEGIN
 
-/*!
-    \class SystemTheme
-    \inmodule Qool
-    \brief 系统主题单例：从宿主系统调色板提取三组角色色。
+// SystemTheme 系统主题单例：从宿主系统调色板提取三组角色色。
+// 构造时从 QGuiApplication 调色板提取 Active / Inactive / Disabled
+// 三组角色色（20 色 × 3 组），连同常量组（Constants）存入 Theme 数据表。
+// 三组语义与 QPalette 对齐，刻意保持组间数据不同：窗口激活时取 Active、
+// 窗口失活时取 Inactive、控件禁用时取 Disabled，使 UI 状态色真实反映
+// 系统调色板。常量组（动画时长、字号、基础色名等）不随状态变化。
+// 注意：组件库不负责主题持久化；宿主在 QML 根节点绑定 Style.theme
+// 注入主题（构建期生效、无闪烁）。本类仅供内部使用，宿主一般
+// 不需要直接引用。
 
-    构造时从 QGuiApplication 调色板提取 Active / Inactive / Disabled
-    三组角色色（20 色 × 3 组），连同常量组（Constants）存入 Theme 数据表。
-
-    三组语义与 QPalette 对齐，刻意保持组间数据不同：窗口激活时取 Active、
-    窗口失活时取 Inactive、控件禁用时取 Disabled，使 UI 状态色真实反映
-    系统调色板。常量组（动画时长、字号、基础色名等）不随状态变化。
-
-    \note 组件库不负责主题持久化；宿主在 QML 根节点绑定 \c Style.theme
-    注入主题（构建期生效、无闪烁）。本类仅供内部使用，宿主一般
-    不需要直接引用。
-*/
 QOOL_SIMPLE_SINGLETON_QT_IMPL(SystemTheme)
 
 SystemTheme::SystemTheme()

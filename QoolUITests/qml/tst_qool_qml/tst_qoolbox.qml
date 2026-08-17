@@ -265,7 +265,7 @@ TestCase {
         setCuts(box1, 10, 10, 10, 10)
         tryCompare(box1, "topSpace", 10, 1000)
         const box2 = createTemporaryObject(qboxComp, root, {})
-        // 共享同一 control：*Space 转发同一几何源（QDoc 引用/共享契约）
+        // 共享同一 control：*Space 转发同一几何源（文档引用/共享契约）
         box2.control = box1.control
         verify(box2.control === box1.control, "共享后两 box 应持同一 control")
         tryCompare(box2, "topSpace", 10, 1000)
@@ -320,7 +320,7 @@ TestCase {
 
     function test_variantRequiresControl() {
         // required control 不注入 → 运行时拒绝实例化（createTemporaryQmlObject
-        // 抛异常）——低级组成件"独立使用不自洽是刻意"的契约行为（QDoc 明示）
+        // 抛异常）——低级组成件"独立使用不自洽是刻意"的契约行为（文档明示）
         let rejected = false
         try {
             createTemporaryQmlObject("import Qool; OctagonShape {}", root)

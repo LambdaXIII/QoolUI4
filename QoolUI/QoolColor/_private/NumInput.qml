@@ -25,44 +25,35 @@ import QtQuick.Templates as T
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype NumInput
-    \inqmlmodule Qool.Color
-    \brief 双态数字/文本输入拍平件（v3 \c TextLineEdit 全功能拍平）。
-
-    两种显示形态：
-    \list 1
-    \li \b 滚动显示态：文字以单行滚动显示（\c display），内容超出宽度时可
-        滚轮左右滚动，底部随滚动位置移动的指示条（\c indicator）与编辑下划线
-        （\c bar）标注当前位置。
-    \li \b 编辑态：点击（\c editable 为 true 时）进入，显示为
-        \l {https://doc.qt.io/qt-6/qml-qtquick-textinput.html}{TextInput}，
-        回车或失焦结束编辑并写回 \c text。
-    \endlist
-
-    \section2 数值输入约定（刻意设计，v3 行为照迁）
-    本组件被 Color 面板用作 0..1 通道值输入框（HSV/HSL/RGB/CMYK 各通道）。
-    v3 中该约定散落在各面板的 \c Connections 里，拍平件将其收拢为
-    \l parseChannelValue() 一个入口，\b 语义与 v3 逐字一致：
-    \list
-    \li 输入 \c x > 1 时按 \c x / 1000 处理——允许用户直接键入 0..1000 的
-        整数来表示 0..1 的比例（如 \c 350 表示 0.35），这是 v3 的面板行为，
-        \b 不是 bug，请勿"修复"为普通除法或删除。
-    \li 结果限幅到 [0, 1]（与 v3 \c Tools.limitNumber(x, 0, 1) 等价；
-        NaN 透传，与 v3 一致，消费方自行处理空输入）。
-    \endlist
-
-    \section2 为什么在 Color/_private 而非 Controls
-    本件暂不耦合 v4 Controls（拍平件的消费方只有 Color 模块内部），TODO：
-    将来扩展为完整控件迁移至 v4 Qool.Controls（届时 Color 切换依赖，废弃本私有版）。
-
-    \section2 属性
-    \c text 为真实数据（写回目标）；\c displayText 为 \c renderText(text) 的
-    渲染结果（可覆写 \c renderText 做格式化）。\c editing 只读反映编辑态；
-    \c displayPosition 只读反映滚动位置（0..1）。\c emptyTextItem 是空文本时
-    的提示组件（默认"<空>"，可覆写）。\c editable 为 false 时不可编辑但仍可
-    滚动显示；\c showUnderline 控制下划线区域显隐。
-*/
+// 双态数字/文本输入拍平件（v3 `TextLineEdit` 全功能拍平）。
+//
+// 两种显示形态：
+// 1. 滚动显示态：文字以单行滚动显示（`display`），内容超出宽度时可
+//    滚轮左右滚动，底部随滚动位置移动的指示条（`indicator`）与编辑下划线
+//    （`bar`）标注当前位置。
+// 2. 编辑态：点击（`editable` 为 true 时）进入，显示为
+//    TextInput，回车或失焦结束编辑并写回 `text`。
+//
+// 数值输入约定（刻意设计，v3 行为照迁）
+// 本组件被 Color 面板用作 0..1 通道值输入框（HSV/HSL/RGB/CMYK 各通道）。
+// v3 中该约定散落在各面板的 `Connections` 里，拍平件将其收拢为
+// parseChannelValue() 一个入口，语义与 v3 逐字一致：
+// - 输入 `x` > 1 时按 `x` / 1000 处理——允许用户直接键入 0..1000 的
+//   整数来表示 0..1 的比例（如 `350` 表示 0.35），这是 v3 的面板行为，
+//   不是 bug，请勿"修复"为普通除法或删除。
+// - 结果限幅到 [0, 1]（与 v3 `Tools.limitNumber(x, 0, 1)` 等价；
+//   NaN 透传，与 v3 一致，消费方自行处理空输入）。
+//
+// 为什么在 Color/_private 而非 Controls
+// 本件暂不耦合 v4 Controls（拍平件的消费方只有 Color 模块内部），TODO：
+// 将来扩展为完整控件迁移至 v4 Qool.Controls（届时 Color 切换依赖，废弃本私有版）。
+//
+// 属性
+// `text` 为真实数据（写回目标）；`displayText` 为 `renderText(text)` 的
+// 渲染结果（可覆写 `renderText` 做格式化）。`editing` 只读反映编辑态；
+// `displayPosition` 只读反映滚动位置（0..1）。`emptyTextItem` 是空文本时
+// 的提示组件（默认"<空>"，可覆写）。`editable` 为 false 时不可编辑但仍可
+// 滚动显示；`showUnderline` 控制下划线区域显隐。
 
 T.Control {
     id: root
@@ -315,29 +306,22 @@ T.Control {
         }
     }
 
-    /*!
-        \qmlmethod real NumInput::parseChannelValue(string s)
-
-        将输入字符串解析为 0..1 归一化通道值（v3 面板行为收拢入口）。
-        \list
-        \li \c parseFloat 解析；
-        \li 结果 \c x > 1 时按 \c x / 1000 处理（允许键入 0..1000 整数表示
-            0..1 比例，v3 行为照迁——刻意设计，勿当 bug 修）；
-        \li 限幅到 [0, 1]；NaN 透传（与 v3 \c Tools.limitNumber 一致，
-            消费方自行处理空输入）。
-        \endlist
-
-        典型用法（Color 面板通道输入）：
-        \code
-        Connections {
-            enabled: channelInput.editing
-            target: channelInput
-            function onTextChanged() {
-                colorAssistant.hsvHueF = channelInput.parseChannelValue(channelInput.text)
-            }
-        }
-        \endcode
-    */
+    // 方法 parseChannelValue(s)：real：将输入字符串解析为 0..1 归一化
+    // 通道值（v3 面板行为收拢入口）。
+    // - `parseFloat` 解析；
+    // - 结果 `x` > 1 时按 `x` / 1000 处理（允许键入 0..1000 整数表示
+    //   0..1 比例，v3 行为照迁——刻意设计，勿当 bug 修）；
+    // - 限幅到 [0, 1]；NaN 透传（与 v3 `Tools.limitNumber` 一致，
+    //   消费方自行处理空输入）。
+    //
+    // 典型用法（Color 面板通道输入）：
+    //     Connections {
+    //         enabled: channelInput.editing
+    //         target: channelInput
+    //         function onTextChanged() {
+    //             colorAssistant.hsvHueF = channelInput.parseChannelValue(channelInput.text)
+    //         }
+    //     }
     function parseChannelValue(s) {
         let x = parseFloat(s)
         if (x > 1)
@@ -349,11 +333,7 @@ T.Control {
         return x
     }
 
-    /*!
-        \qmlmethod void NumInput::edit()
-
-        外部主动进入编辑态（等价点击行为）。
-    */
+    // 方法 edit()：外部主动进入编辑态（等价点击行为）。
     function edit() {
         pControl.start_edit()
     }

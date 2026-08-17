@@ -7,7 +7,8 @@
 - 每个功能一个目录：`.scratch/<feature-slug>/`
 - spec 位于 `.scratch/<feature-slug>/spec.md`
 - 实现 issue 是逐个票文件：`.scratch/<feature-slug>/issues/<NN>-<slug>.md`，从 `01` 编号——绝不合并成单一 tickets 文件
-- Triage 状态记录在票文件顶部附近的 `Status:` 行（角色字符串见 `triage-labels.md`）
+- `Status:` 行记录状态：`spec.md` 顶部记录 spec 级状态（`in-progress`/`done`/`abandoned`）；票文件顶部附近记录票级状态（开放字段，非闭集——实现态 `open`/`in-progress`/`done`/`rejected`、wayfinder 态 `claimed`/`resolved`、triage 角色 `needs-triage`/`needs-info`/`ready-for-agent`/`ready-for-human`/`wontfix`，角色字符串见 `triage-labels.md`）
+- `Type:` 行记录票类型：`research`/`prototype`/`grilling`/`task`（开放字段，非闭集）
 - 评论与对话历史以 `## Comments` 标题追加到文件末尾
 
 ## 当技能说"发布到 issue tracker"

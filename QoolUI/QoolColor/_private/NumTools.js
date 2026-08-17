@@ -10,17 +10,13 @@
 // 消费方：ColorSlider / ChannelSlider（simplifyChannelNumber + limitNumber）、
 // ColorCursor / HSVSurface / HSLBox（limitNumber）。
 
-/*!
-    \brief Qool.Color 模块私有数值工具库（v3 NumTools.js 逐字迁移）。
-
-    三个函数均与 v3 逐字一致：
-    \list
-    \li \c limitNumber(v, left, right)：按 min/max 顺序无关地裁剪到区间（NaN 透传）。
-    \li \c simplifyChannelNumber(x)：0/1 原样返回，其余 \c toFixed(3) 后去除
-        前导零（"0.500" → ".500"）——v3 显示怪癖，滑块数值文本依赖，勿改。
-    \li \c mapNumber(x, in1, in2, out1, out2)：线性重映射（v3 无消费方，API 面保留）。
-    \endlist
-*/
+// Qool.Color 模块私有数值工具库（v3 NumTools.js 逐字迁移）。
+//
+// 三个函数均与 v3 逐字一致：
+// - `limitNumber(v, left, right)`：按 min/max 顺序无关地裁剪到区间（NaN 透传）。
+// - `simplifyChannelNumber(x)`：0/1 原样返回，其余 `toFixed(3)` 后去除
+//   前导零（"0.500" → ".500"）——v3 显示怪癖，滑块数值文本依赖，勿改。
+// - `mapNumber(x, in1, in2, out1, out2)`：线性重映射（v3 无消费方，API 面保留）。
 
 function limitNumber(v, left, right) {
     const min = Math.min(left, right)

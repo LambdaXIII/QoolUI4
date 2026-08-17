@@ -83,64 +83,6 @@ QPointF nearest_vertex(const QPointF& point, const QList<QPointF>& verts) {
 
 } // namespace
 
-/*!
-    \qmltype QoolBoxGadget
-    \inqmlmodule Qool
-    \nativetype qoolui::QoolBoxGadget
-    \brief 八边形控制点计算器（Gadget）：cut 硬参数 + 期望尺寸的单一 8 点模型。
-
-    挂载于标准 \l ShapeControl 之下（ShapeControl 子对象自动关联
-    \c control），输出单一 8 点 \c pointTL..pointLT（每点另有
-    \c pointTLx/\c pointTLy 等分量）——由 \c borderWidth 参数化形态：
-    0 为外轮廓，> 0 时 8 点沿各边法线内缩，< 0 为外扩。
-    双实例描边 = 宿主实例化两个 gadget（外环 \c borderWidth 0 /
-    内环 = 目标描边宽度），组件字面只有 8 点。
-
-    \section1 语义
-
-    \c cutTL..cutBR 是硬参数：形状由 cut 决定，不因尺寸不足而压缩；
-    \c width/\c height（经 \c control 读取）是期望尺寸——图形尽量符合，
-    极限情况（cut 需求超过期望尺寸）从期望中心对称溢出，而非压缩 cut。
-    负 cut 归零（直角点）。所有退化状态（矩形/菱形/三角形/凸多边形/
-    点重合/线段）都是定义良好的合法极限形态。
-
-    \section1 输入接线
-
-    \list
-    \li \c cutTL..cutBR：四角切角尺寸（硬参数，默认 0 = 直角）；
-    \li \c borderWidth：内缩距离（默认 0 = 外轮廓；双实例描边时内环
-        实例设为目标描边宽度）；
-    \li \c offsetX/\c offsetY：整体平移（唯一位置输入）；
-    \li \c width/\c height：经 \c control 读取（期望尺寸）——宿主设置
-        \c target 的几何即可，无需为 gadget 另设尺寸；
-    \li \c referenceBox：几何参考源（见下）。
-    \endlist
-
-    \section1 命名规范
-
-    首字母 = 点所在边、次字母 = 该边端点位置——\c TL = Top 边 Left
-    端点、\c LT = Left 边 Top 端点（8 个命名互不混淆）。每点另有
-    \c pointTLx/\c pointTLy 等分量属性。
-
-    \section1 referenceBox（几何参考源）
-
-    \c referenceBox 赋另一个 gadget 时，本 gadget 的 \c origin、\c offset、
-    \c vec*、\c used*、\c cut* 经其覆盖（ref 优先），仅 \c borderWidth
-    与 shrink 层自行处理——几何完全委托。赋值校验：目标自身已有
-    reference 时赋值无效（链式引用与环被阻止），本 gadget 的
-    referenceBox 置 null。
-
-    \section1 命中判定
-
-    \l {contains()} 精确命中八边形：斜边/边/顶点命中（开集语义），
-    切角区域不命中；\c borderWidth 不影响判定。
-
-    \section1 算法
-
-    点定位与内缩（shrink）算法、临界距离解析式的推导与边界条件详见
-    \l {qoolbox-geometry.html} {QoolBoxGadget 几何与内缩算法}。
-*/
-
 QoolBoxGadget::QoolBoxGadget(QObject* parent)
   : ShapeControlGadget(parent) {
   // —— ① used（ref 介入：ref.used : 自算）——
@@ -416,15 +358,6 @@ QoolBoxGadget::QoolBoxGadget(QObject* parent)
 #undef SETUP_XY
 }
 
-/*!
-    \qmlmethod bool QoolBoxGadget::contains(point point)
-    \brief 精确命中判定：八边形内命中，切角区域不命中。
-
-    开集语义：斜边/边/顶点命中（边界本身算命中）。\c borderWidth
-    不影响判定（双实例描边中任选实例语义一致）。\c referenceBox
-    模式下自动跟随几何参考。算法细节见
-    \l {qoolbox-geometry.html} {QoolBoxGadget 几何与内缩算法}。
-*/
 bool QoolBoxGadget::contains(const QPointF& point) const {
   const auto ref = m_referenceBox.value();
   const qreal ox = ref ? ref->bindable_offsetX().value() : m_offsetX.value();

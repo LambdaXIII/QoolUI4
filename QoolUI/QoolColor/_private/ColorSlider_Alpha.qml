@@ -14,19 +14,13 @@ import QtQuick.Shapes
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype ColorSlider_Alpha
-    \inqmlmodule Qool.Color
-    \brief 透明度滑块（v3 逐字迁移）：当前色 → 透明渐变轨道，双向绑定 alphaF。
-
-    \section2 易误解点
-    \list
-    \li 渐变终点是 \c displayColor（= colorAssistant.solidColor）而非纯色常量——
-        通道色变化时渐变随之变化，勿改成固定颜色。
-    \li \c displayColor 语义与 Value 滑块相同（去 alpha 的当前色），
-        但本滑块控制的是 alphaF 本身。
-    \endlist
-*/
+// 透明度滑块（v3 逐字迁移）：当前色 → 透明渐变轨道，双向绑定 alphaF。
+//
+// 易误解点
+// - 渐变终点是 `displayColor`（= colorAssistant.solidColor）而非纯色常量——
+//   通道色变化时渐变随之变化，勿改成固定颜色。
+// - `displayColor` 语义与 Value 滑块相同（去 alpha 的当前色），
+//   但本滑块控制的是 alphaF 本身。
 ColorSlider {
     id: root
 

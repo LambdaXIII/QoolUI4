@@ -7,7 +7,7 @@
 // 的绑定）依赖 QML 引擎轮询/值重设语义，区别于 QObject 属性。
 // 签名：QGADGET_*_PROPERTY(_T_, _N_, _D_, ...)——_D_ 默认值必填；
 // ... 为 Q_PROPERTY 附加选项通道。DECLARE 版不生成成员与实现。
-// 详细文档见 qoolcommon/property_macros.qdoc。
+// 详细文档见 docs/reference/QoolCommon/property-macros.md。
 #include "_property_helpers.hpp"
 
 #define QGADGET_WRITABLE_PROPERTY(_T_, _N_, _D_, ...)                        \

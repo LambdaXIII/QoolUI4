@@ -2,22 +2,13 @@ import QtQuick
 import QtQuick.Shapes
 import Qool
 
-/*!
-    \qmltype OctagonCurvedInternalShapePath
-    \inqmlmodule Qool
-    \brief 八边形圆角内部填充形状路径。
-
-    由内部 8 点（\c int*）构成闭合环（填充区域），控制点委托
-    \l QoolBoxShapeControl，本类型不持有几何。内弧半径 = 内环相邻点
-    弦长/√2（pCtrl，四角独立；退化弦长 0 → 半径 0）。
-
-    供 \l QoolBox 内部使用（经 \l OctagonCurvedShape）；宿主一般不需要
-    直接实例化。
-*/
+// 八边形圆角内部填充形状路径：控制点委托 QoolBoxShapeControl，本类型
+// 不持有几何；供 QoolBox 内部使用。详细契约见
+// docs/reference/Qool/OctagonCurvedInternalShapePath.md。
 ShapePath {
     id: root
 
-    /*! \qmlproperty QoolBoxShapeControl 八边形控制点计算源（来自宿主 QoolBox 的 control）。 */
+    // 八边形控制点计算源（来自宿主 QoolBox 的 control）
     property QoolBoxShapeControl control
 
     joinStyle: ShapePath.BevelJoin

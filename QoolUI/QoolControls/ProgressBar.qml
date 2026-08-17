@@ -4,26 +4,9 @@ import QtQuick.Templates as T
 import Qool
 import Qool.Controls.Components
 
-/*!
-    \qmltype ProgressBar
-    \inqmlmodule Qool.Controls
-    \brief 基于 T.ProgressBar 的 QoolUI 风格进度条。
-
-    \c value 默认 0.5；\c cycleDuration 控制循环动画周期（默认两倍
-    Style.movementDuration）；\c horizontalAlignment（默认左对齐）决定
-    进度填充的对齐方向。外观：\c highlightColor 为进度条主色、
-    \c alternateHighlightColor 为渐变次色（主色 20% 透明度）、
-    \c borderColor/\c backgroundColor 控制边框与底色；\c radius 决定
-    圆角（默认高度一半）；\c settings 为只读 QoolBoxSettings，供外部
-    读取边框配置。
-
-    \section2 indeterminate 运动不随 animationEnabled 门控（刻意设计）
-    indeterminate（不定进度）模式的往复循环动画不读取
-    \c Style.animationEnabled：运动是"不定进度模式"的功能语义（模式
-    本身通过运动表达），而非装饰效果；动画门控只影响装饰类效果
-    （详见 AGENTS「animationEnabled 语义」）。若宿主需要在高性能
-    模式下停止循环，应自行接管 indeterminate 状态而非依赖门控。
-*/
+// indeterminate 运动不随 animationEnabled 门控（刻意设计）：往复循环是
+// "不定进度模式"的功能语义（模式本身通过运动表达），动画门控只影响
+// 装饰类效果。详细契约见 docs/reference/Qool.Controls/ProgressBar.md。
 
 T.ProgressBar {
     id: root

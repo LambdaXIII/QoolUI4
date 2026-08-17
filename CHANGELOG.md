@@ -2,6 +2,27 @@
 
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
+## [4.0.0] — 2026-08-17
+
+### 变更（norms-system-landing，规范体系重设计落地）
+
+- **根 AGENTS.md 重写为 12 节**：文档地图（置顶，各设施一句）/定位/模块架构/技术栈约束/构建命令/编码规范（C++）/QML 组件规范/注释与文档规范（Markdown）/测试/工作流约定/已知陷阱/变更记录。全篇术语「官方插件」→「自带插件」；QDoc 规范节、依赖机制三场景表、已知陷阱 1/4、关键文件路径表删除；已知陷阱仅留「不能假定仅有一个 QML 引擎存在」一条
+- **ADR 迁移到严格模块粒度**：`docs/adr/qoolbox/0002-0008`（7 篇）→ `docs/adr/QoolUI/Qool/`；`docs/adr/architecture/0001` → `docs/adr/QoolUI/`（子项目级通用件）；空目录删除；`docs/adr/README.md` 重写（两级布局 + 全局流水号约定 + 新索引）；CONTEXT.md 形状体系 ADR 路径同步
+- **QDoc → Markdown 迁移**：13 个 `.qdoc` 全部删除，转换 14 个目标文件——`docs/reference/Qool/index.md`、`docs/reference/Qool.Color/index.md`、`docs/reference/QoolCommon/` 8 篇（property-macros/std-tools/qt-tools/lazy-cache/default-variant-map/math-utils/range-counter/math-geometry）、`docs/articles/` 4 篇（style-system/window-parts/qoolbox-geometry/plugin-interfaces）；正文逐句保留，仅术语修正
+- **docs/agents 三件套更新**：issue-tracker.md 状态字段清单合并（spec 级三态 + 票级开放字段清单）；domain.md 重写为单 context 形态（ADR 读取路径改 `docs/adr/<子项目>/<模块>/`）；triage-labels.md 不动
+- **子/模块 AGENTS**：QoolUITests/AGENTS.md 新增「工作流」节（测试工作流 SHOULD / 摩擦求助 MUST / 摩擦反馈回路 SHOULD）+ 引用修正 + 元语境清理；QoolUI/QoolFile/AGENTS.md 多层插拔标题改指向根规范；新建 QoolUI/QoolDebug/AGENTS.md（Debug 边界暴露原则唯一归属）；新建 QoolUIExample/AGENTS.md（页面组织）
+- **源码注释引用修正**：HalfCrystal.qml/OctagonShape.qml/qool_qoolbox_shapecontrol.cpp 删除「AGENTS.md 已知陷阱 5」引用（注释本体保留）；singleton.hpp 引用改「根 AGENTS.md 已知陷阱（QML 引擎唯一性）」；colornameprovider/CMakeLists.txt「插件约定」引用保持（新根第 3 节仍含）
+- **验证**：configure + build（68/68）+ 测试 18/18 全绿；终验 grep/glob 全部 0 匹配（qdoc 空、旧 ADR 路径空、陷阱 5 引用空、Scripts 大写空、AGENTS 产物元语境空）
+
+### 变更（qdoc-residue-cleanup，源码 QDoc 注释块全面迁移）
+
+- **源码 QDoc 注释块迁移（107 文件全清）**：源码内嵌 `/*! ... */` QDoc 注释块（`\qmltype`/`\qmlproperty`/`\qmlsignal`/`\qmlmethod`/`\inqmlmodule`/`\nativetype`/`\section` 等命令）全部移除——公开类型的成篇文档内容完整迁移为 `docs/reference/<模块>/<类型>.md`（**英文、Qt 官方文档风格、MUST 5 节**：Overview/Properties/Signals/Methods/Usage Example，与源码核实后重写，非映射式转换）；_private 私有件与纯 C++ 内部类（无 reference）的 QDoc 块转为普通简体中文注释（内容逐句保留、仅去 QDoc 命令标记）
+- **reference 文档新增 68 篇**：Qool 25（BasicLabel/BasicRotationBehavior/Crystal/CutSizeBinding/DragMoveArea/Floater/HalfCrystal/Octagon×6/QoolBox/TimerLatch/ShapeControl/QoolBoxSettings/QoolBoxShapeControl/OffsetProjector/QoolBoxGadget/RectGadget/ThemeHQ/ThemeHQModel/ItemTracker/PositionTracker）、Qool.Chat 5（Beeper/ChatRoom/Message/MsgChannelSet/MessageLogger）、Qool.Color 15（9 QML + 6 C++）、Qool.Controls 15（11 主目录 + 4 Components）、Qool.Debug 3（ColorButton/QoolBoxHud/RectResizer）、Qool.File 8（3 QML + 5 C++）；每篇含属性/信号/方法与源码声明逐项核实（实例：RandomHSVColorGenerator 以恢复后的 v3 名 minimumHue 等与只读 previous 为准、Message 拷贝生成新身份契约、EditableText 双层编辑会话/判定信号、QoolBox 退行与命中判定）
+- **模块 index 补齐**：Qool.Chat/Qool.Controls/Qool.Debug/Qool.File 新建 index.md；Qool/Qool.Color index 追加组件参考链接清单
+- **悬空引用清理**：4 个宏头文件「详细文档见 property_macros.qdoc」→ `docs/reference/QoolCommon/property-macros.md`；Floater/HalfCrystal/ComboBox 等 13 处源码注释「见 QDoc」→「见 reference 文档」；math-utils.md/qt-tools.md/plugin-interfaces.md 的 QDoc 体系表述改为 Markdown 文档表述；Scripts/qoolui_build_common.py「qdoc 文档包」→「Markdown 文档包」
+- **公开类型源码注释规范对齐**：迁移后公开类型文件头不留成篇中文文档（内容已进 reference），保留点状就地注释（设计意图/非显然行为/陷阱）+ reference 路径指引，符合根 AGENTS「注释点状就地、文档成篇完整」分工
+- **验证**：grep 全仓 `/*!`、`\qml*`、`\section`、`\list`、`\brief`、`\class` 等 QDoc 命令零残留（含 QoolUI/QoolUITests/docs/Scripts/Example）；build 全量成功；测试 18/18 全绿
+
 ## [4.0.0] — 2026-08-14
 
 ### 新增（rangeslider，Qool.Controls.RangeSlider 区间滑块）

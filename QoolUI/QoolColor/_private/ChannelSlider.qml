@@ -30,23 +30,17 @@ import Qool
 import "NumTools.js" as Tools
 import Qool.Color
 
-/*!
-    \qmltype ChannelSlider
-    \inqmlmodule Qool.Color
-    \brief 通道竖直滑块基类（v3 逐字迁移）：ChannelBar 轨道 + 数值输入 + 底部标题。
-
-    变体（ChannelSlider_Red/Green/...）提供 \c channelColor 与通道双向绑定。
-    \c channelColor 用于填充条与边框；\c value 由 \c userInteracting 门控的
-    两个互斥 Binding 与 colorAssistant 通道同步（见变体文件）。
-
-    \section2 易误解点
-    \list
-    \li 竖直映射 v = 1 - mouseY/height（向上增大），与 ChannelBar 的
-        "从底部向上填充"配套——改任一侧都会错位。
-    \li 标题在 \b 底部（数值输入在轨道下方、标题在最下），v3 布局原样。
-    \li 数值编辑经 NumInput.parseChannelValue（x > 1 → /1000，v3 行为照迁）。
-    \endlist
-*/
+// 通道竖直滑块基类（v3 逐字迁移）：ChannelBar 轨道 + 数值输入 + 底部标题。
+//
+// 变体（ChannelSlider_Red/Green/...）提供 `channelColor` 与通道双向绑定。
+// `channelColor` 用于填充条与边框；`value` 由 `userInteracting` 门控的
+// 两个互斥 Binding 与 colorAssistant 通道同步（见变体文件）。
+//
+// 易误解点
+// - 竖直映射 v = 1 - mouseY/height（向上增大），与 ChannelBar 的
+//   "从底部向上填充"配套——改任一侧都会错位。
+// - 标题在底部（数值输入在轨道下方、标题在最下），v3 布局原样。
+// - 数值编辑经 NumInput.parseChannelValue（x > 1 → /1000，v3 行为照迁）。
 ColumnLayout {
     id: root
 

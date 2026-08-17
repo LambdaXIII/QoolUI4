@@ -31,7 +31,7 @@ QOOL_NS_BEGIN
 // 实现（现状模式
 // `settings: QoolBoxSettings { borderWidth: Style.controlBorderWidth; ... }`）。
 //
-// 引用语义（QDoc 契约）：QObject 引用——`qbox1.settings: qbox2.settings`
+// 引用语义（文档契约）：QObject 引用——`qbox1.settings: qbox2.settings`
 // 共享同一实例（字段绑定/动画作用于共享对象）；独立副本 = 新建实例赋值。
 class QoolBoxSettings : public QObject {
   Q_OBJECT

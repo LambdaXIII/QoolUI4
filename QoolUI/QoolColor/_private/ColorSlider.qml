@@ -31,26 +31,20 @@ import Qool
 import "NumTools.js" as Tools
 import Qool.Color
 
-/*!
-    \qmltype ColorSlider
-    \inqmlmodule Qool.Color
-    \brief 颜色通道水平滑块基类（v3 逐字迁移）：标题 + 数值输入一行，轨道 + 光标一行。
-
-    变体（ColorSlider_Hue/Value/Alpha）提供 \c fillGradient 与通道双向绑定；
-    本基类负责轨道外观（ColorSliderBackground）、光标（ColorCursor）、
-    拖动/双击/数值输入交互。
-
-    \section2 易误解点
-    \list
-    \li 拖动映射的 \c cursor.size/2 偏移与 \c cursor.width 行程是刻意设计（见文件头
-        注释）——直接改成 \c mouseX / width 会改变光标行程与数值对应关系。
-    \li \c displayValue 与 \c value 是两回事：value 是数据面（输入输出），
-        displayValue 是光标动画面。拖动时门控动画，松手后平滑。
-    \li 双击重置为 \c defaultValue（各变体：Hue=0、Value=1、Alpha=1）。
-    \li 数值输入 x > 1 按 /1000 处理（允许键入 0..1000 表示 0..1 比例），
-        这是 v3 行为照迁，勿当 bug 修（详见 NumInput）。
-    \endlist
-*/
+// 颜色通道水平滑块基类（v3 逐字迁移）：标题 + 数值输入一行，轨道 + 光标一行。
+//
+// 变体（ColorSlider_Hue/Value/Alpha）提供 `fillGradient` 与通道双向绑定；
+// 本基类负责轨道外观（ColorSliderBackground）、光标（ColorCursor）、
+// 拖动/双击/数值输入交互。
+//
+// 易误解点
+// - 拖动映射的 `cursor.size/2` 偏移与 `cursor.width` 行程是刻意设计（见文件头
+//   注释）——直接改成 `mouseX / width` 会改变光标行程与数值对应关系。
+// - `displayValue` 与 `value` 是两回事：value 是数据面（输入输出），
+//   displayValue 是光标动画面。拖动时门控动画，松手后平滑。
+// - 双击重置为 `defaultValue`（各变体：Hue=0、Value=1、Alpha=1）。
+// - 数值输入 x > 1 按 /1000 处理（允许键入 0..1000 表示 0..1 比例），
+//   这是 v3 行为照迁，勿当 bug 修（详见 NumInput）。
 Item {
     id: root
 

@@ -75,7 +75,7 @@ U remap(T input, T in_min, T in_max, U out_min, U out_max) {
 }
 
 /**
- * 将 \c value 循环折返约束到 [min, max] 区间（模数回绕，非钳制）。
+ * 将 `value` 循环折返约束到 [min, max] 区间（模数回绕，非钳制）。
  *
  * 与 auto_bound（超界钳制在边界）不同，本函数把区间视为环：
  * value 超出区间时按模数折回——从 max 一侧继续向外走会绕回 min。
@@ -91,7 +91,7 @@ U remap(T input, T in_min, T in_max, U out_min, U out_max) {
  *
  * 示例（min=0, max=10）：5 → 5；12 → 2；-3 → 7；10 → 10。
  *
- * \note N 应为有符号整型或浮点类型：无符号类型下区间外取值与
+ * 注意：N 应为有符号整型或浮点类型：无符号类型下区间外取值与
  * 负余数修正路径依赖 fmod 的负返回值，为未定义行为。
  */
 template <typename N>

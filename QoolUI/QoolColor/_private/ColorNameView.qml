@@ -22,44 +22,31 @@ import Qool
 import "NumTools.js" as Tools
 import Qool.Color
 
-/*!
-    \qmltype ColorNameView
-    \inqmlmodule Qool.Color
-    \brief 色名列表视图（v3 ColorNameView 拍平）：分类色名 + 互斥点选。
-
-    以 \l {ColorNameHQ}{ColorNameHQ.names(category)} 为模型展示色名列表，
-    每行一个 \l ColorNameButton；点选互斥（同一时刻至多一项选中，
-    v3 ButtonGroup 独占语义拍平）。
-
-    \section1 属性
-
-    \qmlproperty string ColorNameView::category
-    当前分类（v3 的 \c catagory 拼写修正）。模型为
-    \l {ColorNameHQ}{ColorNameHQ.names(category)}；改值即换列表内容。
-    默认 \c "DEFAULT"（与默认色名插件的分类一致）。
-
-    \qmlproperty font ColorNameView::font
-    色名行字体，默认 \l {PixelFont}{PixelFont.normal}（v3 同构）。
-
-    \qmlproperty color ColorNameView::currentColor
-    只读，当前选中行的颜色（\l ColorNameButton::color）。\b 取消选中
-    后保持最后一次选中值（v3 同构：deselect 不清空 currentColor）。
-
-    \section1 方法
-
-    \qmlmethod void ColorNameView::deselect()
-    取消当前选中（等价点击已选中的行，见组件内 pControl 互斥逻辑）。
-    仅供 \l ColorNameList 外部同步使用（v3 同名 API 照迁）。
-
-    \section1 易误解点
-
-    \list
-    \li 点选互斥是独占组语义：\b 点击已选中的行保持选中，不会取消
-        （v3 ButtonGroup exclusive 默认行为）——取消只能经 \l deselect()。
-    \li \c currentColor 在取消选中后不重置（v3 同构），因此外部
-        改色后 \l deselect() 不会触发 \c currentColorChanged 回写。
-    \endlist
-*/
+// 色名列表视图（v3 ColorNameView 拍平）：分类色名 + 互斥点选。
+//
+// 以 ColorNameHQ.names(category) 为模型展示色名列表，
+// 每行一个 ColorNameButton；点选互斥（同一时刻至多一项选中，
+// v3 ButtonGroup 独占语义拍平）。
+//
+// 属性
+// - 属性 `category`（string）：当前分类（v3 的 `catagory` 拼写修正）。
+//   模型为 ColorNameHQ.names(category)；改值即换列表内容。
+//   默认 `"DEFAULT"`（与默认色名插件的分类一致）。
+// - 属性 `font`（font）：色名行字体，默认 PixelFont.normal（v3 同构）。
+// - 属性 `currentColor`（color）：只读，当前选中行的颜色
+//   （ColorNameButton.color）。取消选中后保持最后一次选中值
+//   （v3 同构：deselect 不清空 currentColor）。
+//
+// 方法
+// - 方法 deselect()：取消当前选中（等价点击已选中的行，见组件内
+//   pControl 互斥逻辑）。仅供 ColorNameList 外部同步使用
+//   （v3 同名 API 照迁）。
+//
+// 易误解点
+// - 点选互斥是独占组语义：点击已选中的行保持选中，不会取消
+//   （v3 ButtonGroup exclusive 默认行为）——取消只能经 deselect()。
+// - `currentColor` 在取消选中后不重置（v3 同构），因此外部
+//   改色后 deselect() 不会触发 `currentColorChanged` 回写。
 ListView {
     id: root
 

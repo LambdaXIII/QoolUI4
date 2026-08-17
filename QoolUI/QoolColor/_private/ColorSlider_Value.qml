@@ -15,19 +15,13 @@ import QtQuick.Shapes
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype ColorSlider_Value
-    \inqmlmodule Qool.Color
-    \brief 明度滑块（v3 逐字迁移）：黑→白渐变轨道，双向绑定 hsvValueF。
-
-    \section2 易误解点
-    \list
-    \li 渐变方向：position 1 是白色（顶部）——明度滑块"上亮下暗"，与直觉相反，
-        是 v3 原样；改方向会与 ColorAssistant.hsvValueF 语义错位。
-    \li 交互期写 hsvValueF、非交互期从 hsvValueF 同步，靠两个互斥 Binding
-        完成（v3 惯用法，与 Hue 的 Connections 方案不同但等价）。
-    \endlist
-*/
+// 明度滑块（v3 逐字迁移）：黑→白渐变轨道，双向绑定 hsvValueF。
+//
+// 易误解点
+// - 渐变方向：position 1 是白色（顶部）——明度滑块"上亮下暗"，与直觉相反，
+//   是 v3 原样；改方向会与 ColorAssistant.hsvValueF 语义错位。
+// - 交互期写 hsvValueF、非交互期从 hsvValueF 同步，靠两个互斥 Binding
+//   完成（v3 惯用法，与 Hue 的 Connections 方案不同但等价）。
 ColorSlider {
     id: root
 

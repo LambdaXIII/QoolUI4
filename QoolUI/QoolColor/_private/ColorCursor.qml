@@ -28,25 +28,19 @@ import Qool
 import "NumTools.js" as Tools
 import Qool.Color
 
-/*!
-    \qmltype ColorCursor
-    \inqmlmodule Qool.Color
-    \brief 滑块/表面控件取色光标（v3 逐字迁移）：菱形色块 + 悬停展开 + 刚移动高亮。
-
-    用法二选一：绑定 \c x/y（滑块场景，配合 \c displayValue），或绑定
-    \c centerx/centery（表面控件场景，HSVWheel/HSLBox 用 surface 坐标映射）。
-
-    \section2 易误解点
-    \list
-    \li \c centerx/centery 是组件中心的坐标（x + width/2），不是左上角——滑块场景
-        下 centerx/centery 只是同步副产品，滑块绑定的是 x/y；表面场景相反。
-    \li 双向同步的写回不对称（onXChanged 有守卫、onCenterxChanged 无条件写）是
-        v3 逐字行为，用来打破同步环；删掉无条件写会导致表面场景光标不跟随。
-    \li \c hoveredSize 展开依赖三态之一（悬停/交互/刚移动），其中"刚移动"由
-        movementTimer 在 x/y 变化后 1 秒内维持——这也是滑块拖停后光标短暂
-        保持展开的原因（v3 交互反馈，勿当 bug 修）。
-    \endlist
-*/
+// 滑块/表面控件取色光标（v3 逐字迁移）：菱形色块 + 悬停展开 + 刚移动高亮。
+//
+// 用法二选一：绑定 `x/y`（滑块场景，配合 `displayValue`），或绑定
+// `centerx/centery`（表面控件场景，HSVWheel/HSLBox 用 surface 坐标映射）。
+//
+// 易误解点
+// - `centerx/centery` 是组件中心的坐标（x + width/2），不是左上角——滑块场景
+//   下 centerx/centery 只是同步副产品，滑块绑定的是 x/y；表面场景相反。
+// - 双向同步的写回不对称（onXChanged 有守卫、onCenterxChanged 无条件写）是
+//   v3 逐字行为，用来打破同步环；删掉无条件写会导致表面场景光标不跟随。
+// - `hoveredSize` 展开依赖三态之一（悬停/交互/刚移动），其中"刚移动"由
+//   movementTimer 在 x/y 变化后 1 秒内维持——这也是滑块拖停后光标短暂
+//   保持展开的原因（v3 交互反馈，勿当 bug 修）。
 Item {
     id: root
 

@@ -33,6 +33,6 @@ public:                                                                \
 // QML 单例）——违反 Qt 契约（共享实例经 QML_SINGLETON 暴露只能被一个
 // QQmlEngine 访问），多 engine 崩溃，已删除。需要 QML 暴露的进程级
 // 能力走「单例组件设计模式」三件套（XxxDB + XxxHQ + 可选 XxxHQModel），
-// 见仓库根 AGENTS.md「单例」节。
+// 见根 AGENTS.md 已知陷阱（QML 引擎唯一性）。
 
 #endif // QOOLCOMMON_SINGLETON_HPP

@@ -91,8 +91,8 @@ private:
   QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, cutTR, FINAL)
   QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, cutBL, FINAL)
   QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, cutBR, FINAL)
-  /*! \qmlproperty real 内缩距离（默认 0 = 外轮廓；双实例描边：内环实例 = d）。
-      永不介入 referenceBox（本实例唯一自由输入）。 */
+  // 属性 borderWidth（real）：内缩距离（默认 0 = 外轮廓；双实例描边：
+  // 内环实例 = d）。永不介入 referenceBox（本实例唯一自由输入）。
   QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, borderWidth, FINAL)
   QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, offsetX, FINAL)
   QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, offsetY, FINAL)

@@ -4,28 +4,6 @@
 
 #include <QQuickWindow>
 
-/*!
-    \qmltype ItemTracker
-    \inqmlmodule Qool
-    \nativetype qoolui::ItemTracker
-    \brief 追踪目标对象所在 item 的有效可用状态与窗口激活状态。
-
-    给定任意 \c target 对象，向上找到其所属 item（QQuickItem）与窗口，
-    暴露 \c itemEnabled（有效可用——含祖先链）与 \c windowActived
-    （窗口激活；target 未挂窗口时视为 true）。典型用途：Style 按宿主
-    状态选择外观组（Active/Inactive/Disabled）。
-
-    \c target 可为任意 QObject（如控件内部对象）；追踪链路自动随
-    item/窗口变化重建。
-
-    \section1 信号
-
-    所有属性均经 Qt 自动生成的 \c xxxChanged 信号通知（值守卫：实际值
-    变化才发出）。\c itemEnabledChanged / \c windowActivedChanged 是
-    状态输出通知；\c targetChanged / \c itemChanged / \c windowChanged
-    是链路变化通知。
-*/
-
 QOOL_NS_BEGIN
 
 ItemTracker::ItemTracker(QObject* parent)

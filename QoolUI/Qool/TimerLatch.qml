@@ -14,24 +14,6 @@ import Qool
 // 计时自持：内部内联 Timer（trigger 时 restart 重置、触发时释放）——
 // 不依赖 DelayTimer（后者已删除，滚动指示器淡出等用途改由本组件承担）。
 
-/*!
-    \qmltype TimerLatch
-    \inqmlmodule Qool
-    \brief 计时锁存器：触发即锁存、计时自动释放的滑动窗口状态。
-
-    \c trigger() 立即置 \c active 为 true 并重置计时；经 \c interval（默认
-    1000ms）无再次触发后自动释放（active = false）。窗口内重复触发重置
-    计时——持续触发持续保持（滑动窗口）。\c active 为声明式状态，可直接
-    绑定（如透明度/展开态）；\l activated / \l deactivated 为窗口边界事件。
-
-    任意信号源可触发（如 \c{Connections { onXxx → latch.trigger() }}）——
-    通用"刚变化过"类反馈机制（v3 movementTimer/justMoved 模式的系统化
-    替代：Slider 手柄展开窗口、滚动指示器淡出延迟均基于本件）。
-
-    与 SR latch 的差异：释放由计时驱动（非手动复位）。仅需"延迟后执行
-    一次"的宿主请用裸 \l Timer。
-*/
-
 SmartObject {
     id: root
 

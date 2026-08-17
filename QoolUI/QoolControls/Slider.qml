@@ -57,63 +57,17 @@ import QtQuick.Shapes
 import QtQuick.Templates as T
 import Qool
 
-/*!
-    \qmltype Slider
-    \inqmlmodule Qool.Controls
-    \brief 水平滑块：六边形渐变轨道 + 水晶菱形手柄（v3 Color 滑块视觉族）。
-
-    交互为模板默认（点击跳转、拖动连续、方向键步进——官方行为，接口兼容
-    QtQuick.Templates.Slider）。轨道与手柄统一为
-    \l {Qool::Crystal}{Crystal} 六边形模型（轨道为宽条
-    六边形、手柄为方形菱形——同模型斜边斜率一致天然对齐），轨道默认填充
-    \c text → \c color 水平渐变（左端固定 Style.text，右端 = \l color，默认
-    Style.accent）；手柄常态色 = 轨道渐变在当前值位置的采样色
-    （ColorMapper.colorAt(visualPosition)——随位置实时变化）。
-
-    \section2 主题相关
-    \list
-    \li \l color 同时是渐变右端色与手柄采样来源——宿主换色即换整条轨道视觉。
-    \li 轨道渐变内联默认（text→color，锚定切角内侧）——整体替换不再提供
-        （v4 收缩）；换色走 \l color，改尺寸走 \c width/\c height 覆盖。
-    \endlist
-
-    \section2 交互反馈
-    \list
-    \li 悬停/按下/刚移动（值变化后 500ms 锁存窗口）：手柄展开到控件全高
-        （常态 = \l preferredHeight——收缩 \c{Qore.bound(3, 高度×0.25, 25)}，
-        视觉差即放大反馈；轨道与手柄常态同高、中心对齐贴斜边），动画随
-        \l animationEnabled 门控；悬停时光标变水平双向箭头（仅 enabled）。
-    \li 程序化写入 value（如外部绑定）：手柄展开约 500ms（\l justMoved 锁存
-        窗口）——"值被写入即反馈"语义（v3 ChannelBar movementTimer，无论谁
-        写的）；持续变化期间窗口经 \l valueVelocity 采样级重置不落。
-    \li 倒置范围（from > to）：刻度反向，渐变/采样自动跟随 visualPosition。
-    \endlist
-
-    \section2 状态属性
-    \list
-    \li \c animationEnabled：动画开关——父链继承（宿主可在父级统一关闭），
-        回退 \l Style 的 \c animationEnabled。
-    \li \c valueVelocity：值变化速率（值/秒，NumberNotifier 200ms 采样、
-        有向、骤停归零）。
-    \li \c justMoved："值刚被写入过"的声明式锁存窗口（500ms，滑动窗口）。
-    \li \c preferredHeight：水晶手柄与轨道的常态高度（收缩态）——展开时
-        水晶占满控件全高；宿主可用它参与外部布局计算。
-    \endlist
-
-    \note 手柄展开态占满控件高度（不超出边界）——\c clip 与否不影响反馈
-    （v3"菱形顶出轨道"刻意效果已取消）。
-*/
 T.Slider {
     id: root
-    /*! \qmlproperty color 轨道渐变右端色（左端固定 Style.text），默认 Style.accent。 */
+    // 轨道渐变右端色（左端固定 Style.text），默认 Style.accent。
     property color color: root.Style.accent
-    /*! \qmlproperty real 值变化速率（值/秒，NumberNotifier 200ms 采样、有向、骤停归零）。 */
+    // 值变化速率（值/秒，NumberNotifier 200ms 采样、有向、骤停归零）。
     readonly property real valueVelocity: notifier.velocity
-    /*! \qmlproperty bool "值刚被写入过"的声明式锁存窗口（500ms，滑动窗口——持续变化持续保持）。 */
+    // "值刚被写入过"的声明式锁存窗口（500ms，滑动窗口——持续变化持续保持）。
     property bool justMoved: movementLatch.active
-    /*! \qmlproperty bool 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。 */
+    // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-    /*! \qmlproperty real 常态高度：水晶手柄与轨道的常态（收缩）高度——展开时水晶占满控件全高（root.height）。 */
+    // 常态高度：水晶手柄与轨道的常态（收缩）高度——展开时水晶占满控件全高（root.height）。
     readonly property real preferredHeight: root.height - Qore.bound(3, root.height * 0.25, 25)
 
     // 尺寸：反向排版策略——模板不自带 implicit 公式，root 直接给默认尺寸

@@ -8,35 +8,33 @@
 
 QOOL_NS_BEGIN
 
-/*!
-    \class FileIconProvider_Default
-    \brief 默认文件图标提供者插件：把本地文件路径映射到内置图标资源。
-
-    实现 \c FileIconProvider 接口的 Qt 插件（IID \c QOOL_FILEICONPROVIDER_IID）。
-    宿主经 \c image://qoolfileicon/... URL 请求图标：QML 侧
-    \c image://qoolfileicon/<百分号编码的文件路径> 由 FileIconImageProvider
-    解码后，把本地文件路径作为 \c id 传入 \c provideUrl()/\c providePath()，
-    返回内置图标的 qrc URL 或路径。
-
-    \section1 索引数据库（刻意设计）
-    首次使用时懒加载 qrc 内 \c :/qoolui/fileicons/index.csv：每行
-    \c 键,图标文件名，键为小写单后缀，加载后排序去重。初始化采用
-    原子标志（acquire/release）加互斥锁的双检锁——\c imageName 可能被
-    异步图片加载线程并发调用，bool 非原子读写构成数据竞争（UB）。
-    行解析含防御：缺列（无逗号）的损坏行直接跳过，避免越界崩溃。
-
-    \section1 单后缀契约（刻意设计）
-    索引键是单后缀契约（如 \c "png"、\c "tar"）：\c completeSuffix() 对
-    多段后缀返回 \c "tar.gz" 之类复合串，永远无法命中键；故按
-    \c suffix() 取末段后缀匹配，与索引键一一对应。
-
-    匹配顺序：目录（可读→\c Folder.png，否则 \c DeleteFolder.png）→
-    可执行（\c Binary.png）→ 单后缀命中索引 → 兜底 \c File.png。数据库
-    为空时返回 \c std::nullopt，调用侧（\c FileIconDB）按优先级回退到
-    下一个提供者。\c provideUrl() 返回 \c qrc: URL（供 QML Image 加载），
-    \c providePath() 返回 \c :/ 路径（供 QImage/QFile 直接打开）；二者
-    忽略 \c size——图标为固定尺寸资源，缩放由调用侧完成。
-*/
+// 类：FileIconProvider_Default
+// 默认文件图标提供者插件：把本地文件路径映射到内置图标资源。
+//
+// 实现 `FileIconProvider` 接口的 Qt 插件（IID `QOOL_FILEICONPROVIDER_IID`）。
+// 宿主经 `image://qoolfileicon/...` URL 请求图标：QML 侧
+// `image://qoolfileicon/<百分号编码的文件路径>` 由 FileIconImageProvider
+// 解码后，把本地文件路径作为 `id` 传入 `provideUrl()`/`providePath()`，
+// 返回内置图标的 qrc URL 或路径。
+//
+// 索引数据库（刻意设计）
+// 首次使用时懒加载 qrc 内 `:/qoolui/fileicons/index.csv`：每行
+// `键,图标文件名`，键为小写单后缀，加载后排序去重。初始化采用
+// 原子标志（acquire/release）加互斥锁的双检锁——`imageName` 可能被
+// 异步图片加载线程并发调用，bool 非原子读写构成数据竞争（UB）。
+// 行解析含防御：缺列（无逗号）的损坏行直接跳过，避免越界崩溃。
+//
+// 单后缀契约（刻意设计）
+// 索引键是单后缀契约（如 `"png"`、`"tar"`）：`completeSuffix()` 对
+// 多段后缀返回 `"tar.gz"` 之类复合串，永远无法命中键；故按
+// `suffix()` 取末段后缀匹配，与索引键一一对应。
+//
+// 匹配顺序：目录（可读→`Folder.png`，否则 `DeleteFolder.png`）→
+// 可执行（`Binary.png`）→ 单后缀命中索引 → 兜底 `File.png`。数据库
+// 为空时返回 `std::nullopt`，调用侧（`FileIconDB`）按优先级回退到
+// 下一个提供者。`provideUrl()` 返回 `qrc:` URL（供 QML Image 加载），
+// `providePath()` 返回 `:/` 路径（供 QImage/QFile 直接打开）；二者
+// 忽略 `size`——图标为固定尺寸资源，缩放由调用侧完成。
 
 struct FileIconProvider_Default::Impl {
   QHash<QString, QString> database;

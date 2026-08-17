@@ -34,59 +34,17 @@ import QtQuick.Shapes
 import QtQuick.Templates as T
 import Qool
 
-/*!
-    \qmltype VerticalSlider
-    \inqmlmodule Qool.Controls
-    \brief 竖直滑块：六边形渐变轨道 + 水晶菱形手柄（Slider 的竖直化）。
-
-    与 \l Slider 同源（水晶六边形模型、渐变采样、展开反馈、锁存机制），
-    布局轴交换为竖直：轨道为瘦六边形（上下尖 + 左右直边）、手柄沿垂直
-    方向移动、**底部为 from**（值增大向上）。交互为垂直语义（全区域
-    MouseArea 垂直映射——点击跳转 + 拖动连续），键盘 Up/Down 步进。
-
-    \section2 与 Slider 的差异
-    \list
-    \li \c preferredWidth：轨道与手柄的常态宽度（收缩态）——展开时水晶
-        占满控件宽度；对应 Slider 的 \c preferredHeight（参考轴交换）。
-    \li 交互垂直化：模板（T.Slider）鼠标映射为水平语义，竖直布局下不可
-        用——本组件以垂直 MouseArea 取代；键盘 Up/Down → increase/
-        decrease（模板 Left/Right 保留）。
-    \endlist
-
-    \section2 交互反馈
-    \list
-    \li 悬停/按下/刚移动（值变化后 500ms 锁存窗口）：手柄展开到控件全宽
-        （常态 = \l preferredWidth——收缩 \c{Qore.bound(3, 宽度×0.25, 25)}，
-        视觉差即放大反馈；轨道与手柄常态同宽、中心对齐贴斜边），动画随
-        \l animationEnabled 门控；悬停时光标变垂直双向箭头（仅 enabled）。
-    \li 程序化写入 value（如外部绑定）：手柄展开约 500ms（\l justMoved 锁存
-        窗口）；持续变化期间窗口经 \l valueVelocity 采样级重置不落。
-    \li 倒置范围（from > to）：位置反向，渐变/采样自动跟随 position。
-    \endlist
-
-    \section2 状态属性
-    \list
-    \li \c animationEnabled：动画开关——父链继承，回退 \l Style 的
-        \c animationEnabled。
-    \li \c valueVelocity：值变化速率（值/秒，NumberNotifier 200ms 采样）。
-    \li \c justMoved："值刚被写入过"的声明式锁存窗口（500ms，滑动窗口）。
-    \li \c preferredWidth：水晶手柄与轨道的常态宽度（收缩态）——展开时
-        水晶占满控件全宽；宿主可用它参与外部布局计算。
-    \endlist
-
-    \note 手柄展开态占满控件宽度（不超出边界）——\c clip 与否不影响反馈。
-*/
 T.Slider {
     id: root
-    /*! \qmlproperty color 轨道渐变顶部色（底部固定 Style.text），默认 Style.accent。 */
+    // 轨道渐变顶部色（底部固定 Style.text），默认 Style.accent。
     property color color: root.Style.accent
-    /*! \qmlproperty real 值变化速率（值/秒，NumberNotifier 200ms 采样、有向、骤停归零）。 */
+    // 值变化速率（值/秒，NumberNotifier 200ms 采样、有向、骤停归零）。
     readonly property real valueVelocity: notifier.velocity
-    /*! \qmlproperty bool "值刚被写入过"的声明式锁存窗口（500ms，滑动窗口——持续变化持续保持）。 */
+    // "值刚被写入过"的声明式锁存窗口（500ms，滑动窗口——持续变化持续保持）。
     property bool justMoved: movementLatch.active
-    /*! \qmlproperty bool 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。 */
+    // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-    /*! \qmlproperty real 常态宽度：水晶手柄与轨道的常态（收缩）宽度——展开时水晶占满控件全宽（root.width）。 */
+    // 常态宽度：水晶手柄与轨道的常态（收缩）宽度——展开时水晶占满控件全宽（root.width）。
     readonly property real preferredWidth: root.width - Qore.bound(3, root.width * 0.25, 25)
 
     // 尺寸：反向排版策略——模板不自带 implicit 公式，root 直接给默认尺寸

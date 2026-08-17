@@ -3,15 +3,6 @@ import QtQuick.Controls
 import Qool
 import Qool.File
 
-/*!
-    \qmltype FileInfoDelegate
-    \inqmlmodule Qool.File
-    \brief FileInfoListView 的默认行委托（多层插拔的 Delegate 层）。
-
-    承载行行为：多选（Shift/Ctrl 修饰键点击）、长按拖动排序、拖入插入。行为与
-    样式分离：展示组件经 \c fileInfoDisplay 装载（默认 BasicFileInfoDisplay），
-    可只替换展示组件而沿用全部行为。
-*/
 Control {
     id: root
 

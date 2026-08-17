@@ -12,7 +12,7 @@
 // - 几何链：pCtrl = ShapeControl 实例（target 自动 = 根 Shape）→
 //   RectGadget gA（源头，跟踪根尺寸）→ RectGadget gB（内接画布 =
 //   maxInnerSquareRect——RectGadget x/y 固定 0，该矩形即根内部坐标，
-//   一步 rect 直绑；坐标系语义见 qool_shapegadget_rect.cpp QDoc）。
+//   一步 rect 直绑；坐标系语义见 qool_shapegadget_rect.cpp 文件头文档）。
 // - 中间量（readonly 标量，内描边几何的核心——确定后各形态仅剩轴与
 //   符号选择）——内缩量直接用 borderWidth 线性推导，无收缩极限钳制
 //   （用户裁决 2026-08-16——不设 effInset）：
@@ -40,7 +40,7 @@
 //   填充面判定，无 FillContains 性能代价）。命中 = 内接画布矩形
 //   （三角外的左右条带被排除；精确三角判定不提供——RectGadget 仅
 //   矩形 contains）。宿主 MouseArea 精确 hover 需显式挂载掩码
-//   （Qt hover 分发只检查 item 自身 contains——AGENTS.md 陷阱 5）。
+//   （Qt hover 分发只检查 item 自身 contains）。
 // - implicit 不承诺（Crystal 同哲学）：Shape 引擎在路径变化时强制
 //   setImplicitSize(路径边界)（qquickshape.cpp _q_shapePathChanged——
 //   Qt 6.11 实证）——三角形态下 implicit 报告半组件（如 N 态 20×10）。
@@ -51,79 +51,24 @@ import QtQuick
 import QtQuick.Shapes
 import Qool
 
-/*!
-    \qmltype HalfCrystal
-    \inqmlmodule Qool
-    \brief 三角版 Crystal 色块（四点模型）：\c direction 切换指向
-    （Qore.N/S/W/E 为直角等腰三角形，其余值为完整菱形——默认形态）。
-
-    四点模型取内部最大正方形四边中点（斜边 45°、对轴、画布居中）：
-    外轮廓四点 = \c{(cx, north)/(east, cy)/(cx, south)/(west, cy)}。
-    \c direction 决定对侧点移到中心（共线隐藏于底边中点）；中间态恒为
-    菱形。任意 \c width/\c height 尺寸安全（三角形基于内部最大正方形
-    居中）。默认逻辑尺寸 20×20（\c width/\c height 显式默认）。
-
-    \section2 方向语义
-    \list
-    \li N/S/W/E：直角等腰三角形（对侧点移到中心，底边 = 其余三点，
-        顶角（直角）位于指向侧）。
-    \li 其余值（\c Unknown/对角 NW/NE/SW/SE）：完整菱形（四点全原位
-        ——默认状态）。
-    \endlist
-
-    \section2 样式通道
-    \list
-    \li \c color（默认 Style.accent）纯色填充；\c borderColor
-        （ThemeHQ.recommendForeground 自动对比）内描边环色。
-    \li \c borderWidth（默认 1）：内描边环宽度——外轮廓向内缩进
-        borderWidth 形成描边环（全在内侧——外轮廓无描边伸出、填充区
-        内缩 borderWidth；\c borderWidth < 1 时不描边——视为 0，纯色
-        填充）。内缩量随 borderWidth 线性变化（无收缩极限钳制）。
-        与单层线中心描边的视觉差异 0.5px 级。
-    \li \c fillGradient / \c fillItem 渐变/纹理通道（fillItem 优先）——
-        Crystal 同款语义，无内置渐变逻辑。
-    \endlist
-
-    \section2 动画
-    HalfCrystal 不提供方向切换动画——states 应用形态直接切换（中间态
-    恒为菱形），尺寸变化同样直接跳变。
-
-    \section2 命中掩码
-    \c containmentMask = 内接画布矩形（\l {Qool::RectGadget}{RectGadget}
-    gB——数值矩形 contains 判定，非 FillContains 路径填充面判定，性能
-    代价可控，用户裁决）。命中 = 内接画布矩形区域（三角外的条带被排除；
-    精确三角判定不提供——RectGadget 仅矩形 contains）。\b hover 需显式
-    挂载：Qt 的 hover 分发只检查 item 自身的 \c contains（不检查祖先
-    掩码）——宿主 MouseArea 挂 \c{containmentMask: 组件id.containmentMask}
-    才获得精确 hover（anchors.fill 时本地坐标与组件一致——见 AGENTS.md
-    已知陷阱 5）。
-
-    \section2 布局与 implicit
-    显式默认 \c width/\c height 20（Shape 引擎在路径变化时强制
-    \c setImplicitSize(路径边界)，implicit 声明会被覆盖；显式尺寸不被
-    触碰——Crystal 同机制）。三角形态下引擎 implicit = 路径边界
-    （如 N 态 20×10 = 半组件）——implicit 不承诺，布局一律用显式尺寸；
-    宿主按需覆盖 \c width/\c height 正常。
-*/
 Shape {
     id: root
 
-    /*! \qmlproperty color 填充色，默认 Style.accent（独立使用默认自洽）。 */
+    // 填充色，默认 Style.accent（独立使用默认自洽）
     property color color: root.Style.accent
-    /*! \qmlproperty color 内描边环色，默认按填充色自动对比（ThemeHQ.recommendForeground）。 */
+    // 内描边环色，默认按填充色自动对比（ThemeHQ.recommendForeground）
     property color borderColor: ThemeHQ.recommendForeground(root.color)
-    /*! \qmlproperty real 内描边环宽度（默认 1——外轮廓向内缩进形成描边环；\c borderWidth < 1 时不描边）。 */
+    // 内描边环宽度（默认 1——外轮廓向内缩进形成描边环；borderWidth < 1 时不描边）
     property real borderWidth: 1
-    /*! \qmlproperty Gradient 渐变填充通道（默认 null——纯色；fillItem 优先于渐变）。 */
+    // 渐变填充通道（默认 null——纯色；fillItem 优先于渐变）
     property Gradient fillGradient: null
-    /*! \qmlproperty Item 纹理填充通道（Crystal 同款语义，优先于渐变/纯色）。 */
+    // 纹理填充通道（Crystal 同款语义，优先于渐变/纯色）
     property Item fillItem: null
-    /*! \qmlproperty int 方向（Qore.Directions）——N/S/W/E 为三角形，其余值为完整菱形（默认状态），默认 Qore.N。 */
+    // 方向（Qore.Directions）——N/S/W/E 为三角形，其余值为完整菱形（默认状态），默认 Qore.N
     property int direction: Qore.N
 
     // 命中掩码 = gB（内接画布矩形——RectGadget 数值 contains，非
-    // FillContains 路径填充面判定；机制见文件头"命中掩码"与
-    // AGENTS.md 已知陷阱 5）
+    // FillContains 路径填充面判定；机制见文件头"命中掩码"）
     containmentMask: gB
 
     // 默认逻辑尺寸（显式——Shape 根下 implicit 声明被引擎覆盖；机制见
@@ -143,7 +88,7 @@ Shape {
         RectGadget {
             id: gB
             // RectGadget x/y 固定 0（不绑定 target 位置）——maxInnerSquareRect
-            // 即根内部坐标，一步直绑（坐标系语义见 qool_shapegadget_rect.cpp QDoc）
+            // 即根内部坐标，一步直绑（坐标系语义见 qool_shapegadget_rect.cpp 文件头文档）
             rect: gA.maxInnerSquareRect
         }
 

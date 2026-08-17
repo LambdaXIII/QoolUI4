@@ -1,102 +1,24 @@
-/*!
-    \qmltype ColorAssistant
-    \inqmlmodule Qool.Color
-    \inherits QtObject
-    \brief 多色彩空间颜色对象——任一空间分量写入即全空间同步。
-
-    持有单一颜色（\l color），按需暴露 RGB / CMYK / HSV / HSL 四个空间的
-    分量属性（int 与 float 双轨）与列表属性，任一分量被写入都会重算全部
-    空间并广播所有 Changed 信号。
-
-    \section2 双轨说明
-
-    int 与 float（F 后缀）两套分量并行存在，语义一致、值同步：float 版为
-    0..1 归一化（\c redF 等），int 版为 0..255（\c red）与 0..359（\c hsvHue）。
-    float 版供面板滑块/渐变等连续交互使用，int 版是公开 API 能力面——两者
-    均非冗余：写入任一轨都会经 \c set_color 统一入口重算全部空间。
-
-    \section2 派生只读属性
-
-    \c solidColor（去 alpha）、\c visualBrightness（0.299/0.587/0.114 亮度）、
-    \c recommendedForegroundColor（亮度阈值 0.5 的黑/白对比前景色）随 \c color
-    变化而更新。亮度公式与 \l ThemeHQ 一致；因 v4 的 C++ 类不动态导出、
-    QML 暴露走类型系统，派生量在内部自实现而非跨模块 C++ 委托。
-*/
-
 #include "qool_colorassistant.h"
 
 #include "qoolcommon/debug.hpp"
 
 QOOL_NS_BEGIN
 
-/*!
-    \qmlproperty QColor ColorAssistant::color
-    \qmlproperty QList<qreal> ColorAssistant::rgbaF
-    \qmlproperty QList<int> ColorAssistant::rgba
-    \qmlproperty QList<qreal> ColorAssistant::cmykF
-    \qmlproperty QList<int> ColorAssistant::cmyk
-    \qmlproperty QList<qreal> ColorAssistant::hsvF
-    \qmlproperty QList<int> ColorAssistant::hsv
-    \qmlproperty QList<qreal> ColorAssistant::hslF
-    \qmlproperty QList<int> ColorAssistant::hsl
-    \qmlproperty QString ColorAssistant::name
-    \qmlproperty QColor ColorAssistant::solidColor
-    \qmlproperty qreal ColorAssistant::visualBrightness
-    \qmlproperty QColor ColorAssistant::recommendedForegroundColor
-    \qmlproperty qreal ColorAssistant::redF
-    \qmlproperty qreal ColorAssistant::greenF
-    \qmlproperty qreal ColorAssistant::blueF
-    \qmlproperty qreal ColorAssistant::alphaF
-    \qmlproperty int ColorAssistant::red
-    \qmlproperty int ColorAssistant::green
-    \qmlproperty int ColorAssistant::blue
-    \qmlproperty int ColorAssistant::alpha
-    \qmlproperty qreal ColorAssistant::cyanF
-    \qmlproperty qreal ColorAssistant::magentaF
-    \qmlproperty qreal ColorAssistant::yellowF
-    \qmlproperty qreal ColorAssistant::blackF
-    \qmlproperty int ColorAssistant::cyan
-    \qmlproperty int ColorAssistant::magenta
-    \qmlproperty int ColorAssistant::yellow
-    \qmlproperty int ColorAssistant::black
-    \qmlproperty qreal ColorAssistant::hsvHueF
-    \qmlproperty qreal ColorAssistant::hsvSaturationF
-    \qmlproperty qreal ColorAssistant::hsvValueF
-    \qmlproperty int ColorAssistant::hsvHue
-    \qmlproperty int ColorAssistant::hsvSaturation
-    \qmlproperty int ColorAssistant::hsvValue
-    \qmlproperty qreal ColorAssistant::hslHueF
-    \qmlproperty qreal ColorAssistant::hslSaturationF
-    \qmlproperty qreal ColorAssistant::hslLightnessF
-    \qmlproperty int ColorAssistant::hslHue
-    \qmlproperty int ColorAssistant::hslSaturation
-    \qmlproperty int ColorAssistant::hslLightness
-*/
-
 ColorAssistant::ColorAssistant(QObject* parent)
   : QObject { parent } {
 }
 
-/*!
-    \qmlmethod string ColorAssistant::hex(int number)
-    整数转十六进制字符串（# 前缀由调用方自行处理）。
-*/
+// hex：整数转十六进制字符串（# 前缀由调用方自行处理）。
 QString ColorAssistant::hex(int number) {
   return QString::number(number, 16);
 }
 
-/*!
-    \qmlmethod bool ColorAssistant::isValidName(string name)
-    判断字符串是否为合法颜色名（CSS 色名或 #RRGGBB/#AARRGGBB 形式）。
-*/
+// isValidName：是否合法颜色名（CSS 色名或 #RRGGBB/#AARRGGBB 形式）。
 bool ColorAssistant::isValidName(const QString& name) {
   return QColor::isValidColorName(name);
 }
 
-/*!
-    \qmlmethod bool ColorAssistant::isValid()
-    当前颜色是否有效（未设置过有效颜色时为 false）。
-*/
+// isValid：当前颜色是否有效（未设置过有效颜色时为 false）。
 bool ColorAssistant::isValid() const {
   return m_color.isValid();
 }
@@ -105,10 +27,8 @@ QColor ColorAssistant::color() const {
   return m_color;
 }
 
-/*!
-    统一颜色入口：任一分量/列表/name setter 最终都经此重算全空间并广播信号。
-    值未变化时不广播（相等守卫，Changed 语义 = 值实际变化才发出）。
-*/
+// 统一颜色入口：任一分量/列表/name setter 最终都经此重算全空间并广播信号。
+// 值未变化时不广播（相等守卫，Changed 语义 = 值实际变化才发出）。
 void ColorAssistant::set_color(QColor color) {
   if (m_color == color)
     return;
@@ -168,30 +88,22 @@ void ColorAssistant::set_color(QColor color) {
   emit colorChanged();
 }
 
-/*!
-    去 alpha 的纯色版本（alpha 强制 1）。
-*/
+// solidColor：去 alpha 的纯色版本（alpha 强制 1）。
 QColor ColorAssistant::solidColor() const {
   auto c = m_color;
   c.setAlphaF(1);
   return c;
 }
 
-/*!
-    感知亮度（0.299/0.587/0.114 加权）。
-    公式与 \l ThemeHQ 的 visualBrightness 一致；ThemeDB 的 C++ 符号不导出
-    （v4 原则：C++ 类私有不动态导出，QML 暴露走类型系统），故此处自实现。
-*/
+// visualBrightness：感知亮度（0.299/0.587/0.114 加权），公式与 ThemeHQ 一致；
+// ThemeDB 的 C++ 符号不导出（v4 原则），故此处自实现。
 qreal ColorAssistant::visualBrightness() const {
   const auto c = m_color.toRgb();
   return c.redF() * 0.299 + c.greenF() * 0.587 + c.blueF() * 0.114;
 }
 
-/*!
-    对比前景色（亮度 ≥0.5 → 黑，否则白）。
-    与 \l ThemeHQ 的 recommendForeground 语义等价（该符号不可跨模块 C++ 调用，
-    见 visualBrightness 说明），阈值按 v3 行为 0.5。
-*/
+// recommendedForegroundColor：对比前景色（亮度 ≥0.5 → 黑，否则白），
+// 与 ThemeHQ.recommendForeground 语义等价（阈值按 v3 行为 0.5）。
 QColor ColorAssistant::recommendedForegroundColor() const {
   const auto b = visualBrightness();
   return b >= 0.5 ? Qt::black : Qt::white;

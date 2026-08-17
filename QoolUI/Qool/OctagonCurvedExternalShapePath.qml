@@ -2,24 +2,12 @@ import QtQuick
 import QtQuick.Shapes
 import Qool
 
-/*!
-    \qmltype OctagonCurvedExternalShapePath
-    \inqmlmodule Qool
-    \brief 八边形圆角外轮廓形状路径，绘制 QoolBox 的边框环区域。
-
-    由外部 8 点（\c ext*）与内部 8 点（\c int*）构成闭合环（双环挖空
-    描边），控制点委托 \l QoolBoxShapeControl，本类型不持有几何。
-    外弧半径 = \c control.settings 对应角 \c cut*；内弧半径 = 内环相邻
-    点弦长/√2（pCtrl，四角独立；退化弦长 0 → 半径 0）。边框宽度为 0
-    时内外部点重合，环退化为零面积，不产生绘制。
-
-    供 \l QoolBox 内部使用（经 \l OctagonCurvedShape）；宿主一般不需要
-    直接实例化。
-*/
+// 八边形圆角外轮廓形状路径（双环挖空描边）：控制点委托
+// QoolBoxShapeControl，本类型不持有几何；供 QoolBox 内部使用。
 ShapePath {
     id: root
 
-    /*! \qmlproperty QoolBoxShapeControl 八边形控制点计算源（来自宿主 QoolBox 的 control）。 */
+    // 八边形控制点计算源（来自宿主 QoolBox 的 control）
     property QoolBoxShapeControl control
 
     joinStyle: ShapePath.BevelJoin

@@ -24,24 +24,18 @@ import QtQuick.Templates as T
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype ChannelBar
-    \inqmlmodule Qool.Color
-    \brief 通道填充条（v3 逐字迁移）：channelColor 的纵向填充 + 刚移动边框高亮。
-
-    \c value（0..1）决定填充高度（从底部向上）；\c channelColor 决定填充
-    与边框色。竖直拖动由消费方（ChannelSlider 的 InteractingArea）映射后写
-    本件 \c value。
-
-    \section2 易误解点
-    \list
-    \li 填充方向是"从底部向上"，与 ColorSlider 的水平方向不同——拖动映射
-        （1 - mouseY/height）与填充方向必须配套，改任一侧都会错位。
-    \li "刚移动高亮"（movementTimer）由 \b 高度变化触发：只要 value 被写入
-        （无论谁写的），边框就亮 1 秒——数值输入编辑时同样会亮，这是 v3 行为。
-    \li 边框色只在 justMoved 与常态间切换，无 hover 态（v3 原样）。
-    \endlist
-*/
+// 通道填充条（v3 逐字迁移）：channelColor 的纵向填充 + 刚移动边框高亮。
+//
+// `value`（0..1）决定填充高度（从底部向上）；`channelColor` 决定填充
+// 与边框色。竖直拖动由消费方（ChannelSlider 的 InteractingArea）映射后写
+// 本件 `value`。
+//
+// 易误解点
+// - 填充方向是"从底部向上"，与 ColorSlider 的水平方向不同——拖动映射
+//   （1 - mouseY/height）与填充方向必须配套，改任一侧都会错位。
+// - "刚移动高亮"（movementTimer）由高度变化触发：只要 value 被写入
+//   （无论谁写的），边框就亮 1 秒——数值输入编辑时同样会亮，这是 v3 行为。
+// - 边框色只在 justMoved 与常态间切换，无 hover 态（v3 原样）。
 T.Control {
     id: root
 

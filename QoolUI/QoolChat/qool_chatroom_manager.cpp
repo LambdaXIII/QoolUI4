@@ -5,26 +5,20 @@
 
 QOOL_NS_BEGIN
 
-/*!
-    \class ChatRoomManager
-    \inmodule Qool.Chat
-    \brief 聊天室服务器管理器（内部单例）：按 name 复用服务器并调度其生命周期。
-
-    ChatRoomManager 以 \c qoolui::ChatRoomServer 为管理单元：
-    \c server(name) 返回与 name 关联的服务器实例——同名重复调用直接
-    命中缓存（复用），新名字则新建并 \c moveToThread 到专用服务器线程。
-
-    \section1 复用缓存与定时清理（刻意设计）
-
-    空服务器在周期窗口内保留 = 复用缓存：同一频道名重新连接时直接
-    命中，无需重建。清理走 30s 周期兜底（\c purgeClosedServers），
-    刻意不用 \c beeperSignedOut 即时触发——Beeper 登出是常态操作，
-    立即 purge 会摧毁复用缓存并导致频繁重建；长期 idle 下最坏只是
-    延迟回收，可接受。\c GLOBAL 房间永不回收（\c isEmpty 恒为 false）。
-
-    \note 本类仅供内部使用（宿主一般不需要直接引用）：ChatRoom 赋值
-    \c name 时自动经 \c instance() 获取服务器。
-*/
+// ChatRoomManager：聊天室服务器管理器（内部单例）——按 name 复用
+// 服务器并调度其生命周期。以 ChatRoomServer 为管理单元：server(name)
+// 返回与 name 关联的服务器实例——同名重复调用直接命中缓存（复用），
+// 新名字则新建并 moveToThread 到专用服务器线程。
+//
+// 复用缓存与定时清理（刻意设计）：空服务器在周期窗口内保留 = 复用
+// 缓存——同一频道名重新连接时直接命中，无需重建。清理走 30s 周期
+// 兜底（purgeClosedServers），刻意不用 beeperSignedOut 即时触发——
+// Beeper 登出是常态操作，立即 purge 会摧毁复用缓存并导致频繁重建；
+// 长期 idle 下最坏只是延迟回收，可接受。GLOBAL 房间永不回收
+// （isEmpty 恒为 false）。
+//
+// 注意：本类仅供内部使用（宿主一般不需要直接引用）——ChatRoom 赋值
+// name 时自动经 instance() 获取服务器。
 QOOL_SIMPLE_SINGLETON_QT_IMPL(ChatRoomManager)
 
 ChatRoomManager::ChatRoomManager()

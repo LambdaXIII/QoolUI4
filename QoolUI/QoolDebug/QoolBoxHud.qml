@@ -1,28 +1,16 @@
 import QtQuick
 import Qool
 
-/*!
-    \qmltype QoolBoxHud
-    \inqmlmodule Qool.Debug
-    \brief QoolBox 专用调试叠加层：显示外/内部控制点（ext* / int* 16 点）。
-
-    必须**直接作为 \l QoolBox 的子项**使用：\c box 属性默认取 \c parent，
-    且要求该 parent 是 QoolBox（属性类型检查）——挂错父级（非 QoolBox）
-    时 box 为 null，HUD 不工作（调试工具边界暴露原则：误配置立即可见）。
-
-    调试件只消费 QoolBox 公开面（\c box.control 的 ext* / int* 16 点），
-    无白盒契约。原 OctagonShapeHud（重定位，ADR-0008——control 公开后
-    不再需要 objectName/findChild 内部方案）。
-*/
 Item {
     id: root
 
-    /*! \qmlproperty QoolBox 目标 QoolBox（默认 parent——须直接作 QoolBox 子项）。 */
+    // 目标 QoolBox（默认 parent——须直接作 QoolBox 子项，类型检查保证
+    // 挂错父级时 box 为 null，HUD 不工作：调试工具边界暴露，误配置立即可见）
     property QoolBox box: parent
 
-    /*! \qmlproperty bool 显示内部控制点（int*）。 */
+    // 显示内部控制点（int*）
     property bool showIntPoints: true
-    /*! \qmlproperty bool 显示外部控制点（ext*）。 */
+    // 显示外部控制点（ext*）
     property bool showExtPoints: true
 
     QtObject {

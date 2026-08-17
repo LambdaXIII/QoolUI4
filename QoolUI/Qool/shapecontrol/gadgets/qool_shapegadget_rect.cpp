@@ -2,34 +2,6 @@
 
 QOOL_NS_BEGIN
 
-/*!
-    \qmltype RectGadget
-    \inqmlmodule Qool
-    \nativetype qoolui::RectGadget
-    \brief 矩形几何 Gadget：挂载于标准 \l ShapeControl 之下，提供九点、
-    半区矩形、内部最大正方形等派生几何与精确命中判定。
-
-    \c width/\c height 默认绑定 target 尺寸（经由 \c bindable_target）；
-    \c x/\c y 默认 0（不随 target 位置——派生几何一律本地画布坐标，
-    与渲染同基准）。\b 显式设置 \c rect（经 \c set_rect → setValue）
-    或 QML 中直接绑定 \c x/\c y/\c width/\c height 会移除对应构造绑定，
-    几何独立为设置值、不再跟随 target——这是刻意设计，供画布串联
-    场景（如 \c{gB.rect = gA.maxInnerSquareRect} 后 gB 成为独立画布
-    几何源，HalfCrystal 即此用法），非缺陷。
-
-    \note \c topHalfRect/\c bottomHalfRect/\c leftHalfRect/
-    \c rightHalfRect 与 \c maxInnerSquareRect 派生自 \c rect（派生几何
-    统一基于 rect 单一数据源——无外部绑定时 rect 即 x/y/width/height
-    拼装，结果等价；rect 被外部绑定时派生量跟随绑定值，与
-    \l {contains()}{contains()} 判定域同源），坐标基准 = 本 Gadget 本地
-    （x/y 起，默认 0 时即 target 内部坐标系）——画布串联时掩码坐标与
-    渲染同基准。
-
-    派生量：九点 \c topLeft..\c bottomRight（每点含 \c X/\c Y 分量）、
-    \c halfWidth/\c halfHeight/\c shortEdge/\c longEdge/\c isSquare、
-    四半区矩形、\c maxInnerSquareRect/\c minOutterSquareRect、
-    \l {contains()}{contains()}。
-*/
 RectGadget::RectGadget(QObject* parent)
   : ShapeControlGadget(parent) {
   // setBinding 激活时立即求值一次——此时 target 尚未设置（componentComplete

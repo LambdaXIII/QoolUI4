@@ -52,63 +52,15 @@ import QtQuick.Shapes
 import QtQuick.Templates as T
 import Qool
 
-/*!
-    \qmltype RangeSlider
-    \inqmlmodule Qool.Controls
-    \brief 区间滑块：六边形轨道 + 水晶三角手柄，accent 填充已选区域（Slider
-    的区间版）。
-
-    \c first/\c second 两个手柄界定区间（模板属性，接口兼容
-    QtQuick.Templates.RangeSlider——点击跳转最近手柄、拖动连续、键盘步进均为
-    官方行为）。轨道为 \l {Qool::Crystal}{Crystal} 六边形
-    （\c text 基底色，无渐变），\c first 与 \c second 之间的已选区域以
-    \l color（默认 Style.accent）平切矩形填充；手柄为
-    \l {Qool::HalfCrystal}{HalfCrystal} 三角形（first 尖朝左、second
-    尖朝右——平边相对夹住已选段，尖角朝外指向各自未选段）。
-
-    \section2 主题相关
-    \list
-    \li \l color 同时是已选段填充色与 second 手柄色——宿主换色即换已选区域
-        视觉；轨道基底固定 Style.text。
-    \li first 手柄色固定 Style.text（基底段色）、second 固定 \l color（已选段色）
-        ——段色采样语义（Slider 渐变采样在纯色两段下的特化）。
-    \endlist
-
-    \section2 交互反馈
-    \list
-    \li 悬停/按下/刚移动（任一值变化后 500ms 锁存窗口）：对应手柄展开到控件
-        全高（常态 = \l preferredHeight——收缩 \c{Qore.bound(3, 高度×0.25, 25)}；
-        轨道与手柄常态同高、中心对齐；三角形尖角常态缩进轨道内、展开顶到
-        轨道端），动画随 \l animationEnabled 门控；悬停时光标变水平双向箭头
-        （仅 enabled）。
-    \li 程序化写入 \c first.value/\c second.value（如外部绑定）：两个手柄均展开
-        约 500ms（\l justMoved 锁存窗口——"值被写入即反馈"语义，无论谁写的）；
-        持续变化期间窗口随每次值变化滑动不落。
-    \li 倒置范围（from > to）：位置反向，已选段与手柄自动跟随。
-    \endlist
-
-    \section2 状态属性
-    \list
-    \li \c animationEnabled：动画开关——父链继承（宿主可在父级统一关闭），
-        回退 \l Style 的 \c animationEnabled。
-    \li \c justMoved："值刚被写入过"的声明式锁存窗口（500ms，滑动窗口）。
-    \li \c preferredHeight：水晶轨道与手柄的常态高度（收缩态）——展开时手柄
-        占满控件全高；宿主可用它参与外部布局计算。
-    \endlist
-
-    \note 首次同时设置两手柄值时注意官方 \c setValues() 契约：\c first.value 与
-    \c second.value 之间存在循环依赖，组件完成前分别赋值可能被互相钳制——
-    官方文档建议经 \c setValues() 一次性设置。
-*/
 T.RangeSlider {
     id: root
-    /*! \qmlproperty color 已选段填充色（与 second 手柄色），默认 Style.accent。 */
+    // 已选段填充色（与 second 手柄色），默认 Style.accent。
     property color color: root.Style.accent
-    /*! \qmlproperty bool "值刚被写入过"的声明式锁存窗口（500ms，滑动窗口——持续变化持续保持）。 */
+    // "值刚被写入过"的声明式锁存窗口（500ms，滑动窗口——持续变化持续保持）。
     property bool justMoved: movementLatch.active
-    /*! \qmlproperty bool 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。 */
+    // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-    /*! \qmlproperty real 常态高度：水晶轨道与手柄的常态（收缩）高度——展开时手柄占满控件全高（root.height）。 */
+    // 常态高度：水晶轨道与手柄的常态（收缩）高度——展开时手柄占满控件全高（root.height）。
     readonly property real preferredHeight: root.height - Qore.bound(3, root.height * 0.25, 25)
 
     // 尺寸：反向排版策略（Slider 同款）——模板不自带 implicit 公式，root 直接

@@ -21,44 +21,31 @@ import QtQuick.Templates as T
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype ColorNameButton
-    \inqmlmodule Qool.Color
-    \brief 色名行按钮（v3 ColorNameButton 拍平）：色名 + 色块 + 选中展开。
-
-    显示色名（\l name）与对应色块（\l color，经
-    \l {ColorNameHQ}{ColorNameHQ.color(name)} 解析）。选中时色块展开铺满整行、
-    文字反色为前景对比色（\l {ThemeHQ}{ThemeHQ.recommendForeground}），
-    底部悬停指示条渐显。
-
-    \section1 互斥选择（易误解，特别说明）
-
-    \c group 属性是对 v3 \c ButtonGroup.group 的拍平（独占组语义内联）：
-    \list
-    \li 点击未选中项 → 本项选中，组内原选中项自动取消。
-    \li \b 点击已选中项 → 保持选中，不会取消（v3 exclusive 组行为，
-        用户不可点击取消；取消只能程序化置 \c checked = false）。
-    \li \c group 为 null（独立使用）→ 退化为普通切换按钮（点选切换）。
-    \endlist
-    组引用由宿主（\l ColorNameView）注入；组对象的 \c checkedButton
-    属性由本组件在切换时维护。
-
-    \section1 属性
-
-    \qmlproperty string ColorNameButton::name
-    色名，默认 "white"。\l color 由 \l {ColorNameHQ}{ColorNameHQ.color(name)}
-    解析（未知名回退默认白）。
-
-    \qmlproperty color ColorNameButton::color
-    只读，\l name 对应的颜色（ColorNameHQ 解析结果）。
-
-    \qmlproperty var ColorNameButton::group
-    互斥组引用（v3 ButtonGroup 拍平，见上）。null 时点选为普通切换。
-
-    \qmlproperty bool ColorNameButton::animationEnabled
-    动画总开关，默认继承父级或 \l {Style}{Style.animationEnabled}
-    （v4 惯例）。
-*/
+// 色名行按钮（v3 ColorNameButton 拍平）：色名 + 色块 + 选中展开。
+//
+// 显示色名（`name`）与对应色块（`color`，经
+// ColorNameHQ.color(name) 解析）。选中时色块展开铺满整行、
+// 文字反色为前景对比色（ThemeHQ.recommendForeground），
+// 底部悬停指示条渐显。
+//
+// 互斥选择（易误解，特别说明）
+//
+// `group` 属性是对 v3 `ButtonGroup.group` 的拍平（独占组语义内联）：
+// - 点击未选中项 → 本项选中，组内原选中项自动取消。
+// - 点击已选中项 → 保持选中，不会取消（v3 exclusive 组行为，
+//   用户不可点击取消；取消只能程序化置 `checked` = false）。
+// - `group` 为 null（独立使用）→ 退化为普通切换按钮（点选切换）。
+// 组引用由宿主（ColorNameView）注入；组对象的 `checkedButton`
+// 属性由本组件在切换时维护。
+//
+// 属性
+// - 属性 `name`（string）：色名，默认 "white"。`color` 由
+//   ColorNameHQ.color(name) 解析（未知名回退默认白）。
+// - 属性 `color`（color）：只读，`name` 对应的颜色（ColorNameHQ 解析结果）。
+// - 属性 `group`（var）：互斥组引用（v3 ButtonGroup 拍平，见上）。
+//   null 时点选为普通切换。
+// - 属性 `animationEnabled`（bool）：动画总开关，默认继承父级或
+//   Style.animationEnabled（v4 惯例）。
 T.AbstractButton {
     id: root
 

@@ -8,38 +8,16 @@
 
 QOOL_NS_BEGIN
 
-/*!
-    \class ChatRoomServer
-    \inmodule Qool.Chat
-    \brief 聊天室服务器：管理 Beeper 注册，并向频道匹配的 Beeper 投递消息。
-
-    实例由 ChatRoomManager 按 name 创建并 \c moveToThread 到专用
-    服务器线程；服务器实例仅经 \c ChatRoomManager::server(name)
-    获取，"外部不可达"是隔离边界——勿在其它线程直接构造/持有
-    服务器指针。
-
-    \section1 线程架构（刻意设计，勿按常规 QObject 线程模型审查）
-
-    \list 1
-    \li ChatRoom 经 \c BlockingQueuedConnection 调用 signIn/signOut——
-        调用方线程阻塞等待服务器线程完成，因此 m_beepers /
-        m_objectTracker 的读写在"信号发射时"即已同步，锁内 emit
-        无死锁风险（消费者均经 Queued 异步接收，不在锁内回调）。
-    \li 投递路径 trySend 运行于服务器线程，跨线程读取 Beeper 的
-        \c channels()（Beeper 侧已加锁，见 \l Beeper），并通过
-        \c postEvent 异步投递 MessageEvent 到 Beeper 所在线程
-        （Beeper 析构时 \c removePostedEvents 清理挂起事件）。
-    \li 服务器实例仅经 ChatRoomManager 按 name 获取，外部不可直接
-        构造/持有——"外部不可达"是隔离边界，勿在其它线程保存指针。
-    \endlist
-
-    \section1 消息过滤
-
-    trySend 依据消息频道与 Beeper 频道集合的交集（含 \c ALL 通配）
-    决定是否投递；发送者本人（senderID 与 Beeper name 相同）不接收
-    自己的消息。signIn 按 Beeper name 幂等，重名注册被忽略并告警。
-    \c isEmpty 表示服务器已无可投递对象（\c GLOBAL 永不视为空）。
-*/
+// ChatRoomServer：聊天室服务器——管理 Beeper 注册，并向频道匹配的
+// Beeper 投递消息。实例由 ChatRoomManager 按 name 创建并 moveToThread
+// 到专用服务器线程；服务器实例仅经 ChatRoomManager::server(name) 获取，
+// "外部不可达"是隔离边界——勿在其它线程直接构造/持有服务器指针。
+//
+// 消息过滤：trySend 依据消息频道与 Beeper 频道集合的交集（含 ALL
+// 通配）决定是否投递；发送者本人（senderID 与 Beeper name 相同）不
+// 接收自己的消息。signIn 按 Beeper name 幂等，重名注册被忽略并告警。
+// isEmpty 表示服务器已无可投递对象（GLOBAL 永不视为空）。
+// 线程架构详见下方注释。
 // 线程架构（刻意设计，勿按常规 QObject 线程模型审查）：
 // 1. 实例被 ChatRoomManager moveToThread 到专用服务器线程；ChatRoom
 //    经 BlockingQueuedConnection 调用 signIn/signOut——调用方线程

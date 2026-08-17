@@ -23,75 +23,67 @@ import QtQuick.Templates as T
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype CycleChoice
-    \inqmlmodule Qool.Color
-    \brief 循环切换按钮拍平件（v3 \c CycleChoiceButton 全功能拍平）。
-
-    点击按钮在选项数组中循环前进（\c goForward()），提供 \c goBackward() /
-    \c reset() 反向与复位；\c currentIndex 为当前选项下标，
-    \c displayText / \c displayColor 为当前选项的文字与颜色。
-
-    \section2 数组属性（v3 ComboChoiceModel 取消，内联）
-    v3 的 \c ComboChoiceModel（C++ QAbstractListModel）不再需要——数据面拍平为
-    数组属性：\c texts（必选，默认 \c Style.papaWords）、\c colors（默认
-    [text, highlight]）、\c values / \c backgrounds / \c datas（可选扩展面，
-    默认空）。配套方法 \c textAt() / \c valueAt() / \c colorAt() /
-    \c backgroundAt() / \c dataAt() / \c indexOfText() / \c indexOfValue()
-    与 v3 模型方法同名同语义；\c length 为 \c texts 长度。\c currentData 为
-    \c dataAt(currentIndex)（\c datas 为空时返回 undefined，与 v3 空
-    QVariant 语义等价）。
-    \b 越界语义照迁：所有 \c xxxAt() 对下标做\b 循环取模（v3
-    \c fetch_value 的 int cycle），即下标 -1 取末项、length 取首项，永不越界。
-
-    \section2 循环/限幅逻辑（v3 IntegerCounter/NumberLimiter 内联）
-    \list
-    \li \c counter（内部 QtObject）实现 v3 \c IntegerCounter：
-        \c currentIndex / \c defaultIndex 为别名；\c keepIndexSafe 为 true 时
-        计数采用 \c JumpToOtherSide（越过上界跳回最小值、越过下界跳回最大值），
-        false 时 \b 无限制（\c NoLimits，v3 默认）——此时 \c currentIndex 可越界，
-        由 \c xxxAt() 的循环取模兜底显示。
-    \li \c safeCurrentIndex 为 \c NumberLimiter(CycleBetweenEdges) 对
-        [\c counter.min, \c counter.max + 1] 的\b 实数环绕结果（v3 原样，
-        含 x3_number_tools 实数版 cycle 的 \c -1 修正，见函数实现注释）——
-        \b 注意它不是"裁剪到有效索引"的语义，是 v3 的逐字行为，勿当 bug 修。
-    \li \c current 初始为 \c defaultValue 的 QML 绑定（v3 同款写法）；首次
-        交互（next/previous/reset 写入）后绑定断开、独立变化——与 v3 一致。
-    \li 差异注明：v3 中直接写 \c currentIndex 会经 C++ setter 校验（按
-        counterBehavior 限幅）；拍平件中直接写 \c currentIndex 原样接受
-        （仅 next/previous 路径校验）。Color 模块无直接写 currentIndex 的
-        消费方，故行为不受影响。
-    \endlist
-
-    \section2 交互反馈（v3 Control*Cover 的简化等效 + 临时件策略）
-    状态反馈即时到位、无过渡动画（临时件策略——动画已按裁定全部移除）。
-    保留以下状态渲染（纯状态绑定，无 Behavior）：
-    \list
-    \li 按下 → 高亮色覆盖（\c pressedCover，opacity 0.25）
-    \li 禁用 → 负面色覆盖（\c lockedCover，opacity 0.25）+ 边框变负面色
-    \li 悬停/选中 → 边框高亮 + 底部渐变淡光
-    \endlist
-
-    \section2 showTitle 默认变更（与 v3 的刻意差异）
-    v3 \c CycleChoiceButton 默认 \c showTitle: true 且继承占位标题
-    \c qsTr("酷酷的按钮")，导致每个按钮右上角泄漏占位文字（遗留缺陷）。
-    拍平件保留 \c showTitle / \c title / \c titleComponent / \c titleItem
-    完整能力，默认 \c showTitle: false、\c title: ""——能力不降级，默认外观修正。
-
-    \section2 为什么在 Color/_private 而非 Controls
-    同 \l NumInput：暂不耦合 v4 Controls，TODO 将来迁移（见文件头注释）。
-
-    \section2 属性
-    \c texts / \c colors 为数据面；\c currentIndex / \c defaultIndex /
-    \c safeCurrentIndex / \c keepIndexSafe 为计数面；\c displayText /
-    \c displayColor / \c currentData 为只读当前项；\c highlightColor 驱动
-    悬停/按下反馈（默认跟随 \c displayColor）；\c fallbackText（默认
-    qsTr("<空>")，保持 v3 渲染行为——v3 的根 fallbackText 未参与渲染，
-    实际渲染用的是 CycleChoiceText 内层 "<空>"，拍平合并为单属性）/
-    \c fallbackColor 为空数据兜底；\c bgSettings（v3 OctagonSettings API
-    对位：cutSize/strokeWidth/strokeColor/color）与 \c backgroundSettings
-    （v4 惯例 QoolBoxSettings 对象，borderColor 受状态驱动）控制背景外观。
-*/
+// 循环切换按钮拍平件（v3 `CycleChoiceButton` 全功能拍平）。
+//
+// 点击按钮在选项数组中循环前进（`goForward()`），提供 `goBackward()` /
+// `reset()` 反向与复位；`currentIndex` 为当前选项下标，
+// `displayText` / `displayColor` 为当前选项的文字与颜色。
+//
+// 数组属性（v3 ComboChoiceModel 取消，内联）
+// v3 的 `ComboChoiceModel`（C++ QAbstractListModel）不再需要——数据面拍平为
+// 数组属性：`texts`（必选，默认 `Style.papaWords`）、`colors`（默认
+// [text, highlight]）、`values` / `backgrounds` / `datas`（可选扩展面，
+// 默认空）。配套方法 `textAt()` / `valueAt()` / `colorAt()` /
+// `backgroundAt()` / `dataAt()` / `indexOfText()` / `indexOfValue()`
+// 与 v3 模型方法同名同语义；`length` 为 `texts` 长度。`currentData` 为
+// `dataAt(currentIndex)`（`datas` 为空时返回 undefined，与 v3 空
+// QVariant 语义等价）。
+// 越界语义照迁：所有 `xxxAt()` 对下标做循环取模（v3
+// `fetch_value` 的 int cycle），即下标 -1 取末项、length 取首项，永不越界。
+//
+// 循环/限幅逻辑（v3 IntegerCounter/NumberLimiter 内联）
+// - `counter`（内部 QtObject）实现 v3 `IntegerCounter`：
+//   `currentIndex` / `defaultIndex` 为别名；`keepIndexSafe` 为 true 时
+//   计数采用 `JumpToOtherSide`（越过上界跳回最小值、越过下界跳回最大值），
+//   false 时无限制（`NoLimits`，v3 默认）——此时 `currentIndex` 可越界，
+//   由 `xxxAt()` 的循环取模兜底显示。
+// - `safeCurrentIndex` 为 `NumberLimiter(CycleBetweenEdges)` 对
+//   [`counter.min`, `counter.max + 1`] 的实数环绕结果（v3 原样，
+//   含 x3_number_tools 实数版 cycle 的 `-1` 修正，见函数实现注释）——
+//   注意它不是"裁剪到有效索引"的语义，是 v3 的逐字行为，勿当 bug 修。
+// - `current` 初始为 `defaultValue` 的 QML 绑定（v3 同款写法）；首次
+//   交互（next/previous/reset 写入）后绑定断开、独立变化——与 v3 一致。
+// - 差异注明：v3 中直接写 `currentIndex` 会经 C++ setter 校验（按
+//   counterBehavior 限幅）；拍平件中直接写 `currentIndex` 原样接受
+//   （仅 next/previous 路径校验）。Color 模块无直接写 currentIndex 的
+//   消费方，故行为不受影响。
+//
+// 交互反馈（v3 Control*Cover 的简化等效 + 临时件策略）
+// 状态反馈即时到位、无过渡动画（临时件策略——动画已按裁定全部移除）。
+// 保留以下状态渲染（纯状态绑定，无 Behavior）：
+// - 按下 → 高亮色覆盖（`pressedCover`，opacity 0.25）
+// - 禁用 → 负面色覆盖（`lockedCover`，opacity 0.25）+ 边框变负面色
+// - 悬停/选中 → 边框高亮 + 底部渐变淡光
+//
+// showTitle 默认变更（与 v3 的刻意差异）
+// v3 `CycleChoiceButton` 默认 `showTitle: true` 且继承占位标题
+// `qsTr("酷酷的按钮")`，导致每个按钮右上角泄漏占位文字（遗留缺陷）。
+// 拍平件保留 `showTitle` / `title` / `titleComponent` / `titleItem`
+// 完整能力，默认 `showTitle: false`、`title: ""`——能力不降级，默认外观修正。
+//
+// 为什么在 Color/_private 而非 Controls
+// 同 NumInput：暂不耦合 v4 Controls，TODO 将来迁移（见文件头注释）。
+//
+// 属性
+// `texts` / `colors` 为数据面；`currentIndex` / `defaultIndex` /
+// `safeCurrentIndex` / `keepIndexSafe` 为计数面；`displayText` /
+// `displayColor` / `currentData` 为只读当前项；`highlightColor` 驱动
+// 悬停/按下反馈（默认跟随 `displayColor`）；`fallbackText`（默认
+// qsTr("<空>")，保持 v3 渲染行为——v3 的根 fallbackText 未参与渲染，
+// 实际渲染用的是 CycleChoiceText 内层 "<空>"，拍平合并为单属性）/
+// `fallbackColor` 为空数据兜底；`bgSettings`（v3 OctagonSettings API
+// 对位：cutSize/strokeWidth/strokeColor/color）与 `backgroundSettings`
+// （v4 惯例 QoolBoxSettings 对象，borderColor 受状态驱动）控制背景外观。
 
 T.AbstractButton {
     id: root
@@ -366,26 +358,17 @@ T.AbstractButton {
 
     onClicked: goForward()
 
-    /*!
-        \qmlmethod void CycleChoice::goForward()
-        循环前进一项（counter.next()）。
-    */
+    // 方法 goForward()：循环前进一项（counter.next()）。
     function goForward() {
         counter.next()
     }
 
-    /*!
-        \qmlmethod void CycleChoice::goBackward()
-        循环后退一项（counter.previous()）。
-    */
+    // 方法 goBackward()：循环后退一项（counter.previous()）。
     function goBackward() {
         counter.previous()
     }
 
-    /*!
-        \qmlmethod void CycleChoice::reset()
-        复位到 defaultIndex（counter.reset()）。
-    */
+    // 方法 reset()：复位到 defaultIndex（counter.reset()）。
     function reset() {
         counter.reset()
     }
@@ -413,62 +396,46 @@ T.AbstractButton {
         return list[i]
     }
 
-    /*!
-        \qmlmethod string CycleChoice::textAt(int index)
-        循环取第 \c index 项文字（空 texts 返回空串）。
-    */
+    // 方法 textAt(index)：string：循环取第 `index` 项文字（空 texts 返回空串）。
     function textAt(index) {
         if (root.texts.length === 0)
             return ""
         return root.texts[_cycle_index(index, root.texts.length)]
     }
 
-    /*!
-        \qmlmethod var CycleChoice::valueAt(int index)
-        循环取第 \c index 项 value；\c values 为空时退回 \c textAt()（v3 语义）。
-    */
+    // 方法 valueAt(index)：var：循环取第 `index` 项 value；`values` 为空时
+    // 退回 `textAt()`（v3 语义）。
     function valueAt(index) {
         if (root.values.length === 0)
             return root.textAt(index)
         return _fetch(index, root.values)
     }
 
-    /*!
-        \qmlmethod color CycleChoice::colorAt(int index)
-        循环取第 \c index 项颜色（空 colors 返回 undefined）。
-    */
+    // 方法 colorAt(index)：color：循环取第 `index` 项颜色（空 colors 返回 undefined）。
     function colorAt(index) {
         return _fetch(index, root.colors)
     }
 
-    /*!
-        \qmlmethod var CycleChoice::backgroundAt(int index)
-        循环取第 \c index 项 background（空 backgrounds 返回 undefined）。
-    */
+    // 方法 backgroundAt(index)：var：循环取第 `index` 项 background
+    // （空 backgrounds 返回 undefined）。
     function backgroundAt(index) {
         return _fetch(index, root.backgrounds)
     }
 
-    /*!
-        \qmlmethod var CycleChoice::dataAt(int index)
-        循环取第 \c index 项附加数据（空 datas 返回 undefined）。
-    */
+    // 方法 dataAt(index)：var：循环取第 `index` 项附加数据
+    // （空 datas 返回 undefined）。
     function dataAt(index) {
         return _fetch(index, root.datas)
     }
 
-    /*!
-        \qmlmethod int CycleChoice::indexOfText(string value)
-        返回 \c value 在 \c texts 中的下标，未找到或为空返回 -1。
-    */
+    // 方法 indexOfText(value)：int：返回 `value` 在 `texts` 中的下标，
+    // 未找到或为空返回 -1。
     function indexOfText(v) {
         return root.texts.indexOf(v)
     }
 
-    /*!
-        \qmlmethod int CycleChoice::indexOfValue(var value)
-        返回 \c value 在 \c values 中的下标，未找到或为空返回 -1。
-    */
+    // 方法 indexOfValue(value)：int：返回 `value` 在 `values` 中的下标，
+    // 未找到或为空返回 -1。
     function indexOfValue(v) {
         return root.values.indexOf(v)
     }

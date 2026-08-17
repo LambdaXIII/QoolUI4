@@ -20,22 +20,16 @@ import QtQuick
 import Qool
 import Qool.Color
 
-/*!
-    \qmltype HSVWheel
-    \inqmlmodule Qool.Color
-    \brief HSV 色轮（v3 逐字迁移）：HSVSurface + 拖动映射 + 光标。
-
-    \c colorAssistant 为数据源（默认自带）；\c userInteracting 反映拖动态。
-    交互期间写 \c hsvHueF / \c hsvSaturationF；surface 的 \c hsvValue 跟随
-    \c colorAssistant.hsvValueF（明度由外部滑块控制，本件只取色相与饱和度）。
-
-    \section2 易误解点
-    \list
-    \li reset 置 hue=0、sat=0 而非"回到默认颜色"——v3 语义（回到圆心/无彩色）。
-    \li 圆外点击不丢弃：矩形命中域 + keepDirectionButInCircle 钳制到圆周，
-        因此点圆角处会取到圆周上的最近色相。
-    \endlist
-*/
+// HSV 色轮（v3 逐字迁移）：HSVSurface + 拖动映射 + 光标。
+//
+// `colorAssistant` 为数据源（默认自带）；`userInteracting` 反映拖动态。
+// 交互期间写 `hsvHueF` / `hsvSaturationF`；surface 的 `hsvValue` 跟随
+// `colorAssistant.hsvValueF`（明度由外部滑块控制，本件只取色相与饱和度）。
+//
+// 易误解点
+// - reset 置 hue=0、sat=0 而非"回到默认颜色"——v3 语义（回到圆心/无彩色）。
+// - 圆外点击不丢弃：矩形命中域 + keepDirectionButInCircle 钳制到圆周，
+//   因此点圆角处会取到圆周上的最近色相。
 Item {
     id: root
 

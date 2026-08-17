@@ -37,59 +37,14 @@
 import QtQuick
 import Qool
 
-/*!
-    \qmltype Crystal
-    \inqmlmodule Qool
-    \brief 水晶六边形色块（八点模型）：\c width > \c height 为六边形、
-    \c width = \c height 为菱形（旋转 45° 的正方形）、\c width < \c height
-    为瘦六边形（上下尖 + 左右直边）。左上角锚定。
-
-    \l {Qool::OctagonShape}{OctagonShape} 特化形态：内部注入
-    \l {Qool::QoolBoxShapeControl}{QoolBoxShapeControl}（target = 自身），
-    settings 四角切角恒绑定 shortEdge/2（内部中间量单点定义——八点几何
-    契约），\c borderWidth（默认 1）内缩描边环。三种形态即
-    \l {Qool::QoolBoxGadget}{QoolBoxGadget} 的 cut = shortEdge/2 特化
-    （半平面交集模型下退化形态合法——菱形/瘦六边形均为定义良好的极限）。
-
-    \section2 用法
-    \list
-    \li 手柄（方形）：默认逻辑尺寸 20×20（\c width/\c height 显式默认——
-        implicit 由引擎驱动 = 路径边界，随实际几何）；轨道（宽条）：覆盖
-        \c width/\c height（宽六边形）。Slider 的轨道与手柄均用本件，斜边
-        斜率一致天然对齐。
-    \li \c color 为纯色填充；\c fillGradient / \c fillItem 为填充通道
-        （\l {Qool::OctagonShape}{OctagonShape} 同款语义——fillItem 优先）。
-    \li 渐变锚点（左上/右上斜边内侧交点）不另暴露——宿主按
-        \c{(width/2, height/2)} 与 \c{(width - width/2, height/2)} 自算
-        （Slider 即此）。
-    \endlist
-
-    \section2 描边
-    \c borderWidth（默认 1）：内缩描边环（全在内侧——外轮廓无描边伸出，
-    填充区内缩 borderWidth）。\c borderColor 即环色（单层线中心描边的
-    语义由双层模型承接，视觉差异 0.5px 级）。
-
-    \section2 命中掩码
-    掩码委托 \l {Qool::QoolBoxShapeControl}{QoolBoxShapeControl} 的
-    \c contains（外接矩形内四角切角域排除，斜边与顶点命中——开集语义，
-    与可见形状一致）。\b hover 需显式挂载：Qt 的 hover 分发只检查 item
-    自身的 \c contains（不检查祖先掩码）——宿主 MouseArea 挂
-    \c{containmentMask: 组件id.containmentMask} 才获得精确 hover。
-
-    \section2 低级组成件契约
-    \c control 为 OctagonShape 的 required 属性（本组件内默认实例化）——
-    替换 control 属高级用法（自定义几何源）；\c settings 为内部八点契约
-    （四角 cut 恒 = shortEdge/2），直接修改破坏形态自洽——Crystal 不提供
-    settings 配置面。
-*/
 OctagonShape {
     id: root
 
-    /*! \qmlproperty color 填充色，默认 Style.accent（独立使用默认自洽）。 */
+    // 填充色，默认 Style.accent（独立使用默认自洽）
     property color color: root.Style.accent
-    /*! \qmlproperty color 内描边环色，默认按填充色自动对比（ThemeHQ.recommendForeground）。 */
+    // 内描边环色，默认按填充色自动对比（ThemeHQ.recommendForeground）
     property color borderColor: ThemeHQ.recommendForeground(root.color)
-    /*! \qmlproperty real 内描边环宽度（默认 1——外轮廓向内缩进形成描边环）。 */
+    // 内描边环宽度（默认 1——外轮廓向内缩进形成描边环）
     property real borderWidth: 1
 
     // 默认逻辑尺寸（机制见文件头"结构决策"——implicit 声明被引擎覆盖，
