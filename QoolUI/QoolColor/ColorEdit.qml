@@ -39,7 +39,7 @@ Item {
         onClicked: root.edit()
     } //mArea
 
-    // 编辑态：v3 BasicTextInput（Qool.Controls.Basic）内联为 TextInput。
+    // 编辑态：BasicTextInput 内联为 TextInput。
     // 不复用 NumInput 的原因：显示态内容（ColorNameHQ 色名渲染）与编辑内容
     // （原始文本）不同，NumInput 的滚动显示/数值约定（x>1 → /1000）与
     // 本组件的颜色名输入无关——见文件头文档。
@@ -62,7 +62,7 @@ Item {
         }
         onTextChanged: {
             // 解析失败（含输入中间态，如刚输入 "re" 尚未成 "red"）时
-            // currentColor 回退 defaultColor——v3 行为照迁，瞬时回退非 bug。
+            // currentColor 回退 defaultColor——瞬时回退非 bug。
             root.currentColor = ColorNameHQ.color(text, root.defaultColor)
         }
     } //editor

@@ -9,12 +9,9 @@ QOOL_NS_BEGIN
 
 std::pair<qreal, qreal> ColorHueCycleModel::hue_and_position(
   int index) const {
-  // v3 limit_number(int, cycle_limitation_tag) 的 v4 等价物：
-  // math::cycle_in_range（模数回绕，非钳制）。槽位按环语义循环，
-  // 越界 row 折回区间内，保证 position 恒在 [0, 1)。
-  // 注：v3 泛型 cycle 实现带 -1 偏移缺陷——qreal 越界（如 hueOffset
-  // 使 hue > 1）折回为负值，fromHsvF 得异常色；v4 以 cycle_in_range
-  // 正确环折返（1.8 → 0.8）。
+  // 槽位按环语义循环（math::cycle_in_range 模数回绕，非钳制）：越界
+  // row 折回区间内，保证 position 恒在 [0, 1)；hue 越界同样折返
+  // （如 hueOffset 使 hue > 1 → 折回，而非越界负值）。
   const int cycled = math::cycle_in_range(0, index, m_number - 1);
   const qreal pos = qreal(cycled) / qreal(m_number);
   const qreal hue = math::cycle_in_range(0.0, pos + m_hueOffset, 1.0);

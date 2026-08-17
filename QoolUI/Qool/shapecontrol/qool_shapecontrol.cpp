@@ -18,7 +18,7 @@ ShapeControl::ShapeControl(QObject* parent)
 // 绑定会注册对 target.width/height QProperty 的依赖——控件隐式尺寸拓扑下
 //（无显式尺寸）target 尺寸经宿主 padding → *Space → 本对象 *Space/几何的
 // 绑定链绕回 target 自身，绑定求值重入成环（QML "Binding loop detected"，
-// QoolBGBox/BasicControl 隐式尺寸实例实证）。信号连接 → 写缓存 QProperty →
+// 隐式尺寸拓扑的已知表现）。信号连接 → 写缓存 QProperty →
 // 绑定重算 → 尺寸变化 → 信号……是收敛迭代（值稳定后信号不再发），Qt 对
 // 赋值循环不报警告；target 析构时 QObject 连接自动断开（settings 同步同款
 // 模式，析构安全）。
@@ -36,7 +36,7 @@ void ShapeControl::connect_target_geometry() {
   m_connectedTarget = t;
   // 延迟同步（QTimer::singleShot(0, this)）：连接器可能在布局/绑定求值栈内
   // 执行（T.Control 自动跟随 setWidth 的 emit 栈）——同步写缓存会触发依赖
-  // 绑定在同栈重算 → 重入成环（BasicControl 隐式尺寸实证）。延迟到事件循环
+  // 绑定在同栈重算 → 重入成环（隐式尺寸拓扑）。延迟到事件循环
   // 后写入离开求值栈，尺寸变化 → 缓存同步 → 重算 → 再变化 变为收敛迭代；
   // context 对象 this 析构时定时器自动取消（析构安全）。代价：target 尺寸
   // 变化后 control 几何在事件循环内更新（QML 绑定消费方无感知差异）。

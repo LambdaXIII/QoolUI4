@@ -1,6 +1,6 @@
 // 输入控件（二）：Slider + Dial 展示页。
 //
-// 用例梳理自 Playground 的 Slider 调试场（2026-08-10）：相关主题合并进
+// 用例梳理自 Playground 的 Slider 调试场：相关主题合并进
 // 同一 QoolControl（反馈/官方行为/尺寸形态各一组），每组内多 Slider 并排；
 // QoolTip 详尽说明行为、属性与注意点。Dial 为 Qool.Controls 现有组件
 // （T.Dial 模板 + 三色弧），在此补充正式展示。
@@ -37,7 +37,7 @@ BasicPage {
                 value: 50
             }
             QoolTip {
-                text: qsTr("水平滑块：六边形渐变轨道（**text→color** 水平渐变，锚定切角内侧）+ 水晶菱形手柄（同一八点模型——斜边斜率一致天然对齐）。\n交互为官方模板行为：点击跳转、拖动连续、方向键步进（获得焦点后）。\n- **color** = 渐变右端色（默认 Style.accent，左端固定 Style.text）——换色即换整条轨道视觉。\n- 默认高度 25（implicitHeight，可覆盖 width/height）——手柄尺寸始终跟随控件实际高度（v3 语义：轨道高 = 水晶高）。\n- 手柄常态色 = 轨道渐变在当前值位置的采样色（ColorMapper.colorAt——拖动时实时变化）。")
+                text: qsTr("水平滑块：六边形渐变轨道（**text→color** 水平渐变，锚定切角内侧）+ 水晶菱形手柄（同一八点模型——斜边斜率一致天然对齐）。\n交互为官方模板行为：点击跳转、拖动连续、方向键步进（获得焦点后）。\n- **color** = 渐变右端色（默认 Style.accent，左端固定 Style.text）——换色即换整条轨道视觉。\n- 默认高度 25（implicitHeight，可覆盖 width/height）——手柄尺寸始终跟随控件实际高度（轨道与手柄常态同高）。\n- 手柄常态色 = 轨道渐变在当前值位置的采样色（ColorMapper.colorAt——拖动时实时变化）。")
             }
         }
 
@@ -68,7 +68,7 @@ BasicPage {
                 }
             }
             QoolTip {
-                text: qsTr("两套反馈语言：\n**上手反馈**（上）——悬停：光标变水平双向箭头（仅 enabled 时）、手柄展开到控件全高（常态收缩 limit(高度×0.25, 3, 25)——视觉差即放大反馈；轨道与手柄常态同高、中心对齐）；按下/刚移动（值变化 500ms 内）手柄保持展开。动画随 animationEnabled 门控（父链继承，回退 Style）。\n**程序化锁存**（下）——外部定时器每 1.5s 写入 value：每次变化后手柄展开约 500ms（TimerLatch 锁存窗口）再回落——“值被写入即反馈”（v3 ChannelBar movementTimer 语义——无论谁写的；持续变化期间窗口经 valueVelocity 采样级重置不落，禁用时程序化写入也展开）。\n- 手柄常态收缩、展开占满控件高度（不超出边界）——clip 与否不影响反馈。")
+                text: qsTr("两套反馈语言：\n**上手反馈**（上）——悬停：光标变水平双向箭头（仅 enabled 时）、手柄展开到控件全高（常态收缩 limit(高度×0.25, 3, 25)——视觉差即放大反馈；轨道与手柄常态同高、中心对齐）；按下/刚移动（值变化 500ms 内）手柄保持展开。动画随 animationEnabled 门控（父链继承，回退 Style）。\n**程序化锁存**（下）——外部定时器每 1.5s 写入 value：每次变化后手柄展开约 500ms（TimerLatch 锁存窗口）再回落——“值被写入即反馈”（无论谁写的；持续变化期间窗口经 valueVelocity 采样级重置不落，禁用时程序化写入也展开）。\n- 手柄常态收缩、展开占满控件高度（不超出边界）——clip 与否不影响反馈。")
             }
         }
 
@@ -174,7 +174,7 @@ BasicPage {
                 }
             }
             QoolTip {
-                text: qsTr("两处独立替换：\n- **color 属性**（上）——换渐变右端色（默认 Style.accent），手柄采样自动跟随——宿主无需碰手柄。\n- **自定义 handle**（下）——替换水晶菱形（矩形手柄）；**handle delegate 须自写 x/y 定位**（T.Slider 模板不注入定位——官方公式：x = leftPadding + visualPosition * (availableWidth - width)，y 同理垂直居中）。\n- 轨道渐变内联默认（text→color，锚定切角内侧）——整体替换不再提供（v4 收缩）；换色走 **color** 属性。")
+                text: qsTr("两处独立替换：\n- **color 属性**（上）——换渐变右端色（默认 Style.accent），手柄采样自动跟随——宿主无需碰手柄。\n- **自定义 handle**（下）——替换水晶菱形（矩形手柄）；**handle delegate 须自写 x/y 定位**（T.Slider 模板不注入定位——官方公式：x = leftPadding + visualPosition * (availableWidth - width)，y 同理垂直居中）。\n- 轨道渐变内联默认（text→color，锚定切角内侧）——整体替换不再提供（收缩决策）；换色走 **color** 属性。")
             }
         }
 

@@ -36,9 +36,9 @@ T.Control {
 
         Grid {
             id: grid
-            // 居中排布（修复 2026-08-10）：此前裸 Grid 从内容区左上排布，
-            // ComboBox 拉满全高时圆点列偏上 ~3.5px——anchors.centerIn 使
-            // 圆点列在内容区垂直/水平居中
+            // 居中排布：anchors.centerIn 使圆点列在内容区垂直/水平居中
+            //（裸 Grid 从内容区左上排布，ComboBox 拉满全高时圆点列偏上
+            // ~3.5px）
             anchors.centerIn: parent
             // flow: Grid.TopToBottom
             layoutDirection: root.mirrored ? Qt.LeftToRight : Qt.RightToLeft

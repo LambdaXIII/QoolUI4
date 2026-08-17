@@ -103,7 +103,7 @@ qreal ColorAssistant::visualBrightness() const {
 }
 
 // recommendedForegroundColor：对比前景色（亮度 ≥0.5 → 黑，否则白），
-// 与 ThemeHQ.recommendForeground 语义等价（阈值按 v3 行为 0.5）。
+// 与 ThemeHQ.recommendForeground 语义等价（阈值 0.5）。
 QColor ColorAssistant::recommendedForegroundColor() const {
   const auto b = visualBrightness();
   return b >= 0.5 ? Qt::black : Qt::white;

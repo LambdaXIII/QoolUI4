@@ -1,6 +1,6 @@
 # QML 测试批次层（Qt Quick Test）
 #
-# 组织模型（见 原 spec 5.3「QML 测试批次模型」）：每个 Qool 模块 = 一个
+# 组织模型：每个 Qool 模块 = 一个
 # QML 测试批次 = 一个 harness target（命名 tst_<模块>_qml），共享
 # qml_test_main.cpp 模板，各自注入 QUICK_TEST_SOURCE_DIR 与共享的
 # QOOLUI_TEST_QML_IMPORT_PATH。
@@ -14,7 +14,7 @@
 #
 # 运行：add_test 统一带 -platform offscreen（无头；目视渲染直接跑 exe 无参）
 #
-# 输出树下沉（原 spec 6.1，定案见 AGENTS.md「CMake 组织」）：本层 exe 输出到
+# 输出树下沉（定案见 AGENTS.md「CMake 组织」）：本层 exe 输出到
 # build/build-<kit>-<Type>/QoolUITests/qml/。本层与 core 层是唯二需要 qt.conf 的层（QML 测试
 # 加载平台插件与 Qool QML 模块；core 层链接 Qt6::Quick → QTEST_MAIN 展开为
 # QGuiApplication 构造加载平台插件；common 层纯 QCoreApplication 无需）。
@@ -22,7 +22,7 @@
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/QoolUITests/qml")
 
-# qt.conf（Qt 官方自包含机制，原 spec 5.2）：配置期生成到 exe 旁——
+# qt.conf（Qt 官方自包含机制）：配置期生成到 exe 旁——
 # QLibraryInfo 读取，Prefix 覆盖 Qt 安装前缀推导（DLL 复制使推导失效），
 # Plugins/QmlImports 路径随之正确；任何运行通道（QtCreator 面板/run-tests/
 # ctest/直跑）无需环境注入。改模板后需重新 configure 生效。
@@ -34,7 +34,7 @@ configure_file(
 )
 
 # ---- Qool 模块的 QML 测试批次 ----
-# 加入默认构建（all）——落地修正（原 spec 6.3 的 EXCLUDE_FROM_ALL）：
+# 加入默认构建（all）：
 # QtCreator 测试面板运行前构建 all，被排除的测试 exe 缺失 → 全红
 add_executable(tst_qool_qml qml_test_main.cpp)
 

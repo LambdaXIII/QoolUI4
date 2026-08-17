@@ -1,14 +1,3 @@
-// NOTE(迁移) v3 Qool.Color/_private/ColorSlider.qml 逐字迁移（基类）。
-// 依赖替换：TextLineEdit → NumInput（本模块拍平件，数值约定收拢到
-// parseChannelValue）、NumberLimiter → 内联 QtObject（CutAtEdges [0,1]，
-// 即 Math.max(0, Math.min(1, x))，v3 语义含 NaN 透传）、
-// PixelFont.normalFont → PixelFont.normal（v4 单例）、
-// Style.textColor → root.Style.text、Style.controlMovementDuration →
-// root.Style.movementDuration；v3 的 `parent?.animationEnabled ?? Style.animationEnabled`
-// 以 v4 惯例 root.Style.animationEnabled 替代（Style 附加属性沿对象树传播，
-// 语义等价；消费方仍可直接覆写本属性）。
-// 不再 import QtQuick.Controls / Qool.Controls / Qool.Color（本模块内部类型自可见）。
-//
 // 关键行为与易误解点（勿改）：
 //   - 水平拖动映射：v = (mouseX - cursor.size / 2) / (slider.width - cursor.width)，
 //     再 CutAtEdges [0,1]——分子是"光标中心相对轨道左端"的距离，分母是
@@ -20,8 +9,7 @@
 //   - 数值输入：编辑态用 NumInput.parseChannelValue（x > 1 → /1000，见 NumInput
 //     头注释），再经 valueLimiter 限幅；非编辑态由 Binding 回写显示文本。
 //   - 轨道高度跟随 cursor.hoveredSize（Layout.preferredHeight），悬停展开时
-//     轨道同步变高，sliderBG 用 y 偏移保持轨道在展开区垂直居中（v3 原样）。
-// 与 v3 的刻意差异：无（仅依赖替换 + 注释）。
+//     轨道同步变高，sliderBG 用 y 偏移保持轨道在展开区垂直居中。
 
 pragma ComponentBehavior: Bound
 
@@ -31,7 +19,7 @@ import Qool
 import "NumTools.js" as Tools
 import Qool.Color
 
-// 颜色通道水平滑块基类（v3 逐字迁移）：标题 + 数值输入一行，轨道 + 光标一行。
+// 颜色通道水平滑块基类：标题 + 数值输入一行，轨道 + 光标一行。
 //
 // 变体（ColorSlider_Hue/Value/Alpha）提供 `fillGradient` 与通道双向绑定；
 // 本基类负责轨道外观（ColorSliderBackground）、光标（ColorCursor）、
@@ -44,7 +32,7 @@ import Qool.Color
 //   displayValue 是光标动画面。拖动时门控动画，松手后平滑。
 // - 双击重置为 `defaultValue`（各变体：Hue=0、Value=1、Alpha=1）。
 // - 数值输入 x > 1 按 /1000 处理（允许键入 0..1000 表示 0..1 比例），
-//   这是 v3 行为照迁，勿当 bug 修（详见 NumInput）。
+//   这是刻意行为，勿当 bug 修（详见 NumInput）。
 Item {
     id: root
 
@@ -69,7 +57,7 @@ Item {
 
     QtObject {
         id: valueLimiter
-        // v3 NumberLimiter(min:0, max:1, mode:CutAtEdges) 内联（NaN 透传，v3 一致）。
+        // NumberLimiter(min:0, max:1, mode:CutAtEdges) 语义内联（NaN 透传）。
         function limit(x) {
             return Math.max(0, Math.min(1, x))
         }

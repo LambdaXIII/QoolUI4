@@ -16,7 +16,7 @@ BasicPage {
     Component.onCompleted: mainColor.color = Style.highlight
 
     // 共享颜色源：全页唯一 ColorAssistant，四面板/预览器绑定它，
-    // picker/editor 经 Connections 双向同步（v3 同构）。
+    // picker/editor 经 Connections 双向同步。
     ColorAssistant {
         id: mainColor
     }

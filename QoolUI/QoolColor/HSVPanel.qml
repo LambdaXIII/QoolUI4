@@ -1,13 +1,8 @@
-// NOTE(迁移) v3 Qool.Color/HSVPanel.qml 迁移。
-// 组合模式照迁：数字输入行（GridLayout + NumInput）→ HSVWheel 表面 →
+// HSV 面板：数字输入行（GridLayout + NumInput）→ HSVWheel 表面 →
 // 明度（ColorSlider_Value）/ 透明度（ColorSlider_Alpha）滑块。
-// 替换点：TextLineEdit → NumInput（数值约定 x>1→/1000+限幅 收拢为
-//   NumInput.parseChannelValue，语义与 v3 面板内联 Connections 逐字一致）；
-//   Style.textColor → Style.text、Style.highlightColor → Style.highlight、
-//   PixelFont.normalFont → PixelFont.normal（见 T08/T10 style_mapping）。
-// 交互照迁：HSVWheel 拖动取色/双击重置（hue=0、sat=0）、滑块拖动/双击重置
+// 交互：HSVWheel 拖动取色/双击重置（hue=0、sat=0）、滑块拖动/双击重置
 //   （Value/Alpha 默认 1）、showAlpha 控制透明度滑块显隐、animationEnabled 门控动画。
-// 与 v3 的刻意差异：标签为排版文字（画面元素），不翻译；格式规范化（v3 缩进怪癖）。
+// 刻意：标签为排版文字（画面元素），不翻译。
 
 pragma ComponentBehavior: Bound
 
@@ -20,12 +15,12 @@ import "_private/NumTools.js" as Tools
 ColumnLayout {
     id: root
 
-    // 动画总开关：v3 同款传播（父级属性 → Style），子件各自消费。
+    // 动画总开关：父级属性 → Style 传播，子件各自消费。
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
 
     property bool showAlpha: true
 
-    // 默认状态自洽：默认实例自带默认色，独立使用成立（v3 同构）。
+    // 默认状态自洽：默认实例自带默认色，独立使用成立。
     property ColorAssistant colorAssistant: ColorAssistant {
         color: Style.highlight
     }

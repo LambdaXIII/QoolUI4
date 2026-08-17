@@ -8,7 +8,7 @@ import "_private"
 ColumnLayout {
     id: root
 
-    // 动画总开关：v3 同款传播（父级属性 → Style），子件各自消费。
+    // 动画总开关：父级属性 → Style 传播，子件各自消费。
     property bool animationEnabled: parent?.animationEnabled
                                     ?? Style.animationEnabled
 
@@ -22,20 +22,18 @@ ColumnLayout {
     implicitHeight: 500
     implicitWidth: 200
 
-    // 分类切换（v3 CycleChoiceButton 拍平为 CycleChoice）。
+    // 分类切换（CycleChoice）。
     // 分类数据来自 ColorNameHQ.categories()（插件声明分类的并集），
     // 本组件不内置分类数据。
     CycleChoice {
         id: profiler
         defaultIndex: 0
-        // v3 同款：外部 font 赋值（PixelFont.normal，24px MozartNBP）
-        // 覆盖 CycleChoice 内部 font.pixelSize 默认绑定（controlTextSize）
-        // ——QML 组属性赋值会移除子属性绑定，v3 正是靠此把分类文字
-        // 渲染为像素字体 24px（v3 用 PixelFont.normalFont，对位 PixelFont.normal）。
+        // 外部 font 赋值（PixelFont.normal，24px MozartNBP）覆盖 CycleChoice
+        // 内部 font.pixelSize 默认绑定（controlTextSize）——QML 组属性赋值
+        // 会移除子属性绑定，靠此把分类文字渲染为像素字体 24px。
         font: PixelFont.normal
         texts: ColorNameHQ.categories()
-        // cutSizes 便捷面删除迁移为四角显式：QoolColor 不在兼容范围
-        //（04 票删除旧便捷面后本组件仍须可编译），四角值保持原统一值 2。
+        // cutSizes 便捷面删除为四角显式：四角值保持原统一值 2。
         backgroundSettings.cutSizeTL: 2
         backgroundSettings.cutSizeTR: 2
         backgroundSettings.cutSizeBL: 2
@@ -43,7 +41,7 @@ ColumnLayout {
         Layout.fillWidth: true
     } //profiler
 
-    // 色名列表（v3 ColorNameView 拍平，私有件）。
+    // 色名列表（私有件）。
     ColorNameView {
         id: view
         clip: true

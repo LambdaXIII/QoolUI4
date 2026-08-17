@@ -1,12 +1,9 @@
-// NOTE(迁移) v3 Qool.Color/RGBPanel.qml 迁移。
-// 组合模式照迁：单行竖直通道滑块（GridLayout 一行五列）——
-// 明度（ChannelSlider_Brightness，showBrightness 控制，默认隐藏）、
+// 单行竖直通道滑块面板：GridLayout 一行五列——明度
+// （ChannelSlider_Brightness，showBrightness 控制，默认隐藏）、
 // 红/绿/蓝、透明度（ChannelSlider_Alpha，showAlpha 控制）。
-// 替换点：Style.highlightColor → Style.highlight（见 T08/T10 style_mapping）。
-// 交互照迁：各滑块竖直拖动（自下而上 0→1）、双击重置（通道默认值 1）、
+// 交互：各滑块竖直拖动（自下而上 0→1）、双击重置（通道默认值 1）、
 //   滑块内嵌数值输入（x>1→/1000+限幅，滑块自身处理）。
-// 与 v3 的刻意差异：无（v3 RGBPanel 本就不向滑块传 animationEnabled，
-//   滑块各自取 Style.animationEnabled——v3 原样保留）。
+// 刻意，勿改：本面板不向滑块传 animationEnabled，滑块各自取 Style.animationEnabled。
 
 pragma ComponentBehavior: Bound
 
@@ -18,14 +15,14 @@ import "_private"
 GridLayout {
     id: root
 
-    // 动画总开关：v3 同款传播（父级属性 → Style）。
+    // 动画总开关：父级属性 → Style 传播。
     property bool animationEnabled: parent?.animationEnabled
                                     ?? Style.animationEnabled
 
     property bool showAlpha: true
     property bool showBrightness: false
 
-    // 默认状态自洽：默认实例自带默认色，独立使用成立（v3 同构）。
+    // 默认状态自洽：默认实例自带默认色，独立使用成立。
     property ColorAssistant colorAssistant: ColorAssistant {
         color: Style.highlight
     }

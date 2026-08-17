@@ -1,19 +1,3 @@
-// NOTE(迁移) v3 Qool.Color/_private/ColorNameButton.qml 拍平重写。
-// 拍平内容（v3 → 本文件内联）：
-//   - AbstractButton（QtQuick.Controls）→ T.AbstractButton（QtQuick.Templates）
-//     ——v4 模块惯例（CycleChoice 同款），不再依赖 QtQuick.Controls。
-//   - AnimatedBar_AlignHCenter（Qool.Controls.Basic）→ 内联指示条
-//     （clip + 居中圆角条，width = 进度 × 父宽）。
-//   - ButtonGroup.group 互斥 → group 属性拍平（独占组语义内联）：
-//     点选未选中项 → 选中并取消组内旧项；点击已选中项 → 保持选中
-//     （v3 exclusive 组"用户不可点击取消"行为）；程序化取消（deselect）
-//     经 checked=false 清空组引用。
-// Style 对位：textColor→text、highlightColor→highlight、
-//   foregroundColor→text（T08 对照表）、recommendedForegroundColor→
-//   ThemeHQ.recommendForeground、controlTransitionDuration→transitionDuration、
-//   PixelFont.normalFont→PixelFont.normal。
-// 与 v3 的刻意差异：无（行为逐字；Style/依赖对位见上）。
-
 pragma ComponentBehavior: Bound
 
 import QtQuick
@@ -21,7 +5,7 @@ import QtQuick.Templates as T
 import Qool
 import Qool.Color
 
-// 色名行按钮（v3 ColorNameButton 拍平）：色名 + 色块 + 选中展开。
+// 色名行按钮：色名 + 色块 + 选中展开。
 //
 // 显示色名（`name`）与对应色块（`color`，经
 // ColorNameHQ.color(name) 解析）。选中时色块展开铺满整行、
@@ -30,9 +14,9 @@ import Qool.Color
 //
 // 互斥选择（易误解，特别说明）
 //
-// `group` 属性是对 v3 `ButtonGroup.group` 的拍平（独占组语义内联）：
+// `group` 属性承载互斥选择（独占组语义）：
 // - 点击未选中项 → 本项选中，组内原选中项自动取消。
-// - 点击已选中项 → 保持选中，不会取消（v3 exclusive 组行为，
+// - 点击已选中项 → 保持选中，不会取消（独占组行为，
 //   用户不可点击取消；取消只能程序化置 `checked` = false）。
 // - `group` 为 null（独立使用）→ 退化为普通切换按钮（点选切换）。
 // 组引用由宿主（ColorNameView）注入；组对象的 `checkedButton`
@@ -42,27 +26,26 @@ import Qool.Color
 // - 属性 `name`（string）：色名，默认 "white"。`color` 由
 //   ColorNameHQ.color(name) 解析（未知名回退默认白）。
 // - 属性 `color`（color）：只读，`name` 对应的颜色（ColorNameHQ 解析结果）。
-// - 属性 `group`（var）：互斥组引用（v3 ButtonGroup 拍平，见上）。
+// - 属性 `group`（var）：互斥组引用。
 //   null 时点选为普通切换。
 // - 属性 `animationEnabled`（bool）：动画总开关，默认继承父级或
-//   Style.animationEnabled（v4 惯例）。
+//   Style.animationEnabled。
 T.AbstractButton {
     id: root
 
-    // 专项注释（缺陷修复）：v3 根为 Qool.Controls.AbstractButton（implicit 自动
-    // 取自 contentItem）；拍平件改根为 T.AbstractButton 后实测（Qt 6.11）
-    // Templates 不传播 contentItem implicit——implicit 恒 0。显式绑定回传。
+    // 专项注释（缺陷修复）：T.AbstractButton 不传播 contentItem implicit——
+    // implicit 恒 0（实测 Qt 6.11）。显式绑定回传。
     implicitWidth: contentItem.implicitWidth
     implicitHeight: contentItem.implicitHeight
 
-    // 动画总开关：v3 同款传播（父级属性 → Style）。
+    // 动画总开关：父级属性 → Style 传播。
     property bool animationEnabled: parent?.animationEnabled
                                     ?? Style.animationEnabled
 
     property string name: "white"
     readonly property color color: ColorNameHQ.color(root.name)
 
-    // 互斥组（v3 ButtonGroup.group 拍平）：由 ColorNameView 注入。
+    // 互斥组：由 ColorNameView 注入。
     // 类型用 var（而非 QtObject）：组的 checkedButton 是动态属性，
     // QtObject 静态类型会让 qmllint 报 missing-property。
     property var group: null
@@ -107,7 +90,7 @@ T.AbstractButton {
     topPadding: 2
     bottomPadding: 2 + indicator.height
 
-    // 悬停指示条（v3 AnimatedBar_AlignHCenter 内联）。
+    // 悬停指示条（clip + 居中圆角条，width = 进度 × 父宽）。
     Item {
         id: indicator
         clip: true
@@ -172,8 +155,8 @@ T.AbstractButton {
         }
     ] //transitions
 
-    // ===== 互斥选择（v3 ButtonGroup exclusive 语义拍平）=====
-    // 独占互斥是刻意设计的 UI 模式（v3 ButtonGroup exclusive 语义），
+    // ===== 互斥选择（独占组语义）=====
+    // 独占互斥是刻意设计的 UI 模式（exclusive 组语义），
     // 覆盖全部 checked 变化路径（点击与程序化写入）——防后人当冗余简化。
 
     onClicked: {
@@ -190,8 +173,8 @@ T.AbstractButton {
         if (!root.group)
             return
         if (root.checked) {
-            // 程序化选中同样走独占互斥（v3 ButtonGroup 对任意 checked 变化
-            // 自动互斥）：先取消旧选中，再更新组引用。
+            // 程序化选中同样走独占互斥（对任意 checked 变化自动互斥）：
+            // 先取消旧选中，再更新组引用。
             if (root.group.checkedButton && root.group.checkedButton !== root)
                 root.group.checkedButton.checked = false
             root.group.checkedButton = root

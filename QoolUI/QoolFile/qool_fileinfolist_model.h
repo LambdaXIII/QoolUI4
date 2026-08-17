@@ -13,12 +13,10 @@
 QOOL_NS_BEGIN
 
 /**
- * 单线程契约：本模型所有 API 仅在所属线程（默认主线程）调用。
- * 曾用 QRecursiveMutex 包裹全部操作，但无任何跨线程调用方——
- * 锁是死代码，且违背 Qt 模型线程规范（QAbstractItemModel 非线程安全，
- * 官方约定：跨线程访问一律经 Queued 信号/连接转发，由接收线程独占访问）。
- * 移除锁后若引入跨线程调用，须改为转发至模型线程，而非重新加锁。
- */
+* 单线程契约：本模型所有 API 仅在所属线程（默认主线程）调用。跨线程
+* 访问一律经 Queued 信号/连接转发，由接收线程独占访问（QAbstractItemModel
+* 非线程安全）；若引入跨线程调用，须改为转发至模型线程，而非加锁。
+*/
 class FileInfoListModel: public QAbstractListModel {
   Q_OBJECT
   QML_ELEMENT

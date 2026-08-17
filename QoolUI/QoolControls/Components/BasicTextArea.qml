@@ -9,8 +9,8 @@ import Qool
 // 亦可作为未来多行编辑会话（多行双层版）的编辑层基底。
 //
 // 基类用 QC.TextArea（QtQuick.Controls，非 T.TextArea）：T 版在
-// ScrollView/Flickable 中无滚动能力（内容尺寸不接驳——2026-08-11 实测
-// 裁定）；QC 版置于 ScrollView 时官方集成自动生效（内容尺寸自动/背景不滚/
+// ScrollView/Flickable 中无滚动能力（内容尺寸不接驳）；
+// QC 版置于 ScrollView 时官方集成自动生效（内容尺寸自动/背景不滚/
 // clip 自动）。
 //
 // 特化能力：无（相对 Qt 官方 TextArea）。Esc 处理不下沉：本类型定位 =

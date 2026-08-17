@@ -49,7 +49,7 @@ QPointF line_intersect(int i, int j, const QList<qreal>& constants) {
 }
 
 // 半平面判定：halfPlaneSign*(A·x+B·y−C) ≥ −eps。
-// 专项注释：勿写 +C（曾致交集恒空）；−eps 容差吸收交点求值的 IEEE 舍入
+// 专项注释：勿写 +C（+C 会使交集恒空）；−eps 容差吸收交点求值的 IEEE 舍入
 // （边界点对生成线 ≈ 0，可 ±1e-15），1e-9 远小于断言精度 1e-6 无语义偏差。
 bool satisfies_all(const QPointF& p, const QList<qreal>& constants) {
   constexpr qreal kEps = 1e-9;
@@ -64,7 +64,7 @@ bool satisfies_all(const QPointF& p, const QList<qreal>& constants) {
 }
 
 // 归入最近有效交集顶点（自然重合位置——极值收敛；勿无条件钳制尖点/中点
-// 法线——逐点钳制范式 6%~22% 非凸/自交已废弃）
+// 法线——逐点钳制会产生 6%~22% 非凸/自交）
 QPointF nearest_vertex(const QPointF& point, const QList<QPointF>& verts) {
   if (verts.isEmpty()) return point; // 防御：shrinkDistance ≤ maxShrinkDistance
                                      // 保证交集非空
@@ -88,7 +88,7 @@ QoolBoxGadget::QoolBoxGadget(QObject* parent)
   // —— ① used（ref 介入：ref.used : 自算）——
   // 自算分支只在 ref 为 null 时执行（ref 分支早退），读自有 cuts；
   // clampedCut* = qMax(0, cut*)——语义下限（负切角无几何意义，归零直角点），
-  // 唯一下限、无尺寸耦合钳制（safe 链 SHORT_EDGE 递推式已废弃）。
+  // 唯一下限、无尺寸耦合钳制。
   QBINDABLE_SET_BINDING(usedWidth, [&] {
     const auto ref = bindable_referenceBox().value();
     if (ref) return ref->bindable_usedWidth().value();
@@ -397,7 +397,7 @@ void QoolBoxGadget::set_referenceBox(QoolBoxGadget* value) {
   // ——绑定分支是静态 lambda 内的来源选择，见各绑定 ref 分支）；相等守卫
   // 与 NOTIFY 由 Q_OBJECT_BINDABLE_PROPERTY::operator= 内置（值实际变化
   // 才通知）。自引用必须拒绝：绑定对自身重入求值，Qt 以 BindingLoop 停止
-  // 求值、几何静默停留在陈旧值（审查 F1：value == this 曾绕过校验）。
+  // 求值、几何静默停留在陈旧值。
   if (value == this
       || (value != nullptr && value->m_referenceBox != nullptr)) {
     xWarningQ << "QoolBoxGadget::set_referenceBox: 目标已有 referenceBox 或为自身（"

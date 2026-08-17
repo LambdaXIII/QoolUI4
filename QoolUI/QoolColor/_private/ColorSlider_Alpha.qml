@@ -1,11 +1,9 @@
-// NOTE(迁移) v3 Qool.Color/_private/ColorSlider_Alpha.qml 逐字迁移。
 // 关键行为（勿改）：
 //   - 渐变从 transparent（position 0）到 displayColor（position 1）——
 //     displayColor 是 colorAssistant.solidColor（去 alpha 的当前色），
 //     即"当前颜色从不透明到透明"的示意。
-//   - 双向绑定 alphaF，交互期写 / 非交互期同步（两个互斥 Binding，v3 原样）。
+//   - 双向绑定 alphaF，交互期写 / 非交互期同步（两个互斥 Binding）。
 //   - 双击重置 defaultValue = 1。
-// 与 v3 的刻意差异：无（仅注释）。
 
 pragma ComponentBehavior: Bound
 
@@ -14,7 +12,7 @@ import QtQuick.Shapes
 import Qool
 import Qool.Color
 
-// 透明度滑块（v3 逐字迁移）：当前色 → 透明渐变轨道，双向绑定 alphaF。
+// 透明度滑块：当前色 → 透明渐变轨道，双向绑定 alphaF。
 //
 // 易误解点
 // - 渐变终点是 `displayColor`（= colorAssistant.solidColor）而非纯色常量——

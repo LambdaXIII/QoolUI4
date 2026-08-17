@@ -1,7 +1,7 @@
 # Qool 核心 C++ 类型测试（Qt Test）
 # 被测面：Qool 模块的 C++ 类型（值类型 / QObject 属性宏体系产物）
 #
-# 输出树下沉（原 spec 6.1）：本层 exe 输出到 build/build-<kit>-<Type>/QoolUITests/core/。
+# 输出树下沉：本层 exe 输出到 build/build-<kit>-<Type>/QoolUITests/core/。
 # 目录级变量只影响本目录树，不碰主设置。
 #
 # 链接策略说明（重要）：
@@ -32,7 +32,7 @@ set(QOOL_SRC_PRIVATE_INCLUDES
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/QoolUITests/core")
 
-# qt.conf（原 spec 5.2）：本层测试链接 Qt6::Quick（QT_GUI_LIB）→ QTEST_MAIN
+# qt.conf：本层测试链接 Qt6::Quick（QT_GUI_LIB）→ QTEST_MAIN
 # 展开为 QGuiApplication，构造时加载平台插件——DLL 复制使前缀推导失效，
 # 需 qt.conf 覆盖（见总入口策略说明）。common/ 纯 QCoreApplication 无需。
 file(MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")

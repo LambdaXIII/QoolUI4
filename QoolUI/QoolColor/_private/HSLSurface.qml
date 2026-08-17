@@ -1,7 +1,3 @@
-// NOTE(迁移) v3 Qool.Color/_private/HSLSurface.qml 逐字迁移。
-// Style 对位：v3 的 `parent?.animationEnabled ?? Style.animationEnabled` →
-// v4 惯例 root.Style.animationEnabled。
-//
 // 关键行为与易误解点（勿改）：
 //   - 坐标语义：sat = x / width（左 0 → 右 1）；lightness = 1 - y / height
 //     （y 向下，顶 = 1 白，底 = 0 黑）。position(sat, ltn) 是其反函数。
@@ -13,10 +9,9 @@
 //       3. strokeBox（z: -10，垫底）：垂直渐变 黑 → standardColor，其第二个
 //          GradientStop 的 color 带 BasicColorBehavior 动画（hue 变化时
 //          垫底色平滑过渡）。
-//   - 三层都 anchors.margins: 1 + radius: 5（圆角内缩 1px，v3 原样）。
+//   - 三层都 anchors.margins: 1 + radius: 5（圆角内缩 1px）。
 //   - hslHue 变化时 satBox/lightnessBox/strokeBox 颜色由绑定跟随
 //     （GradientStop color 绑定）。
-// 与 v3 的刻意差异：无（仅 Style 对位 + 注释）。
 
 pragma ComponentBehavior: Bound
 
@@ -24,7 +19,7 @@ import QtQuick
 import Qool
 import Qool.Color
 
-// HSL 颜色平面（v3 逐字迁移）：色相固定、饱和度×明度的二维表面。
+// HSL 颜色平面：色相固定、饱和度×明度的二维表面。
 //
 // `hslHue` 决定整个平面的色相；`saturationAt` / `lightnessAt` /
 // `position` 提供坐标↔HSL 映射（消费方 HSLBox 使用）。
@@ -33,9 +28,9 @@ import Qool.Color
 // - 明度 y 轴向下：y = 0 是"顶/白/明度 1"，与直觉"上小下大"相反，
 //   映射公式 1 - y/height 是刻意设计，勿改。
 // - 中间层 lightnessBox 用"白→透明→黑"而非"白→中灰→黑"——透明层露出
-//   satBox 的色相×饱和度面，这是 v3 的分层技巧。
+//   satBox 的色相×饱和度面，这是刻意的分层技巧。
 // - strokeBox 的 z 为 -10 垫底（黑→standardColor 渐变），其颜色动画
-//   只作用于第二个 GradientStop（v3 原样，行为在 Qt6 下与 v3 一致）。
+//   只作用于第二个 GradientStop。
 Item {
     id: root
 

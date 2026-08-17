@@ -2,9 +2,9 @@ import QtQuick
 import QtQuick.Shapes
 import Qool
 
-// 低级 API 组件（spec D5）：required 注入整个 QoolBoxShapeControl——独立
-// 使用不自洽是刻意的（供 QoolBox 组装）；containmentMask 挂 control 委托
-// O(1) 线性不等式命中判定。详细契约见 docs/reference/Qool/OctagonShape.md。
+// 低级 API 组件：required 注入整个 QoolBoxShapeControl——独立使用不自洽
+// 是刻意的（供 QoolBox 组装）；containmentMask 挂 control 委托 O(1) 线性
+// 不等式命中判定。详细契约见 docs/reference/Qool/OctagonShape.md。
 Shape {
     id: root
 

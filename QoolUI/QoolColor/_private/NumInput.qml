@@ -1,22 +1,14 @@
-// NOTE(拍平件定位) v3 TextLineEdit 的拍平重写件，置于 Qool.Color/_private 而非
-// v4 Qool.Controls：暂不耦合 v4 Controls（拍平件只被 Color 模块内部消费，且
-// v4 Controls 的基础原件层尚在演进），直接以 QtQuick 原语实现。
-// TODO(将来迁移): 待 Color 模块稳定后，本件扩展为完整控件迁移至 v4 Qool.Controls
-// （届时 Color 切换依赖，废弃本私有版）——见 color-migration-spec §7-7。
-//
-// 拍平内容（v3 → 本文件内联）：
-//   - TextLineEdit          （双态输入框架，本文件根）
-//   - BasicScrollableText   （滚动显示：implicitPosition/position/scrollable 内联）
-//   - BasicTextInput        （编辑输入：TextInput 内联）
-//   - BasicText_Empty       （空提示：emptyTextItem 默认内联）
-//   - NumberLimiter         （position 的 CutAtEdges 限幅，一行 Math 内联）
-// 不再依赖：QtQuick.Controls / QtQuick.Layouts / Qool.Controls.Basic / numberhelper。
+// NOTE(拍平件定位) TextLineEdit 的拍平件，置于 Qool.Color/_private 而非
+// Qool.Controls：暂不耦合 Controls（拍平件只被 Color 模块内部消费，且
+// Controls 的基础原件层尚在演进），直接以 QtQuick 原语实现。
+// TODO(将来迁移): 待 Color 模块稳定后，本件扩展为完整控件迁移至 Qool.Controls
+// （届时 Color 切换依赖，废弃本私有版）。
 //
 // 动画特征已按临时件策略移除（编辑弹跳/边缘闪烁/淡入），仅保静态外观、布局与状态切换。
 //
-// 与 v3 的刻意差异（均有注释，防审查误判）：
-//   - pControl.leftBeamerAlpha/rightBeamerAlpha：v3 中无任何消费方的死状态，删除。
-//   - root.textEdited 信号保留声明但 v3 亦从不发射（仅 API 面），行为照迁。
+// 刻意差异（均有注释，防审查误判）：
+//   - pControl.leftBeamerAlpha/rightBeamerAlpha：无任何消费方的死状态，删除。
+//   - root.textEdited 信号保留声明但从不发射（仅 API 面）。
 
 pragma ComponentBehavior: Bound
 
@@ -25,7 +17,7 @@ import QtQuick.Templates as T
 import Qool
 import Qool.Color
 
-// 双态数字/文本输入拍平件（v3 `TextLineEdit` 全功能拍平）。
+// 双态数字/文本输入拍平件。
 //
 // 两种显示形态：
 // 1. 滚动显示态：文字以单行滚动显示（`display`），内容超出宽度时可
@@ -34,19 +26,18 @@ import Qool.Color
 // 2. 编辑态：点击（`editable` 为 true 时）进入，显示为
 //    TextInput，回车或失焦结束编辑并写回 `text`。
 //
-// 数值输入约定（刻意设计，v3 行为照迁）
+// 数值输入约定（刻意设计）
 // 本组件被 Color 面板用作 0..1 通道值输入框（HSV/HSL/RGB/CMYK 各通道）。
-// v3 中该约定散落在各面板的 `Connections` 里，拍平件将其收拢为
-// parseChannelValue() 一个入口，语义与 v3 逐字一致：
+// 该约定收拢为 parseChannelValue() 一个入口：
 // - 输入 `x` > 1 时按 `x` / 1000 处理——允许用户直接键入 0..1000 的
-//   整数来表示 0..1 的比例（如 `350` 表示 0.35），这是 v3 的面板行为，
+//   整数来表示 0..1 的比例（如 `350` 表示 0.35），这是面板行为，
 //   不是 bug，请勿"修复"为普通除法或删除。
-// - 结果限幅到 [0, 1]（与 v3 `Tools.limitNumber(x, 0, 1)` 等价；
-//   NaN 透传，与 v3 一致，消费方自行处理空输入）。
+// - 结果限幅到 [0, 1]（与 `Tools.limitNumber(x, 0, 1)` 等价；
+//   NaN 透传，消费方自行处理空输入）。
 //
 // 为什么在 Color/_private 而非 Controls
-// 本件暂不耦合 v4 Controls（拍平件的消费方只有 Color 模块内部），TODO：
-// 将来扩展为完整控件迁移至 v4 Qool.Controls（届时 Color 切换依赖，废弃本私有版）。
+// 本件暂不耦合 Controls（拍平件的消费方只有 Color 模块内部），TODO：
+// 将来扩展为完整控件迁移至 Qool.Controls（届时 Color 切换依赖，废弃本私有版）。
 //
 // 属性
 // `text` 为真实数据（写回目标）；`displayText` 为 `renderText(text)` 的
@@ -58,11 +49,10 @@ import Qool.Color
 T.Control {
     id: root
 
-    // 专项注释（缺陷修复）：v3 TextLineEdit 根为 QBasic.Control（QtQuick.Controls.Basic），
-    // implicit 尺寸自动取自 contentItem；拍平件改根为 T.Control（QtQuick.Templates）后
+    // 专项注释（缺陷修复）：根为 T.Control（QtQuick.Templates）后
     // 实测（Qt 6.11）Templates.Control 不传播 contentItem implicit——implicit 恒 0，
-    // 布局中分配高度 0、数字内容溢出与标签错位/重叠。显式绑定回传（语义与 v3 一致：
-    // implicit = 内容隐式尺寸，showUnderline 时含下划线区 5+4）。
+    // 布局中分配高度 0、数字内容溢出与标签错位/重叠。显式绑定回传
+    //（implicit = 内容隐式尺寸，showUnderline 时含下划线区 5+4）。
     implicitWidth: content.implicitWidth
     implicitHeight: content.implicitHeight
 
@@ -83,7 +73,7 @@ T.Control {
     property int horizontalAlignment: Text.AlignLeft
     property int verticalAlignment: Text.AlignTop
 
-    // 空文本提示组件；默认等价于 v3 BasicText_Empty（提示文字/占位符色/装饰字号）。
+    // 空文本提示组件（提示文字/占位符色/装饰字号）。
     property Component emptyTextItem: emptyHint
 
     // 显示文本格式化钩子：displayText = renderText(text)，默认恒等。
@@ -95,8 +85,8 @@ T.Control {
 
     signal editingFinished
     signal editingStarted
-    // NOTE: 与 v3 一致，本信号保留声明但组件内部从不发射（v3 亦不发射，
-    // 仅作为 API 面存在；消费方可自行监听 text 变化实现同等效果）。
+    // NOTE: 本信号保留声明但组件内部从不发射（仅作为 API 面存在；
+    // 消费方可自行监听 text 变化实现同等效果）。
     signal textEdited
 
     QtObject {
@@ -150,7 +140,7 @@ T.Control {
 
     contentItem: Item {
         id: content
-        // v3 ColumnLayout 默认 spacing 5 + 下划线区 4，拍平后显式复算。
+        // ColumnLayout 默认 spacing 5 + 下划线区 4，显式复算。
         implicitWidth: display.implicitWidth
         implicitHeight: display.implicitHeight + (root.showUnderline ? 5 + 4 : 0)
 
@@ -164,24 +154,22 @@ T.Control {
             height: display.implicitHeight
             clip: true
 
-            // ---- 滚动显示态（v3 BasicScrollableText 内联）----
+            // ---- 滚动显示态 ----
             Item {
                 id: display
                 anchors.fill: parent
                 clip: true
                 visible: !pControl.editing
-                // 专项注释（缺陷修复）：拍平时丢失了 v3 BasicScrollableText 的
-                // 数据绑定行（text: displayText + font/color/两向对齐，对照 v3
-                // TextLineEdit.qml 的 BasicScrollableText 实例），display 恒空、
-                // 全部数值显示沦为"<空>"占位。逐行补回。
+                // 专项注释（缺陷修复）：display 的数据绑定行（text: displayText +
+                // font/color/两向对齐）缺失时 display 恒空、全部数值显示
+                // 沦为"<空>"占位。逐行补回。
                 text: root.displayText
                 font: root.font
                 color: root.color
                 horizontalAlignment: root.horizontalAlignment
                 verticalAlignment: root.verticalAlignment
 
-                // 滚动位置输入（滚轮写此值）；position 为 CutAtEdges 限幅结果
-                //（v3 NumberLimiter 模式，等价 Math 内联）。
+                // 滚动位置输入（滚轮写此值）；position 为 CutAtEdges 限幅结果。
                 property real implicitPosition: 0
                 readonly property real position: Math.max(0, Math.min(1, implicitPosition))
                 readonly property bool scrollable: mainText.width > display.width
@@ -217,11 +205,11 @@ T.Control {
                 } //mainText
             } //display
 
-            // ---- 编辑态（v3 BasicTextInput 内联）----
+            // ---- 编辑态 ----
             TextInput {
                 id: input
-                // 专项注释（缺陷修复）：v3 BasicTextInput 为 activeFocusOnPress: true，
-                // 迁移静默翻转为 false（长按/拖动后 tap 取消场景的光标落点失焦）。恢复。
+                // 专项注释（缺陷修复）：activeFocusOnPress 必须为 true，
+                // 否则长按/拖动后 tap 取消场景的光标落点失焦。恢复。
                 activeFocusOnPress: true
                 selectByMouse: true
                 wrapMode: TextInput.NoWrap
@@ -236,7 +224,7 @@ T.Control {
                 anchors.fill: parent
             } //input
 
-            // ---- 空提示（v3 BasicText_Empty 逻辑内联，经 Loader 可覆写）----
+            // ---- 空提示（经 Loader 可覆写）----
             Loader {
                 id: emptyLoader
                 sourceComponent: root.emptyTextItem
@@ -255,7 +243,7 @@ T.Control {
             } //emptyLoader
         } //displayArea
 
-        // ---- 下划线区（v3 第二布局项：滚动指示条 + 编辑下划线）----
+        // ---- 下划线区（滚动指示条 + 编辑下划线）----
         Item {
             id: underlineArea
             visible: root.showUnderline
@@ -263,7 +251,7 @@ T.Control {
                 top: displayArea.bottom
                 left: parent.left
                 right: parent.right
-                topMargin: 5 // v3 ColumnLayout 默认 spacing
+                topMargin: 5 // ColumnLayout 默认 spacing
             }
             height: 4
 
@@ -291,9 +279,8 @@ T.Control {
         } //underlineArea
     } //contentItem
 
-    // 空提示默认组件（等价 v3 BasicText_Empty：
-    // 占位符文字色 + 装饰字号 + 右下对齐）。
-    // v3 commentColor 语义在 v4 归入 placeholderText（v4 无 comment 系 token，
+    // 空提示默认组件（占位符文字色 + 装饰字号 + 右下对齐）。
+    // commentColor 语义归入 placeholderText（无 comment 系 token，
     // 占位提示的正确归属）。
     Component {
         id: emptyHint
@@ -306,12 +293,11 @@ T.Control {
         }
     }
 
-    // 方法 parseChannelValue(s)：real：将输入字符串解析为 0..1 归一化
-    // 通道值（v3 面板行为收拢入口）。
+    // 方法 parseChannelValue(s)：real：将输入字符串解析为 0..1 归一化通道值。
     // - `parseFloat` 解析；
     // - 结果 `x` > 1 时按 `x` / 1000 处理（允许键入 0..1000 整数表示
-    //   0..1 比例，v3 行为照迁——刻意设计，勿当 bug 修）；
-    // - 限幅到 [0, 1]；NaN 透传（与 v3 `Tools.limitNumber` 一致，
+    //   0..1 比例，刻意设计，勿当 bug 修）；
+    // - 限幅到 [0, 1]；NaN 透传（与 `Tools.limitNumber` 一致，
     //   消费方自行处理空输入）。
     //
     // 典型用法（Color 面板通道输入）：

@@ -140,7 +140,7 @@ Item {
         hoverEnabled: true
         function set_color() {
             // 取色恒在全饱和（s=1）面进行——取不到低饱和/灰色；
-            // 单击（不拖动、不按住）不取色（v3 行为照迁）。
+            // 单击（不拖动、不按住）不取色。
             const hue = mouseX / parent.width
             let lightness = 0.5
             if (!pControl.altPressed)

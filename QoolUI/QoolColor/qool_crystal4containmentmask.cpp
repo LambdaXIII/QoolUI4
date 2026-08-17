@@ -4,7 +4,7 @@
 
 QOOL_NS_BEGIN
 
-// 命中判定（曼哈顿距离 / L1 范数，O(1)）与变换顺序自 v3 逐字复用：
+// 命中判定（曼哈顿距离 / L1 范数，O(1)）：
 // |x - cx| + |y - cy| * (h / w) <= w / 2；y 预缩放与平移顺序不可调整
 // （调序会改变命中域）。width/height 取 QQuickItem 自身几何（菱形外接框）。
 // 完整说明见 docs/reference/Qool.Color/Crystal4ContainmentMask.md。

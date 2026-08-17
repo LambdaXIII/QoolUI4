@@ -46,17 +46,9 @@ inline N set_precision(N number, P precision) {
 }
 
 /**
- * @brief 将输入值从输入范围线性映射到目标范围。
- *    * 支持任意数值类型的输入和输出范围。该函数使用浮点中间计算以确保精度，
- * 最终结果转换为目标类型。适用于整型、浮点型等多种类型组合。
- *    * @tparam T 输入值和输入范围的类型
- * @tparam U 输出范围的类型
- * @param input 输入值
- * @param in_min 输入范围的最小值
- * @param in_max 输入范围的最大值
- * @param out_min 目标范围的最小值
- * @param out_max 目标范围的最大值
- * @return 映射后的结果，类型为 U
+ * 将输入值从输入范围线性映射到目标范围。支持任意数值类型的输入与输出
+ * 范围；使用浮点中间计算以确保精度，最终结果转换为目标类型（整型/浮点
+ * 型等）。输入范围端点相等时返回目标范围最小值（避免除以零）。
  */
 template<typename T, typename U>
 U remap(T input, T in_min, T in_max, U out_min, U out_max) {

@@ -36,7 +36,7 @@ T.ScrollIndicator {
 
     onScrollPositionChanged: latch.trigger()
     // size 突变（内容跨过/退出一屏，size 越过 1.0）时同样给一次显现反馈
-    // ——对齐 ScrollBar 的 onVisualSizeChanged 触发（2026-08-11 经验回流）。
+    // ——对齐 ScrollBar 的 onVisualSizeChanged 触发。
     onVisualSizeChanged: latch.trigger()
 
     contentItem: Rectangle {

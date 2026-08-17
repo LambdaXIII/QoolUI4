@@ -4,6 +4,17 @@
 
 ## [4.0.0] — 2026-08-17
 
+### 变更（comment-cleanup，全仓库违规注释清理）
+
+- **清理标准**：注释非 ADR/非工作记录/非文档/不替代代码结构（根 AGENTS「注释点状就地、文档成篇完整」分工）——决策史、迁移记录、排错史、验证史、日期、成篇论述（已有 reference 文档承载的重复内容）、v3 对比、spec/票死引用、注释掉的死代码一律移除；合规的设计意图/陷阱约束/易误解点（勿改）与 TODO 保留
+- **Qool 核心组件头部精简（HalfCrystal/Crystal/Slider/RangeSlider/VerticalSlider）**：48/35/53/48/30 行成篇论述头部 → 3-5 行定位 + `docs/reference/` 文档指引（几何/掩码/implicit 契约文档已完整承载，属冗余重复）；删除「用户裁决/指令/裁定 2026-08-16」决策史、公式推导、v3 对比；正文保留就地点状设计意图，去「曾误取 vN/vS」「曾致高度恒 0」「2026-08-10 裁定」等排错史/日期措辞
+- **QoolColor 迁移记录全清（32 文件）**：`NOTE(迁移) v3 ... 逐字迁移/拍平重写` 头部（依赖替换/Style 对位/拍平内容/不再依赖/与 v3 刻意差异清单）整段删除——迁移结果即当前代码，过程记录不留；「关键行为/关键几何/易误解点（勿改）」陷阱约束保留并去 v3 措辞；`v3 行为照迁/原样/同款/同构` 等 368 处 v3 对比清零（设计传承类改写为当前表述）；`color-migration-spec §7-7`、`T08/T10`、`spec §7-9` 死引用删除（spec 为 .scratch 临时过程文档）；TODO(将来迁移) 保留
+- **QoolControls 日期与决策措辞**：ComboBox/EditableText/EditableTextBox/ScrollBar/ScrollIndicator/ScrollView/SpinBox/BasicTextArea/IndexIndicator/QoolBGBox 的「修复 2026-08-10」「实测裁定 2026-08-11」「经验回流」「测试实证修复」「用户裁定」等日期与工作记录删除，保留原因/结论；Octagon 系列与 ProgressBar 去 spec D5 引用；QoolControls/CMakeLists.txt 去 v3 与日期
+- **C++ 注释措辞**：qool_qoolbox_settings.h 决策史段删除（ADR-0005 已完整承载双类型→单一类型历程）；qool_shapecontrol.cpp「实证」措辞改写（机制解释保留）；qool_shapegadget_rect.cpp/qool_shapegadget_qoolbox.cpp 去「曾误/曾致/审查 F1」排错史；qool_chatroom.cpp/qool_chatroom_manager.cpp 去「原补发循环已删除/用户裁定」；singleton.hpp 去「曾有过...已删除」排错史（陷阱警告保留）；qool_fileinfolist_model.cpp 删 3 处注释掉的死代码（旧 remove/move/__make_index_range 实现）；xml_theme_loader_impl.cpp 删注释掉的 xDebug 行；qool_colorassistant.h/qool_colorhuecyclemodel.cpp/qool_random_hsv_color_generator.* 去迁移史（防误改警告与当前公式保留）
+- **QoolUITests**：tst_hover_e2e/tst_rectgadget/tst_halfcrystal 去「用户裁决/用户 2026-08-16」决策史与「曾误绑」排错史（回归防护语义保留）；tst_qoolbox_hit 删「注册（主代理执行）」工作记录段；全部 spec D*/票引用删除（ADR 引用保留）；qool_test.hpp 去「实证/T05 实测 2026-08-12」；CMakeLists 与 qml_test_main.cpp 去「原 spec 5.x/6.x」引用；`\c{}` QDoc 标记残留清除；tst_halfcrystal effInset 死引用清除（该概念已随重做移除）
+- **QoolUIExample**：Page_InputControls2/Page_Playground 去日期；Page_HalfCrystal 去票引用；Page_Color 去 v3 措辞
+- **验证**：终验 grep/glob 全仓 `用户裁决/裁定/指令`、`2026-`、`实证`、`曾误/曾致`、`NOTE(迁移)`、`逐字迁移/照迁`、`spec D*`、`票 *`、`color-migration-spec`、`\c{` 等零残留（`qool_colorname_db.cpp`「provider 裁决」为业务语义保留）；v3 注释引用 368 → 0；build 285/285 成功；测试 18/18 全绿
+
 ### 变更（norms-system-landing，规范体系重设计落地）
 
 - **根 AGENTS.md 重写为 12 节**：文档地图（置顶，各设施一句）/定位/模块架构/技术栈约束/构建命令/编码规范（C++）/QML 组件规范/注释与文档规范（Markdown）/测试/工作流约定/已知陷阱/变更记录。全篇术语「官方插件」→「自带插件」；QDoc 规范节、依赖机制三场景表、已知陷阱 1/4、关键文件路径表删除；已知陷阱仅留「不能假定仅有一个 QML 引擎存在」一条

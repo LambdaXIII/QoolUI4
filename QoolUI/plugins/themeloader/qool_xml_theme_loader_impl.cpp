@@ -103,21 +103,13 @@ void XMLThemeLoaderImpl::load(const QString& filename) {
     }
     if (element.tagName() == "custom") {
       const auto loaded_values = load_value_group(element, refValues);
-      // 原实现误写入 active：<custom> 段被永久并进 active 状态，
-      // 而 custom 映射恒为空（custom 段是为独立定制保留的）
+      // custom 段独立保存，不并入 active（custom 映射专为独立定制保留）
       this->custom.insert(loaded_values);
       continue;
     }
 
     this->metadata.insert(element.tagName(), element.text());
   } // for nodes
-
-  // xDebug << "METADATA" << xDBGMap(metadata);
-  // xDebug << "CONSTANTS" << xDBGMap(constants);
-  // xDebug << "ACTIVE" << xDBGMap(active);
-  // xDebug << "INACTIVE" << xDBGMap(inactive);
-  // xDebug << "DISABLED" << xDBGMap(disabled);
-  // xDebug << "CUSTOM" << xDBGMap(custom);
 
   xInfo << xDBGToken("XMLThemeLoader") << xDBGGreen << this->filename
         << xDBGReset << "parsing finished.";

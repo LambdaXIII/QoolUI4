@@ -33,8 +33,8 @@ QColor RandomHSVColorGenerator::generate() {
 
   while (m_blackList.contains(result) || ! check_previous(result)) {
     if (m_whiteList.isEmpty()) {
-      // 色相 255 量化域 → 0..359 度整数路径（禁止 fromHsvF）：
-      // v3 直接喂量化域，输入 1.0 只覆盖 70.8% 色相环。
+      // 色相 255 量化域 → 0..359 度整数路径（禁止 fromHsvF）：直接喂
+      // 量化域，输入 1.0 只覆盖 70.8% 色相环。
       result = QColor::fromHsv(
         hue_degrees(randomHue()), randomSat(), randomVal(), randomAlf());
     } else {
@@ -48,10 +48,8 @@ QColor RandomHSVColorGenerator::generate() {
 }
 
 int RandomHSVColorGenerator::count() const {
-  // 专项注释（缺陷修复）：迁移静默把 v3 count() 改名 combinationsCount() 并
-  // 改动公式（锁定通道由计 0 改计 1、去掉 +1）——无裁定依据（spec 仅裁定
-  // hue 满环修复），v3 调用方迁移后 ReferenceError。恢复 v3 逐字公式：
-  // 锁定通道计 0、乘积 + 1（默认配置 alpha 锁定 → 返回 1）。
+  // count() 公式（勿改）：锁定通道计 0、乘积 + 1（默认配置 alpha 锁定
+  // → 返回 1）。属性名 count 为公开 QML API。
   const int hue_count =
     m_preferredHue >= 0 ? 0 : std::abs(_maxHue() - _minHue());
   const int sat_count = m_preferredSaturation >= 0 ?
@@ -88,8 +86,7 @@ int RandomHSVColorGenerator::randomHue() const {
   return x;
 }
 
-// 专项注释（v3 行为恢复）：v3 中防重复（差 ≥ 20）仅色相通道；
-// 迁移曾过度解读扩大到全通道，按裁定恢复为无约束均匀随机。
+// 防重复（差 ≥ 20）仅色相通道；其余通道无约束均匀随机。
 int RandomHSVColorGenerator::randomSat() const {
   if (m_preferredSaturation >= 0)
     return _preferredSaturation();

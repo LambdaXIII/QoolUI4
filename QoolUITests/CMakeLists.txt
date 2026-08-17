@@ -8,7 +8,7 @@
 # 自包含说明：本树位于仓库顶级（与 QoolUI/ 平级），不继承 QoolUI 的
 # qt_standard_project_setup() 目录作用域——AUTOMOC 等编译属性需自行声明。
 #
-# Windows 前缀解析策略（qt.conf 自包含方案，原 spec 5.2）：
+# Windows 前缀解析策略（qt.conf 自包含方案）：
 # - POST_BUILD 把依赖 Qt DLL 复制到 exe 目录（$<TARGET_RUNTIME_DLLS>）——
 #   exe 可独立运行，任何通道无需 PATH 魔法
 # - 副作用：Qt 以 Qt6Core.dll 位置推导「安装前缀」→ 推导结果变成 exe 目录，
@@ -25,7 +25,7 @@
 # - 勿引入 ENVIRONMENT/ENVIRONMENT_MODIFICATION 设 PATH 的 Windows 魔法：
 #   ENVIRONMENT 的值按 ';' 拆分，多路径注入会损坏（CTest 已知陷阱）。
 
-# project() 独立声明（原 spec 6.5，定案见 AGENTS.md「CMake 组织」）：
+# project() 独立声明（定案见 AGENTS.md「CMake 组织」）：
 # PROJECT_SOURCE_DIR/BINARY_DIR 指向本树；子目录 project() 重置 PROJECT_*
 # 变量——本树内部引用模块路径一律相对路径，不引用 QoolUI 的 PROJECT_*。
 # VERSION 来自父作用域变量（非 PROJECT_*）。
@@ -53,10 +53,10 @@ get_filename_component(QOOLUI_QT6_PREFIX "${Qt6_DIR}/../../.." ABSOLUTE)
 set(QOOLUI_TEST_TARGETS "" CACHE INTERNAL "QoolUI test executables")
 
 # 统一注册 C++ 测试 target：add_executable + Qt6::Test + CTest + DLL 部署
-# 测试加入默认构建（all）——落地修正（原 spec 6.3 的 EXCLUDE_FROM_ALL）：
+# 测试加入默认构建（all）：
 # QtCreator 测试面板运行前构建 all，EXCLUDE_FROM_ALL 的测试不构建 → exe
-# 缺失 → 「启动测试失败/无预期输出」全红（实测：tst_math 单测进 all 后绿、
-# 其余全红，确认根因）。run-tests 仍为聚合运行通道（DEPENDS 常规依赖）。
+# 缺失 → 「启动测试失败/无预期输出」全红。run-tests 仍为聚合运行通道
+# （DEPENDS 常规依赖）。
 # 测试特定参数（如窗口测试的 -platform offscreen）：经
 # QOOLUI_TEST_ARGS_<target> 变量声明（ctest 与 run-tests 双通道注入——
 # 与 qml/ 批次的约定同名同义；无头窗口测试必须声明，否则 ctest/run-tests

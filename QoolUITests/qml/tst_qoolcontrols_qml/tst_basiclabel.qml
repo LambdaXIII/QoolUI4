@@ -4,7 +4,7 @@ import Qool
 
 // BasicLabel 背景几何测试（Qool/BasicLabel.qml）
 //
-// 被测契约（spec D6 消费方迁移回归）：
+// 被测契约：
 // - bgBox.control.leftSpace 读法保留：leftPadding/rightPadding 绑定背景
 //   QoolBox 的 control 空间量（几何内缩），contentItem 位于 padding 盒内
 // - 排版语义：implicitWidth = leftPadding + implicitContentWidth + rightPadding、

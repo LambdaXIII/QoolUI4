@@ -5,47 +5,8 @@
 // 与 Crystal 同一视觉语言：45° 斜边、对轴、四通道填充（color/borderColor/
 // fillGradient/fillItem）。无 cutSize（三角形无切角概念）。
 //
-// 结构（用户裁决 2026-08-16）：
-// - 根 = Shape（Shape 即 Item——定位/锚定/父变换能力不损失）；显式
-//   width/height 20 为默认逻辑尺寸（implicit 声明在 Shape 根上被引擎
-//   无条件覆盖——Crystal 同机制）。
-// - 几何链：pCtrl = ShapeControl 实例（target 自动 = 根 Shape）→
-//   RectGadget gA（源头，跟踪根尺寸）→ RectGadget gB（内接画布 =
-//   maxInnerSquareRect——RectGadget x/y 固定 0，该矩形即根内部坐标，
-//   一步 rect 直绑；坐标系语义见 qool_shapegadget_rect.cpp 文件头文档）。
-// - 中间量（readonly 标量，内描边几何的核心——确定后各形态仅剩轴与
-//   符号选择）——内缩量直接用 borderWidth 线性推导，无收缩极限钳制
-//   （用户裁决 2026-08-16——不设 effInset）：
-//   - rInset（直角内缩）= √2·b——90° 角沿角平分线内缩（斜边法线
-//     位移 = √2b·cos45° = b，环宽均匀）；
-//   - sInsetX / sInsetY（尖角内缩）= (1+√2)·b / b——45° 角（三角
-//     底角）内缩分量：底边法线位移 = sInsetY = b、斜边法线位移 =
-//     (sInsetX + sInsetY)/√2 = b——环宽均匀。
-//   - b < 1 不描边（用户裁决——阈值语义）：hasBorder = false——内
-//     四点 = 外四点（fillPath 覆盖 borderPath——纯色填充）。
-// - 八点模型：外四点 pN/pS/pW/pE（内接矩形四边中心）+ 内四点
-//   iN/iS/iW/iE（内描边环内侧轮廓）。默认绑定即菱形形态（外点 =
-//   四边中心、内点 = 外点 + 直角内缩沿轴）——菱形（非 NSWE）为
-//   默认状态，无需 State。NSWE 四态各仅绑定 4 个差异值：一对隐藏
-//   点（对侧外点落中心 + 其内点——内缩方向按形态，用 sharpInsetY/
-//   sharpInsetX 底边内缩）+ 2 个尖角内点（底角内缩，sharpInsetX/Y
-//   合成）——其余点吃默认绑定（如 N 态 iN 默认 = 顶角直角内缩，
-//   恰为该态值）。states 用 when 条件（direction 比较），公式绑定
-//   进各 State——表达式不含 direction（形态已由 state 编码）。
-// - 内描边（双层模型）：外路径填充 borderColor（描边环）+ 内路径
-//   填充 color（填充面），strokeWidth 均为 0——路径边界不含描边
-//   扩展（ε=0）。
-// - 命中掩码（用户裁决——禁止的是 FillContains 判定，非掩码本身）：
-//   根 containmentMask = gB（RectGadget——数值矩形 contains，非路径
-//   填充面判定，无 FillContains 性能代价）。命中 = 内接画布矩形
-//   （三角外的左右条带被排除；精确三角判定不提供——RectGadget 仅
-//   矩形 contains）。宿主 MouseArea 精确 hover 需显式挂载掩码
-//   （Qt hover 分发只检查 item 自身 contains）。
-// - implicit 不承诺（Crystal 同哲学）：Shape 引擎在路径变化时强制
-//   setImplicitSize(路径边界)（qquickshape.cpp _q_shapePathChanged——
-//   Qt 6.11 实证）——三角形态下 implicit 报告半组件（如 N 态 20×10）。
-//   显式默认 width/height 20 不被引擎触碰，布局一律用显式尺寸，
-//   implicit 值不影响使用。
+// 完整契约（几何链/内描边/命中掩码/implicit 语义）见
+// docs/reference/Qool/HalfCrystal.md。
 
 import QtQuick
 import QtQuick.Shapes
@@ -68,11 +29,10 @@ Shape {
     property int direction: Qore.N
 
     // 命中掩码 = gB（内接画布矩形——RectGadget 数值 contains，非
-    // FillContains 路径填充面判定；机制见文件头"命中掩码"）
+    // FillContains 路径填充面判定；机制见 docs/reference/Qool/HalfCrystal.md）
     containmentMask: gB
 
-    // 默认逻辑尺寸（显式——Shape 根下 implicit 声明被引擎覆盖；机制见
-    // 文件头"结构决策"与 Crystal 同款）
+    // 默认逻辑尺寸（显式——Shape 根下 implicit 声明被引擎覆盖，Crystal 同款）
     width: 20
     height: 20
 
@@ -115,8 +75,7 @@ Shape {
         }
 
         // b < 1 不描边：内四点 = 外四点（fillPath 覆盖 borderPath——纯色
-        // 填充；false 分支取外点而非位移向量——曾误取 vN/vS/vW 向量导致
-        // fillPath 塌缩到原点附近，iE 的 pE 为正确形态）
+        // 填充；false 分支取外点而非位移向量）
         readonly property point iN: hasBorder ? move_point(pN, vN) : pN
         readonly property point iS: hasBorder ? move_point(pS, vS) : pS
         readonly property point iW: hasBorder ? move_point(pW, vW) : pW

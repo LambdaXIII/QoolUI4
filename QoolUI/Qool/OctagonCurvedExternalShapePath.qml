@@ -17,8 +17,8 @@ ShapePath {
     startX: control.extTLx
     startY: control.extTLy
 
-    // 内弧半径：内环相邻点弦长/√2（spec D5——control 不加派生属性，
-    // Shape 自身从内环点推出；弦长 0 → 半径 0 退化自洽）。
+    // 内弧半径：内环相邻点弦长/√2（control 不加派生属性，Shape 自身从
+    // 内环点推出；弦长 0 → 半径 0 退化自洽）。
     readonly property QtObject pCtrl: QtObject {
         readonly property real radiusTR: Math.hypot(
             control.intRTx - control.intTRx, control.intRTy - control.intTRy)

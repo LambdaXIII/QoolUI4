@@ -50,7 +50,7 @@ void QoolBoxShapeControl::setup_gadgets() {
 // QProperty 绑定会注册对 settings 字段 QProperty 的依赖——settings 对象
 // 析构时（字段 QProperty 先于 ~QObject 析构）触发绑定重算，读取已析构
 // 对象崩溃。信号连接在 settings 析构时由 QObject 自动断开——settings
-// 生命周期短于本对象是安全的（spec D1「绑定/信号连接」选信号连接）。
+// 生命周期短于本对象是安全的（信号连接）。
 void QoolBoxShapeControl::connect_settings() {
   // 先断开旧实例连接（记录在 m_connectedSettings——settings 属性变化时
   // bindable_settings() 已返回新值，不能从新值反查旧连接）。

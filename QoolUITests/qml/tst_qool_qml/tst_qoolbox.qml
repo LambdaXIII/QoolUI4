@@ -2,7 +2,7 @@ import QtQuick
 import QtTest
 import Qool
 
-// QoolBox 组件测试（Qool/QoolBox.qml）——新公开面与变体（spec D4/D5，票 11）
+// QoolBox 组件测试（Qool/QoolBox.qml）——公开面与变体
 //
 // 被测契约：
 // - 公开面：settings/control（可替换/共享）、fillItem/animatingHint 门控、
@@ -71,7 +71,7 @@ TestCase {
         }, 3000, tag + " 应得到 " + kind + " 形态")
     }
 
-    // 内弧半径期望值：内环相邻点弦长/√2（spec D5）。角点两相邻内环点：
+    // 内弧半径期望值：内环相邻点弦长/√2。角点两相邻内环点：
     // TL = intTL/intLT、TR = intTR/intRT、BR = intBR/intRB、BL = intBL/intLB。
     // 与变体内 pCtrl 公式同源但独立推导——公式实现走样时可被抓住。
     function chordRadius(ctrl, corner) {
@@ -226,7 +226,7 @@ TestCase {
     }
 
     function test_fillGradientExcludesFallback() {
-        // fillGradient 补面（spec D6）：公开属性默认 null；非空 → 排除退行
+        // fillGradient 补面：公开属性默认 null；非空 → 排除退行
         // （与 fillItem 同款门控——Rectangle 渐变与 Shape 渐变不兼容，退行
         // 形态保持"无填充通道"语义边界）；转发到变体 fillShape。
         const box = makeBox(100, 60)

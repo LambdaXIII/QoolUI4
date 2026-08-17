@@ -8,7 +8,7 @@ import "_private"
 GridLayout {
     id: root
 
-    // 动画总开关：v3 同款传播（父级属性 → Style），传给槽位按钮。
+    // 动画总开关：父级属性 → Style 传播，传给槽位按钮。
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
 
     // 显示范围（非存储边界）：只画 0..slots-1 号格。

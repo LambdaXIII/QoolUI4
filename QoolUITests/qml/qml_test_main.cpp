@@ -29,7 +29,7 @@ public:
   QoolTestSetup() {
     // 注：Windows Qt 前缀解析已由 qt.conf（exe 旁，configure 期生成）接管
     // ——qt.conf 是 Qt 官方自包含机制（QLibraryInfo 读取），覆盖插件与
-    // QML 模块路径，无需环境变量注入（规范见 原 spec 5.2）。
+    // QML 模块路径，无需环境变量注入。
   }
 
 public slots:

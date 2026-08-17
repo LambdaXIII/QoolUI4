@@ -12,7 +12,7 @@ QoolBox {
 
     // 属性对象须显式挂 parent（QML 属性对象不自动成为声明对象的子项）：
     // 无 parent 时 effective 可见性恒 false（visible 是 effective 语义），
-    // 标签可见性逻辑全部失效（2026-08-14 测试实证修复）。
+    // 标签可见性逻辑全部失效。
     property Item label: BasicControlTitleText {
         parent: root
         text: root.title

@@ -1,14 +1,14 @@
 // Qool 端到端 hover 测试：真实窗口 + 真实鼠标事件路径下，HalfCrystal 的
 // hover 判定域（掩码契约——内接画布矩形判定）。
 //
-// 背景（2026-08-16 HalfCrystal 重做）：用户裁决禁止 FillContains 掩码
-// 判定（性能代价过大）——containsMode 不设；命中掩码由 gB（RectGadget，
-// 数值矩形 contains——非路径填充面判定）承接：根 containmentMask = gB，
-// 命中域 = 内接画布矩形（三角外的左右条带被排除；精确三角判定不提供）。
-// Qt 6.11 的 QHoverEvent 分发（QQuickDeliveryAgent::deliverHoverEvent
-// Recursive）对每个 item 独立调用其自身 contains——MouseArea 不挂掩码时
-// hover 域 = 自身矩形；挂 \c{containmentMask: hc.containmentMask}
-// （anchors.fill 时本地坐标一致）才获得画布矩形精确 hover。
+// 背景：禁止 FillContains 掩码判定（性能代价过大）——containsMode 不设；
+// 命中掩码由 gB（RectGadget，数值矩形 contains——非路径填充面判定）承接：
+// 根 containmentMask = gB，命中域 = 内接画布矩形（三角外的左右条带被
+// 排除；精确三角判定不提供）。Qt 6.11 的 QHoverEvent 分发
+// （QQuickDeliveryAgent::deliverHoverEvent Recursive）对每个 item 独立调用
+// 其自身 contains——MouseArea 不挂掩码时 hover 域 = 自身矩形；挂
+// containmentMask: hc.containmentMask（anchors.fill 时本地坐标一致）才获得
+// 画布矩形精确 hover。
 //
 // 注：QML 测试批次（qml/）TestCase.mouseMove 在 offscreen 平台不注入事件
 // ——真实鼠标路径在本层用 QTest::mouseMove（Qt 官方 QQuickTest 同款通道）

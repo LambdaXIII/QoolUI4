@@ -29,10 +29,9 @@ public:                                                                \
     return singleton;                                                  \
   }
 
-// 注意：曾有过 QOOL_SIMPLE_SINGLETON_QML_CREATE（把进程级单例伪装成
-// QML 单例）——违反 Qt 契约（共享实例经 QML_SINGLETON 暴露只能被一个
-// QQmlEngine 访问），多 engine 崩溃，已删除。需要 QML 暴露的进程级
-// 能力走「单例组件设计模式」三件套（XxxDB + XxxHQ + 可选 XxxHQModel），
-// 见根 AGENTS.md 已知陷阱（QML 引擎唯一性）。
+// 注意：禁止把进程级单例伪装成 QML 单例（共享实例经 QML_SINGLETON
+// 暴露只能被一个 QQmlEngine 访问，多 engine 崩溃）。需要 QML 暴露的
+// 进程级能力走「单例组件设计模式」三件套（XxxDB + XxxHQ + 可选
+// XxxHQModel），见根 AGENTS.md 已知陷阱（QML 引擎唯一性）。
 
 #endif // QOOLCOMMON_SINGLETON_HPP

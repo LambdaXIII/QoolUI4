@@ -18,7 +18,7 @@ class QoolBoxGadget;
 
 // QoolBoxShapeControl：八边形几何单元（ShapeControl 子类，gadget 模式）。
 //
-// 重写说明（ADR-0004/0006/0007，spec D1）：公开类型保留，内部实现替换为
+// 重写说明（ADR-0004/0006/0007）：公开类型保留，内部实现替换为
 // 两个 QoolBoxGadget——outer（borderWidth 0，外轮廓）+ inner（borderWidth =
 // settings.borderWidth，referenceBox 指 outer——双实例描边内缩环）。本类
 // 仅做转发：ext*/int* 16 点 + x/y 分量、usedWidth/usedHeight、四个 *Space、
@@ -28,7 +28,7 @@ class QoolBoxGadget;
 // 坐标系差异是刻意设计——ext*/int* 由旧版"期望尺寸本地系"（0..W）变为
 // "target 坐标系绝对点"（gadget point = origin(control.center) + offset +
 // vec + shrink）：消费方（变体 path/掩码/HUD）均挂接在 target（QoolBox）
-// 内部，本地系一致（spec D1 注释）。
+// 内部，本地系一致。
 //
 // settings（QoolBoxSettings*，可绑定）：实例替换时 gadget 输入经
 // QProperty 依赖追踪自动重挂（绑定 lambda 读 settings 链）；settings 为

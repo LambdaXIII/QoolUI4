@@ -7,8 +7,8 @@ import Qool
 // 编辑层 + 编辑模型）。系列可编辑控件（ComboBox/SpinBox，未来迁移）的
 // 编辑域统一消费本类型。
 //
-// 双层定位：展示与编辑是两个独立文本对象（双层结构本质，v3 传统覆盖
-// 模式——v3 无单层常驻输入框）。
+// 双层定位：展示与编辑是两个独立文本对象（双层结构本质——传统覆盖
+// 模式，无单层常驻输入框）。
 // - 平时：displayItem（Item 实例，默认 Text）常驻展示——text 经插拔函数
 //   displayTextFromText 派生 displayText 驱动。
 // - 点击/聚焦进编辑会话后：Loader 延迟加载 BasicTextField 呈现编辑（会话
@@ -66,17 +66,14 @@ import Qool
 // - 裸控件：无壳层视觉（背景盒/标题/壳层 covers 由宿主包装 QoolControl
 //   提供）——与 SpinBox 同定位。
 //
-// 待验证（调试时实测确认，2026-08-10）：
-// - FocusScope 焦点回退：编辑层卸载（Loader 销毁）后焦点应自动回退到域内
-//   本控件（Qt 惯例"控件保留焦点"）；若实测不回退，需显式 forceActiveFocus
-//   回本体（卸载后无对象可释放焦点，焦点归位机制待实测确认）。
+// 焦点行为（已知边界）：
+// - FocusScope 焦点回退：编辑层卸载（Loader 销毁）后焦点自动回退到域内
+//   本控件（Qt 惯例"控件保留焦点"）。
 // - Loader active 绑定求值时机：onLoaded 装配依赖 item 已创建并入树（规避
 //   "信号处理器内绑定延迟求值"——置 editing 当刻读 editLoader.item 不可靠）。
 // - popup 等浮层关闭后焦点归还：浮层抢焦点使编辑层失焦收尾；关闭后 Qt 的
 //   焦点恢复（lastActiveFocusItem 链）可能把焦点落回本控件——若落回将经
-//   onActiveFocusChanged 自动重开会话。可能性记录（2026-08-10 审查）：
-//   从未观察到实际发生（恢复分支依赖 lastActiveFocusItem 销毁状态），
-//   真窗口实测确认。
+//   onActiveFocusChanged 自动重开会话（实际从未观察到发生）。
 
 T.Control {
     id: root

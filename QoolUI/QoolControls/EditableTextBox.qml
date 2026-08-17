@@ -6,12 +6,12 @@ import Qool.Controls.Components
 // + 预设 Qool 主题滚动条）。
 //
 // 滚动：ScrollView（Qool.Controls——官方 QC.ScrollView
-// 根，实测裁定 2026-08-11：T.ScrollView 不转发 position/size 给附加滚动条、
-// 无样式让位，弃用）对 TextArea 的集成（内容尺寸自动/背景不滚/clip 自动）；
+// 根，T.ScrollView 不转发 position/size 给附加滚动条、无样式让位，弃用）
+// 对 TextArea 的集成（内容尺寸自动/背景不滚/clip 自动）；
 // 滚动条 Qool 主题（垂直/水平均 ScrollBar——非 Qt 默认样式；水平
 // AsNeeded，默认 Wrap 下不出现）。滚动条几何公式与内容让位内置在
-// ScrollView（见其注释——2026-08-11 实测：ScrollView 附加机制只转发
-// 不设几何，公式须由挂载处提供）。
+// ScrollView（见其注释——ScrollView 附加机制只转发不设几何，公式须由
+// 挂载处提供）。
 //
 // 文本 API 直通（property alias + 信号转发）：宿主只与本类型交互，内层文本
 // 对象与编辑能力细节不暴露——无编辑会话（与 EditableText（单行编辑会话）

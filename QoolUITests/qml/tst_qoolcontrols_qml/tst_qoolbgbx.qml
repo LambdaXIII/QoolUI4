@@ -5,7 +5,7 @@ import Qool.Controls.Components
 
 // QoolBGBox space 语义测试（Qool.Controls.Components/QoolBGBox.qml）
 //
-// 被测契约（spec D6 消费方迁移回归）：
+// 被测契约：
 // - *Space 有/无 label 两形态：label 可见时 topSpace = 标签高 + 边框宽、
 //   left/rightSpace 收紧为边框宽、bottomSpace = control.bottomSpace + 边框宽；
 //   无可见 label 时 top/bottomSpace 仅为边框宽、
@@ -15,7 +15,7 @@ import Qool.Controls.Components
 // - 覆盖语义：QoolBGBox 覆盖 QoolBox 同名 *Space（同系同类语义）——
 //   label 可见时 left/rightSpace 收紧为边框宽，与 QoolBox 转发 control 的值不同
 // - settings 显式特化：默认 settings 的 borderWidth/borderColor/fillColor/
-//   cutSizeTL 来自 Style.control* 控件样式字段（spec D2 特化字段组）
+//   cutSizeTL 来自 Style.control* 控件样式字段（特化字段组）
 //
 // 隔离策略：每个测试函数 createTemporaryObject 独立实例（状态隔离规范）；
 // 异步/时序断言一律 tryCompare/tryVerify 轮询（不写固定 sleep）；浮点 fuzzyEq。

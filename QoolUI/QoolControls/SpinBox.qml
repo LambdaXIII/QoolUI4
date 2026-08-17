@@ -8,15 +8,15 @@ import Qool
 //
 // 定位：**裸步进器，不内置 QoolControl 壳**。本控件不含背景盒/标题/标签/
 // 内容内边距（那是 BasicControl/QoolControl 的壳层能力）——宿主需要壳时
-// 自行包装（如装入 QoolControl；包装接口待验证——contentItem 外部赋值实测
-// 被 QML 引擎拒绝（Invalid property assignment），2026-08-09 记录，壳层
-// 设计时再定）。本控件只负责数值步进本身：文本、指示器、编辑、步进反馈
+// 自行包装（如装入 QoolControl；包装接口待验证——contentItem 外部赋值被
+// QML 引擎拒绝（Invalid property assignment），壳层设计时再定）。本控件
+// 只负责数值步进本身：文本、指示器、编辑、步进反馈
 // （指示器状态色与按需淡入；壳层 covers 三件套不提供，属包装控件）。
 //
-// 编辑域（2026-08-10 迁移）：内容区常驻 Qool EditableText（双层强化版——展示层
+// 编辑域：内容区常驻 Qool EditableText（双层强化版——展示层
 // + 编辑会话自管）。本控件只做 value ↔ text 映射与信号转发（pCtrl）：
 // - 显示：value → textFromValue 格式化喂入 textField.text（命令式同步——
-//   用户裁定不采用属性绑定：EditableText 收尾内部写回 text 会打断外部绑定）。
+//   不采用属性绑定：EditableText 收尾内部写回 text 会打断外部绑定）。
 // - 编辑接受：textField.accepted → 读收尾后的 text → valueFromText 映射 →
 //   value（值变补 valueModified）→ 透传 root.accepted()；映射失败（非有限数）
 //   不写 value——按拒绝回退（现状契约：不写脏数据）。
@@ -117,7 +117,7 @@ T.DoubleSpinBox {
         Connections {
             target: root
             // 步进/程序化 value 变化 → 显示喂入（textFromValue 官方格式化；
-            // 命令式——用户裁定不采用属性绑定：EditableText 收尾内部写回 text
+            // 命令式——不采用属性绑定：EditableText 收尾内部写回 text
             // 会打断外部绑定——见文件头）
             function onValueChanged() {
                 textField.text = root.textFromValue(root.value, root.locale, root.decimals);

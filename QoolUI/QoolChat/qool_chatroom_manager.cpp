@@ -26,7 +26,7 @@ ChatRoomManager::ChatRoomManager()
   , m_serverThread { new QThread(this) } {
   // 定时清理（30s 周期）：purge 仅兜底回收"空且无人引用"的服务器。
   // 周期窗口内保留空服务器 = 复用缓存——同一频道名重新连接时直接
-  // 命中（用户裁定：长期 idle 下最坏只是延迟回收，可接受）。
+  // 命中（长期 idle 下最坏只是延迟回收，可接受）。
   // 刻意不用 beeperSignedOut 即时触发：Beeper 登出是常态操作，立即
   // purge 会摧毁复用缓存并导致频繁重建。
   m_purgeTimer.setInterval(30 * 1000);

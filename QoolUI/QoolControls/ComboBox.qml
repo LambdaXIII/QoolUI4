@@ -125,7 +125,7 @@ T.ComboBox {
             rightPadding: root.mirrored ? 0 : contentContainer.indicatorPadding
         }
 
-        // 命令式同步（用户裁定——不采用属性绑定：EditableText 收尾内部写回
+        // 命令式同步——不采用属性绑定：EditableText 收尾内部写回
         // text 会打断外部属性绑定（QML 机制——任何赋值断绑定）且不可预期；
         // 命令式 Connections 同步显式、不受内部写回影响）。编辑接受后显示
         // 短暂为编辑文本——宿主处理模型（find/加入/强制 currentText）后
@@ -170,7 +170,7 @@ T.ComboBox {
         required property var model
         required property int index
         // 自适应列表可视宽（官方写法）：popup 水平 padding 使可视区窄于
-        // 控件宽——固定 root.width 会致右缘被裁 1-2px（修复 2026-08-10）
+        // 控件宽——固定 root.width 会致右缘被裁 1-2px
         width: ListView.view.width
         text: model[root.textRole]
         highlighted: root.highlightedIndex === index

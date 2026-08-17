@@ -1,19 +1,13 @@
-// NOTE(迁移) v3 Qool.Color/_private/ColorSliderBackground.qml 逐字迁移。
-// 拍平点：v3 的 ShapeHelper（v4 已移除）在本文件内联为 pShape——六个顶点
-// pointA..pointF 与两个锚点 point0/point1 是 v3 ShapeHelper 属性（以 target:
-// root 绑定 width/height）的逐字推导，全部由 cutSize = height/2 决定。
-//
 // 关键几何（易误解，勿改）：
 //   - 形状是"上下切角"的六边形：左/右两边斜 45°，顶部/底部是水平短边。
 //     pointA(0, cutSize) → B(cutSize, 0) → C(w-cutSize, 0) → D(w, cutSize)
 //     → E(w-cutSize, h) → F(cutSize, h) → A。
-//   - leftPoint/rightPoint（= ShapeHelper 的 point0/point1）是轨道中线上
+//   - leftPoint/rightPoint（= pShape.point0/point1）是轨道中线上
 //     切角内侧的两个点：(cutSize, cutSize) 与 (w-cutSize, cutSize)。
 //     消费方（ColorSlider 变体）用它作 LinearGradient 的 x1/y1/x2/y2——
 //     让渐变只横贯"有效轨道段"，不染到斜切角外。
 //   - ShapePath 的 fill/stroke 默认值由消费方经别名覆盖（fillGradient/
 //     fillColor/strokeColor/strokeWidth）。
-// 与 v3 的刻意差异：无（仅 ShapeHelper 内联 + 补注释）。
 
 pragma ComponentBehavior: Bound
 
@@ -22,7 +16,7 @@ import QtQuick.Shapes
 import Qool
 import Qool.Color
 
-// 滑块轨道背景（六边形，v3 逐字迁移）：切角尺寸固定为高度一半。
+// 滑块轨道背景（六边形）：切角尺寸固定为高度一半。
 //
 // `strokeWidth` / `strokeColor` / `fillColor` / `fillGradient` 为 ShapePath
 // 的透传别名；`leftPoint` / `rightPoint` 只读，供渐变锚定有效轨道段。

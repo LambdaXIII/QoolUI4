@@ -1,6 +1,6 @@
 // HalfCrystal 展示与验证页：四方向切换/菱形保留/样式通道/非方形尺寸/
 // hover 演示（内接画布矩形掩码 vs Crystal 八边形精确掩码对照），与
-// Crystal 同台展示（T07）。
+// Crystal 同台展示。
 //
 // 尺寸约定：HalfCrystal implicit 20×20（组件默认自洽）。Qt Quick Layouts
 // 中 implicit > 0 优先于显式 width/height（qquicklayout.cpp GATHER PREFERRED

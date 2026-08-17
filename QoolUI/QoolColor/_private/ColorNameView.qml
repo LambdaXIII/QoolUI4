@@ -1,20 +1,3 @@
-// NOTE(迁移) v3 Qool.Color/_private/ColorNameView.qml 拍平重写。
-// 拍平内容（v3 → 本文件内联）：
-//   - ButtonGroup（QtQuick.Controls）→ pControl.group 互斥逻辑内联：
-//     独占语义照迁（点击已选中的按钮保持选中，不可点击取消）；
-//     选中切换经 checkedButton 引用 + currentColor 派生（v3 同构）。
-//   - VerticalScroller（Qool.Controls.Basic）→ 本文件内联滚动条：
-//     指示条（visibleArea 比例）+ 三区点击跳转（顶部→起点/底部→终点/
-//     中部→比例位），v3 行为逐字；style 对位 tooltipColor→toolTipBase、
-//     controlMovementDuration→movementDuration、QoolHQ.limitNumber→
-//     NumTools.limitNumber。
-// 命名规范化：v3 的 catagory 拼写修正为 category（私有件，消费方同步更新）。
-// 行为修正：v3 的 heightBehavior.running 为死访问（v3 核心 BasicNumberBehavior
-//   属性实为 runnint——v3 拼写怪癖，v4 核心照迁保留）；本件用真实属性
-//   runnint，恢复 v3 设计意图（高度动画期间指示条保持可见）。
-// 不再依赖：QtQuick.Controls / Qool.Controls / Qool.Controls.Basic。
-// 与 v3 的刻意差异：无（行为逐字；仅 Style 对位与拼写修正）。
-
 pragma ComponentBehavior: Bound
 
 import QtQuick
@@ -22,30 +5,29 @@ import Qool
 import "NumTools.js" as Tools
 import Qool.Color
 
-// 色名列表视图（v3 ColorNameView 拍平）：分类色名 + 互斥点选。
+// 色名列表视图：分类色名 + 互斥点选。
 //
 // 以 ColorNameHQ.names(category) 为模型展示色名列表，
 // 每行一个 ColorNameButton；点选互斥（同一时刻至多一项选中，
-// v3 ButtonGroup 独占语义拍平）。
+// 独占组语义）。
 //
 // 属性
-// - 属性 `category`（string）：当前分类（v3 的 `catagory` 拼写修正）。
+// - 属性 `category`（string）：当前分类。
 //   模型为 ColorNameHQ.names(category)；改值即换列表内容。
 //   默认 `"DEFAULT"`（与默认色名插件的分类一致）。
-// - 属性 `font`（font）：色名行字体，默认 PixelFont.normal（v3 同构）。
+// - 属性 `font`（font）：色名行字体，默认 PixelFont.normal。
 // - 属性 `currentColor`（color）：只读，当前选中行的颜色
 //   （ColorNameButton.color）。取消选中后保持最后一次选中值
-//   （v3 同构：deselect 不清空 currentColor）。
+//   （deselect 不清空 currentColor）。
 //
 // 方法
 // - 方法 deselect()：取消当前选中（等价点击已选中的行，见组件内
-//   pControl 互斥逻辑）。仅供 ColorNameList 外部同步使用
-//   （v3 同名 API 照迁）。
+//   pControl 互斥逻辑）。仅供 ColorNameList 外部同步使用。
 //
 // 易误解点
 // - 点选互斥是独占组语义：点击已选中的行保持选中，不会取消
-//   （v3 ButtonGroup exclusive 默认行为）——取消只能经 deselect()。
-// - `currentColor` 在取消选中后不重置（v3 同构），因此外部
+//   ——取消只能经 deselect()。
+// - `currentColor` 在取消选中后不重置，因此外部
 //   改色后 deselect() 不会触发 `currentColorChanged` 回写。
 ListView {
     id: root
@@ -63,7 +45,7 @@ ListView {
 
     model: ColorNameHQ.names(root.category)
 
-    // 选中控制（v3 ButtonGroup 拍平）：checkedButton 互斥引用 + currentColor。
+    // 选中控制：checkedButton 互斥引用 + currentColor。
     QtObject {
         id: pControl
         property color currentColor
@@ -83,7 +65,7 @@ ListView {
         group: pControl
     } //dele
 
-    // 内联滚动条（v3 Qool.Controls.Basic VerticalScroller 拍平，见文件头）。
+    // 内联滚动条（指示条 + 顶部/底部/中部三区点击跳转）。
     Item {
         id: scroller
         property Flickable target: root
@@ -106,6 +88,8 @@ ListView {
             width: scroller.width
             height: scroller.target.visibleArea.heightRatio * scroller.height
             y: scroller.target.visibleArea.yPosition * scroller.height
+            // 刻意用真实属性 runnint（高度动画期间指示条保持可见）；
+            // 勿当拼写错误"修正"为 running——running 为死访问。
             opacity: scroller.target.movingVertically
                      || heightBehavior.runnint ? 1 : 0.2
             BasicNumberBehavior on opacity {

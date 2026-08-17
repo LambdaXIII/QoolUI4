@@ -1,24 +1,16 @@
-// NOTE(迁移) v3 Qool.Color/_private/HSVSurface.qml 逐字迁移。
-// 拍平点：v3 的 ShapeHelper + CircleGadget（qool_shapehelper.cpp /
-// qool_shapehelpergadget_circle.cpp，v4 已移除）数学全部内联为 pMath——
-// 逐字移植，含象限修正与环绕（见下）。
-// Style 对位：v4 样式系统无独立 foreground token，foreground 语义并入 text
-// （QPalette 对位），故 Style.foregroundColor → root.Style.text。
-// 与 v3 的刻意差异：
-//   1. v3 的 `containmentMask: circler` 是类型不匹配的死代码（CircleGadget 是
-//      QObject 而非 Item，QML 运行时报错并跳过），v4 删除——命中域不变
-//      （消费方 InteractingArea 以整个 surface 矩形为掩码，圆外点击由
-//      check_point/keepDirectionButInCircle 钳制，v3 行为一致）。
-//   2. `readonly property real radius` 由 v3 的 circler.radius（绑定
-//      incircleRadius = min(w,h)/2）改为 pMath.radius 同式内联。
+// 刻意差异（防审查误判，勿改）：
+//   1. 本件没有圆形成员掩码——`containmentMask: circler` 曾是类型不匹配的
+//      死代码（CircleGadget 是 QObject 而非 Item，QML 运行时报错并跳过），
+//      已删除；命中域不变：消费方 InteractingArea 以整个 surface 矩形为掩码，
+//      圆外点击由 check_point/keepDirectionButInCircle 钳制。
 //
-// 关键数学（易误解，勿改，全部 v3 逐字）：
+// 关键数学（易误解，勿改）：
 //   - 圆心 = (w/2, h/2)；半径 = 内切圆 min(w,h)/2（非外接圆）。
 //   - radian(vec)：atan(y/x) + 象限修正（q2/q3 加 π，q4 加 2π）——返回 [0, 2π)，
 //     0 rad 指向 +x，y 向下屏幕坐标下正向为顺时针。
 //   - angle(rad) = cleanRadian(rad) / 2π ∈ [0, 1)。
-//   - hueAt：hue = angle - 0.75（1 取模）——hue 0（红）位于圆顶（v3 映射，
-//     与 ConicalGradient 的 angle: 90 起始配合，勿改）。
+//   - hueAt：hue = angle - 0.75（1 取模）——hue 0（红）位于圆顶（与
+//     ConicalGradient 的 angle: 90 起始配合，勿改）。
 //   - saturationAt = clamp(centerDistance / radius, 0, 1)。
 //   - position(hue, sat)：sat === 0 时返回圆心；否则 rad = (hue - 0.25)·2π，
 //     dist = sat·radius，向量 (cos·d, sin·d) 平移圆心。
@@ -27,7 +19,7 @@
 //   - 三层 ShapePath：hueSurface（ConicalGradient，angle 90，stops 0.99→0
 //     反向排布使 0.99 在角度 0 附近）、satSurface（RadialGradient 白→透明）、
 //     valueSurface（黑色 fillColor alpha = 1 - hsvValue，描边 strokeColor）。
-// 渐变坐标是像素坐标（Shape 自身坐标系，v4 DialRangeArc 同款用法）。
+// 渐变坐标是像素坐标（Shape 自身坐标系，与 DialRangeArc 同款用法）。
 
 pragma ComponentBehavior: Bound
 
@@ -37,7 +29,7 @@ import Qool
 import "NumTools.js" as Tools
 import Qool.Color
 
-// HSV 色轮表面（v3 逐字迁移）：色相环 + 饱和度径向 + 明度压暗三层叠加。
+// HSV 色轮表面：色相环 + 饱和度径向 + 明度压暗三层叠加。
 //
 // 消费方（HSVWheel）通过 `hueAt` / `saturationAt` / `position` /
 // `check_point` 做坐标↔HSV 映射；`hsvValue` 控制黑色压暗层的 alpha。
@@ -48,8 +40,8 @@ import Qool.Color
 // - 半径是内切圆 min(w,h)/2——非方形容器下色轮是内切圆而非外接圆。
 // - `hsvValue` = 1 时黑色层 alpha 0（不压暗）；`hsvValue` 越小压暗越重
 //   （fillColor 黑色 + alpha 1 - hsvValue）。
-// - v3 的 CircleGadget containmentMask 是死代码（见文件头注释），
-//   本件没有圆形成员掩码——命中域由消费方的矩形 surface 掩码决定。
+// - 本件没有圆形成员掩码——命中域由消费方的矩形 surface 掩码决定
+//   （CircleGadget containmentMask 死代码说明见文件头注释）。
 Shape {
     id: root
 
@@ -95,8 +87,7 @@ Shape {
         return pMath.keepDirectionButInCircle(point)
     }
 
-    // v3 ShapeHelper + CircleGadget 数学逐字内联（qool_shapehelper.cpp /
-    // qool_shapehelpergadget_circle.cpp）。全部函数与 v3 同名同语义。
+    // 圆几何数学内联实现：象限修正、环绕、向量与钳制。
     QtObject {
         id: pMath
         readonly property real radius: Math.min(root.width, root.height) / 2

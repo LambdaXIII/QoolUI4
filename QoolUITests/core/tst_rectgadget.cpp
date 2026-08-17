@@ -6,14 +6,13 @@
 //   contains 外接矩形判定（含边界）、target 尺寸跟随（非 boundingRect）、
 //   设置覆盖初始化绑定、rect 外部绑定下的单一数据源契约。
 //
-// 行为规范（用户 2026-08-16）：
+// 行为规范：
 //   1. m_rect 为内部数据源——派生几何统一基于 rect 计算；
 //   2. 初始化 w/h 绑定 target 的 width/height（非 boundingRect），x/y 固定 0；
 //   3. rect 与 x/y/w/h 联动（类似 Point 与分量）——任一属性设置即覆盖其
 //      绑定（含初始化绑定），set_rect 等价于按需设定一遍四分量；
 //   4. 其余派生数据统一基于 m_rect。
-// 历史回归哨兵：halfWidth 曾误绑 m_hcenter（中心坐标而非半宽）导致半区
-// 矩形全错、rightHalfRect 曾误写 x=halfWidth——本文件覆盖全部派生量。
+// 回归防护：本文件覆盖全部派生量（半区矩形在任意位置偏移下正确）。
 // 宏生成 setter 在 protected 作用域——测试子类用 using 声明提升为 public。
 
 #include <QtTest>
@@ -99,7 +98,7 @@ class TestRectGadgetGeometry : public QObject {
   QVERIFY(fuzzy_eq(r.centerY(), 50));
 }
   QOOL_TEST_CASE(half_rects_offset) {
-  // 四半区矩形在任意位置偏移下正确（曾误绑半宽为 x 偏移——回归哨兵）
+  // 四半区矩形在任意位置偏移下正确（回归防护）
   TestRectGadget r;
   r.set_x(10);
   r.set_y(20);

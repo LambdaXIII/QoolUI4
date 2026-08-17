@@ -33,7 +33,7 @@ T.ProgressBar {
         cutSizeBR: root.radius
     }
 
-    // 变体消费 control.settings（spec D5）——两处几何各自注入 control
+    // 变体消费 control.settings——两处几何各自注入 control
     //（target = 各自 Shape，几何源一致时也可共享）。
     readonly property QoolBoxShapeControl bgControl: QoolBoxShapeControl {
         target: bgShape

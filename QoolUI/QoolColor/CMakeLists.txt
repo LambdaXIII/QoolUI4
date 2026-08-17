@@ -1,5 +1,4 @@
-# Qool.Color — v3 Color 模块迁移（ticket 01 骨架）
-# 后续 ticket 逐步填充 SOURCES / QML_FILES（见 .scratch/color-migration/issues/）
+# Qool.Color — 颜色组件集模块。
 
 
 
@@ -32,7 +31,7 @@ qt_add_qml_module(QoolColor
 # _private 私有件：**不注册进模块 qmldir**（不进 QML_FILES）——仅作为普通
 # QML 文件打进 qrc（/qt/qml/Qool/Color/_private/ 路径），模块内文件经
 # `import "_private"` 目录 import 使用；宿主 import Qool.Color 时 qmldir
-# 无这些类型 → 不可见。这是 v3 同款机制（目录 import + 普通文件），
+# 无这些类型 → 不可见。目录 import + 普通文件机制，
 # 规避了 Qt 6.11 中 internal 类型无法被其他 internal 文件引用的限制
 # （Color 私有件互引密集：滑块族/表面件互为依赖）。
 file(GLOB QOOL_COLOR_INTERNAL_QML_FILES

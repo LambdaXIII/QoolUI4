@@ -1,7 +1,7 @@
 // Qool 端到端命中测试：QoolBox 直角/圆角变体的真实鼠标路径
 // （containmentMask 委托 + FillContains 路径填充判定）。
 //
-// 背景（spec D5 + tst_hover_e2e 机制）：
+// 背景（沿用 tst_hover_e2e 机制）：
 // - 直角变体（OctagonShape）containmentMask 挂 QObject 掩码 control——
 //   QQuickItem::contains 对非 Item 掩码直接 invoke 掩码的 contains(point)
 //   （掩码持有 Item 的本地坐标，见 Qt 6.11 qquickitem.cpp）；control 委托
@@ -31,10 +31,6 @@
 // tst_hover_e2e 中的 "No ThemeLoader installed" WARN。因此**不做**
 // QTest::ignoreMessage：Qt Test 对"预期但未收到"的消息会判失败
 // （"Not all expected messages were received"，qtestresult.cpp）。
-//
-// 注册（主代理执行）：与 tst_qool_hover_e2e 同款——qoolui_add_cpp_test +
-// QOOLUI_TEST_QML_IMPORT_PATH 编译定义 + QOOLUI_TEST_ARGS 注入
-// -platform offscreen（无头；目视渲染直接跑 exe 无参）。
 
 #include <QtTest>
 

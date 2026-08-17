@@ -10,7 +10,7 @@ Item {
     // 纯预览元素：只渲染色面（左半实色/右半原色+白衬底），
     // 不提供任何样式外观（无边框、无前景对比装饰），宿主自行包装。
 
-    // 默认状态自洽：默认实例自带默认色，独立使用成立（v3 同构）。
+    // 默认状态自洽：默认实例自带默认色，独立使用成立。
     property ColorAssistant colorAssistant: ColorAssistant {
         color: Qt.alpha(Style.highlight, 0.5)
     }
@@ -21,7 +21,7 @@ Item {
         id: mainShape
         anchors.fill: parent
 
-        // 右下衬底：半透明色与白色背景的混合效果（v3 whiteBg）。
+        // 右下衬底：半透明色与白色背景的混合效果。
         ShapePath {
             id: whiteUnderlay
             startX: root.width / 2

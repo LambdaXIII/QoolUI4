@@ -199,8 +199,8 @@ TestCase {
     }
 
     function test_borderWidthBelowOne() {
-        // borderWidth < 1 不描边（阈值语义——用户裁决）：effInset = 0，
-        // 内四点 = 外四点（fillPath 覆盖 borderPath——纯色填充）
+        // borderWidth < 1 不描边（阈值语义）：内四点 = 外四点（fillPath
+        // 覆盖 borderPath——纯色填充）
         const c = makeCrystal({ w: 20, h: 20 }, Qore.N)
         c.borderWidth = 0.5
         expectShape(c, "fillPath", shapeN, "borderWidth=0.5 不描边（内=外）")

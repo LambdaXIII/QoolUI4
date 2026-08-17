@@ -164,14 +164,6 @@ void FileInfoListModel::removeAt(qsizetype index) {
   emit fileInfosRemoved({ removed });
 }
 
-// QList<qsizetype> __make_index_range(qsizetype first, qsizetype last)
-// {
-//   QList<qsizetype> result;
-//   for (int i = first; i <= last; i++)
-//     result << i;
-//   return result;
-// }
-
 void FileInfoListModel::removeRange(qsizetype first, qsizetype last) {
   const auto total = fileInfos()->length();
   if (total <= 0)
@@ -193,14 +185,6 @@ void FileInfoListModel::removeRange(qsizetype first, qsizetype last) {
 void FileInfoListModel::remove(QList<qsizetype> indexes) {
   take(indexes);
 }
-
-// void FileInfoListModel::remove(const FileInfo& info) {
-//   if (fileInfos()->isEmpty())
-//     return;
-//   LOCK_DATA
-//   auto indexes = tools::find_all_indexes(info, *fileInfos());
-//   remove(indexes);
-// }
 
 FileInfo FileInfoListModel::takeAt(qsizetype index) {
   const auto total = fileInfos()->length();
@@ -313,16 +297,6 @@ QList<qsizetype> FileInfoListModel::move(
   endInsertRows();
   return new_indexes;
 }
-
-// QList<qsizetype> FileInfoListModel::move(
-//   const FileInfo& info, qsizetype to) {
-//   const auto total = fileInfos()->length();
-//   if (total <= 0)
-//     return {};
-//   LOCK_DATA;
-//   auto indexes = tools::find_all_indexes(info, *fileInfos());
-//   return move(indexes, to);
-// }
 
 FileInfo FileInfoListModel::infoAt(qsizetype index) const {
   if (fileInfos()->isEmpty())

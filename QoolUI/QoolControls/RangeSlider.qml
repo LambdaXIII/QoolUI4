@@ -1,51 +1,7 @@
-// Qool.Controls.RangeSlider：基于 HalfCrystal 的区间滑块（v3 Color 滑块视觉族
-// 的区间扩展）。
+// Qool.Controls.RangeSlider：基于 HalfCrystal 的区间滑块（T.RangeSlider
+// 模板 API 兼容）——三角形手柄平边相对、夹住已选段。
 //
-// 设计（用户指令 2026-08-16——基于 HalfCrystal、仿照 Slider；与 Slider 的区别：
-// 轨道非渐变，Style.accent 填充已选区域）：
-//   - 手柄 = HalfCrystal 三角形（first: direction W 尖朝左、second: direction E
-//     尖朝右）——平边相对、夹住已选段（范围边界语义：尖角朝外指向各自未选
-//     段方向）。HalfCrystal 三角形态占组件半宽（画布左/右半），平边 = 组件
-//     中线 = 手柄中心线——已选段左右端面 = 手柄平边（平切矩形端面，天然对齐）。
-//   - 轨道 = Crystal 六边形（同 Slider——OctagonShape 特化，cut = shortEdge/2），
-//     基底色 Style.text（= Slider 渐变左端色）——**无渐变**：已选段 = 平切矩形
-//     （Rectangle，色 = color 默认 Style.accent），两端贴手柄平边。
-//   - 已选段几何：x = first 手柄中心线、右缘 = second 手柄中心线——width =
-//     secondCenter - firstCenter >= 0 恒成立（模板保证 first.position <=
-//     second.position，正/倒置范围均成立：pos = (value-from)/(to-from)，正序
-//     first.value <= second.value、倒序差除以负——数学恒等，无需防御）。
-//   - 手柄色 = 段色采样语义（Slider 渐变采样 → 纯色两段特化）：first =
-//     Style.text（自身在基底段）、second = color（自身在已选段）——平边与
-//     已选段端面同色贴合、轮廓靠 borderColor 描边（HalfCrystal 默认自动对比）。
-//   - 展开反馈照 Slider 核心：hover/按下/刚移动（justMoved 锁存 500ms）→ 手柄
-//     展开到控件全高（常态 = preferredHeight——Qore.bound(3, 高度×25%, 25)；
-//     轨道恒常态高；三角形尖角常态缩进轨道内 (h-pH)/2、展开顶到轨道端
-//     （v=0/1 时尖角 = 0/availW）——展开反馈位移比菱形更明显）。动画经
-//     animationEnabled 链式门控（parent?.animationEnabled ?? Style.animationEnabled）。
-//   - 锁存：TimerLatch + 双 Connections（first/second valueChanged）——任一值被
-//     写入（无论谁写）→ 两手柄展开 500ms；不暴露 valueVelocity（Slider 的
-//     NumberNotifier 挂在单一 value 上，RangeSlider 双值无单一载体——justMoved
-//     窗口由每次 valueChanged 触发滑动，用户可见行为等价）。
-//   - 交互 = 模板默认（点击跳转最近手柄、拖动连续、键盘步进活动手柄——官方
-//     行为，接口兼容 QtQuick.Templates.RangeSlider）。
-//   - 退化形态：first.value == second.value → 已选段宽 0（不可见）+ 两三角形
-//     平边相对重合 = 视觉完整菱形（水晶语言自洽——W 左半 + E 右半无缝互补）。
-//
-// 公开属性：
-//   - color：已选段填充色 + second 手柄色（默认 Style.accent）——宿主换色即换
-//     已选区域视觉。
-//   - animationEnabled：动画门控（父链继承，回退 Style.animationEnabled）。
-//   - justMoved："值刚被写入过"的声明式锁存窗口（500ms）。
-//   - preferredHeight：水晶轨道与手柄的常态高度（收缩态）——展开时手柄占满
-//     控件全高。
-//
-// 注意（易误解）：
-//   - first/second handle delegate 必须自写 x/y（T.RangeSlider 模板不注入定位——
-//     官方惯例，Slider 同款）。
-//   - 手柄展开态占满控件高度（不超出边界）——clip 与否不影响反馈。
-//   - 手柄 MouseArea 仅做 hover/光标反馈（acceptedButtons: Qt.NoButton——不拦截
-//     模板拖动）；不挂 containmentMask（HalfCrystal 掩码已精确、手柄仍刻意
-//     不设——NoButton 仅光标反馈、hover 域宽松为刻意设计，Slider 同款）。
+// 完整契约（几何/反馈/属性）见 docs/reference/Qool.Controls/RangeSlider.md。
 
 import QtQuick
 import QtQuick.Shapes
@@ -109,7 +65,7 @@ T.RangeSlider {
 
         // 已选段：平切矩形（直角端面 = 手柄平边——HalfCrystal 三角形态的
         // 平边即组件中线 = 手柄中心线）；宽度恒非负（模板保证 first.position
-        // <= second.position——见文件头数学）；值相等时宽 0 不可见（退化形态）
+        // <= second.position）；值相等时宽 0 不可见（退化形态）
         Rectangle {
             id: selection
             objectName: "selection" // 供 QML 测试读取（组件内部对象零暴露原则的测试例外）
@@ -130,7 +86,7 @@ T.RangeSlider {
         height: width
         // handle delegate 须自写定位（模板不注入）——官方公式；组件左上行程
         // [0, availW-h]（展开态 h×h 时尖角 = 组件左缘贴轨道端；常态缩进
-        // (h-pH)/2——见文件头）
+        // (h-pH)/2）
         x: root.leftPadding + root.first.visualPosition * (root.availableWidth - width)
         y: root.topPadding + (root.availableHeight - height) / 2
 
@@ -170,8 +126,8 @@ T.RangeSlider {
                 enabled: root.animationEnabled
                 duration: Style.transitionDuration
             }
-            // 段色采样：first 手柄在基底段（text 色）——与 Slider 渐变采样同
-            // 语义的纯色特化；反馈仅展开（v3 提亮已裁定取消）
+            // 段色采样：first 手柄在基底段（text 色）——与 Slider 渐变采样
+            // 同语义的纯色特化；反馈仅展开
             color: root.Style.text
             // Behavior 须声明在本对象内（on 作用于声明者自己的属性）
         } //firstCrystal

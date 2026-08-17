@@ -80,9 +80,7 @@ RectGadget::RectGadget(QObject* parent)
       rightCenter, bottomLeft, bottomCenter, bottomRight)
 #undef SETUP
 
-  // 半宽/半高 = 边长一半（对齐基类 ShapeControl 语义——基类同为 width/2；
-  // 曾误绑 m_hcenter/m_vcenter（= x+width/2 中心坐标），x/y 非零时半区
-  // 矩形全部错误——RectGadget 零使用者从未暴露）
+  // 半宽/半高 = 边长一半（对齐基类 ShapeControl 语义——基类同为 width/2）
   QBINDABLE_SET_BINDING(
       halfWidth, [&] { return bindable_rect().value().width() / 2; });
   QBINDABLE_SET_BINDING(
@@ -101,8 +99,7 @@ RectGadget::RectGadget(QObject* parent)
   });
   QBINDABLE_SET_BINDING(rightHalfRect, [&] {
     const auto r = bindable_rect().value();
-    // 曾误写 QRectF(w, y, w, h)——x 位置用了半宽（恰在 x=0 时碰巧正确）；
-    // 半区矩形 x 应为右半区起点 rect.x + 半宽
+    // 半区矩形 x = 右半区起点 rect.x + 半宽
     return QRectF(r.x() + r.width() / 2, r.y(), r.width() / 2, r.height());
   });
 

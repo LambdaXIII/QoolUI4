@@ -1,6 +1,6 @@
 // Qool 核心 C++ 类型测试：QoolBoxShapeControl（Qool/shapecontrol/）
 //
-// 被测面（spec qoolbox-shapecontrol-redesign，票 10）：
+// 被测面：
 //   - settings 绑定链路（信号连接同步）：字段变化 → ext*/int* 点更新
 //     （数值断言 = 直接套 gadget 公开公式 origin + vec，不复制内部实现）
 //   - settings 实例整体替换 → 绑定链路重挂（新实例字段驱动点；旧实例

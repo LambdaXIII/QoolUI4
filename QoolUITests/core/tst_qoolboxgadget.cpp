@@ -1,6 +1,6 @@
 // Qool 核心 C++ 类型测试：QoolBoxGadget（Qool/shapecontrol/gadgets/）
 //
-// 被测面（spec qoolbox-shapecontrol-redesign）：
+// 被测面：
 //   - used 派生（max 构造性保证：cut 溢出/负 cut 归零）
 //   - vec 符号表 8 点（向量系，无锚定）
 //   - point 锚定（origin + offset + vec + shrink；正常形态与现状一致）
@@ -812,7 +812,7 @@ class TestQoolBoxGadgetUnit : public QObject {
     QVERIFY(fb.gadget.referenceBox() == &fa.gadget);
     QVERIFY(fa.gadget.referenceBox() == nullptr);
 
-    // 自引用（A→A，1-环）同样被阻止（审查 F1 回归）
+    // 自引用（A→A，1-环）同样被阻止（回归防护）
     fa.gadget.set_referenceBox(&fa.gadget);
     QVERIFY(fa.gadget.referenceBox() == nullptr);
   }

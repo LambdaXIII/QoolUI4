@@ -56,12 +56,9 @@ void ChatRoom::classBegin() {
 void ChatRoom::componentComplete() {
   if (m_server.isNull())
     set_name("GLOBAL");
-  // 原补发循环（对 chatRoom() 为空的 Beeper 再发 wannaSignIn）已删除：
-  // 其职责由 set_name 建立服务器连接后的统一补发承担（set_name 在本
-  // 方法中被调用，补发时机仍落在"组件完成、属性就绪"的节点，符合
-  // 注册延迟到组件完成的设计意图）。原条件式补发在 name 先赋值场景
-  // 会对已注册 Beeper 重复补发，触发服务器 "already signed in" 警告
-  // 噪音；另注：服务器投递时实时读取 Beeper 频道（trySend →
+  // 补发注册（set_name 建立服务器连接后统一补发）：set_name 在本方法中
+  // 被调用，补发时机落在"组件完成、属性就绪"的节点，符合注册延迟到
+  // 组件完成的设计意图。服务器投递时实时读取 Beeper 频道（trySend →
   // beeper->channels()），注册时机不影响频道正确性。
 }
 

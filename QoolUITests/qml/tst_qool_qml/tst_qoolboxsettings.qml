@@ -4,8 +4,7 @@ import Qool
 
 // QoolBoxSettings 测试（Qool/shapecontrol/qool_qoolbox_settings.*）
 //
-// 被测契约（spec D2 最终定案：单一类型——QML 继承 Base 主路径实证否定后
-// Base 删除，属性类型直接为本类；ADR-0005 修订）：
+// 被测契约（ADR-0005 定案：单一类型，属性类型直接为本类）：
 // - QoolBoxSettings 是 C++ 类型（QML_ELEMENT，可实例化）；类型默认值 = C++
 //   常量（cut* 0、borderWidth 0、borderColor red、fillColor yellow、
 //   offsetX/Y 0、curved false）——无 Style 默认，主题联动由消费方

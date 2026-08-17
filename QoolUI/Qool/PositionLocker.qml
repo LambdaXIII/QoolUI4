@@ -31,14 +31,12 @@ Item {
         }
 
         readonly property point basePos: {
-            // lockTo 锚点在 axisItem 坐标系中的位置。
-            // 原实现用 axisItem.mapFromItem(lockTo, x, y)：函数调用内部读取
-            // 的 lockTo 变换不建立 QML 绑定依赖，lockTo 移动后本属性不重算、
-            // target 不再跟随（QML 测试逮住：test_dynamicFollow 失败）。
-            // 显式读取 lockTo.x/y 参与计算（const 未使用声明会被 qmlcachegen
-            // AOT 优化消除，无法建立依赖——实测）。语义前提：lockTo 是
-            // axisItem 的直接子项（无中间变换）；PointIndicator 中 marker 与
-            // target 均为 axisItem 直接子项，满足该契约。
+            // lockTo 锚点在 axisItem 坐标系中的位置：显式读取 lockTo.x/y
+            // 参与计算（mapFromItem 的函数调用不建立 QML 绑定依赖，lockTo
+            // 移动后不重算；const 未使用声明会被 qmlcachegen AOT 优化消除，
+            // 无法建立依赖）。语义前提：lockTo 是 axisItem 的直接子项（无
+            // 中间变换）；PointIndicator 中 marker 与 target 均为 axisItem
+            // 直接子项，满足该契约。
             const x = Qore.positions.xPosFromWidth(root.lockTo.width,
                                                    root.lockToAnchorPosition)
             const y = Qore.positions.yPosFromHeight(root.lockTo.height,
