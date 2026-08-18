@@ -34,9 +34,9 @@ math 命名空间与其函数的文档。
 
 将 `input` 从输入范围线性映射到输出范围（浮点中间计算，避免整数除法误差）。
 
-### `template <typename N> N qoolui::math::cycle_in_range(N min, N value, N max)`
+### `template <Arithmetic N> constexpr N qoolui::math::cycle_in_range(N min, N value, N max) noexcept`
 
-将 `value` 循环约束到 `min` 与 `max` 之间（模数回绕，非钳制）。
+将 `value` 循环映射到 **左闭右开区间 `[min, max)`**（模数回绕，非钳制）。
 
 #### 与钳制（auto_bound）的区别
 
@@ -44,24 +44,32 @@ math 命名空间与其函数的文档。
 区间视为环，超界值按模数折回（`cycle_in_range(0, 12, 10)` → 2）。
 从 `max` 一侧继续向外走会绕回 `min`，反之亦然。
 
+#### 区间语义（左闭右开）
+
+- 下端点 `min` 包含在区间内：`value == min` 原样返回；
+- 上端点 `max` 不包含在区间内：`value == max` 折回下端点（→ `min`），
+  与浮点/索引用途的「半开环」习惯一致（如色相 `[0, 1)`、槽位 `[0, N)`）。
+
 #### 典型用途
 
-- 角度归一化：任意角度折返到 [-180°, 180°]，如 `cycle_in_range(-180, 540, 180)` → -180
+- 角度归一化：任意角度折返到 [-180°, 180°)，如 `cycle_in_range(-180, 540, 180)` → -180
 - 循环索引：末位 +1 绕回开头（12 点制时钟 12 时 +1 → 1 时）
+- 槽位索引：`[0, N)` 恰好覆盖全部 N 个槽位 0..N-1，末槽不重复
 
 #### 算法
 
 1. 端点排序得 `left` = min(min,max) / `right` = max(min,max)
-2. `value` 落在 [`left`, `right`] 内（含两端点）原样返回
-3. 区间外对 `range` = `right` - `left` 取模折返：`fmod(value - left, range)`，
-   负余数加 `range` 修正，结果落在 [`left`, `right`)
+2. `value` 落在 [`left`, `right`) 内（含左端、不含右端）原样返回
+3. 区间外对 `range` = `right` - `left` 取模折返：
+   - 浮点：`fmod(value - left, range)`，负余数加 `range` 修正；
+   - 整型：以 `std::make_unsigned_t<N>` 计算 `range`/`distance` 规避溢出，
+     有符号负值经 `%` 后 `+ range` 修正，无符号依赖无符号算术模特性处理下溢。
 
 端点乱序（`min` > `max`）时自动取小大为界，语义与 `auto_bound` 一致。
 
-示例（min=0, max=10）：5 → 5；12 → 2；-3 → 7；10 → 10。
+示例（min=0, max=10）：5 → 5；12 → 2；-3 → 7；10 → 0（右端点折回）。
 
-- 注意：`N` 应为有符号整型或浮点类型：无符号类型下区间外取值与
-  负余数修正路径依赖 `fmod` 的负返回值，为未定义行为。
+- 约束：`N` 须满足 `Arithmetic` 概念（整型或浮点），模板缺省不再约束类型。
 
 ### `template<typename N> N qoolui::math::average(std::initializer_list<N> numbers)`
 
