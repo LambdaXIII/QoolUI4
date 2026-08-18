@@ -39,8 +39,9 @@ public:
   Q_INVOKABLE static qreal bound(qreal min, qreal value, qreal max);
   Q_INVOKABLE static qreal remap(qreal value, qreal sourceMin,
     qreal sourceMax, qreal targetMin = 0, qreal targetMax = 1);
+  Q_INVOKABLE static qreal cycle_in_range(qreal min, qreal value, qreal max);
 
-  Q_INVOKABLE void test();
+  // Q_INVOKABLE void test();
 };
 
 QOOL_NS_END

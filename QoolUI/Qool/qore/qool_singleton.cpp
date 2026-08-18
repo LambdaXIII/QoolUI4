@@ -47,16 +47,20 @@ qreal QoolSingleton::remap(qreal value,
   return math::remap(value, sourceMin, sourceMax, targetMin, targetMax);
 }
 
+qreal QoolSingleton::cycle_in_range(qreal min, qreal value, qreal max) {
+  return math::cycle_in_range(min, value, max);
+}
+
 qreal QoolSingleton::bound(qreal min, qreal value, qreal max) {
   return math::auto_bound(min, value, max);
 }
 
-void QoolSingleton::test() {
-  auto plugins = PluginLoader<TestObject>::loadInstances();
-  for (auto iter = plugins.constBegin(); iter != plugins.constEnd();
-    ++iter) {
-    xDebugQ << iter.key() << iter.value().instance;
-  }
-}
+// void QoolSingleton::test() {
+//   auto plugins = PluginLoader<TestObject>::loadInstances();
+//   for (auto iter = plugins.constBegin(); iter != plugins.constEnd();
+//     ++iter) {
+//     xDebugQ << iter.key() << iter.value().instance;
+//   }
+// }
 
 QOOL_NS_END

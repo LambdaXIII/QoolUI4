@@ -35,6 +35,8 @@
 # 时全新 configure 后顶层无 CTestTestfile，ctest 找不到测试）。
 project(QoolUITests VERSION ${QOOLUI_VERSION_FULL} LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 
 # 共享测试头（INTERFACE 库，仅头文件承载 include 路径——类似 QoolCommon 模式）

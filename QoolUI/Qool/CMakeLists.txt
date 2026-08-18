@@ -102,6 +102,7 @@ qt_add_qml_module(
   SOURCES utils/qool_numbermapper.h utils/qool_numbermapper.cpp
   SOURCES utils/qool_colormapper.h utils/qool_colormapper.cpp
   SOURCES qool_numbernotifier.h qool_numbernotifier.cpp
+  SOURCES
 )
 
 qoolui_collect_assets(QOOL_ASSETS)
