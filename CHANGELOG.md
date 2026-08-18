@@ -2,6 +2,14 @@
 
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
+## [4.0.0] — 2026-08-19
+
+### 新增（cut-sizes-locker，QoolBoxSettings 四切角统一联动插件）
+
+- **CutSizesLocker（Qool/shapecontrol/qool_qoolboxcutsizeslocker.\*）**：`QoolBoxCutSizesLocker` C++ 类（继承 SmartObject，QML_NAMED_ELEMENT(CutSizesLocker) 注册进 Qool）。作为 `QoolBoxSettings` 专属插件：启用期（`enabled == true` 且 target 有效）四角切角统一为 `cutSize`；停用恢复进入本次锁定前一刻的快照。五条变更路径（locker.cutSize 与 target 四角）汇聚到同一统一逻辑；快照时机 = 进入锁定状态瞬间（enabled false→true 或 enabled 期间换 target 都重新快照）；换 target 时旧 target 恢复其快照、新 target 立即统一；构造时 parent 为 QoolBoxSettings 则自动挂接，否则 target 为 null 安全空转
+- **测试（双接缝）**：core 层 `tst_qoolboxcutsizeslocker.cpp` 10 用例——默认值/空转、parent 自动挂接、cutSize 统一、单角联动、停用恢复与停用期自由改、重启用快照时机、停用期 cutSize 不触碰 target、enabled 期换 target（旧恢复/新统一）、target 置 null 恢复旧 target、disabled 换 target 后 enable 快照新值；qml 层 `tst_cutsizeslocker.qml` 冒烟——类型注册、cutSize 绑定响应、单角联动、停用恢复、无 target 空转
+- **文档**：`docs/reference/Qool/CutSizesLocker.md`（MUST 5 节）+ index 组件参考登记
+
 ## [4.0.0] — 2026-08-17
 
 ### 变更（comment-cleanup，全仓库违规注释清理）

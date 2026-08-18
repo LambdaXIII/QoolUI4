@@ -19,6 +19,7 @@ Qool 是 QoolUI 的核心模块，提供：
 - [BasicRotationBehavior](BasicRotationBehavior.md)
 - [Crystal](Crystal.md)
 - [CutSizeBinding](CutSizeBinding.md)
+- [CutSizesLocker](CutSizesLocker.md)
 - [DragMoveArea](DragMoveArea.md)
 - [Floater](Floater.md)
 - [HalfCrystal](HalfCrystal.md)

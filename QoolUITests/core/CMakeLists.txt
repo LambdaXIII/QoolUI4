@@ -129,6 +129,18 @@ qoolui_add_cpp_test(
 target_include_directories(tst_qool_qoolboxshapecontrol PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
 target_link_libraries(tst_qool_qoolboxshapecontrol PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
 
+# CutSizesLocker（QoolBoxSettings 四切角统一联动插件）——启用期统一/
+# 停用恢复/快照时机/target 更换重挂。链依赖：locker + settings + SmartObject
+qoolui_add_cpp_test(
+  tst_qool_qoolboxcutsizeslocker
+  tst_qoolboxcutsizeslocker.cpp
+  "${QOOL_SRC}/shapecontrol/qool_qoolboxcutsizeslocker.cpp"
+  "${QOOL_SRC}/shapecontrol/qool_qoolbox_settings.cpp"
+  "${QOOL_SRC}/utils/qool_smartobj.cpp"
+)
+target_include_directories(tst_qool_qoolboxcutsizeslocker PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
+target_link_libraries(tst_qool_qoolboxcutsizeslocker PRIVATE Qool QoolCommon QoolUITestSupport Qt6::Quick)
+
 # 端到端命中：QoolBox 直角/圆角变体 containmentMask 判定域与渲染一致
 #（真实鼠标路径，tst_hover_e2e 同款——offscreen 由 QOOLUI_TEST_ARGS 注入）
 set(QOOLUI_TEST_ARGS_tst_qool_box_hit "-platform;offscreen" CACHE INTERNAL "")
