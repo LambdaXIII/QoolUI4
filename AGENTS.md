@@ -108,7 +108,7 @@ qmldir 由 Qt 自动生成，开发中不手写；依赖声明一律通过 `qt_a
 | 项目 | 版本/规范 |
 |---|---|
 | Qt | 最新正式 Release |
-| C++ | C++17+ |
+| C++ | C++20 |
 | CMake | 3.30+ |
 | 第三方依赖 | 无——绝不引入（含 Qt 5 Compatibility Module（Qt5Compat）） |
 | 命名空间 | `qoolui` (宏: `QOOL_NS`) |
