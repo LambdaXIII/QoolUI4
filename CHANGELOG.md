@@ -4,6 +4,17 @@
 
 ## [4.0.0] — 2026-08-20
 
+### 变更（rangeslider-template-handle，RangeSlider 回归模板 handle 体系）
+
+- **根因**：RangeHandle 自建三区交互体系（DragMoveArea → 意图信号 → 宿主换算）完全取代模板 handle 体系——`first.handle`/`second.handle` 从未设置，模板私有状态机（handlePress/handleMove/handleRelease）在区间内从不激活；模板把 snap/live 实现在该私有拖动链，而 `QQuickRangeSliderNode::setValue` 本身无 snap——`snapMode`/`stepSize`/`live` 在鼠标拖动路径下全部失效
+- **决策反转**：删除 `RangeHandle.qml`/`rangeHandle` 属性/三区意图信号（wannaMoveFirstX/SecondX/RangeX）/热区扩展/`down`/`hovered` 聚合/`pixelToValueDelta` 换算与自建钳制；组件内设置 `first.handle`/`second.handle` 默认透明 Item（**中心对齐值位置**：`x = leftPadding + availableWidth × position − w/2`，`w = h = availableHeight`——handle 中心 = surface 区间盒端点，几何同源；区别于官方边缘对齐）——模板状态机复活，snap/live/键盘/nearest/端点钳制全部模板行为（零自建）
+- **surface 上移为 RangeSlider 直接属性**：区间盒几何（x/y/width/height = 值→位置映射）经 dummyRangeBox Binding 组动态施加（替换实例同样受控）；父对象挂 contentItem；默认 Crystal 连体前景（尖角外溢、常态收缩/展开占满）保留
+- **展开反馈**：条件从 rangeHandle 聚合改模板 `first.pressed`/`first.hovered`/`second.*` + 两端独立锁存（firstJustMoved/secondJustMoved 保留）
+- **整体滑移取消**：模板无中段整体滑移——不做默认实现，文档注明宿主自建路径（contentItem 内 MouseArea 同步操作两端）
+- **API 破坏**：`rangeHandle` 属性与 `RangeHandle` 类型删除、`surface` 从 `rangeHandle.surface` 上移、行为插拔点变为 `first.handle`/`second.handle`；"点击无操作"契约变化（点击轨道走模板 nearest）
+- **测试重写**（tst_rangeslider.qml）：删 rangeHandle/三区/换算/整体滑移用例；新增 handle 中心对齐、键盘步进（increase/decrease）、程序化赋值不吸附、端点钳制；展开反馈自动化仅锁存路径（模板 pressed/hovered 只读、合成鼠标对模板不可达——交互契约人工验收）
+- **文档/示例**：RangeHandle.md 删除、RangeSlider.md 重写（模板 handle 契约 + surface/handle 双插拔 + snap/live 模板语义 + 整体滑移宿主自建）、reference index.md 移除登记；ADR 0009 追加「模板 handle 回归」演进节；示例页更新（删 LoggingHandle、surface 直接属性替换、HandleKnob 演示 handle 插拔、QoolTip 文案）
+
 ### 变更（slider-align，Slider 对齐 RangeSlider 接口面演进）
 
 - **RangeSlider `bgColor` 更名 `backgroundColor`**（RangeSlider.qml）：语义精确（属性即轨道背景色）；消费处同步——轨道颜色、tst_rangeslider.qml 断言、RangeSlider.md、ADR 0009 外观通道条目

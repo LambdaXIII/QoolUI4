@@ -26,7 +26,6 @@ Qool.Controls 提供 QoolUI 控件系列：
 - [ProgressBar](ProgressBar.md)
 - [QoolBGBox](QoolBGBox.md)
 - [RangeSlider](RangeSlider.md)
-- [RangeHandle](RangeHandle.md)
 - [ScrollIndicator](ScrollIndicator.md)
 - [ScrollView](ScrollView.md)
 - [Slider](Slider.md)

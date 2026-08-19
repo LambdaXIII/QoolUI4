@@ -21,13 +21,25 @@ BasicPage {
 
     implicitHeight: cc.implicitHeight
 
-    // 行为插拔示例组件：继承 RangeHandle 覆盖行为（默认实现即三区域拖动；
-    // 此处演示派生类替换后完整获得配套绑定——覆盖任意行为即插拔）。
-    component LoggingHandle: RangeHandle {
-        // 行为覆盖示例：记录拖动意图信号载荷（增量像素位移，不改变默认交互）
-        onWannaMoveFirstX: dx => console.log("wannaMoveFirstX", dx)
-        onWannaMoveSecondX: dx => console.log("wannaMoveSecondX", dx)
-        onWannaMoveRangeX: dx => console.log("wannaMoveRangeX", dx)
+    // 行为插拔示例组件：自定义端点手柄（模板 handle 插拔契约——替换
+    // first/second.handle 即自定义端点命中/视觉/光标；定位须自写——
+    // 模板不注入 handle 位置，中心对齐公式与默认 handle 同款）。
+    component HandleKnob: Rectangle {
+        required property RangeSlider owner
+        required property var endpoint
+        width: height
+        height: owner.availableHeight
+        radius: height / 2
+        color: Qt.alpha(owner.color, 0.55)
+        border.color: owner.borderColor
+        x: owner.leftPadding + owner.availableWidth * endpoint.position - width / 2
+        y: owner.topPadding
+        // 仅光标反馈：NoButton 不拦截按压（模板拖动经 handle 命中有效）
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.NoButton
+            cursorShape: Qt.SplitHCursor
+        }
     }
 
     Column {
@@ -187,7 +199,7 @@ BasicPage {
             }
         }
 
-        // —— RangeSlider：区间滑块（三层结构）——
+        // —— RangeSlider：区间滑块（模板 handle 体系 + surface 插拔）——
         QoolControl {
             title: qsTr("RangeSlider 区间滑块")
             width: 260
@@ -225,7 +237,7 @@ BasicPage {
                 }
             }
             QoolTip {
-                text: qsTr("RangeSlider 三层结构：**值模型 + 静态背景**（T.RangeSlider 模板 + Crystal 六边形轨道——backgroundColor 75% 透明 + borderColor 描边、尖角外溢、不参与交互反馈）→ **RangeHandle**（纯交互件：三区域拖动 + 意图信号，不收位置、不发结果位置）→ **surface**（默认 Crystal 前景——尖角外溢、常态收缩/展开占满区间盒、自布局）。\n**三区域拖动**：左端区拖 first、右端区拖 second、中段区拖**整体滑移**（两端同步、区间宽不变、边界钳制整体停）；**全部点击无操作**（模板\"点击跳转\"不保留）；键盘保留模板行为。\n**反馈**：hover/按下/刚移动（两端独立锁存 firstJustMoved/secondJustMoved 各 500ms——下方 Timer 程序化写入演示）→ 前景展开占满区间盒（常态 = 收缩量 limit(高度×0.25, 3, 25)）；动画随 animationEnabled 门控。\n**插拔**：`rangeHandle` 属性替换（继承 RangeHandle）＝行为插拔；`rangeHandle.surface` 替换任意 Item ＝外观插拔（**surface 自布局**——默认 anchors.fill 区间盒）——两层独立互不影响。")
+                text: qsTr("RangeSlider：**T.RangeSlider 模板 + 默认透明 handle**（激活模板交互——**snapMode/stepSize/live/键盘/nearest/端点钳制全部为模板行为**）+ **Crystal 轨道**（backgroundColor 75% 透明 + borderColor 描边、尖角外溢、静态不参与交互反馈）+ **surface**（默认 Crystal 连体前景——尖角外溢、常态收缩/展开占满区间盒）。\n**交互**：双端点拖动（模板 handle 命中即拖——按住端点中心精确跟手）；**点击轨道走模板 nearest**（跳最近端点）；**snap/live 为模板语义**（吸附 / 拖动中值实时性 / 释放落定全由模板承担）。\n**反馈**：hover/按下/刚移动（两端独立锁存 firstJustMoved/secondJustMoved 各 500ms——下方 Timer 程序化写入演示）→ 前景展开占满区间盒（常态 = 收缩量 limit(高度×0.25, 3, 25)）；动画随 animationEnabled 门控。\n**插拔**：`surface` 属性替换任意 Item ＝外观插拔（区间盒几何由组件施加——填满即精确区间）；`first.handle`/`second.handle` 替换 ＝行为插拔（模板 handle 契约，定位自写）。\n**整体滑移**（中段拖动区间整体移动）非默认能力——宿主自建（contentItem 内 MouseArea 同步操作两端）。")
             }
         }
 
@@ -240,17 +252,15 @@ BasicPage {
                     Layout.fillWidth: true
                     from: 0
                     to: 100
-                    // 外观插拔：替换 surface 为任意 Item——surface 自布局
-                    // （RangeHandle 只设 parent），自行 anchors.fill 区间盒
-                    // 即得精确区间，宿主无需自算值→位置映射
-                    rangeHandle: RangeHandle {
-                        surface: Rectangle {
-                            anchors.fill: parent
-                            radius: 3
-                            color: customSurfaceSlider.color
-                            border.color: Style.highlight
-                            border.width: 1
-                        }
+                    // 外观插拔：替换 surface 为任意 Item——区间盒几何由组件
+                    // Binding 组施加（x/width/height = 值→位置映射），fill
+                    // 即得精确区间，宿主无需自算映射
+                    surface: Rectangle {
+                        anchors.fill: parent
+                        radius: 3
+                        color: customSurfaceSlider.color
+                        border.color: Style.highlight
+                        border.width: 1
                     }
                 }
                 RangeSlider {
@@ -258,14 +268,21 @@ BasicPage {
                     Layout.fillWidth: true
                     from: 0
                     to: 100
-                    // 行为插拔：继承 RangeHandle 覆盖行为后替换（此处演示
-                    // 继承替换仍获得全部配套绑定——三区域拖动/展开反馈
-                    // 完整保留）
-                    rangeHandle: LoggingHandle {}
+                    // 行为插拔：替换 first/second.handle（模板 handle 插拔
+                    // 契约）——自定义端点命中/视觉/光标；替换后 snap/live/
+                    // 键盘仍为模板行为
+                    first.handle: HandleKnob {
+                        owner: customHandleSlider2
+                        endpoint: customHandleSlider2.first
+                    }
+                    second.handle: HandleKnob {
+                        owner: customHandleSlider2
+                        endpoint: customHandleSlider2.second
+                    }
                 }
             }
             QoolTip {
-                text: qsTr("两层独立插拔（互不影响）：\n- **外观插拔**（上）——`rangeHandle.surface` 替换任意 Item：**surface 自布局**（布局责任反转——RangeHandle 只设 parent，默认实现 anchors.fill 区间盒）；区间盒几何（x/width/height = 值→位置映射）由 RangeSlider 经 dummyRangeBox Binding 组施加到 rangeHandle——surface fill 即得精确区间，宿主无需自算映射。\n- **行为插拔**（下）——继承 RangeHandle 的派生组件（LoggingHandle）替换 `rangeHandle` 属性：区间盒几何与意图信号换算（Connections onWannaMove*：增量位移 → 值增量、钳制在值域）动态施加——替换实例同样受控，覆盖行为即插拔。\n- 意图信号载荷 = 像素增量位移（wannaMoveFirstX / wannaMoveSecondX / wannaMoveRangeX）——RangeHandle 不换算不钳制，宿主决定如何应用。\n- 两层互不依赖：换外观不丢交互、换行为不丢外观。")
+                text: qsTr("两层独立插拔（互不影响）：\n- **外观插拔**（上）——`surface` 替换任意 Item：区间盒几何（x/width/height = 值→位置映射）由组件 Binding 组施加——surface fill 即得精确区间，宿主无需自算映射。\n- **行为插拔**（下）——替换 `first.handle`/`second.handle`（模板 handle 插拔契约）：自定义端点命中/视觉/光标；**定位须自写**（模板不注入）——中心对齐公式 `x = leftPadding + availableWidth × position − w/2`；替换后 snap/live/键盘仍为模板行为。\n- 两层互不依赖：换外观不丢交互、换行为不丢外观。")
             }
         }
 
