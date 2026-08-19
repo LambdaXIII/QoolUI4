@@ -21,6 +21,15 @@ BasicPage {
 
     implicitHeight: cc.implicitHeight
 
+    // 行为插拔示例组件：继承 RangeHandle 覆盖行为（默认实现即三区域拖动；
+    // 此处演示派生类替换后完整获得配套绑定——覆盖任意行为即插拔）。
+    component LoggingHandle: RangeHandle {
+        // 行为覆盖示例：记录拖动信号载荷（不改变默认交互）
+        onFirstMoved: pos => console.log("firstMoved", pos)
+        onSecondMoved: pos => console.log("secondMoved", pos)
+        onRangeMoved: delta => console.log("rangeMoved", delta)
+    }
+
     Column {
         id: cc
 
@@ -178,7 +187,7 @@ BasicPage {
             }
         }
 
-        // —— RangeSlider：区间滑块 ——
+        // —— RangeSlider：区间滑块（三层结构）——
         QoolControl {
             title: qsTr("RangeSlider 区间滑块")
             width: 260
@@ -189,6 +198,9 @@ BasicPage {
                     Layout.fillWidth: true
                     from: 0
                     to: 100
+                    // 官方契约：setValues() 一次性写入（first/second 有循环
+                    // 依赖——分别赋值可能互相钳制）
+                    Component.onCompleted: setValues(25, 75)
                 }
                 Text {
                     Layout.fillWidth: true
@@ -200,8 +212,7 @@ BasicPage {
                     Layout.fillWidth: true
                     from: 0
                     to: 100
-                    first.value: 20
-                    second.value: 80
+                    Component.onCompleted: setValues(20, 80)
                 }
                 Timer {
                     interval: 1500
@@ -214,7 +225,46 @@ BasicPage {
                 }
             }
             QoolTip {
-                text: qsTr("RangeSlider：Slider 的区间版（基于 HalfCrystal）——first/second 两个手柄界定范围。\n- **轨道六边形基底 Style.text（无渐变——与 Slider 的区别）；first 与 second 之间以 color（默认 Style.accent）平切填充已选区域**；轨道始终完整显示（未选段 + 已选段）。\n- 手柄 = HalfCrystal 水晶三角形（first 尖朝左、second 尖朝右——平边相对夹住已选段，尖角朝外）；first 手柄色 = Style.text（基底段）、second = color（已选段）——段色采样。\n- 交互为官方模板行为：点击跳转最近手柄、拖动连续、方向键步进；反馈与 Slider 同款（hover/按下/刚移动展开 + justMoved 锁存 500ms——本组下方 Timer 程序化写入演示锁存）。\n- 注意：首次设置两手柄值用 **setValues()**——first/second 循环依赖契约（组件完成前分别赋值可能互相钳制）。")
+                text: qsTr("RangeSlider 三层结构：**值模型 + 静态背景**（T.RangeSlider 模板 + Crystal 六边形轨道，Style.text 1 色非渐变——不参与交互反馈）→ **RangeHandle**（区间逻辑单一归属：空间位置/三区域交互/surface 布局）→ **surface**（默认 Crystal 整体前景——左尖角 + 中段填充 + 右尖角，两端点重合自动退化为水晶菱形）。\n**三区域拖动**：左端区拖 first、右端区拖 second、中段区拖**整体滑移**（两端同步、区间宽不变、边界钳制整体停）；**全部点击无操作**（模板\"点击跳转\"不保留）；键盘保留模板行为。\n**反馈**：hover/按下/刚移动（justMoved 锁存 500ms——下方 Timer 程序化写入演示）→ 前景展开到控件全高（常态 = preferredHeight 收缩，垂直居中、宽度不变）；动画随 animationEnabled 门控。\n**插拔**：`rangeHandle` 属性替换（继承 RangeHandle）＝行为插拔；`rangeHandle.surface` 替换任意 Item ＝外观插拔——两层独立互不影响。")
+            }
+        }
+
+        // —— RangeSlider 插拔：外观 / 行为 ——
+        QoolControl {
+            title: qsTr("RangeSlider 插拔")
+            width: 300
+            contentItem: ColumnLayout {
+                spacing: 12
+                RangeSlider {
+                    id: customSurfaceSlider
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 100
+                    // 外观插拔：替换 surface 为任意 Item——布局（位置/尺寸/
+                    // 颜色）由 RangeHandle 统一施加，自动填充正确区间，宿主
+                    // 无需自算值→位置映射
+                    rangeHandle: RangeHandle {
+                        surface: Rectangle {
+                            radius: 3
+                            color: customSurfaceSlider.color
+                            border.color: Style.highlight
+                            border.width: 1
+                        }
+                    }
+                }
+                RangeSlider {
+                    id: customHandleSlider
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 100
+                    // 行为插拔：继承 RangeHandle 覆盖行为后替换（此处演示
+                    // 继承替换仍获得全部配套绑定——三区域拖动/展开反馈
+                    // 完整保留）
+                    rangeHandle: LoggingHandle {}
+                }
+            }
+            QoolTip {
+                text: qsTr("两层独立插拔（互不影响）：\n- **外观插拔**（上）——`rangeHandle.surface` 替换任意 Item：RangeHandle 对 surface 施加 x/y/width/height/color 绑定（x = firstPosition − cutSize、宽 = 区间宽 + 2×cutSize 尖角溢出、高 = 展开/常态切换、色 = color）——\"任意简单 Item 即自动填充区间\"；需精确 fill（无尖角溢出）时置 `cutSize: 0`。\n- **行为插拔**（下）——继承 RangeHandle 的派生组件（LoggingHandle）替换 `rangeHandle` 属性：配套绑定（位置/展开源/颜色/动画门控）与信号换算经动态 Binding/Connections 施加——替换实例同样受控，覆盖行为即插拔。\n- 两层互不依赖：换外观不丢交互、换行为不丢外观。")
             }
         }
 

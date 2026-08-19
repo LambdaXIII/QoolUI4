@@ -1,53 +1,88 @@
 # RangeSlider
 
-An interval slider: a hexagonal track with crystal triangle handles and an
-accent-filled selection region (the interval version of `Slider`).
+An interval slider built in three layers: a static hexagonal track, a
+`RangeHandle` (the interval logic container), and a pluggable `surface`
+(by default a single crystal foreground spanning the whole interval).
+The selected interval is displayed as one unified shape — left point +
+straight middle + right point — instead of two separate handles.
 
-`RangeSlider` lets the user select a value range. `first` and `second`
-handles delimit the interval (template properties; the interface is
-compatible with `QtQuick.Templates.RangeSlider` — click jumps to the nearest
-handle, drag is continuous, keyboard steps the active handle: all official
-behavior). The track is a `Crystal` hexagon (`Style.text` base color, **no
-gradient**); the selected region between `first` and `second` is filled as a
-flat-cut rectangle with `color` (default `Style.accent`). The handles are
-`HalfCrystal` triangles — `first` points left, `second` points right; their
-flat edges face each other clamping the selected segment, and the tips point
-outward toward each unselected side.
+`RangeSlider` keeps the full `T.RangeSlider` API (`first`/`second` values,
+`from`, `to`, `setValues()`, keyboard stepping — template behavior). The
+three-layer structure decouples behavior from appearance:
+
+- **Layer 1 — value model + static background**: the `T.RangeSlider`
+  template and a static `Crystal` hexagonal track (`Style.text`, single
+  color, no gradient). The track does not participate in interaction
+  feedback (the visual focus is on the foreground).
+- **Layer 2 — `RangeHandle`**: a public standalone component holding all of
+  the interval logic — spatial positions, three-zone drag interaction, and
+  `surface` layout control. Replacing the `rangeHandle` property with a
+  subclass instance is **behavior plugging**.
+- **Layer 3 — `surface`**: an `Item` property (default: `Crystal`) whose
+  layout (x/y/width/height/color) is imposed by the `RangeHandle` — the
+  surface does not respond to value data itself. Replacing it with any
+  `Item` is **appearance plugging**; the two plug points are independent.
+
+Interaction: three-zone partition drag — the left zone drags `first`, the
+right zone drags `second`, the middle zone drags the whole interval
+(synchronized shift, interval width unchanged, boundary-clamped as a whole).
+Clicks do nothing (the template's "click jumps" is not kept); keyboard
+behavior is the template's.
 
 ## Properties
 
 - `color : color` (default `Style.accent`)
-  The selection fill color — and the `second` handle color. The host changes
-  the whole selected-region visual by changing this one property. The track
-  base stays fixed at `Style.text`. Handle segment-color sampling: the
-  `first` handle is fixed to `Style.text` (base-segment color), the `second`
-  handle to `color` (selected-segment color).
+  The foreground fill color — companion-bound to `rangeHandle.color`.
+  Changing it changes the whole interval visual.
 
 - `justMoved : bool`
   "A value was just written" declarative latch window — 500 ms, sliding
   (continuous changes keep it held). `true` while any value change is within
-  the window.
+  the window. Companion-bound to `rangeHandle.externalExpanded` — the
+  foreground expands while the window is held.
 
 - `animationEnabled : bool`
   Animation gate — inherited up the parent chain (the host can turn it off
   uniformly on a parent), falling back to `Style.animationEnabled`.
 
 - `preferredHeight : real` (read-only)
-  Resting height of the crystal track and handles (contracted state)
+  Resting height of the track and the foreground surface (contracted state)
   — `root.height - Qore.bound(3, root.height * 0.25, 25)`. When expanded the
-  handles fill the control's full height. Usable by the host in external
+  surface fills the control's full height. Usable by the host in external
   layout calculations.
 
+- `rangeHandle : RangeHandle`
+  The interval logic container (default: an internal instance). Replacing it
+  with a subclass instance overrides behavior — **behavior plugging**. The
+  companion bindings (`firstPosition`, `secondPosition`, `cutSize`,
+  `preferredHeight`, `externalExpanded`, `animationEnabled`, `color`) and
+  the signal-to-value conversion (`firstMoved`/`secondMoved`/`rangeMoved`)
+  are applied dynamically — a replaced instance is controlled the same way.
+
+- `firstPosition : real` / `secondPosition : real` (read-only)
+  The endpoint positions in the control's coordinates (the value→position
+  mapping, `RangeSlider`'s responsibility — the value model stays in the
+  template): `leftPadding + visualPosition × (availableWidth − height) +
+  height/2`.
+
+- `surface : Item`
+  The appearance plug (accessed via `rangeHandle.surface`). Default: a
+  `Crystal` foreground — the straight middle segment exactly spans the
+  interval, the 45° points overflow by `cutSize` on both ends; when the
+  endpoints coincide the shape degrades to a crystal (diamond). Replacing
+  it with any simple `Item` (e.g. a `Rectangle`) auto-fills the correct
+  interval × height — no value→position mapping needed on the host side.
+
 Inherited from `T.RangeSlider`: `first`, `second` (each a `RangeSliderHandle`
-with `value`/`position`/`pressed`), `from`, `to`, `stepSize`, `snapMode`,
-`live`, `active`, and all other `RangeSlider`/`Control` members. See the Qt
-documentation for the inherited members. The default implicit size is
-80 × 25.
+with `value`/`position`/`visualPosition`/`pressed`), `from`, `to`,
+`stepSize`, `snapMode`, `live`, `active`, and all other
+`RangeSlider`/`Control` members. See the Qt documentation for the inherited
+members. The default implicit size is 80 × 25.
 
 ## Signals
 
 This type defines no additional signals (inherits all signals from
-`T.RangeSlider`).
+`T.RangeSlider`, notably `first.moved()` and `second.moved()`).
 
 ## Methods
 
@@ -71,30 +106,56 @@ RangeSlider {
     Component.onCompleted: setValues(25, 75)
 }
 
-// Custom selection color.
+// Custom interval color.
 RangeSlider {
     width: 300
     color: Style.active.accent
+}
+
+// Appearance plug: replace the surface with any Item — the RangeHandle
+// imposes x/y/width/height/color, so a plain Rectangle fills the interval
+// automatically (no value→position mapping needed).
+RangeSlider {
+    width: 300
+    rangeHandle: RangeHandle {
+        surface: Rectangle {
+            radius: 3
+            color: Style.active.accent
+        }
+    }
+}
+
+// Behavior plug: subclass RangeHandle, then replace the property.
+// The companion bindings and the signal conversion apply to the
+// replacement instance as well.
+RangeSlider {
+    width: 300
+    rangeHandle: LoggingHandle {}
 }
 ```
 
 ## Interaction feedback
 
-- Hover / press / just-moved (the 500 ms window after any value change): the
-  corresponding handle expands to the control's full height (resting =
-  `preferredHeight` — `Qore.bound(3, height × 0.25, 25)`; the track and
-  handles share the same resting height and stay center-aligned; the triangle
-  tip rests inside the track and pushes to the track end when expanded),
-  animated under the `animationEnabled` gate. The hover cursor becomes a
-  horizontal double-arrow (only when `enabled`).
-- Programmatic writes to `first.value`/`second.value` (e.g. an external
-  binding): both handles expand for about 500 ms (`justMoved` — "a value was
-  written gets feedback", regardless of who wrote it); continuous changes
-  keep the window sliding.
-- Inverted range (`from > to`): positions reverse; the selection and handles
-  follow automatically.
-
-The `first`/`second` handle delegates must self-write their `x`/`y` (the
-`T.RangeSlider` template does not inject positioning — official convention,
-same as `Slider`). The expanded handle state fills the control height (never
-exceeds the bounds) — `clip` or not does not affect the feedback.
+- Three-zone drag: the left zone (within `height/2` of `first`) drags
+  `first`, the right zone (within `height/2` of `second`) drags `second`,
+  the middle zone drags the whole interval — both endpoints shift together,
+  the interval width stays constant, and the shift stops at the range
+  boundary as a whole. The zone boundaries derive from the value geometry
+  (`W = height/2`) and do not depend on the surface's actual size.
+- Clicks do nothing — the interaction is drag-only (the template's
+  "click jumps to the nearest handle" is not kept); keyboard stepping
+  remains the template's behavior.
+- Hover / press / just-moved (the 500 ms window after a value change): the
+  foreground expands to the control's full height (resting =
+  `preferredHeight`), keeping vertical centering and its width; animated
+  under the `animationEnabled` gate. When expanded, the 45° points push out
+  of the track's top/bottom bounds (the same semantics as the `Slider`
+  handle expansion). Programmatic value writes expand the foreground via
+  `justMoved` even when the control is disabled (data feedback does not
+  follow interaction disablement).
+- Inverted range (`from > to`): positions reverse; the interval stays
+  positive (the template guarantees `first.position <= second.position`).
+- Narrow intervals: the `Crystal` cut follows the shape's own geometry
+  (`min(width, height)/2`), so a narrow interval auto-degrades to a
+  capsule/diamond and a zero-width interval (coincident endpoints) to a
+  crystal (diamond) — no special casing.

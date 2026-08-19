@@ -27,6 +27,7 @@ qt_add_qml_module(QoolControls
     QML_FILES Slider.qml
     QML_FILES VerticalSlider.qml
     QML_FILES RangeSlider.qml
+    QML_FILES RangeHandle.qml
     QML_FILES Dial.qml
     QML_FILES EditableText.qml
     QML_FILES EditableTextBox.qml

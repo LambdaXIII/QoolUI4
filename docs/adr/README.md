@@ -29,4 +29,10 @@
 | 0007 | QoolBox 组件职责划分：control 公开（可替换/共享）+ 变体注入 |
 | 0008 | QoolBoxHud：QoolBox 专用调试工具 |
 
+### QoolUI/QoolControls/（Slider 家族）
+
+| 编号 | 主题 |
+|---|---|
+| 0009 | RangeSlider 三层重构：整体前景取代双手柄（RangeHandle + surface） |
+
 领域术语见根 `CONTEXT.md`「形状体系（QoolBox）」节。

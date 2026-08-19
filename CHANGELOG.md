@@ -2,6 +2,24 @@
 
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
+## [4.0.0] — 2026-08-20
+
+### 变更（rangeslider-three-layer，RangeSlider 三层重构实现落地）
+
+- **新组件 `Qool.Controls.RangeHandle`**（RangeHandle.qml，Item 基座）：区间逻辑单一归属——输入 firstPosition/secondPosition/cutSize/preferredHeight/externalExpanded/color/animationEnabled；信号 firstMoved(位置)/secondMoved(位置)/rangeMoved(像素位移)（载荷换算归宿主）；派生 expanded/surfaceHeight/midPosition；surface 布局控制（x/y/width/height/color 经动态 Binding 施加——宿主替换 surface 时新实例同样受控）。可独立实例化（implicit 80×25）
+- **RangeSlider 重构为三层**（RangeSlider.qml）：模板 + 静态 Crystal 轨道（Style.text、恒常态高、不参与交互反馈）→ 内置 RangeHandle（`rangeHandle` 属性——宿主继承替换即行为插拔；配套绑定与信号换算经动态 Binding/Connections 施加）→ surface（默认 Crystal 整体前景——中央直边区 = 区间、两端尖角 45° 溢出 cutSize = preferredHeight/2、端点重合自动退化水晶菱形；替换任意 Item 即外观插拔，与行为解耦）。值→位置映射留在 RangeSlider（positionToValue/shiftRange）；三区域交互（左拖 first/右拖 second/中拖整体滑移——两端同步、区间宽不变、边界钳制整体停），全部点击无操作，键盘保留模板；端点钳制（行程内、可重合不越界）在拖动路径
+- **测试契约重写**（tst_rangeslider.qml 单接缝，29 用例全绿）：默认状态/背景轨道静态/前景几何（中央直边区 = 区间、尖角溢出、重合菱形）/justMoved 锁存/展开反馈（justMoved → surface 高 = 控件全高、窗口落后回常态——动画关闭即时）/倒置范围/信号载荷换算（firstMoved/secondMoved 位置→值、rangeMoved 整体滑移与边界钳制、端点重合退化）/surface 替换最低要求（简单 Rectangle 自动填充区间 × 高度）/RangeHandle 独立实例化
+- **示例页**：Page_InputControls2.qml RangeSlider 展示更新（三层结构说明 + 三区域交互 + 外观/行为双插拔演示——自定义 surface Rectangle 与内联派生组件 LoggingHandle）
+- **文档**：`docs/reference/Qool.Controls/RangeSlider.md` 重写（三层结构 + 插拔契约）；新增 `docs/reference/Qool.Controls/RangeHandle.md`（输入/信号/派生/布局契约 5 节）；index.md 登记
+
+## [4.0.0] — 2026-08-19
+
+### 变更（rangeslider-three-layer-design，RangeSlider 三层重构设计决策落地）
+
+- **ADR 0009**：`docs/adr/QoolUI/QoolControls/0009-rangeslider-three-layer.md`——RangeSlider 重构决策落定：三层结构（静态背景轨道 + RangeHandle 独立组件 + surface 外观插拔件），整体 Crystal 前景取代双手柄（两端点重合退化水晶型）；三区域分区交互（左拖 first/右拖 second/中拖整体滑移，全部点击无操作）；保留 T.RangeSlider 模板与 API、不定义 handle delegate；surface 布局由 RangeHandle 控制（接口后梳理）。被拒方案记录：双手柄逐项修补（几何死结）、交互入 surface（退化为两层）、点击跳转保留
+- **FIXME 清理**：Slider.qml 移除 2 处（非交互动画位移/cursorShape 全局暴露）、RangeSlider.qml 2 处（手柄行为/动画位移）——对应议题经 grill 裁决取消（动画位移与 cursorShape 暴露不做）；VerticalSlider 重构 FIXME 保留（延后专项）
+- **后续**：三层结构实现 + tst_rangeslider 契约重写 + RangeSlider/RangeHandle 参考文档，为独立实现专项
+
 ## [4.0.0] — 2026-08-19
 
 ### 新增（cut-sizes-locker，QoolBoxSettings 四切角统一联动插件）

@@ -8,6 +8,8 @@ import QtQuick.Shapes
 import QtQuick.Templates as T
 import Qool
 
+//FIXME:重新实现填充版，不再复刻Slider
+
 T.Slider {
     id: root
     // 轨道渐变顶部色（底部固定 Style.text），默认 Style.accent。
@@ -60,13 +62,13 @@ T.Slider {
         // false 不抢 hover 光标）；enabled 跟随 root——disabled 时不响应
         z: 1
         enabled: root.enabled
-        onPressed: (m) => {
+        onPressed: m => {
             root.forceActiveFocus(); // 点击聚焦——键盘步进可用（模板行为）
-            root.value = root.from + (1 - m.y / height) * (root.to - root.from)
+            root.value = root.from + (1 - m.y / height) * (root.to - root.from);
         }
-        onPositionChanged: (m) => {
+        onPositionChanged: m => {
             if (pressed)
-                root.value = root.from + (1 - m.y / height) * (root.to - root.from)
+                root.value = root.from + (1 - m.y / height) * (root.to - root.from);
         }
     }
 
