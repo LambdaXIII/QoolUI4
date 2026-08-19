@@ -13,157 +13,178 @@ T.RangeSlider {
     id: root
     // 前景填充色（surface 色——配套绑定到 rangeHandle.color），默认
     // Style.accent。
-    property color color: root.Style.accent
-    // "值刚被写入过"的声明式锁存窗口（500ms，滑动窗口——持续变化持续保持）。
-    property bool justMoved: movementLatch.active
+    property color color: Style.accent
+    // 轨道背景色（track 以 75% 透明度渲染），默认 Style.buttonText。
+    property color bgColor: Style.buttonText
+    // 前景/轨道描边色——基于 bgColor 自动对比推荐（宿主可单独覆盖）。
+    property color borderColor: ThemeHQ.recommendForeground(bgColor)
+    // "值刚被写入过"的声明式锁存窗口（500ms，滑动窗口——持续变化持续保持）；
+    // 两端独立——写入哪端锁存哪端，互不影响。
+    property bool firstJustMoved: firstMovementLatch.active
+    property bool secondJustMoved: secondMovementLatch.active
     // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-    // 常态高度：轨道与 surface 的常态（收缩）高度——展开时 surface 占满
-    // 控件全高（root.height）。
-    readonly property real preferredHeight: root.height - Qore.bound(3, root.height * 0.25, 25)
-    // 行为插拔件：区间逻辑容器（默认内部实例；宿主继承 RangeHandle 替换——
-    // 覆盖行为即插拔；配套绑定统一经下方 Binding 组施加，替换后同样生效）。
-    property RangeHandle rangeHandle: defaultRangeHandle
+
+    // 行为插拔件：区间交互件（默认内部实例；宿主继承 RangeHandle 替换——
+    // 覆盖行为即插拔；几何经 dummyRangeBox Binding 组施加、信号换算经
+    // Connections 连接，替换后同样生效）。
+    property RangeHandle rangeHandle: RangeHandle {
+        firstMouseZoneExtension: height / 2
+        surface: Item {
+            anchors.fill: parent
+            readonly property bool expanded: root.firstJustMoved || root.secondJustMoved || parent.down || parent.hovered
+            Crystal {
+                anchors.centerIn: parent
+                // 额外宽度（尖角外溢）：切角 = min(w,h)/2 = h/2（w >= h）——
+                // 常态 w = 区间宽 + h − shrink：直边区 = w − h = 区间宽 −
+                // shrink、尖点外溢 (h − shrink)/2；展开 w = 区间宽 + h：
+                // 直边区 = 区间宽、尖点外溢 h/2（直边区不随展开变）
+                width: parent.width + height - (parent.expanded ? 0 : pCtrl.crystalShrinkSize)
+                height: parent.height - (parent.expanded ? 0 : pCtrl.crystalShrinkSize)
+                color: root.color
+                borderColor: root.borderColor
+            }
+        }
+    } //defaultRangeHandle
 
     // 尺寸：反向排版策略（Slider 同款）——模板不自带 implicit 公式，root 直接
     // 给默认尺寸（80 × 25），background 基于 root 布局
     implicitWidth: 80
     implicitHeight: 25
 
-    // —— 端点位置（父级坐标——值→位置映射，RangeSlider 职责；RangeHandle
-    // 不复制模板行程语义）——
-    readonly property real firstPosition: root.leftPadding + root.first.visualPosition * (root.availableWidth - root.height) + root.height / 2
-    readonly property real secondPosition: root.leftPadding + root.second.visualPosition * (root.availableWidth - root.height) + root.height / 2
+    SmartObject {
+        id: pCtrl
+        // 常态收缩量：轨道高度与前景高度从全尺寸收缩的量（展开时前景占满
+        // 区间盒）——轨道恒为常态（静态，不参与交互反馈），前景随 expanded
+        // 切换收缩/占满。
+        readonly property real crystalShrinkSize: Qore.bound(3, root.height * 0.25, 25)
+        // 像素位移 → 值增量（1px = 全值域 / 内容区宽——dummyRangeBox 位置
+        // 公式 x = availableWidth * position + leftPadding 的逆映射）
+        function pixelToValueDelta(dx) {
+            const travel = root.availableWidth;
+            if (travel <= 0)
+                return 0;
+            return dx / travel * (root.to - root.from);
+        }
 
-    // 位置→值换算（RangeHandle 信号载荷的逆映射——与正向公式互逆；模板
-    // 保证 first.visualPosition <= second.visualPosition——区间恒正向）
-    function positionToValue(pos) {
-        const travel = root.availableWidth - root.height
-        if (travel <= 0)
-            return root.from
-        const p = (pos - root.leftPadding - root.height / 2) / travel
-        return root.from + p * (root.to - root.from)
+        // background 显式控尺寸（root.width − insets——Control 默认自动 fill
+        // 控件；此处显式声明保证与 inset 对齐语义稳定，供轨道尖角外溢定位）
+        Binding {
+            target: root.background
+            when: root.background
+            property: "width"
+            value: root.width - root.leftInset - root.rightInset
+        }
+
+        Binding {
+            target: root.background
+            when: root.background
+            property: "height"
+            value: root.height - root.topInset - root.bottomInset
+        }
     }
 
-    // 整体滑移：位移 → 值增量，first/second 同步平移、区间宽不变、边界
-    // 钳制整体停（setValues 写入——两端都停、区间宽不变）
-    function shiftRange(delta) {
-        const travel = root.availableWidth - root.height
-        if (travel <= 0)
-            return
-        const valueDelta = delta / travel * (root.to - root.from)
-        const shift = Math.max(root.from - root.first.value,
-                               Math.min(root.to - root.second.value, valueDelta))
-        root.setValues(root.first.value + shift, root.second.value + shift)
-    }
+    // —— 轨道层（Item 容器——background 由 pCtrl Binding 控尺寸，内部坐标
+    // = root 本地）：静态 Crystal 六边形（bgColor 75% 透明度 + borderColor
+    // 描边）——恒为常态高度 + 垂直居中（三心对齐）；不参与交互反馈（视觉
+    // 焦点在前景）
+    background: Item {
+        //包装一层是为了和padding对齐
+        Crystal {
+            id: track
+            objectName: "track" // 供 QML 测试读取（组件内部对象零暴露原则的测试例外——轨道静态性是公开视觉契约）
+            // 同前景尖角外溢几何：额外宽度（尖点外溢 h/2、直边区 = 控件宽）、
+            // 恒常态高度（静态——不参与交互反馈）
+            width: parent.width + height
+            height: parent.height - pCtrl.crystalShrinkSize
+            anchors.centerIn: parent //居中锚点保证Crystal图形合理化后不偏移
+            color: Qt.alpha(root.bgColor, 0.75)
+            borderColor: root.borderColor
+        } //track
+    } //background
 
-    // —— 逻辑件：程序化变更锁存（TimerLatch——双值触发；Slider 的
-    // NumberNotifier 挂单一 value 无对应载体，justMoved 窗口由每次
-    // valueChanged 滑动保持）——
     TimerLatch {
-        id: movementLatch
+        id: firstMovementLatch
         interval: 500
         Connections {
             target: root.first
             function onValueChanged() {
-                movementLatch.trigger();
+                firstMovementLatch.trigger();
             }
         }
+    }
+    TimerLatch {
+        id: secondMovementLatch
+        interval: 500
         Connections {
             target: root.second
             function onValueChanged() {
-                movementLatch.trigger();
+                secondMovementLatch.trigger();
             }
         }
     }
 
-    // —— 轨道层（Item 容器——background 自动 fill 控件，内部坐标 = root
-    // 本地）：静态 Crystal 六边形（Style.text 1 色非渐变）——恒为常态高度
-    // + 垂直居中（三心对齐）；不参与交互反馈（视觉焦点在前景）
-    background: Item {
-        Crystal {
-            id: track
-            objectName: "track" // 供 QML 测试读取（组件内部对象零暴露原则的测试例外——轨道静态性是公开视觉契约）
-            width: root.width
-            height: root.preferredHeight
-            y: (root.height - height) / 2
-            color: root.Style.text
-        } //track
-    } //background
+    // —— 区间盒（值→位置映射的唯一落点）：x/y/width/height 即 rangeHandle
+    // 几何（RangeHandle 只收几何、不收位置值）；Binding 组动态施加——
+    // 宿主替换 rangeHandle 时新实例同样受控。parent 显式挂（属性对象不
+    // 自动成为声明对象的子项——宿主内联替换实例亦须置入控件坐标空间）
+    DummyItem {
+        id: dummyRangeBox
+        x: root.availableWidth * root.first.position + root.leftPadding
+        y: 0 + root.topPadding
+        width: root.availableWidth * (root.second.position - root.first.position)
+        height: root.height - root.topPadding - root.bottomPadding
 
-    // —— 内置 RangeHandle（默认实例——宿主替换即行为插拔；配套绑定与
-    // 信号换算统一在下方组内动态施加）——
-    RangeHandle {
-        id: defaultRangeHandle
-        parent: root
-    } //defaultRangeHandle
-
-    // 配套绑定（target 为绑定表达式——宿主替换 rangeHandle 时新实例同样
-    // 受控；值→位置映射在 root——RangeHandle 只收位置）。parent 显式挂
-    // （属性对象不自动成为声明对象的子项——宿主内联替换实例亦须置入控件
-    // 坐标空间）
-    Binding {
-        target: root.rangeHandle
-        property: "parent"
-        value: root
-    }
-    Binding {
-        target: root.rangeHandle
-        property: "width"
-        value: root.width
-    }
-    Binding {
-        target: root.rangeHandle
-        property: "height"
-        value: root.height
-    }
-    Binding {
-        target: root.rangeHandle
-        property: "firstPosition"
-        value: root.firstPosition
-    }
-    Binding {
-        target: root.rangeHandle
-        property: "secondPosition"
-        value: root.secondPosition
-    }
-    Binding {
-        target: root.rangeHandle
-        property: "cutSize"
-        value: root.preferredHeight / 2
-    }
-    Binding {
-        target: root.rangeHandle
-        property: "preferredHeight"
-        value: root.preferredHeight
-    }
-    Binding {
-        target: root.rangeHandle
-        property: "externalExpanded"
-        value: root.justMoved
-    }
-    Binding {
-        target: root.rangeHandle
-        property: "animationEnabled"
-        value: root.animationEnabled
-    }
-    Binding {
-        target: root.rangeHandle
-        property: "color"
-        value: root.color
+        Binding {
+            when: root.rangeHandle
+            target: root.rangeHandle
+            property: "parent"
+            value: root
+        }
+        Binding {
+            when: root.rangeHandle
+            target: root.rangeHandle
+            property: "x"
+            value: dummyRangeBox.x
+        }
+        Binding {
+            when: root.rangeHandle
+            target: root.rangeHandle
+            property: "y"
+            value: dummyRangeBox.y
+        }
+        Binding {
+            when: root.rangeHandle
+            target: root.rangeHandle
+            property: "width"
+            value: dummyRangeBox.width
+        }
+        Binding {
+            when: root.rangeHandle
+            target: root.rangeHandle
+            property: "height"
+            value: dummyRangeBox.height
+        }
     }
 
-    // 信号换算（target 动态——替换实例同样连接）：位置/位移 → 值写入
+    // 信号换算（target 动态——替换实例同样连接）：位移增量 → 值写入。
+    // 端点钳制在值域侧（first ∈ [from, second]、second ∈ [first, to]，
+    // 模板保证 second >= first——区间恒正向）；整体滑移按区间整体钳制
+    // （两端同移、区间宽不变、边界整体停）。
     Connections {
         target: root.rangeHandle
-        function onFirstMoved(pos) {
-            root.setValues(root.positionToValue(pos), root.second.value);
+        function onWannaMoveFirstX(dx) {
+            const v = root.first.value + pCtrl.pixelToValueDelta(dx);
+            root.setValues(Math.max(root.from, Math.min(v, root.second.value)), root.second.value);
         }
-        function onSecondMoved(pos) {
-            root.setValues(root.first.value, root.positionToValue(pos));
+        function onWannaMoveSecondX(dx) {
+            const v = root.second.value + pCtrl.pixelToValueDelta(dx);
+            root.setValues(root.first.value, Math.min(root.to, Math.max(v, root.first.value)));
         }
-        function onRangeMoved(delta) {
-            root.shiftRange(delta);
+        function onWannaMoveRangeX(dx) {
+            const deltaV = pCtrl.pixelToValueDelta(dx);
+            const shift = Math.max(root.from - root.first.value, Math.min(root.to - root.second.value, deltaV));
+            root.setValues(root.first.value + shift, root.second.value + shift);
         }
     }
 } //T.RangeSlider

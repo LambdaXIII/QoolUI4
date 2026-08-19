@@ -8,31 +8,36 @@ import Qool.Controls
 //
 // 被测契约（外部行为与公开契约——不测内部实现）：
 // - 默认状态自洽（implicit 80×25、color = Style.accent、两手柄值 0/1、
-//   preferredHeight 收缩公式、rangeHandle/surface 存在）
-// - 背景轨道：静态 Crystal（Style.text、恒常态高、垂直居中——不随交互变）
-// - 前景几何（RangeHandle 布局施加）：surface.x = firstPosition − cutSize、
-//   width = 区间宽 + 2×cutSize（尖角溢出）、中央直边区 = 区间（宽 − 高 =
-//   区间宽——切角后）、y 垂直居中；值变化跟随
-// - 重合退化：区间宽 0 → surface 宽 = 高（水晶菱形，无需特判）
-// - 锁存窗口：任一值写入 → justMoved 500ms（双值触发）
-// - 展开反馈：externalExpanded（= justMoved）→ surface 高 = 控件全高；
-//   窗口落后回常态（动画关闭——即时）
+//   rangeHandle/surface 存在、两端锁存初始 false）
+// - 背景轨道：静态 Crystal（Style.text、常态收缩、居中——不随交互变）
+// - 区间盒几何（值→位置映射）：rangeHandle.x/width = 区间盒（x =
+//   availableWidth * position、宽 = availableWidth * 区间宽）；surface
+//   自行 fill（anchors.fill），内部 Crystal 常态收缩 crystalShrinkSize、
+//   展开占满
+// - 锁存分化：first/second 独立锁存窗口（500ms，写入即触发、独立回落）
+// - 展开反馈：任一锁存或拖动按下（down）→ Crystal 占满区间盒；窗口落回
+//   常态收缩（动画关闭——即时）
 // - 倒置范围（from > to）：位置反向、区间仍正向
-// - 信号契约与换算：QML 信号可作函数调用触发处理器——firstMoved(pos)/
-//   secondMoved(pos) 断言位置→值换算、rangeMoved(delta) 断言整体滑移
-//   （两端同步平移、区间宽不变、边界钳制整体停）与端点钳制（行程内、
-//   可重合不越界）
-// - surface 替换最低要求：替换简单 Rectangle → 自动填充区间 × 高度
-//   （布局由 RangeHandle 统一施加——宿主无需自算值→位置映射）
-// - RangeHandle 独立实例化：位置绑定 x/width 跟随 firstPosition/
-//   secondPosition
+// - 信号契约与换算：QML 信号可作函数调用触发处理器——wannaMoveFirstX(dx)/
+//   wannaMoveSecondX(dx) 断言位移→值增量换算与端点钳制（值域内、可重合
+//   不交叉）、wannaMoveRangeX(dx) 断言整体滑移（两端同步平移、区间宽不变、
+//   边界钳制整体停）
+// - 三区几何：独立实例化 RangeHandle 三区物理分区（左/右端点热区 +
+//   中段行程区）、热区扩展、光标 alias
+// - surface 替换最低要求：替换简单 Rectangle（自行 anchors.fill）→ 填充
+//   区间盒（布局由 surface 自负——RangeHandle 不再施加）
+// - RangeHandle 独立实例化：几何/分区/信号可独立使用
 //
-// 注：真实鼠标交互（分区判定、拖动触发、hover 反馈）不在自动化范围——
+// 注：真实鼠标交互（分区命中、拖动触发、hover 反馈）不在自动化范围——
 // 本批次环境合成鼠标事件对 Quick Controls 模板不可达（探针实测）；
 // 信号载荷与换算结果经手动 emit 自动测；交互契约以 spec/示例页人工验收。
 //
 // 隔离策略：每个测试函数 createTemporaryObject 独立实例；
 // 动画统一关闭（animationEnabled: false）——展开断言即时。
+//
+// 测试基准：200×40 → crystalShrinkSize = bound(3, 10, 25) = 10、
+// availableWidth = 200（padding 0）；区间盒 x = 200 * position；
+// 位移→值 1px = 1/200（from=0/to=1）。
 
 TestCase {
     id: root
@@ -50,7 +55,7 @@ TestCase {
         }
     }
 
-    // surface 替换组件（外观插拔最低要求——简单 Rectangle）
+    // surface 替换组件（外观插拔最低要求——简单 Rectangle 自行 fill）
     Component {
         id: sliderWithRectSurface
         RangeSlider {
@@ -60,6 +65,7 @@ TestCase {
             rangeHandle: RangeHandle {
                 surface: Rectangle {
                     objectName: "customSurface"
+                    anchors.fill: parent
                 }
             }
         }
@@ -71,7 +77,6 @@ TestCase {
         RangeHandle {
             width: 200
             height: 40
-            animationEnabled: false
         }
     }
 
@@ -92,16 +97,6 @@ TestCase {
         return null
     }
 
-    // 测试基准：200×40 → preferredHeight = 40 - bound(3, 10, 25) = 30、
-    // 控件高 = 40、行程 travel = availableWidth - 高 = 160、
-    // 中心行程 [20, 180]；firstPosition = first.visualPosition * 160 + 20；
-    // cutSize = 15；位置→值（from=0/to=1、padding 0）：
-    // value = (位置 − 20) / 160
-
-    function valueOf(pos) {
-        return (pos - 20) / 160
-    }
-
     function test_defaults() {
         const s = makeSlider({})
         compare(s.implicitWidth, 80)
@@ -109,222 +104,242 @@ TestCase {
         compare(s.color, s.Style.accent)
         compare(s.first.value, 0)
         compare(s.second.value, 1)
-        compare(s.preferredHeight, 30)
+        compare(s.firstJustMoved, false)
+        compare(s.secondJustMoved, false)
         verify(s.rangeHandle !== null, "rangeHandle 存在")
-        verify(s.rangeHandle.surface !== null, "surface 存在（默认 Crystal）")
-        compare(s.rangeHandle.expanded, false)
-        compare(s.rangeHandle.surfaceHeight, 30)
-        compare(s.rangeHandle.midPosition, (s.firstPosition + s.secondPosition) / 2)
+        verify(s.rangeHandle.surface !== null, "surface 存在")
+        compare(s.rangeHandle.down, false)
+        // 默认区间 = 全宽（first=0、second=1）
+        compare(s.rangeHandle.x, 0)
+        compare(s.rangeHandle.width, 200)
     }
 
     function test_backgroundTrack() {
-        // 背景 = 静态 Crystal 轨道（text 色、恒常态高、垂直居中）
+        // 背景 = 静态 Crystal 轨道（bgColor 色、尖角外溢、居中——不随交互变）
         const s = makeSlider({})
         const track = findChild(s.background, "track")
         verify(track !== null, "轨道存在")
-        compare(track.height, 30)
-        compare(track.y, 5)
-        compare(track.color, s.Style.text)
-        // 轨道静态——值写入（justMoved）不改变轨道高度
+        // 尖角外溢：width = 控件宽 + 自身高 = 200 + 30，居中 → 尖点外溢 h/2
+        compare(track.width, 200 + 30)
+        compare(track.height, 40 - 10)
+        compare(track.x, (200 - (200 + 30)) / 2, "水平居中（尖角外溢两侧）")
+        compare(track.y, (40 - (40 - 10)) / 2, "垂直居中")
+        compare(track.color, Qt.alpha(s.bgColor, 0.75), "轨道半透明 bgColor")
+        // 轨道静态——值写入（justMoved）不改变轨道几何
         s.setValues(0.25, 0.75)
+        compare(track.width, 230)
         compare(track.height, 30)
+        compare(track.x, -15)
         compare(track.y, 5)
     }
 
-    function test_foregroundGeometry() {
-        // surface 布局：x = firstPosition − cutSize、宽 = 区间宽 + 2×cut
-        // （尖角溢出）、y 垂直居中；常态（锁存窗口落）时中央直边区 = 区间
-        // （宽 − 高 = 区间宽——切角后）
+    function test_rangeBoxGeometry() {
+        // 区间盒（值→位置映射）：rangeHandle.x/width 跟随值；surface 自行
+        // fill 区间盒；Crystal 常态收缩、展开占满
         const s = makeSlider({})
         const surf = s.rangeHandle.surface
+        const crystal = surf.children[0] // 默认 surface 内的 Crystal
+        verify(crystal !== undefined, "默认 surface 内含 Crystal")
+        // 初始（first=0、second=1）：区间盒 = 全宽
+        compare(s.rangeHandle.x, 0)
+        compare(s.rangeHandle.width, 200)
+        compare(s.rangeHandle.height, 40)
+        compare(surf.x, 0, "surface fill 区间盒")
+        compare(surf.width, 200)
+        // 前景尖角外溢：width = 区间宽 + 自身高 − 常态收缩
+        compare(crystal.width, 200 + 30 - 10, "常态收缩+尖角外溢")
+        compare(crystal.height, 40 - 10)
+        // 写入 → 区间盒跟随 + 展开占满（直边区 = 区间宽、尖角外溢随高度）
         s.setValues(0.25, 0.75)
-        const firstPos = 0.25 * 160 + 20 // 60
-        const secondPos = 0.75 * 160 + 20 // 140
-        // 值写入 → justMoved 锁存 → 展开态（x/width 与展开无关——先断言）
-        compare(surf.x, firstPos - 15)
-        compare(surf.width, (secondPos - firstPos) + 30)
-        compare(surf.height, 40, "写入即展开")
-        compare(surf.y, 0)
-        compare(surf.color, s.color)
+        compare(s.rangeHandle.x, 0.25 * 200)
+        compare(s.rangeHandle.width, 0.5 * 200)
+        compare(surf.x, 0)
+        compare(surf.width, 100)
+        compare(crystal.width, 100 + 40, "展开占满区间盒+尖角外溢")
+        compare(crystal.height, 40, "展开占满区间盒")
+        // 锁存窗口落 → 回常态收缩（直边区仍 = 区间宽、外溢量随高度缩小）
         wait(600)
-        // 常态几何：高 = preferredHeight、垂直居中、中央直边区 = 区间
-        compare(surf.height, 30)
-        compare(surf.y, (40 - 30) / 2)
-        compare(surf.width - surf.height, secondPos - firstPos)
-        // 值变化跟随（x/width 与展开无关）
+        compare(crystal.width, 100 + 30 - 10, "常态收缩")
+        compare(crystal.height, 40 - 10)
+        // 值变化跟随（区间盒与展开无关）
         s.setValues(0.4, 0.6)
-        compare(surf.x, 0.4 * 160 + 20 - 15)
-        compare(surf.width, (0.6 - 0.4) * 160 + 30)
-        s.first.value = 0.5
-        compare(surf.x, 0.5 * 160 + 20 - 15)
+        compare(s.rangeHandle.x, 0.4 * 200)
+        compare(s.rangeHandle.width, 0.2 * 200)
     }
 
-    function test_degenerateDiamond() {
-        // 重合退化：两端点重合 → surface 宽 = 高（水晶菱形——cut 自动
-        // 合理化，无需特判）；锁存窗口落后断言常态
+    function test_justMovedLatchSplit() {
+        // 两端锁存独立：写入一端只锁存该端、独立回落
         const s = makeSlider({})
-        s.setValues(0.5, 0.5)
-        const surf = s.rangeHandle.surface
-        compare(surf.x, 100 - 15)
-        compare(surf.width, 30)
-        wait(600)
-        compare(surf.width, 30)
-        compare(surf.height, 30)
-        compare(surf.width, surf.height, "重合 = 菱形")
-    }
-
-    function test_justMovedLatch() {
-        // 任一值被写入 → justMoved 锁存 500ms；无写入时不锁存
-        const s = makeSlider({})
-        compare(s.justMoved, false)
         s.first.value = 0.5
-        verify(s.justMoved, "first 写入锁存")
+        verify(s.firstJustMoved, "first 写入锁存")
+        verify(!s.secondJustMoved, "second 未动不锁存")
         wait(600)
-        verify(!s.justMoved, "窗口落")
+        verify(!s.firstJustMoved, "first 窗口落")
         s.second.value = 0.9
-        verify(s.justMoved, "second 写入锁存")
+        verify(s.secondJustMoved, "second 写入锁存")
+        verify(!s.firstJustMoved, "first 独立不受影响")
         wait(600)
-        verify(!s.justMoved, "窗口落")
+        verify(!s.secondJustMoved, "second 窗口落")
     }
 
     function test_expandFeedback() {
-        // 值写入 → surface 展开到控件全高（常态 = preferredHeight）——
-        // 锁存窗口内保持、窗口落后回常态（动画关闭——即时）
+        // 值写入 → Crystal 展开占满；窗口落后回常态（动画关闭——即时）
         const s = makeSlider({})
         const surf = s.rangeHandle.surface
-        compare(surf.height, 30)
+        const crystal = surf.children[0]
+        compare(crystal.height, 30, "常态收缩")
         s.setValues(0.25, 0.75)
-        compare(surf.height, 40, "justMoved 展开")
+        compare(crystal.height, 40, "锁存展开")
         wait(600)
-        compare(surf.height, 30, "窗口落后回常态")
+        compare(crystal.height, 30, "窗口落后回常态")
     }
 
     function test_invertedRange() {
         // 倒置范围（from > to）：位置反向、区间仍正向（模板保证
-        // first.visualPosition <= second.visualPosition——数学恒等）
+        // first.position <= second.position——数学恒等）
         const s = makeSlider({ from: 100, to: 0 })
         s.setValues(90, 10)
-        const surf = s.rangeHandle.surface
         // first = (90-100)/(0-100) = 0.1、second = 0.9
-        compare(surf.x, 0.1 * 160 + 20 - 15)
-        compare(surf.x + surf.width, 0.9 * 160 + 20 + 15)
-        verify(surf.width > 30, "倒置区间宽正向")
+        compare(s.rangeHandle.x, 0.1 * 200)
+        compare(s.rangeHandle.x + s.rangeHandle.width, 0.9 * 200)
+        compare(s.rangeHandle.width, 0.8 * 200)
     }
 
-    function test_signalValueConversion() {
-        // 信号载荷与换算：firstMoved/secondMoved → 位置→值换算
+    function test_firstDragConversion() {
+        // wannaMoveFirstX(dx) —— 位移 → first 值增量（second 不动）、
+        // 钳制 [from, second]
         const s = makeSlider({})
         s.setValues(0.25, 0.75)
-        // firstMoved(pos) —— 位置 → first 值（second 不动）
-        s.rangeHandle.firstMoved(60)
-        compare(s.first.value, valueOf(60))
-        compare(s.second.value, 0.75)
-        s.rangeHandle.firstMoved(100)
-        compare(s.first.value, valueOf(100))
+        s.rangeHandle.wannaMoveFirstX(20)
+        compare(s.first.value, 0.25 + 20 / 200)
         compare(s.second.value, 0.75, "first 拖动不影响 second")
-        // secondMoved(pos) —— second 值（first 不动）
-        s.rangeHandle.secondMoved(140)
-        compare(s.second.value, valueOf(140))
-        compare(s.first.value, valueOf(100), "second 拖动不影响 first")
-        s.rangeHandle.secondMoved(180)
-        compare(s.second.value, 1)
+        s.rangeHandle.wannaMoveFirstX(-40)
+        compare(s.first.value, 0.25 - 20 / 200)
+        // 钳制：正向拖过 second → 重合退化（不交叉）
+        s.setValues(0.25, 0.75)
+        s.rangeHandle.wannaMoveFirstX(1000)
+        compare(s.first.value, 0.75, "first 钳到 second——重合")
+        // 钳制：负向拖出 from → 停在 from
+        s.rangeHandle.wannaMoveFirstX(-1000)
+        compare(s.first.value, 0, "first 钳到 from")
     }
 
-    function test_signalDegenerateCoincide() {
-        // 端点重合契约：拖到对方端点位置 → 值相等（退化菱形）；行程端点
-        // 位置 → 值 = from/to。注：端点钳制（拖动路径内、防越界/交叉）属
-        // 交互层——真实鼠标路径人工验收（spec），信号载荷本身原样换算。
+    function test_secondDragConversion() {
+        // wannaMoveSecondX(dx) —— 位移 → second 值增量（first 不动）、
+        // 钳制 [first, to]
         const s = makeSlider({})
         s.setValues(0.25, 0.75)
-        // first 拖到 second 位置（合法载荷）→ 重合（退化菱形）
-        s.rangeHandle.firstMoved(140)
-        compare(s.first.value, 0.75)
-        compare(s.first.value, s.second.value, "first 重合 second")
-        // second 拖到行程终点 → 分离
-        s.rangeHandle.secondMoved(180)
-        compare(s.second.value, 1)
-        // first 拖回行程起点 → from
-        s.rangeHandle.firstMoved(20)
-        compare(s.first.value, 0)
-        // second 拖回 → 正常换算（载荷不越 first）
-        s.rangeHandle.secondMoved(60)
-        compare(s.second.value, 0.25)
-        verify(s.second.value > s.first.value, "区间正向")
+        s.rangeHandle.wannaMoveSecondX(20)
+        compare(s.second.value, 0.75 + 20 / 200)
+        compare(s.first.value, 0.25, "second 拖动不影响 first")
+        s.rangeHandle.wannaMoveSecondX(-40)
+        compare(s.second.value, 0.75 - 20 / 200)
+        // 钳制：负向拖过 first → 重合退化（不交叉）
+        s.setValues(0.25, 0.75)
+        s.rangeHandle.wannaMoveSecondX(-1000)
+        compare(s.second.value, 0.25, "second 钳到 first——重合")
+        // 钳制：正向拖出 to → 停在 to
+        s.rangeHandle.wannaMoveSecondX(1000)
+        compare(s.second.value, 1, "second 钳到 to")
     }
 
     function test_rangeDragOverallShift() {
-        // 整体滑移：rangeMoved(delta) → 两端同步平移、区间宽不变、
+        // 整体滑移：wannaMoveRangeX(dx) → 两端同步平移、区间宽不变、
         // 边界钳制整体停
         const s = makeSlider({})
         s.setValues(0.25, 0.75)
-        // 正向位移 16px = 0.1 值
-        s.rangeHandle.rangeMoved(16)
-        compare(s.first.value, 0.25 + 16 / 160)
-        compare(s.second.value, 0.75 + 16 / 160)
+        // 正向位移 20px = 0.1 值
+        s.rangeHandle.wannaMoveRangeX(20)
+        compare(s.first.value, 0.25 + 20 / 200)
+        compare(s.second.value, 0.75 + 20 / 200)
         compare(s.second.value - s.first.value, 0.5, "区间宽不变")
         // 负向位移
-        s.rangeHandle.rangeMoved(-32)
-        compare(s.first.value, 0.25 - 16 / 160)
-        compare(s.second.value, 0.75 - 16 / 160)
+        s.rangeHandle.wannaMoveRangeX(-40)
+        compare(s.first.value, 0.25 - 20 / 200)
+        compare(s.second.value, 0.75 - 20 / 200)
         compare(s.second.value - s.first.value, 0.5, "区间宽不变")
         // 边界钳制整体停：正向越界 → 整体停（两端都停、区间宽不变）
         s.setValues(0.25, 0.75)
-        s.rangeHandle.rangeMoved(1000)
+        s.rangeHandle.wannaMoveRangeX(1000)
         compare(s.first.value, 0.5)
         compare(s.second.value, 1)
         compare(s.second.value - s.first.value, 0.5, "边界整体停——区间宽不变")
         // 负向越界 → 整体停
         s.setValues(0.25, 0.75)
-        s.rangeHandle.rangeMoved(-1000)
+        s.rangeHandle.wannaMoveRangeX(-1000)
         compare(s.first.value, 0)
         compare(s.second.value, 0.5)
         compare(s.second.value - s.first.value, 0.5, "边界整体停——区间宽不变")
     }
 
     function test_surfaceReplacement() {
-        // surface 替换最低要求：任意简单 Item（Rectangle）替换 → 自动
-        // 填充正确区间 × 高度（布局由 RangeHandle 统一施加——宿主无需
-        // 自算值→位置映射）
+        // surface 替换最低要求：任意简单 Item（Rectangle 自行 fill）替换 →
+        // 填充区间盒（布局由 surface 自负——RangeHandle 不施加）
         const s = createTemporaryObject(sliderWithRectSurface, root, {})
         const rect = s.rangeHandle.surface
         verify(rect !== null, "替换 surface 存在")
         verify(rect.objectName === "customSurface", "surface 已被替换")
         s.setValues(0.25, 0.75)
-        wait(600) // 锁存窗口落——断言常态几何
-        compare(rect.x, 0.25 * 160 + 20 - 15)
-        compare(rect.width, (0.75 - 0.25) * 160 + 30)
-        compare(rect.height, 30)
-        compare(rect.y, (40 - 30) / 2)
-        compare(rect.color, s.color)
-        // 值变化跟随（x/width 与展开无关）
+        compare(s.rangeHandle.x, 50)
+        compare(s.rangeHandle.width, 100)
+        compare(rect.x, 0, "fill 区间盒内部")
+        compare(rect.width, 100)
+        compare(rect.height, 40)
+        // 值变化跟随
         s.setValues(0.4, 0.6)
-        compare(rect.x, 0.4 * 160 + 20 - 15)
-        compare(rect.width, (0.6 - 0.4) * 160 + 30)
+        compare(s.rangeHandle.x, 80)
+        compare(s.rangeHandle.width, 40)
+        compare(rect.width, 40)
     }
 
     function test_rangeHandleStandalone() {
-        // RangeHandle 独立实例化：位置绑定 x/width 跟随 firstPosition/
-        // secondPosition（surface 布局同样施加）
+        // RangeHandle 独立实例化：surface 默认 fill、三区存在、信号可发射
         const h = createTemporaryObject(handleComp, root, {})
-        h.firstPosition = 60
-        h.secondPosition = 140
-        compare(h.surface.x, 60 - 15)
-        compare(h.surface.width, 80 + 30)
-        compare(h.surface.height, 30)
-        compare(h.surface.y, (40 - 30) / 2)
-        compare(h.midPosition, 100)
-        compare(h.surfaceHeight, 30)
-        // 位置变化跟随
-        h.firstPosition = 80
-        compare(h.surface.x, 80 - 15)
-        compare(h.surface.width, 60 + 30)
-        // 外部展开源（externalExpanded）→ surface 高 = 控件全高
-        h.externalExpanded = true
+        compare(h.width, 200)
+        compare(h.height, 40)
+        compare(h.down, false)
+        verify(h.surface !== null, "默认 surface 存在")
+        compare(h.surface.width, 200, "默认 surface fill 本组件")
         compare(h.surface.height, 40)
-        compare(h.surface.y, 0)
-        // 展开源释放 → 回常态
-        h.externalExpanded = false
-        compare(h.surface.height, 30)
-        compare(h.surface.y, 5)
+        compare(h.firstCursorShape, Qt.SplitHCursor, "左区光标默认")
+        compare(h.secondCursorShape, Qt.SplitHCursor, "右区光标默认")
+        // 信号可发射（无接收者——独立场景宿主自连）
+        h.wannaMoveFirstX(10)
+        h.wannaMoveSecondX(10)
+        h.wannaMoveRangeX(10)
+    }
+
+    function test_zoneGeometry() {
+        // 三区物理分区（独立实例化）：height 40 → handleHSpace 20、
+        // center [20, 180]、left [−2, 20]、right [180, 202]（ext 2）；
+        // 热区扩展仅改变左右区宽度（left 左溢、right 右缘外扩——右区左缘
+        // 固定 = width − handleHSpace，不随 ext 变）
+        const h = createTemporaryObject(handleComp, root, {})
+        const zones = []
+        for (let i = 0; i < h.children.length; ++i) {
+            if (h.children[i].cursorShape !== undefined)
+                zones.push(h.children[i])
+        }
+        compare(zones.length, 3, "三个拖动区")
+        zones.sort((a, b) => a.x - b.x)
+        compare(zones[0].x, -2)
+        compare(zones[0].width, 20 + 2)
+        compare(zones[1].x, 20)
+        compare(zones[1].width, 160)
+        compare(zones[2].x, 180)
+        compare(zones[2].width, 20 + 2)
+        // 热区扩展：左右区宽增、左区左溢、右区右缘外扩（左缘不动）
+        h.firstMouseZoneExtension = 6
+        h.secondMouseZoneExtension = 6
+        const zones2 = []
+        for (let i = 0; i < h.children.length; ++i) {
+            if (h.children[i].cursorShape !== undefined)
+                zones2.push(h.children[i])
+        }
+        zones2.sort((a, b) => a.x - b.x)
+        compare(zones2[0].x, -6, "左区左溢")
+        compare(zones2[0].width, 26)
+        compare(zones2[2].x, 180, "右区左缘不动")
+        compare(zones2[2].width, 26)
     }
 }

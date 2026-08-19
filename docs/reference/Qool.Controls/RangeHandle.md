@@ -1,92 +1,92 @@
 # RangeHandle
 
-The interval logic container of the `RangeSlider` family: an `Item` that
-owns everything about the interval except its appearance — spatial
-positions, the three-zone drag interaction, and the `surface` layout. It is
-a public standalone component (usable outside `RangeSlider` for
-self-built slider scenarios) and the behavior-plug seam of `RangeSlider`
-(subclass it and replace the `rangeHandle` property).
+The range interaction component of the `RangeSlider` family: an `Item`
+that owns everything about the interval interaction except its appearance —
+the three-zone drag zones, the endpoint hit-zone extension, and the cursor
+shapes. It is a public standalone component (usable outside `RangeSlider`
+for self-built slider scenarios) and the behavior-plug seam of
+`RangeSlider` (subclass it and replace the `rangeHandle` property).
 
-`RangeHandle` is deliberately value-model-free: it receives endpoint
-positions (`firstPosition`/`secondPosition`) in its parent's coordinates
-and emits new positions / pixel deltas (`firstMoved`/`secondMoved`/
-`rangeMoved`). The value↔position mapping stays in the host (in
-`RangeSlider` it lives in the template's `leftPadding`/`availableWidth`
-travel formula) — the handle never copies template travel semantics.
+`RangeHandle` is deliberately value-model-free and position-free: it does
+not receive endpoint positions and does not emit result positions. The
+three zones emit *intent* signals (`wannaMoveFirstX`/`wannaMoveSecondX`/
+`wannaMoveRangeX`) whose payload is a **pixel delta** (the drag
+displacement since the previous event, in the scene's coordinates). The
+value↔position mapping, the delta→value conversion, and the endpoint
+clamping all live in the host (in `RangeSlider` they live in the
+`availableWidth` travel formula and the signal `Connections`).
 
-The `surface` (default: a `Crystal` foreground) is a pure appearance plug:
-the handle imposes its x/y/width/height/color via bindings, so replacing it
-with any simple `Item` auto-fills the correct interval × height — the
-surface never responds to value data itself.
+The `surface` (default: a plain placeholder `Rectangle`) is a pure
+appearance plug: `RangeHandle` only sets its `parent` — the surface is
+responsible for its own layout (the default instance `anchors.fill`s this
+component). Replacing it swaps the appearance without touching the
+interaction.
 
 ## Properties
 
-- `firstPosition : real` (default `0`)
-  The `first` endpoint position in the parent's coordinates — the surface's
-  left reference and the left-zone drag target.
-- `secondPosition : real` (default `0`)
-  The `second` endpoint position in the parent's coordinates.
-- `cutSize : real` (default `preferredHeight / 2`)
-  The surface's left/right overflow amount. The default matches the default
-  `Crystal` surface's point overflow (`preferredHeight / 2`); a host that
-  replaces the surface adjusts it as needed (e.g. `cutSize: 0` for an exact
-  fill). The handle does not switch layout modes automatically.
-- `preferredHeight : real` (default `root.height - Qore.bound(3,
-  root.height * 0.25, 25)`)
-  The surface's resting height (the `Slider` family contraction formula).
-- `externalExpanded : bool` (default `false`)
-  An external expansion source (companion-bound to the host's `justMoved`).
-  Composes with the internal `pressed`/`hovered` into `expanded`.
-- `color : color` (default `Style.accent`)
-  The surface fill color (companion-bound to the host's `color`); applied to
-  the surface only when it has a `color` property.
-- `animationEnabled : bool`
-  Animation gate — inherited up the parent chain (the host can turn it off
-  uniformly on a parent), falling back to `Style.animationEnabled`. Gates the
-  default surface's expansion animation.
 - `surface : Item`
-  The appearance plug. Default: a `Crystal` foreground whose straight middle
-  segment exactly spans the interval and whose 45° points overflow by
-  `cutSize` on both ends; coincident endpoints degrade it to a crystal
-  (diamond) automatically. Replacing it with any `Item` swaps the appearance
-  without touching the interaction.
-- `expanded : bool` (read-only)
-  `externalExpanded || pressed || hovered` — the surface height switch.
-- `surfaceHeight : real` (read-only)
-  The surface height: the control's full height when expanded, otherwise
-  `preferredHeight`.
-- `midPosition : real` (read-only)
-  The interval center `(firstPosition + secondPosition) / 2` — one of the
-  three zone mid-values (endpoint positions + interval center) a custom
-  surface or host can use to sense the partition.
-- `zoneWidth : real` (read-only)
-  The zone boundary width `height / 2` — the three-zone partition derives
-  from the value geometry and does not depend on the surface's actual size
-  (stable across expanded/resting states).
+  The appearance plug. Default: a `Rectangle` with `anchors.fill: parent`
+  (border `Style.buttonText`, fill `Style.accent`). Layout is the
+  surface's own responsibility — `RangeHandle` does not impose
+  x/y/width/height/color. In `RangeSlider`, the default surface is
+  overridden by an `Item` that fills the interval box and hosts the
+  crystal foreground.
+- `firstMouseZoneExtension : real` (default `2`)
+  The left zone's hit-zone extension in pixels: the zone starts at
+  `-extension` (overflowing the component's left edge).
+- `secondMouseZoneExtension : real` (default `firstMouseZoneExtension`)
+  The right zone's hit-zone extension: the zone's right edge is
+  `width + extension` (overflowing the right edge).
+- `down : bool` (read-only)
+  Whether any of the three zones is pressed.
+- `hovered : bool` (read-only)
+  Whether any of the three zones is hovered. (Both `down` and `hovered`
+  are aggregates a host surface can use for expansion feedback.)
+- `firstCursorShape : enumeration` / `secondCursorShape : enumeration`
+  Aliases for the left/right zone cursor shapes. Default: `Qt.SplitHCursor`
+  (the middle zone is always `Qt.SizeHorCursor`).
 
-The default implicit size is 80 × 25.
+The default implicit size is 0 × 0 (the component is normally given
+geometry by its host — in `RangeSlider` via the interval-box bindings).
 
 ## Signals
 
-- `firstMoved(real newPosition)`
-  Emitted while dragging the left zone — the new `first` endpoint position
-  (parent coordinates; the payload is the position, the host converts it to
-  a value). The endpoint clamping (travel range, not crossing `second`) is
-  part of the drag path.
-- `secondMoved(real newPosition)`
-  Emitted while dragging the right zone — the new `second` endpoint
-  position (parent coordinates).
-- `rangeMoved(real delta)`
-  Emitted while dragging the middle zone — the pixel displacement since the
-  previous event (the host converts it to a value delta, shifts both
-  endpoints together, and clamps the shift as a whole at the range
-  boundary).
+- `wannaMoveFirstX(real x)`
+  Emitted while dragging the left zone — the drag displacement in pixels
+  (delta since the previous event). The host converts it to a value delta
+  and writes `first`.
+- `wannaMoveSecondX(real x)`
+  Emitted while dragging the right zone — the drag displacement in pixels.
+- `wannaMoveRangeX(real x)`
+  Emitted while dragging the middle zone — the drag displacement in pixels
+  (the host shifts both endpoints together and clamps the shift as a whole
+  at the range boundary).
+
+The payload `x` is a **delta**, not a position: the signals are intent
+requests ("I want to move by this much"), and the host decides how to
+apply them. Clamping is not part of the drag path here — it moved to the
+host's value domain.
 
 ## Methods
 
-This type defines no additional methods. (`zoneAt(x)`, `clampFirst(pos)`
-and `clampSecond(pos)` are internal helpers of the drag path; a subclass
-may call them from overridden behavior.)
+This type defines no methods.
+
+## Zone geometry
+
+The three zones partition the component physically (they do not overlap;
+both endpoint zones overflow by their extension):
+
+- left zone: `x = -extension`, `width = min(width/2, height/2) + extension`
+- middle zone: `x = height/2`, `width = width - height` (the travel — the
+  range where the endpoint centers move)
+- right zone: `x = width - min(width/2, height/2)`, `width = min(width/2,
+  height/2) + extension`
+
+With `width >= height` the zones are seamless: left `[-ext, h/2]`, middle
+`[h/2, w - h/2]`, right `[w - h/2, w + ext]`. The partition derives from
+the component's own geometry (`height` as the handle basis) and is
+independent of the surface's actual size — stable across expanded/resting
+states.
 
 ## Usage Example
 
@@ -95,20 +95,22 @@ import QtQuick
 import Qool
 import Qool.Controls
 
-// Standalone: bind positions and convert the signals yourself.
+// Standalone: connect the intent signals and convert to values yourself.
 RangeHandle {
     width: 300
     height: 25
-    firstPosition: 80
-    secondPosition: 220
-    onFirstMoved: pos => console.log("first →", pos)
+    onWannaMoveFirstX: dx => console.log("first wants", dx, "px")
+    onWannaMoveSecondX: dx => console.log("second wants", dx, "px")
+    onWannaMoveRangeX: dx => console.log("range wants", dx, "px")
 }
 
-// Inside RangeSlider — the companion bindings and the signal conversion
-// are applied automatically; replace the surface for a custom look.
+// Inside RangeSlider — the interval-box geometry and the signal
+// conversion are applied automatically; replace the surface for a custom
+// look (the surface lays itself out, e.g. anchors.fill: parent).
 RangeSlider {
     rangeHandle: RangeHandle {
         surface: Rectangle {
+            anchors.fill: parent
             radius: 3
             color: Style.active.accent
         }
@@ -118,9 +120,9 @@ RangeSlider {
 // Behavior plug: subclass and override (here: log the drag payloads
 // without changing the default interaction).
 component LoggingHandle: RangeHandle {
-    onFirstMoved: pos => console.log("firstMoved", pos)
-    onSecondMoved: pos => console.log("secondMoved", pos)
-    onRangeMoved: delta => console.log("rangeMoved", delta)
+    onWannaMoveFirstX: dx => console.log("firstMoved delta", dx)
+    onWannaMoveSecondX: dx => console.log("secondMoved delta", dx)
+    onWannaMoveRangeX: dx => console.log("rangeMoved delta", dx)
 }
 
 RangeSlider {
@@ -128,22 +130,11 @@ RangeSlider {
 }
 ```
 
-## Surface layout contract
+## Layout contract
 
-The handle imposes on the surface (via bindings, re-targeted automatically
-when the surface is replaced):
-
-- `x` = `firstPosition − cutSize` (the left point overflows the interval)
-- `width` = `secondPosition − firstPosition + 2 × cutSize` (points overflow
-  on both ends)
-- `y` = `(height − surfaceHeight) / 2` (vertical centering; the surface
-  height switch is the only thing that changes on expansion — the width
-  stays constant)
-- `height` = `surfaceHeight` (`preferredHeight` resting / control height
-  expanded)
-- `color` = `color` (only when the surface has a `color` property)
-
-The default `Crystal` surface's own cut follows its geometry
-(`min(width, height)/2`), so at rest the straight middle segment exactly
-spans the interval, and narrow/degenerate intervals (down to coincident
-endpoints) auto-reasonable without special casing.
+- The surface's `parent` is bound to this component (a `Binding` retargeted
+  automatically when the surface is replaced).
+- Everything else — the surface's own geometry and any expansion feedback —
+  is the surface's responsibility. The default placeholder fills the
+  component; `RangeSlider`'s default surface fills the interval box and
+  hosts the crystal foreground with its own overflow geometry.

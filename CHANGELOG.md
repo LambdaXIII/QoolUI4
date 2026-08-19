@@ -4,6 +4,15 @@
 
 ## [4.0.0] — 2026-08-20
 
+### 变更（rangeslider-interface-landing，RangeSlider/RangeHandle 接口面落地演进）
+
+- **RangeHandle 收敛为纯交互件**（RangeHandle.qml）：删除全部位置/外观输入（firstPosition/secondPosition/cutSize/preferredHeight/externalExpanded/color/animationEnabled/expanded/surfaceHeight/midPosition/zoneWidth）与钳制/分区判定——**不收位置、不发结果位置**；三区各为独立 DragMoveArea，发意图信号 `wannaMoveFirstX`/`wannaMoveSecondX`/`wannaMoveRangeX`（载荷 = 像素增量位移，DragMoveArea 增量语义）；三区物理分区（`handleHSpace = min(宽/2, 高/2)` 端点热区、`rangeHSpace = 宽 − 高` 中段行程区，w ≥ h 时 left [−ext, h/2] / center [h/2, w−h/2] / right [w−h/2, w+ext]）；新增热区扩展（first/secondMouseZoneExtension，默认 2）、光标 alias、`down`/`hovered` 聚合；三区 `autoBind: false`——修复拖动物理移动 rangeHandle 与区间盒 Binding 双重驱动致端点可越过（同 QoolWindowBG/RectResizer 句柄漂移教训）
+- **RangeSlider 区间盒几何**（RangeSlider.qml）：值→位置映射收敛为 `dummyRangeBox` 区间盒（`x = availableWidth × first.position + leftPadding`、`width = availableWidth × (second − first)`）经 Binding 组施加——**rangeHandle 的几何即区间盒**，不再需端点位置输入；端点/整体钳制在值域（`first ∈ [from, second.value]`、`second ∈ [first.value, to]` 可重合不交叉、整体滑移 `[from − first.value, to − second.value]` 不变形边界整体停）；`pixelToValueDelta` 为 pCtrl 内部方法（不暴露公开 API）
+- **色彩通道 + 外观**：`color`（前景填充）/`bgColor`（轨道背景，默认 75% 透明渲染）/`borderColor`（前景与轨道描边，默认基于 bgColor 自动对比推荐）；前景与轨道同为 Crystal 尖角外溢（`width = parent.width + height`，直边区 = 区间/控件宽），前景常态收缩/展开占满（尖角外溢量随高度变）；surface 自布局（RangeHandle 仅设 parent，默认 `anchors.fill` 区间盒）
+- **锁存分化**：`justMoved` → `firstJustMoved`/`secondJustMoved`（两端独立 500ms 窗口，写入哪端锁存哪端）
+- **测试契约重写**（tst_rangeslider.qml，批次 29 用例全绿）：区间盒几何/前景尖角外溢与收缩展开/三区几何与热区扩展/独立锁存/倒置范围/wannaMove 增量换算与端点钳制/整体滑移边界/surface 替换（自布局）/RangeHandle 独立实例化
+- **文档**：`docs/reference/Qool.Controls/RangeHandle.md` 与 `RangeSlider.md` 重写为新契约（意图信号、区间盒几何、尖角外溢、色彩通道、钳制语义、surface 自布局插拔示例）；ADR 0009 新增「实现演进（2026-08-20）」节（位置 vs 值输入结构演进、surface 布局责任反转、autoBind 教训、锁存分化、外观通道、测试策略）
+
 ### 变更（rangeslider-three-layer，RangeSlider 三层重构实现落地）
 
 - **新组件 `Qool.Controls.RangeHandle`**（RangeHandle.qml，Item 基座）：区间逻辑单一归属——输入 firstPosition/secondPosition/cutSize/preferredHeight/externalExpanded/color/animationEnabled；信号 firstMoved(位置)/secondMoved(位置)/rangeMoved(像素位移)（载荷换算归宿主）；派生 expanded/surfaceHeight/midPosition；surface 布局控制（x/y/width/height/color 经动态 Binding 施加——宿主替换 surface 时新实例同样受控）。可独立实例化（implicit 80×25）

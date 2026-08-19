@@ -219,8 +219,8 @@ BasicPage {
                     running: true
                     repeat: true
                     onTriggered: {
-                        const v = (progRangeSlider.first.value + 15) % 101
-                        progRangeSlider.setValues(v, Math.min(v + 40, 100))
+                        const v = (progRangeSlider.first.value + 15) % 101;
+                        progRangeSlider.setValues(v, Math.min(v + 40, 100));
                     }
                 }
             }
@@ -253,7 +253,7 @@ BasicPage {
                     }
                 }
                 RangeSlider {
-                    id: customHandleSlider
+                    id: customHandleSlider2
                     Layout.fillWidth: true
                     from: 0
                     to: 100
