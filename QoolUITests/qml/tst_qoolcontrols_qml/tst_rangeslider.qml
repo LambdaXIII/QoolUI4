@@ -115,7 +115,7 @@ TestCase {
     }
 
     function test_backgroundTrack() {
-        // 背景 = 静态 Crystal 轨道（bgColor 色、尖角外溢、居中——不随交互变）
+        // 背景 = 静态 Crystal 轨道（backgroundColor 色、尖角外溢、居中——不随交互变）
         const s = makeSlider({})
         const track = findChild(s.background, "track")
         verify(track !== null, "轨道存在")
@@ -124,7 +124,7 @@ TestCase {
         compare(track.height, 40 - 10)
         compare(track.x, (200 - (200 + 30)) / 2, "水平居中（尖角外溢两侧）")
         compare(track.y, (40 - (40 - 10)) / 2, "垂直居中")
-        compare(track.color, Qt.alpha(s.bgColor, 0.75), "轨道半透明 bgColor")
+        compare(track.color, Qt.alpha(s.backgroundColor, 0.75), "轨道半透明 backgroundColor")
         // 轨道静态——值写入（justMoved）不改变轨道几何
         s.setValues(0.25, 0.75)
         compare(track.width, 230)
@@ -146,8 +146,9 @@ TestCase {
         compare(s.rangeHandle.height, 40)
         compare(surf.x, 0, "surface fill 区间盒")
         compare(surf.width, 200)
-        // 前景尖角外溢：width = 区间宽 + 自身高 − 常态收缩
-        compare(crystal.width, 200 + 30 - 10, "常态收缩+尖角外溢")
+        // 前景尖角外溢：width = 区间宽 + 自身高（直边区 = 区间宽恒等——
+        // 收缩只体现在高度维度）
+        compare(crystal.width, 200 + 30, "常态尖角外溢")
         compare(crystal.height, 40 - 10)
         // 写入 → 区间盒跟随 + 展开占满（直边区 = 区间宽、尖角外溢随高度）
         s.setValues(0.25, 0.75)
@@ -157,9 +158,9 @@ TestCase {
         compare(surf.width, 100)
         compare(crystal.width, 100 + 40, "展开占满区间盒+尖角外溢")
         compare(crystal.height, 40, "展开占满区间盒")
-        // 锁存窗口落 → 回常态收缩（直边区仍 = 区间宽、外溢量随高度缩小）
+        // 锁存窗口落 → 回常态（直边区仍 = 区间宽、外溢量随高度缩小）
         wait(600)
-        compare(crystal.width, 100 + 30 - 10, "常态收缩")
+        compare(crystal.width, 100 + 30, "常态尖角外溢")
         compare(crystal.height, 40 - 10)
         // 值变化跟随（区间盒与展开无关）
         s.setValues(0.4, 0.6)

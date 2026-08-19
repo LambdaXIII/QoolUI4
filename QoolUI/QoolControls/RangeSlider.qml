@@ -15,9 +15,9 @@ T.RangeSlider {
     // Style.accent。
     property color color: Style.accent
     // 轨道背景色（track 以 75% 透明度渲染），默认 Style.buttonText。
-    property color bgColor: Style.buttonText
-    // 前景/轨道描边色——基于 bgColor 自动对比推荐（宿主可单独覆盖）。
-    property color borderColor: ThemeHQ.recommendForeground(bgColor)
+    property color backgroundColor: Style.buttonText
+    // 前景/轨道描边色——基于 backgroundColor 自动对比推荐（宿主可单独覆盖）。
+    property color borderColor: ThemeHQ.recommendForeground(backgroundColor)
     // "值刚被写入过"的声明式锁存窗口（500ms，滑动窗口——持续变化持续保持）；
     // 两端独立——写入哪端锁存哪端，互不影响。
     property bool firstJustMoved: firstMovementLatch.active
@@ -36,11 +36,19 @@ T.RangeSlider {
             Crystal {
                 anchors.centerIn: parent
                 // 额外宽度（尖角外溢）：切角 = min(w,h)/2 = h/2（w >= h）——
-                // 常态 w = 区间宽 + h − shrink：直边区 = w − h = 区间宽 −
-                // shrink、尖点外溢 (h − shrink)/2；展开 w = 区间宽 + h：
-                // 直边区 = 区间宽、尖点外溢 h/2（直边区不随展开变）
-                width: parent.width + height - (parent.expanded ? 0 : pCtrl.crystalShrinkSize)
+                // 宽 = 区间宽 + height：直边区 = w − h = 区间宽（恒等——收缩
+                // 只体现在高度维度）、尖点外溢 h/2（随高度变）。区间宽
+                // （parent.width）实时——拖动手柄/值变化时宽度即时跟手，不
+                // 动画；height 项随展开动画平滑（放大/收缩动态）
+                width: parent.width + height
                 height: parent.height - (parent.expanded ? 0 : pCtrl.crystalShrinkSize)
+                // 展开/收缩反馈动画（同 Slider 手柄）：仅 height——width 含
+                // 实时区间宽分量（Behavior 会拦截每次值变化致拖动不跟手），
+                // 由 height 项随动画联动（放大/收缩动态、区间宽实时跟手）
+                BasicNumberBehavior on height {
+                    enabled: root.animationEnabled
+                    duration: Style.transitionDuration
+                }
                 color: root.color
                 borderColor: root.borderColor
             }
@@ -85,9 +93,9 @@ T.RangeSlider {
     }
 
     // —— 轨道层（Item 容器——background 由 pCtrl Binding 控尺寸，内部坐标
-    // = root 本地）：静态 Crystal 六边形（bgColor 75% 透明度 + borderColor
-    // 描边）——恒为常态高度 + 垂直居中（三心对齐）；不参与交互反馈（视觉
-    // 焦点在前景）
+    // = root 本地）：静态 Crystal 六边形（backgroundColor 75% 透明度 +
+    // borderColor 描边）——恒为常态高度 + 垂直居中（三心对齐）；不参与交
+    // 互反馈（视觉焦点在前景）
     background: Item {
         //包装一层是为了和padding对齐
         Crystal {
@@ -98,7 +106,7 @@ T.RangeSlider {
             width: parent.width + height
             height: parent.height - pCtrl.crystalShrinkSize
             anchors.centerIn: parent //居中锚点保证Crystal图形合理化后不偏移
-            color: Qt.alpha(root.bgColor, 0.75)
+            color: Qt.alpha(root.backgroundColor, 0.75)
             borderColor: root.borderColor
         } //track
     } //background

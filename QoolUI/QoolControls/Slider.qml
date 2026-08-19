@@ -11,16 +11,18 @@ import Qool
 
 T.Slider {
     id: root
-    // 轨道渐变右端色（左端固定 Style.text），默认 Style.accent。
+    // 轨道渐变右端色（左端 = backgroundColor 75% 透明），默认 Style.accent。
     property color color: root.Style.accent
+    // 轨道背景色（渐变左端以 75% 透明度渲染），默认 Style.buttonText。
+    property color backgroundColor: Style.buttonText
+    // 轨道描边色——基于 backgroundColor 自动对比推荐（宿主可单独覆盖）。
+    property color borderColor: ThemeHQ.recommendForeground(backgroundColor)
     // 值变化速率（值/秒，NumberNotifier 200ms 采样、有向、骤停归零）。
     readonly property real valueVelocity: notifier.velocity
     // "值刚被写入过"的声明式锁存窗口（500ms，滑动窗口——持续变化持续保持）。
     property bool justMoved: movementLatch.active
     // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-    // 常态高度：水晶手柄与轨道的常态（收缩）高度——展开时水晶占满控件全高（root.height）。
-    readonly property real preferredHeight: root.height - Qore.bound(3, root.height * 0.25, 25)
 
     // 尺寸：反向排版策略——模板不自带 implicit 公式，root 直接给默认尺寸
     // （80 × 25），background 基于 root 布局（自动 fill 控件——切角/渐变
@@ -28,6 +30,31 @@ T.Slider {
     // 的传递链
     implicitWidth: 80
     implicitHeight: 25
+
+    SmartObject {
+        id: pCtrl
+        // 常态收缩偏移量（默认 handle 与 background 的配套约定——只缓存偏
+        // 移量不缓存高度：高度 = root.height − offset 实时派生，root 变化不
+        // 产生 stale 缓存）
+        readonly property real crystalShrinkSize: Qore.bound(3, root.height * 0.25, 25)
+
+        // background 显式控尺寸（root 尺寸 − insets——外部 Binding 施加：
+        // 宿主替换 background 时新实例同样受控，插拔安全；内联尺寸绑定会随
+        // 默认实例替换而丢失。值 = root − insets 与 Control 的 background
+        // 自动布局一致——不冲突；轨道收缩/居中在内部 Crystal 自理）
+        Binding {
+            target: root.background
+            when: root.background
+            property: "width"
+            value: root.width - root.leftInset - root.rightInset
+        }
+        Binding {
+            target: root.background
+            when: root.background
+            property: "height"
+            value: root.height - root.topInset - root.bottomInset
+        }
+    }
 
     // —— 逻辑件：程序化变更锁存（NumberNotifier 采样 → TimerLatch 激活）——
     NumberNotifier on value {
@@ -50,36 +77,43 @@ T.Slider {
         }
     }
 
-    // —— 轨道（六边形）：Crystal 组件（六边形模型——与手柄同模型、斜边
-    // 斜率一致天然对齐；OctagonShape 双层模型——QoolBoxGadget 半平面
-    // 交集下切角极限形态合法，Crystal 即 cut = shortEdge/2 特化）。显式
-    // 绑定控件尺寸（覆盖 Crystal 默认 20×20——background 自动 fill 在
-    // Crystal 有尺寸绑定时不生效）。轨道恒为常态高度（preferredHeight，
-    // 不随展开变）+ 垂直居中——三心对齐（水晶中心 = 轨道中心 = 控件
-    // 中心，水晶常态与轨道同高贴斜边；展开时水晶顶出轨道但不出控件）
-    background: Crystal {
-        id: track
-        width: root.width
-        height: root.preferredHeight
-        y: (root.height - height) / 2
-        // 兜底纯色（渐变通道失效时轨道仍可见——渐进降级；渐变生效时覆盖）
-        color: root.color
-        fillGradient: LinearGradient {
-            // 渐变内联默认（Slider 不暴露 fillGradient 通道，换色走 color
-            // 属性）：锚定切角内侧——与 Crystal 中心行程对齐
-            // （colorAt(visualPosition) 精确采样）；坐标用 track 局部尺寸
-            // （轨道收缩后切角 = track.height/2）
-            x1: track.height / 2
-            y1: track.height / 2
-            x2: root.width - track.height / 2
-            y2: track.height / 2
-            GradientStop {
-                position: 0
-                color: root.Style.text
-            }
-            GradientStop {
-                position: 1
-                color: root.color
+    // —— 轨道（六边形）：Item 容器（尺寸由 pCtrl Binding 控 = root − insets
+    // ——与 Control background 自动布局一致，替换 background 后新实例同样受
+    // 控）+ 内部 Crystal（六边形模型——与手柄同模型、斜边斜率一致天然对
+    // 齐；OctagonShape 双层模型——QoolBoxGadget 半平面交集下切角极限形态
+    // 合法，Crystal 即 cut = shortEdge/2 特化）。轨道恒为常态高度（不随展
+    // 开变）+ 完全居中（anchors.centerIn：水平铺满容器宽——尖点贴边不外
+    // 溢；垂直收缩后居中）——三心对齐（水晶中心 = 轨道中心 = 控件中心，
+    // 水晶常态与轨道同高贴斜边；展开时水晶顶出轨道但不出控件）
+    background: Item {
+        Crystal {
+            id: track
+            objectName: "track" // 供 QML 测试读取（组件内部对象零暴露原则的测试例外——轨道静态性是公开视觉契约）
+            // 轨道宽 = 容器宽（尖点贴边——Slider 不外溢）；常态收缩 + 居中
+            width: parent.width
+            height: parent.height - pCtrl.crystalShrinkSize
+            anchors.centerIn: parent
+            // 兜底纯色（渐变通道失效时轨道仍可见——渐进降级；渐变生效时覆盖）
+            color: root.color
+            borderColor: root.borderColor
+            fillGradient: LinearGradient {
+                // 渐变内联默认（Slider 不暴露 fillGradient 通道，换色走 color
+                // 属性）：左端 = backgroundColor 75% 透明（轨道同 RangeSlider
+                // ——背景色半透明）、右端 = color；锚定切角内侧——与 Crystal
+                // 中心行程对齐（colorAt(visualPosition) 精确采样）；坐标用
+                // track 自身尺寸（收缩后切角 = track.height/2）
+                x1: track.height / 2
+                y1: track.height / 2
+                x2: track.width - track.height / 2
+                y2: track.height / 2
+                GradientStop {
+                    position: 0
+                    color: Qt.alpha(root.backgroundColor, 0.75)
+                }
+                GradientStop {
+                    position: 1
+                    color: root.color
+                }
             }
         }
     } //background
@@ -97,9 +131,11 @@ T.Slider {
 
         ColorMapper {
             id: colorMapper
+            // 采样渐变不透明化：轨道渐变左端 0.75 透明背景色，手柄为实体
+            // 不透明（同 RangeSlider——轨道半透明、前景不透明）
             ColorMapperStop {
                 position: 0
-                color: root.Style.text
+                color: root.backgroundColor
             }
             ColorMapperStop {
                 position: 1
@@ -131,14 +167,14 @@ T.Slider {
             }
 
             // 展开态占满 handle 区域（= 控件高度，不超出边界）；常态 = 轨道
-            // 高度（preferredHeight——同收缩贴斜边；原"展开超出边界"刻意
-            // 效果已取消）
-            readonly property bool encountered: {
+            // 高度（root.height − 收缩偏移量——同收缩贴斜边；原"展开超出
+            // 边界"刻意效果已取消）
+            readonly property bool expanded: {
                 return hoverer.hovered || root.pressed || root.justMoved;
             }
 
             width: height
-            height: encountered ? root.height : root.preferredHeight
+            height: expanded ? root.height : root.height - pCtrl.crystalShrinkSize
             BasicNumberBehavior on height {
                 enabled: root.animationEnabled
                 duration: Style.transitionDuration

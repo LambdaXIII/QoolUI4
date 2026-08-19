@@ -4,6 +4,17 @@
 
 ## [4.0.0] — 2026-08-20
 
+### 变更（slider-align，Slider 对齐 RangeSlider 接口面演进）
+
+- **RangeSlider `bgColor` 更名 `backgroundColor`**（RangeSlider.qml）：语义精确（属性即轨道背景色）；消费处同步——轨道颜色、tst_rangeslider.qml 断言、RangeSlider.md、ADR 0009 外观通道条目
+- **Slider 新增外观通道**：`color`（渐变右端色）/`backgroundColor`（渐变左端，轨道以 75% 透明渲染）/`borderColor`（轨道描边，默认 `ThemeHQ.recommendForeground(backgroundColor)` 自动对比推荐）；轨道渐变左端由 `Style.text` 改为 `backgroundColor` 75% 透明（同 RangeSlider 轨道半透明语义）；手柄采样渐变不透明化（实体不透明，同 RangeSlider 前景）
+- **`preferredHeight` 公开属性移除**（Slider）：改为默认 handle 与 background 的内部配套约定——收缩偏移量内化 pCtrl（只缓存偏移量不缓存高度，root 变化无 stale）
+- **background 尺寸改外部 Binding 施加**（Slider）：root 尺寸 − insets、常态收缩 + 居中——替换 background 后新实例同样受控（插拔安全；内联尺寸绑定随默认实例替换丢失）
+- **`encountered` 更名 `expanded`**（Slider）：与 RangeSlider surface 命名统一
+- **测试**：新增 tst_slider.qml（批次自动发现）——默认状态/轨道几何与渐变 stops/手柄常态收缩与展开反馈/锁存窗口/采样色不透明化/background 替换插拔/insets 响应
+- **展示页同步**（Page_InputControls2.qml）：LoggingHandle 改监听意图信号 `wannaMoveFirstX`/`wannaMoveSecondX`/`wannaMoveRangeX`（修复引用已删结果信号 firstMoved 等的加载隐患）；Slider/RangeSlider 各组 QoolTip 更新（`backgroundColor`/`borderColor` 通道、渐变 0.75 描述、锁存分化、surface 自布局插拔语义）；customSurfaceSlider 的 surface 补 `anchors.fill: parent`（布局责任反转）；Playground 头注释同步（RangeSlider 调试用例）
+- **文档**：Slider.md 更新（属性节、渐变描述、反馈节、background 插拔语义）；ADR 0009 实现演进节追加「Slider 同步」
+
 ### 变更（rangeslider-interface-landing，RangeSlider/RangeHandle 接口面落地演进）
 
 - **RangeHandle 收敛为纯交互件**（RangeHandle.qml）：删除全部位置/外观输入（firstPosition/secondPosition/cutSize/preferredHeight/externalExpanded/color/animationEnabled/expanded/surfaceHeight/midPosition/zoneWidth）与钳制/分区判定——**不收位置、不发结果位置**；三区各为独立 DragMoveArea，发意图信号 `wannaMoveFirstX`/`wannaMoveSecondX`/`wannaMoveRangeX`（载荷 = 像素增量位移，DragMoveArea 增量语义）；三区物理分区（`handleHSpace = min(宽/2, 高/2)` 端点热区、`rangeHSpace = 宽 − 高` 中段行程区，w ≥ h 时 left [−ext, h/2] / center [h/2, w−h/2] / right [w−h/2, w+ext]）；新增热区扩展（first/secondMouseZoneExtension，默认 2）、光标 alias、`down`/`hovered` 聚合；三区 `autoBind: false`——修复拖动物理移动 rangeHandle 与区间盒 Binding 双重驱动致端点可越过（同 QoolWindowBG/RectResizer 句柄漂移教训）

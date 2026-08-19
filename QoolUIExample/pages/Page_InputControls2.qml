@@ -24,10 +24,10 @@ BasicPage {
     // 行为插拔示例组件：继承 RangeHandle 覆盖行为（默认实现即三区域拖动；
     // 此处演示派生类替换后完整获得配套绑定——覆盖任意行为即插拔）。
     component LoggingHandle: RangeHandle {
-        // 行为覆盖示例：记录拖动信号载荷（不改变默认交互）
-        onFirstMoved: pos => console.log("firstMoved", pos)
-        onSecondMoved: pos => console.log("secondMoved", pos)
-        onRangeMoved: delta => console.log("rangeMoved", delta)
+        // 行为覆盖示例：记录拖动意图信号载荷（增量像素位移，不改变默认交互）
+        onWannaMoveFirstX: dx => console.log("wannaMoveFirstX", dx)
+        onWannaMoveSecondX: dx => console.log("wannaMoveSecondX", dx)
+        onWannaMoveRangeX: dx => console.log("wannaMoveRangeX", dx)
     }
 
     Column {
@@ -46,7 +46,7 @@ BasicPage {
                 value: 50
             }
             QoolTip {
-                text: qsTr("水平滑块：六边形渐变轨道（**text→color** 水平渐变，锚定切角内侧）+ 水晶菱形手柄（同一八点模型——斜边斜率一致天然对齐）。\n交互为官方模板行为：点击跳转、拖动连续、方向键步进（获得焦点后）。\n- **color** = 渐变右端色（默认 Style.accent，左端固定 Style.text）——换色即换整条轨道视觉。\n- 默认高度 25（implicitHeight，可覆盖 width/height）——手柄尺寸始终跟随控件实际高度（轨道与手柄常态同高）。\n- 手柄常态色 = 轨道渐变在当前值位置的采样色（ColorMapper.colorAt——拖动时实时变化）。")
+                text: qsTr("水平滑块：六边形渐变轨道（**backgroundColor 75% 透明 → color** 水平渐变，锚定切角内侧）+ 水晶菱形手柄（同一八点模型——斜边斜率一致天然对齐）。\n交互为官方模板行为：点击跳转、拖动连续、方向键步进（获得焦点后）。\n- **color** = 渐变右端色（默认 Style.accent）、**backgroundColor** = 渐变左端背景（默认 Style.buttonText，轨道 75% 透明渲染）、**borderColor** = 轨道描边（默认基于 backgroundColor 自动对比推荐）——换色即换整条轨道视觉。\n- 默认高度 25（implicitHeight，可覆盖 width/height）——手柄尺寸始终跟随控件实际高度（轨道与手柄常态同高）。\n- 手柄常态色 = 轨道渐变在当前值位置的采样色但不透明化（ColorMapper.colorAt——拖动时实时变化；轨道端半透明、手柄为实体）。")
             }
         }
 
@@ -183,7 +183,7 @@ BasicPage {
                 }
             }
             QoolTip {
-                text: qsTr("两处独立替换：\n- **color 属性**（上）——换渐变右端色（默认 Style.accent），手柄采样自动跟随——宿主无需碰手柄。\n- **自定义 handle**（下）——替换水晶菱形（矩形手柄）；**handle delegate 须自写 x/y 定位**（T.Slider 模板不注入定位——官方公式：x = leftPadding + visualPosition * (availableWidth - width)，y 同理垂直居中）。\n- 轨道渐变内联默认（text→color，锚定切角内侧）——整体替换不再提供（收缩决策）；换色走 **color** 属性。")
+                text: qsTr("两处独立替换：\n- **color 属性**（上）——换渐变右端色（默认 Style.accent），手柄采样自动跟随——宿主无需碰手柄。\n- **自定义 handle**（下）——替换水晶菱形（矩形手柄）；**handle delegate 须自写 x/y 定位**（T.Slider 模板不注入定位——官方公式：x = leftPadding + visualPosition * (availableWidth - width)，y 同理垂直居中）。\n- 轨道渐变内联默认（backgroundColor 75% 透明 → color，锚定切角内侧）；换色走 **color**（右端）/ **backgroundColor**（左端）/ **borderColor**（描边）；轨道尺寸由外部 Binding 控（root − insets）——替换 background 后新实例同样受控。")
             }
         }
 
@@ -225,7 +225,7 @@ BasicPage {
                 }
             }
             QoolTip {
-                text: qsTr("RangeSlider 三层结构：**值模型 + 静态背景**（T.RangeSlider 模板 + Crystal 六边形轨道，Style.text 1 色非渐变——不参与交互反馈）→ **RangeHandle**（区间逻辑单一归属：空间位置/三区域交互/surface 布局）→ **surface**（默认 Crystal 整体前景——左尖角 + 中段填充 + 右尖角，两端点重合自动退化为水晶菱形）。\n**三区域拖动**：左端区拖 first、右端区拖 second、中段区拖**整体滑移**（两端同步、区间宽不变、边界钳制整体停）；**全部点击无操作**（模板\"点击跳转\"不保留）；键盘保留模板行为。\n**反馈**：hover/按下/刚移动（justMoved 锁存 500ms——下方 Timer 程序化写入演示）→ 前景展开到控件全高（常态 = preferredHeight 收缩，垂直居中、宽度不变）；动画随 animationEnabled 门控。\n**插拔**：`rangeHandle` 属性替换（继承 RangeHandle）＝行为插拔；`rangeHandle.surface` 替换任意 Item ＝外观插拔——两层独立互不影响。")
+                text: qsTr("RangeSlider 三层结构：**值模型 + 静态背景**（T.RangeSlider 模板 + Crystal 六边形轨道——backgroundColor 75% 透明 + borderColor 描边、尖角外溢、不参与交互反馈）→ **RangeHandle**（纯交互件：三区域拖动 + 意图信号，不收位置、不发结果位置）→ **surface**（默认 Crystal 前景——尖角外溢、常态收缩/展开占满区间盒、自布局）。\n**三区域拖动**：左端区拖 first、右端区拖 second、中段区拖**整体滑移**（两端同步、区间宽不变、边界钳制整体停）；**全部点击无操作**（模板\"点击跳转\"不保留）；键盘保留模板行为。\n**反馈**：hover/按下/刚移动（两端独立锁存 firstJustMoved/secondJustMoved 各 500ms——下方 Timer 程序化写入演示）→ 前景展开占满区间盒（常态 = 收缩量 limit(高度×0.25, 3, 25)）；动画随 animationEnabled 门控。\n**插拔**：`rangeHandle` 属性替换（继承 RangeHandle）＝行为插拔；`rangeHandle.surface` 替换任意 Item ＝外观插拔（**surface 自布局**——默认 anchors.fill 区间盒）——两层独立互不影响。")
             }
         }
 
@@ -240,11 +240,12 @@ BasicPage {
                     Layout.fillWidth: true
                     from: 0
                     to: 100
-                    // 外观插拔：替换 surface 为任意 Item——布局（位置/尺寸/
-                    // 颜色）由 RangeHandle 统一施加，自动填充正确区间，宿主
-                    // 无需自算值→位置映射
+                    // 外观插拔：替换 surface 为任意 Item——surface 自布局
+                    // （RangeHandle 只设 parent），自行 anchors.fill 区间盒
+                    // 即得精确区间，宿主无需自算值→位置映射
                     rangeHandle: RangeHandle {
                         surface: Rectangle {
+                            anchors.fill: parent
                             radius: 3
                             color: customSurfaceSlider.color
                             border.color: Style.highlight
@@ -264,7 +265,7 @@ BasicPage {
                 }
             }
             QoolTip {
-                text: qsTr("两层独立插拔（互不影响）：\n- **外观插拔**（上）——`rangeHandle.surface` 替换任意 Item：RangeHandle 对 surface 施加 x/y/width/height/color 绑定（x = firstPosition − cutSize、宽 = 区间宽 + 2×cutSize 尖角溢出、高 = 展开/常态切换、色 = color）——\"任意简单 Item 即自动填充区间\"；需精确 fill（无尖角溢出）时置 `cutSize: 0`。\n- **行为插拔**（下）——继承 RangeHandle 的派生组件（LoggingHandle）替换 `rangeHandle` 属性：配套绑定（位置/展开源/颜色/动画门控）与信号换算经动态 Binding/Connections 施加——替换实例同样受控，覆盖行为即插拔。\n- 两层互不依赖：换外观不丢交互、换行为不丢外观。")
+                text: qsTr("两层独立插拔（互不影响）：\n- **外观插拔**（上）——`rangeHandle.surface` 替换任意 Item：**surface 自布局**（布局责任反转——RangeHandle 只设 parent，默认实现 anchors.fill 区间盒）；区间盒几何（x/width/height = 值→位置映射）由 RangeSlider 经 dummyRangeBox Binding 组施加到 rangeHandle——surface fill 即得精确区间，宿主无需自算映射。\n- **行为插拔**（下）——继承 RangeHandle 的派生组件（LoggingHandle）替换 `rangeHandle` 属性：区间盒几何与意图信号换算（Connections onWannaMove*：增量位移 → 值增量、钳制在值域）动态施加——替换实例同样受控，覆盖行为即插拔。\n- 意图信号载荷 = 像素增量位移（wannaMoveFirstX / wannaMoveSecondX / wannaMoveRangeX）——RangeHandle 不换算不钳制，宿主决定如何应用。\n- 两层互不依赖：换外观不丢交互、换行为不丢外观。")
             }
         }
 

@@ -79,11 +79,19 @@ handle 机制），存在外观缺陷（手柄斜边与轨道斜边不吻合、�
   体停）。
 - **锁存分化**：`justMoved` → `firstJustMoved`/`secondJustMoved`（两端独立
   500ms 窗口，互不影响）。
-- **外观通道**：`color`（前景填充）、`bgColor`（轨道背景，默认 75% 透明渲
-  染）、`borderColor`（前景/轨道描边，默认基于 bgColor 自动对比推荐）；前
-  景与轨道同为 Crystal，尖角外溢（`width = parent.width + height`，直边区
-  = 区间/控件宽）。
+- **外观通道**：`color`（前景填充）、`backgroundColor`（轨道背景，默认
+  75% 透明渲染）、`borderColor`（前景/轨道描边，默认基于 backgroundColor
+  自动对比推荐）；前景与轨道同为 Crystal，尖角外溢（`width = parent.width +
+  height`，直边区 = 区间/控件宽）。
 - **测试**：重写为新契约——区间盒几何、前景尖角外溢/收缩/展开、三区几何与
   热区扩展、wannaMove 增量换算与钳制、整体滑移边界、锁存分化、surface 替
   换（自布局）、倒置范围。真实鼠标交互不在 QML 批次自动化范围（offscreen
   不注入合成事件），以信号级换算测试 + 示例页人工验收覆盖。
+- **Slider 同步（2026-08-20）**：`bgColor` 更名 `backgroundColor`（属性即
+  轨道背景色，语义精确）；外观通道扩展至 Slider（轨道渐变左端 =
+  `backgroundColor` 75% 透明——同轨道半透明语义，手柄采样不透明化）；
+  `preferredHeight` 公开属性移除——收缩偏移量内化 pCtrl（默认 handle 与
+  background 的内部配套约定，只缓存偏移量不缓存高度）；background 尺寸改
+  外部 Binding 施加（root − insets，替换后新实例同样受控——内联绑定随默认
+  实例替换丢失，插拔安全）；`encountered` 更名 `expanded`（与 RangeSlider
+  surface 命名统一）。

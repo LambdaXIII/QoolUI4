@@ -12,7 +12,7 @@ points overflowing the interval box outward.
 three-layer structure decouples behavior from appearance:
 
 - **Layer 1 — value model + static background**: the `T.RangeSlider`
-  template and a static `Crystal` hexagonal track (`bgColor` at 75%
+  template and a static `Crystal` hexagonal track (`backgroundColor` at 75%
   opacity, `borderColor` stroke). The track does not participate in
   interaction feedback (the visual focus is on the foreground); it
   overflows the control by its own point height, like the foreground.
@@ -39,10 +39,10 @@ the template's.
 
 - `color : color` (default `Style.accent`)
   The foreground fill color (the crystal spanning the interval).
-- `bgColor : color` (default `Style.buttonText`)
+- `backgroundColor : color` (default `Style.buttonText`)
   The track background color (rendered at 75% opacity by the default
   track).
-- `borderColor : color` (default `ThemeHQ.recommendForeground(bgColor)`)
+- `borderColor : color` (default `ThemeHQ.recommendForeground(backgroundColor)`)
   The stroke color of the foreground crystal and the track.
 - `firstJustMoved : bool` / `secondJustMoved : bool`
   "A value was just written" declarative latch windows — 500 ms each,
@@ -97,7 +97,7 @@ RangeSlider {
 RangeSlider {
     width: 300
     color: Style.active.accent
-    bgColor: Style.active.background
+    backgroundColor: Style.active.background
     borderColor: Style.active.text
 }
 
