@@ -7,26 +7,26 @@ import Qool.Controls
 // + 菱形手柄；交互为模板默认，本批次不测鼠标路径）
 //
 // 被测契约（外部行为与公开契约——不测内部实现）：
-// - 默认状态自洽（implicit 80×25、color = Style.accent、
-//   backgroundColor = Style.buttonText、borderColor = 自动对比推荐、
-//   justMoved 初始 false）
-// - 轨道几何：background 为 Item 容器（尺寸由外部 Binding 控 = root −
-//   insets，与 Control 自动布局一致），内部 Crystal 常态收缩 = root.height −
+// - 默认状态自洽（implicit 150×25、color = Style.accent、
+//   backgroundColor = Style.buttonText、borderColor = 自动对比推荐）
+// - 轨道几何：background 为 Item 容器（尺寸经 Control 标准自动布局 =
+//   root − insets），内部 Crystal 常态收缩 = root.height −
 //   bound(3, h×25%, 25) + 完全居中（水平铺满容器宽、垂直居中）——替换
 //   background 后新实例尺寸同样受控（插拔安全）；轨道静态——值写入不改变
 //   轨道几何
 // - 渐变契约：左端 = backgroundColor 75% 透明、右端 = color，锚定切角内侧
 //   （x = [h/2, w−h/2]——直边区行程）；兜底色 = color（渐进降级）
-// - 手柄：菱形（width = height）、常态 = root.height − 收缩偏移（与轨道
-//   同高贴斜边）、写入值 → 展开占满控件高（justMoved 锁存 500ms）、窗口落
-//   回常态；展开不超出控件边界
+// - 手柄：菱形（width = height）、常态 = 可用高 − 收缩偏移（与轨道
+//   同高贴斜边）、写入值 → 展开占满控件高（TimerLatch 锁存 500ms）、窗口
+//   落回常态；展开不超出控件边界
 // - 采样色不透明化：手柄常态色 = 渐变在值位置的采样色但不透明（position
 //   0 → backgroundColor 不透明版，非 0.75 透明轨道端）
-// - justMoved 锁存窗口（500ms 滑动——写入即触发、独立回落）
+// - 锁存窗口（500ms 滑动——写入即触发、独立回落）——经手柄展开路径断言
+//   （锁存内化于 handle，无独立接口）
 // - insets 响应：background 尺寸 = root 尺寸 − insets
 //
 // 注：真实鼠标交互（模板拖动、hover、pressed 反馈）不在自动化范围——
-// offscreen 不注入合成事件；展开反馈经 justMoved（值写入）路径断言。
+// offscreen 不注入合成事件；展开反馈经值写入（锁存）路径断言。
 //
 // 隔离策略：每个测试函数 createTemporaryObject 独立实例；
 // 动画统一关闭（animationEnabled: false）——展开断言即时。
@@ -89,19 +89,17 @@ TestCase {
 
     function test_defaults() {
         const s = makeSlider({})
-        compare(s.implicitWidth, 80)
+        compare(s.implicitWidth, 150)
         compare(s.implicitHeight, 25)
         compare(s.color, s.Style.accent)
         compare(s.backgroundColor, s.Style.buttonText)
         compare(s.borderColor, ThemeHQ.recommendForeground(s.backgroundColor))
-        compare(s.justMoved, false)
-        verify(s.valueVelocity !== undefined, "valueVelocity 存在")
         // 轨道 = background 本身（默认 Crystal）
         verify(s.background !== null, "background 存在")
     }
 
     function test_trackGeometry() {
-        // 轨道：容器尺寸 = root − insets（外部 Binding），内部 Crystal 常态
+        // 轨道：容器尺寸 = root − insets（标准自动布局），内部 Crystal 常态
         // 收缩 + 居中——静态（不随值变）
         const s = makeSlider({})
         const track = findChild(s.background, "track")
@@ -113,7 +111,7 @@ TestCase {
         compare(track.x, 0, "轨道水平铺满容器宽（完全居中——不外溢）")
         compare(track.y, (40 - 30) / 2, "轨道垂直居中")
         compare(track.borderColor, s.borderColor, "轨道描边消费 borderColor")
-        // 轨道静态——值写入（justMoved）不改变轨道几何
+        // 轨道静态——值写入不改变轨道几何
         s.value = 0.5
         compare(track.width, 200)
         compare(track.height, 30)
@@ -171,18 +169,8 @@ TestCase {
         verify(c.color.a === 1, "position 1 仍不透明")
     }
 
-    function test_justMovedLatch() {
-        // 锁存窗口：写入即触发、500ms 回落
-        const s = makeSlider({})
-        compare(s.justMoved, false)
-        s.value = 0.5
-        verify(s.justMoved, "值写入锁存")
-        wait(600)
-        verify(!s.justMoved, "窗口落")
-    }
-
     function test_backgroundPluggable() {
-        // 替换 background：新实例尺寸仍受外部 Binding 控（root − insets）——
+        // 替换 background：新实例尺寸仍受标准自动布局控（root − insets）——
         // 插拔安全；收缩/外观由替换者自负（容器尺寸 = root − insets）
         const s = createTemporaryObject(sliderWithRectBg, root, {})
         const bg = s.background

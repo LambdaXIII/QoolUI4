@@ -4,6 +4,17 @@
 
 ## [4.0.0] — 2026-08-20
 
+### 变更（slider-background-resizer-align，Slider 对齐 RangeSlider 架构演进）
+
+- **Slider 改标准 background 驱动尺寸**（Slider.qml）：删除「root 直接给默认尺寸 80×25」与 background 尺寸外部 Binding——改自写 implicit 公式（`leftInset + implicitBackgroundWidth + rightInset`，模板不自带）+ background 显式 implicit（150×25）；尺寸经 Control 标准自动布局（background 自动 fill 控件 − insets，替换新实例同样受控——插拔安全不降级）
+- **RangeSlider 默认尺寸统一 150×25**（RangeSlider.qml）：background implicit 200×22 → 150×25——Slider 与 RangeSlider 默认 implicit 统一
+- **Slider handle 改用 ItemAnimatedResizer**（Slider.qml）：删除 handle Crystal 的 `BasicNumberBehavior on height`（width=height 联动）——改 ItemAnimatedResizer 控制 Crystal 宽高缩放（from = 可用高 − 收缩量 / to = 可用高，`resized` 方向开关：hover/按下/锁存三态）——两方向动画独立模板 + 锁定 Binding 目标跟随
+- **锁存内化 + 接口移除**（Slider.qml）：删除公开属性 `justMoved`/`valueVelocity` 与 `NumberNotifier`；root 级 movementLatch 双触发改 handle 内 TimerLatch 单触发（`onValueChanged`）——连续变化窗口经滑动保持等价（RangeSlider 验证）；锁存不暴露接口（"刚移动"感知经手柄展开反馈呈现）
+- **禁用冻结**（Slider.qml）：cResizer 接 `enabled: root.enabled`——禁用时手柄整体静止（含程序化写入展开取消——禁用视觉静态化，同 RangeSlider 决策）
+- **其它对齐**（Slider.qml）：handle 高度 `root.height` → `availableHeight`（有 padding 时正确）；轨道定位 `anchors.centerIn` → `y: halfShrinkSpace` 显式（同 RangeSlider 同构）；`crystalShrinkSize` 更名 `shrinkSize`
+- **测试**（tst_slider.qml）：implicit 断言 80×25 → 150×25；删除 test_justMovedLatch（接口移除，锁存行为由 test_handleRestAndExpand 的展开/回落覆盖）；轨道/插拔注释措辞（外部 Binding → 标准自动布局）
+- **文档/示例**：Slider.md 重写（移除 valueVelocity/justMoved、标准尺寸公式、禁用冻结语义、锁存内化、resizer 动画）；RangeSlider.md 尺寸文本 200×22 → 150×25；示例页 5 处 QoolTip 同步（锁存内化/禁用冻结/自动布局/默认 150×25）
+
 ### 变更（rangeslider-enabled-gate + itemanimatedresizer-docs）
 
 - **RangeSlider 前景 resizer 接 `enabled`**（RangeSlider.qml）：`cResizer` 增加

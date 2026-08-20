@@ -52,8 +52,8 @@ T.RangeSlider {
     // 描边）——全宽、恒为常态高度（不随交互变）+ 垂直居中（y = 收缩偏移/
     // 2）。background 显式 implicit（200×22）供控件 implicit 计算。
     background: Item {
-        implicitHeight: 22
-        implicitWidth: 200
+        implicitHeight: 25
+        implicitWidth: 150
 
         Crystal {
             borderColor: root.borderColor

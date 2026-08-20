@@ -56,7 +56,7 @@ Inherited from `T.RangeSlider`: `first`, `second` (each a
 `RangeSlider`/`Control` members (including `first.handle`/`second.handle`,
 the template handle plug points). See the Qt documentation for the
 inherited members. The implicit size is derived from the template formula
-(`background` 200 × 22 vs. the foreground content, whichever is larger).
+(`background` 150 × 25 vs. the foreground content, whichever is larger).
 
 ## Signals
 

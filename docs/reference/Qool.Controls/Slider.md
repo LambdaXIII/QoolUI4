@@ -1,7 +1,7 @@
 # Slider
 
 A horizontal slider: a hexagonal gradient track with a crystal diamond
-diamond handle (the v3 Color slider visual family, generalized).
+handle (the v3 Color slider visual family, generalized).
 
 `Slider` provides the standard `T.Slider` API (`from`, `to`, `value`,
 `stepSize`, `snapMode`, ...). Interaction is the template default (click
@@ -14,9 +14,18 @@ the cut corners (left end = `backgroundColor` at 75% opacity, right end =
 `color`, default `Style.accent`), and the handle's resting color is the
 gradient sampled at the current value position, rendered opaque
 (`ColorMapper.colorAt(visualPosition)` — follows the position in real time).
-The track's size is driven by external bindings (`root` size minus insets,
-resting height, centered) — a replaced `background` keeps following the
-control automatically.
+
+- **Track** — a static `Crystal` hexagonal gradient track in the
+  `background`, full-width, held at the rest height and vertically centered.
+  It does not participate in interaction feedback.
+- **Handle** — the default `handle` hosts the crystal diamond (the visual
+  focus), which expands to the handle's full size while hovered, pressed, or
+  while a recent value change holds (via `ItemAnimatedResizer` + a
+  `TimerLatch`), and contracts to `size − shrinkSize` when none holds. The
+  handle carries a hover cursor (`Qt.SizeHorCursor`, gated by `enabled`).
+  Replacing `handle` with any `Item` is behavior plugging (template handle
+  contract) — the positioning binding is the host's responsibility (the
+  template never moves handles).
 
 ## Properties
 
@@ -24,37 +33,27 @@ control automatically.
   The gradient's right-end color (the left end is `backgroundColor` at 75%
   opacity) — and the handle's (opaque) sample source. Changing this one
   property changes the whole track gradient + handle sampling. The track
-  gradient is inline by default and cannot be replaced wholesale (v4 shrink:
-  change color via `color`; the background size is binding-driven — `root`
-  size minus insets — so a replaced `background` controls its own content
-  while the size follows the control).
-
+  gradient is inline by default and cannot be replaced wholesale (change
+  color via `color`; the background size follows the control automatically).
 - `backgroundColor : color` (default `Style.buttonText`)
   The track background color — the gradient's left end, rendered at 75%
   opacity on the track (the handle samples the opaque version).
-
 - `borderColor : color` (default `ThemeHQ.recommendForeground(backgroundColor)`)
   The stroke color of the track. The handle stays un-stroked (the diamond's
   small size makes a stroke visually heavy).
-
-- `valueVelocity : real` (read-only)
-  Value-change rate (values per second; `NumberNotifier` 200 ms sampling,
-  directed, drops to zero on a sudden stop).
-
-- `justMoved : bool`
-  "A value was just written" declarative latch window — 500 ms, sliding
-  (continuous changes keep it held). `true` while any value change is within
-  the window.
-
 - `animationEnabled : bool`
   Animation gate — inherited up the parent chain (the host can turn it off
-  uniformly on a parent), falling back to `Style.animationEnabled`.
+  uniformly on a parent), falling back to `Style.animationEnabled`. Gates
+  the handle expansion animation (`ItemAnimatedResizer`); when off, the
+  resize jumps instead of animating.
 
 Inherited from `T.Slider`: `from`, `to`, `value`, `stepSize`, `snapMode`,
 `live`, `pressed`, `position`, `visualPosition`, `increase()`, `decrease()`,
 `moved()`, and all other `Slider`/`Control` members. See the Qt
 documentation for the inherited members. The default implicit size is
-80 × 25.
+`150 × 25`, derived from the `background`'s explicit implicit size via the
+standard template formula (`leftInset + implicitBackgroundWidth +
+rightInset` — the slider has no `contentItem` content of its own).
 
 ## Signals
 
@@ -98,18 +97,22 @@ Slider {
 
 ## Interaction feedback
 
-- Hover / press / just-moved (the 500 ms window after a value change): the
-  handle expands to the control's full height (resting height is
-  `root.height − Qore.bound(3, height × 0.25, 25)` — an internal
-  default-implementation convention shared by the default handle and the
-  default background; the track and handle share the same resting height,
-  stay center-aligned, and the handle's bevels hug the track's bevels),
-  animated under the `animationEnabled` gate. The hover
-  cursor becomes a horizontal double-arrow (only when `enabled`).
+- Hover / press / just-moved (the 500 ms sliding `TimerLatch` window after a
+  value change, hosted inside the handle): the handle expands to the
+  handle's full size (resting size is `availableHeight −
+  Qore.bound(3, height × 0.25, 25)` — an internal default-implementation
+  convention shared by the default handle and the default track; the track
+  and handle share the same resting height, stay center-aligned, and the
+  handle's bevels hug the track's bevels), animated under the
+  `animationEnabled` gate via `ItemAnimatedResizer`. The hover cursor becomes
+  a horizontal double-arrow (only when `enabled`). When `enabled` is off the
+  handle freezes (the resizer's `enabled` follows `root.enabled`) — no hover,
+  no expansion, no cursor feedback.
 - Programmatic `value` writes (e.g. an external binding): the handle expands
-  for about 500 ms (`justMoved` — "a value was written gets feedback",
-  regardless of who wrote it); continuous changes keep the window from
-  dropping via the sample-level `valueVelocity` resets.
+  for about 500 ms (the same latch — "a value was written gets feedback",
+  regardless of who wrote it). The latch is internal to the handle (there is
+  no public "just moved" property; the feedback is observed through the
+  handle itself).
 - Inverted range (`from > to`): the scale reverses; the gradient and the
   sampling follow `visualPosition` automatically.
 
