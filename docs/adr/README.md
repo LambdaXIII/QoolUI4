@@ -35,5 +35,6 @@
 |---|---|
 | 0009 | RangeSlider 模板 handle 回归：窄条 handle + rangeBox 前景（三层重构最终形态，RangeHandle/surface 已撤；含 Slider 架构对齐与接口移除） |
 | 0010 | Slider orientation × RTL：默认件对齐 Qt 官方接口（正交统一，visualPosition 承载镜像） |
+| 0011 | RangeSlider orientation × RTL：默认件对齐 Qt 官方接口（同 Slider 决策模式；纯色轴对称故 RTL 零处理） |
 
 领域术语见根 `CONTEXT.md`「形状体系（QoolBox）」节。

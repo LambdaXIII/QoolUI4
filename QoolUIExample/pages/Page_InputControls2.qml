@@ -221,6 +221,37 @@ BasicPage {
                     text: qsTr("范围：%1 – %2").arg(Math.round(rangeSlider.first.value)).arg(Math.round(rangeSlider.second.value))
                     color: Style.text
                 }
+                // 垂直：orientation × RTL 正交适配（ADR-0011）——handle 窄条
+                // 换向横置、不相交公式随轴换、区间盒纵向映射、implicit 交换
+                RowLayout {
+                    Layout.fillWidth: true
+                    RangeSlider {
+                        id: vertRangeSlider
+                        orientation: Qt.Vertical
+                        Layout.preferredWidth: 40
+                        Layout.preferredHeight: 120
+                        from: 0
+                        to: 100
+                        Component.onCompleted: setValues(25, 75)
+                    }
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 4
+                        Text {
+                            Layout.fillWidth: true
+                            wrapMode: Text.Wrap
+                            text: qsTr("垂直：%1 – %2").arg(Math.round(vertRangeSlider.first.value)).arg(Math.round(vertRangeSlider.second.value))
+                            color: Style.text
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            wrapMode: Text.Wrap
+                            text: qsTr("瘦轨道 + 横置窄条 handle + 纵向区间盒；implicit 交换 25×150")
+                            color: Style.mid
+                            font.pixelSize: 12
+                        }
+                    }
+                }
                 RangeSlider {
                     id: progRangeSlider
                     Layout.fillWidth: true
@@ -239,7 +270,7 @@ BasicPage {
                 }
             }
             QoolTip {
-                text: qsTr("RangeSlider：**T.RangeSlider 模板 + 默认窄条 handle**（激活模板交互——**snapMode/stepSize/live/键盘/nearest/端点钳制全部为模板行为**）+ **Crystal 轨道**（backgroundColor 75% 透明 + borderColor 描边，静态不参与交互反馈）+ **contentItem 内区间盒前景**（rangeBox 承载区间几何，hover 展开）。\n**交互**：双端点拖动（模板 handle 命中即拖）；**snap/live 为模板语义**（吸附 / 拖动中值实时性 / 释放落定全由模板承担）；点击轨道走模板 nearest（跳最近端点）。\n**反馈**：**hover 前景**（rangeBox 内 HoverHandler）→ 前景展开占满区间盒（常态 = 收缩量 limit(高度×0.25, 3, 25)，ItemAnimatedResizer 动画——animationEnabled 门控）。\n**插拔**：`first.handle`/`second.handle` 替换 ＝行为插拔（模板 handle 契约，定位自写：窄条不相交公式）。\n**整体滑移**（中段拖动区间整体移动）非默认能力——宿主自建（contentItem 内 MouseArea 同步操作两端）。")
+                text: qsTr("RangeSlider：**T.RangeSlider 模板 + 默认窄条 handle**（激活模板交互——**snapMode/stepSize/live/键盘/nearest/端点钳制全部为模板行为**）+ **Crystal 轨道**（backgroundColor 75% 透明 + borderColor 描边，静态不参与交互反馈）+ **contentItem 内区间盒前景**（rangeBox 承载区间几何，hover 展开）。\n**交互**：双端点拖动（模板 handle 命中即拖）；**snap/live 为模板语义**（吸附 / 拖动中值实时性 / 释放落定全由模板承担）；点击轨道走模板 nearest（跳最近端点）。\n**反馈**：**hover 前景**（rangeBox 内 HoverHandler）→ 前景展开占满区间盒（常态 = 收缩量 limit(side×0.25, 3, 25)——side = 法向尺寸，ItemAnimatedResizer 动画——animationEnabled 门控）。\n**插拔**：`first.handle`/`second.handle` 替换 ＝行为插拔（模板 handle 契约，定位自写：窄条不相交公式）。\n**orientation×RTL**：`orientation: Qt.Vertical` 正交适配（ADR-0011，同 Slider）——handle 窄条换向横置、不相交公式随轴换（行程 = 可用高 − 高×2）、区间盒纵向映射 + 尖角余量换自身宽、implicit 交换 25×150、光标 SplitVCursor；RTL 由 visualPosition 免费承载（垂直不受 RTL 影响，值大恒在顶）。\n**整体滑移**（中段拖动区间整体移动）非默认能力——宿主自建（contentItem 内 MouseArea 同步操作两端）。")
             }
         }
 
@@ -257,7 +288,7 @@ BasicPage {
                     // 外观通道：换色即换整条区间滑块视觉（color 前景 /
                     // backgroundColor 轨道 / borderColor 描边）
                     color: Style.active.accent
-                    backgroundColor: Style.active.background
+                    backgroundColor: Style.active.base
                     borderColor: Style.active.text
                 }
                 RangeSlider {

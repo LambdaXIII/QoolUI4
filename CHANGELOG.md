@@ -2,6 +2,20 @@
 
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
+## [4.0.0] — 2026-08-21
+
+### 变更（rangeslider-orientation-rtl，RangeSlider 对齐 Qt 官方 orientation×RTL 正交统一）
+
+- **法向尺寸抽象 `side`**（RangeSlider.qml）：`side = horizontal ? availableHeight : availableWidth`（同 Slider）——轨道/前景收缩、窄条换向全部基于它（横竖对称、镜像无关）；`shrinkSize` 基准 `root.height` → `side`（修正垂直时基准轴错误——垂直法向是宽非高）
+- **background implicit 随 orientation 交换**：150×25 ↔ 25×150（对齐官方"垂直默认窄"惯例）
+- **轨道换轴**：沿主轴铺满 + 法向常态收缩居中（水平收缩高、垂直收缩宽）
+- **双 handle 窄条换向 + 双分支定位**：水平竖条（w = side/2、h = side）↔ 垂直横条（w = side、h = side/2）；不相交公式随轴换（水平行程 = availableWidth − w×2、垂直 = availableHeight − h×2；second 起步偏移水平 +width、垂直 +height）；光标随轴向（SplitHCursor ↔ SplitVCursor）；RTL 由模板免费承载（vertical+RTL 跟随 Qt 模板，不特判）
+- **rangeBox 区间盒跨轴统一**：主轴起点 = min(first.vP, second.vP) × 行程、跨度 = |second.vP − first.vP| × 行程 + 尖角余量（水平 = 自身高、垂直 = 自身宽）——vP 差在垂直/RTL 为负故 abs（区间大小镜像无关）；LTR 水平下 min/abs 数学等价既有公式（不破水平行为）。**附带修复**：既有公式 (second.vP − first.vP) 在 RTL 下为负（区间盒负宽，未测暴露）
+- **纯色无渐变**：轨道/前景为 Crystal 纯色轴对称，RTL 下无需渐变端点对调（相对 Slider 省一处处理）
+- **测试**（tst_rangeslider.qml）：新增 test_verticalGeometry / test_rtlMapping / test_verticalRtlCombined（垂直横条 handle、不相交随轴、rangeBox 跨轴 min/abs、垂直+RTL 与 LTR 一致；offscreen 实测确认 T.RangeSlider 垂直 visualPosition 恒 = 1 − position，与 0010 对 T.Slider 实测一致）；现有水平断言数学等价不破
+- **文档**：RangeSlider.md 更新（概述 orientation/RTL 契约段、Track/Handles/Foreground 跨轴描述、shrinkSize 基准 side、implicit 交换、垂直示例）；ADR 0011 新建（决策先行锚定，spec 待立）
+- **示例页**（Page_InputControls2.qml，测试通过后实施）：RangeSlider 展示区补垂直演示（垂直 RangeSlider + 说明文本）+ QoolTip 补 orientation×RTL 契约（handle 换向/不相交随轴/区间盒纵向/implicit 交换/光标）；**修复既有无效属性引用** `Style.active.background` → `Style.active.base`（StyleGroupAgent 无 background 属性——QColor undefined 警告，示例页与 RangeSlider.md 文档示例同修）
+
 ## [4.0.0] — 2026-08-20
 
 ### 变更（build-auto-configure + tests-agents，build 自动前置 configure + 测试设施规范补充）

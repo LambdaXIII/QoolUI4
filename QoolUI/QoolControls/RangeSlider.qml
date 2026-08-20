@@ -1,4 +1,5 @@
-// Qool.Controls.RangeSlider：区间滑块（T.RangeSlider 模板 API 兼容）。
+// Qool.Controls.RangeSlider：区间滑块（水平/垂直 + RTL，T.RangeSlider 模板
+// API 兼容；orientation×RTL 正交统一见 ADR-0011，同 Slider 的 0010 模式）。
 //
 // 结构：模板 handle（默认透明窄条，激活模板交互——snap/live/键盘/nearest/
 // 端点钳制免费）+ Crystal 轨道（background，静态）+ contentItem 内区间盒
@@ -41,71 +42,99 @@ T.RangeSlider {
 
     SmartObject {
         id: pCtrl
+        // 法向尺寸抽象：轨道/前景/窄条的法向尺寸——水平时 = 可用高、
+        // 垂直时 = 可用宽（同 Slider）。横竖对称、镜像无关；收缩量/轨道
+        // 收缩/前景收缩/窄条换向全部基于它。
+        readonly property real side: root.horizontal ? root.availableHeight : root.availableWidth
         // 常态收缩量：轨道与前景从全尺寸收缩的量（hover 展开时前景占满
         // 区间盒；轨道恒为常态——静态，不参与交互反馈）。
-        readonly property real shrinkSize: Qore.bound(3, root.height * 0.25, 25)
-        // 收缩偏移量的一半——轨道垂直居中（收缩后上下各留 shrinkSize/2）。
+        readonly property real shrinkSize: Qore.bound(3, side * 0.25, 25)
+        // 收缩偏移量的一半——轨道沿法向居中（收缩后两端各留 shrinkSize/2）。
         readonly property real halfShrinkSpace: shrinkSize / 2
     }
 
     // 轨道层：Crystal 六边形（backgroundColor 75% 透明 + borderColor
-    // 描边）——全宽、恒为常态高度（不随交互变）+ 垂直居中（y = 收缩偏移/
-    // 2）。background 显式 implicit（150×25）供控件 implicit 计算。
+    // 描边）——沿主轴铺满、恒为法向常态（不随交互变）+ 沿法向居中（y =
+    // 收缩偏移/2 水平、x = 收缩偏移/2 垂直）。background 显式 implicit
+    // （150×25，垂直 25×150）供控件 implicit 计算。
     background: Item {
-        implicitHeight: 25
-        implicitWidth: 150
+        // implicit 随 orientation 交换（水平 150×25 ↔ 垂直 25×150）——对齐
+        // 官方"垂直默认窄"惯例；根 implicit 公式本身不变（background 项
+        // implicit 自适应）
+        implicitHeight: root.horizontal ? 25 : 150
+        implicitWidth: root.horizontal ? 150 : 25
 
         Crystal {
             borderColor: root.borderColor
             color: Qt.alpha(root.backgroundColor, 0.75)
-            width: parent.width
-            height: parent.height - pCtrl.shrinkSize
-            y: pCtrl.halfShrinkSpace
+            // 轨道沿主轴铺满（尖点贴边不外溢）、沿法向常态收缩 + 居中
+            // （水平收缩高、垂直收缩宽）——法向居中不随镜像变化
+            width: root.horizontal ? parent.width : parent.width - pCtrl.shrinkSize
+            height: root.horizontal ? parent.height - pCtrl.shrinkSize : parent.height
+            x: root.horizontal ? 0 : pCtrl.halfShrinkSpace
+            y: root.horizontal ? pCtrl.halfShrinkSpace : 0
         }
     }
 
     // —— 默认透明 handle（模板 handle 插拔点：宿主替换即自定义端点命中/
-    // 视觉/光标）：窄条（宽 = 高/2）——视觉由前景 rangeCrystal 承担，handle
-    // 只做模板拖动/键盘的命中基准。
+    // 视觉/光标）：窄条随轴换向（水平竖条宽 = 高/2、垂直横条高 = 宽/2，法向
+    // 满、主轴厚 = 法向/2）——视觉由前景 rangeCrystal 承担，handle 只做模板
+    // 拖动/键盘的命中基准。
     //
-    // 不相交公式：行程 = availableWidth − width×2（扣除两个 handle 的宽），
-    // first 从 0 起、second 从 width 起——两个 handle 各自占 width，任意值
-    // 下永不相交（端点重合时相邻不重叠）。用 visualPosition（RTL/垂直时
-    // 反向）而非 position，与模板一致。y 垂直居中于可用区；z:10 保证盖在
-    // contentItem 前景之上、拖动命中不受前景遮挡。
+    // 不相交公式随轴换：水平行程 = availableWidth − width×2（扣除两个 handle
+    // 的宽）、垂直行程 = availableHeight − height×2——first 从 0 起、second
+    // 从 width/height 起，两 handle 各自占侧、任意值下永不相交（端点重合时
+    // 相邻不重叠）。用 visualPosition（RTL/垂直时反向）而非 position，与
+    // 模板一致。法向居中于可用区；z:10 保证盖在 contentItem 前景之上、拖动
+    // 命中不受前景遮挡。
     first.handle: Item {
-        height: root.availableHeight
-        width: height / 2
-        x: root.leftPadding + root.first.visualPosition * (root.availableWidth - width * 2)
-        y: root.topPadding + root.availableHeight / 2 - height / 2
+        // 窄条换向：水平竖条（w = side/2、h = side）↔ 垂直横条（w = side、
+        // h = side/2——法向满、主轴厚 = 法向/2）
+        width: root.horizontal ? pCtrl.side / 2 : pCtrl.side
+        height: root.horizontal ? pCtrl.side : pCtrl.side / 2
+        // 定位双分支（handle delegate 须自写定位——模板不注入，官方双分支
+        // 完整公式含 padding）：水平 x 由 visualPosition（RTL 镜像）驱动、
+        // y 居中；垂直 y 由 visualPosition 驱动、x 居中。不相交公式随轴换
+        // （水平行程 = availableWidth − w×2、垂直 = availableHeight − h×2——
+        // 两 handle 各自占侧、任意值不相交）。RTL 由模板免费承载（vertical +
+        // RTL 时 visualPosition 仍反转，跟随 Qt 模板语义——不特判）
+        x: root.horizontal ? root.leftPadding + root.first.visualPosition * (root.availableWidth - width * 2)
+                           : root.leftPadding + root.availableWidth / 2 - width / 2
+        y: root.horizontal ? root.topPadding + root.availableHeight / 2 - height / 2
+                           : root.topPadding + root.first.visualPosition * (root.availableHeight - height * 2)
         z: 10
 
         MouseArea {
             enabled: root.enabled
-            cursorShape: Qt.SplitHCursor
+            cursorShape: root.horizontal ? Qt.SplitHCursor : Qt.SplitVCursor
             acceptedButtons: Qt.NoButton
             anchors.fill: parent
         }
     }
 
     second.handle: Item {
-        height: root.availableHeight
-        width: height / 2
-        x: root.leftPadding + width + root.second.visualPosition * (root.availableWidth - width * 2)
-        y: root.topPadding + root.availableHeight / 2 - height / 2
+        // 窄条换向（同 first）；second 起步偏移随轴换：水平 + width（从
+        // first 宽处起步）、垂直 + height（从 first 高处起步）
+        width: root.horizontal ? pCtrl.side / 2 : pCtrl.side
+        height: root.horizontal ? pCtrl.side : pCtrl.side / 2
+        x: root.horizontal ? root.leftPadding + width + root.second.visualPosition * (root.availableWidth - width * 2)
+                           : root.leftPadding + root.availableWidth / 2 - width / 2
+        y: root.horizontal ? root.topPadding + root.availableHeight / 2 - height / 2
+                           : root.topPadding + height + root.second.visualPosition * (root.availableHeight - height * 2)
         z: 10
 
         MouseArea {
             enabled: root.enabled
-            cursorShape: Qt.SplitHCursor
+            cursorShape: root.horizontal ? Qt.SplitHCursor : Qt.SplitVCursor
             acceptedButtons: Qt.NoButton
             anchors.fill: parent
         }
     }
 
-    // —— 前景层（contentItem 内）：rangeBox 区间盒承载——x/width 随两端
-    // visualPosition（值→位置映射）：左边缘 = first 视觉位、宽 = 区间视觉
-    // 宽 + 自身高（多出 height 作尖角外溢/对齐余量）；height = 可用高。
+    // —— 前景层（contentItem 内）：rangeBox 区间盒承载——主轴（水平 x /
+    // 垂直 y）起点 = min(first.vP, second.vP) × 行程、跨度 = |second.vP −
+    // first.vP| × 行程 + 尖角余量（水平 = 自身高、垂直 = 自身宽，多出余量
+    // 作尖角外溢/对齐）；法向满宽/满高 + 居中。
     contentItem: Item {
         // 值变化锁存（TimerLatch）：拖动/键盘/程序化改值后前景保持展开
         // interval（500ms）——任一 handle 值变化即触发（滑动窗口内持续保持），
@@ -130,10 +159,20 @@ T.RangeSlider {
 
         Item {
             id: rangeBox
-            height: parent.height
-
-            x: root.first.visualPosition * (parent.width - height)
-            width: (parent.width - height) * (root.second.visualPosition - root.first.visualPosition) + height
+            // 区间盒跨轴统一：主轴（水平 x / 垂直 y）起点 = min(first.vP,
+            // second.vP) × 行程、跨度 = |second.vP − first.vP| × 行程 + 尖角
+            // 余量（水平 = 自身高、垂直 = 自身宽）——vP 差在垂直/RTL 为负，
+            // 故 abs（区间大小镜像无关）；法向满宽/满高 + 居中。LTR 水平下
+            // min/abs 数学等价既有公式（不破水平行为）。Crystal 连体尖角外溢
+            // 余量随轴换：水平 = height、垂直 = width（切角 = 短边/2）
+            x: root.horizontal ? Math.min(root.first.visualPosition, root.second.visualPosition) * (parent.width - height)
+                               : parent.width / 2 - width / 2
+            y: root.horizontal ? parent.height / 2 - height / 2
+                               : Math.min(root.first.visualPosition, root.second.visualPosition) * (parent.height - width)
+            width: root.horizontal ? (parent.width - height) * Math.abs(root.second.visualPosition - root.first.visualPosition) + height
+                                   : parent.width
+            height: root.horizontal ? parent.height
+                                    : (parent.height - width) * Math.abs(root.second.visualPosition - root.first.visualPosition) + width
 
             // hover 展开反馈驱动源：前景 hover 即展开、离开收缩——与下方
             // latch（值变化锁存）共同驱动 resized（hovered || latch.active）。

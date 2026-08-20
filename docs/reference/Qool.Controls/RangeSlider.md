@@ -1,12 +1,12 @@
 # RangeSlider
 
-An interval slider built on the `T.RangeSlider` template: template
-`first`/`second` handles (transparent narrow strips by default, activating
-the template interaction state machine), a static `Crystal` track, and a
-foreground crystal hosted in a `rangeBox` inside the `contentItem` that
-follows the interval geometry and expands on hover. The selected interval
-is displayed as one unified shape — left point + straight middle + right
-point.
+An interval slider (horizontal/vertical + RTL) built on the
+`T.RangeSlider` template: template `first`/`second` handles (transparent
+narrow strips by default, activating the template interaction state
+machine), a static `Crystal` track, and a foreground crystal hosted in a
+`rangeBox` inside the `contentItem` that follows the interval geometry and
+expands on hover. The selected interval is displayed as one unified shape
+— left point + straight middle + right point.
 
 `RangeSlider` keeps the full `T.RangeSlider` API (`first`/`second` values,
 `from`, `to`, `stepSize`, `snapMode`, `live`, `setValues()`). The default
@@ -15,25 +15,60 @@ stepping, nearest click behavior and endpoint clamping are all template
 behavior** — nothing is re-implemented.
 
 - **Track** — a static `Crystal` hexagonal track (`backgroundColor` at 75%
-  opacity, `borderColor` stroke) in the `background`, full-width, held at
-  the rest height and vertically centered. It does not participate in
-  interaction feedback (the visual focus is on the foreground).
+  opacity, `borderColor` stroke) in the `background`, spanning the main
+  axis and held at the rest size along the normal, centered on it
+  (horizontal: full width, `height − shrinkSize`, vertically centered;
+  vertical: full height, `width − shrinkSize`, horizontally centered). It
+  does not participate in interaction feedback (the visual focus is on the
+  foreground).
 - **Handles** — `first.handle`/`second.handle` default to transparent
-  strips (`width = height / 2`), each carrying a hover cursor
-  (`Qt.SplitHCursor`, gated by `enabled`). Their positioning uses a
-  non-overlapping formula: the travel is `availableWidth − width × 2`
-  (both handles' widths deducted), `first` starts at `0`, `second` at
-  `width` — so the two never intersect at any value. Positioning uses
-  `visualPosition` (RTL/vertical-aware). Replacing them with any `Item` is
-  **behavior plugging** (template handle contract) — the positioning
-  binding is the host's responsibility, the template never moves handles.
+  narrow strips that **re-orient** with the axis: horizontal is a vertical
+  strip (`width = side / 2`, `height = side`), vertical is a horizontal
+  strip (`width = side`, `height = side / 2` — full normal, main-thickness
+  = normal / 2), where `side = horizontal ? availableHeight : availableWidth`.
+  Each carries a hover cursor (`Qt.SplitHCursor` horizontal /
+  `Qt.SplitVCursor` vertical, gated by `enabled`). Their positioning uses a
+  per-axis non-overlapping formula: horizontal travel `availableWidth −
+  width × 2` (both handles' widths deducted), `first` starts at `0`,
+  `second` at `width`; vertical travel `availableHeight − height × 2`,
+  `first` at `0`, `second` at `height` — so the two never intersect at any
+  value. Positioning uses `visualPosition` (RTL/vertical-aware). Replacing
+  them with any `Item` is **behavior plugging** (template handle contract)
+  — the positioning binding is the host's responsibility, the template
+  never moves handles.
 - **Foreground** — a `Crystal` hosted in `rangeBox` (an `Item` inside the
-  `contentItem`). `rangeBox` maps the interval: `x` from `first`'s visual
-  position, `width = interval visual width + height` (the extra `height`
-  leaves room for the point overflow). The foreground expands to the
-  `rangeBox` size while hovered **or while a recent value change holds**
-  (via `ItemAnimatedResizer` + a `TimerLatch`) and contracts to
-  `size − shrinkSize` when neither holds.
+  `contentItem`). `rangeBox` maps the interval along the main axis with a
+  unified formula: start = `min(first.visualPosition,
+  second.visualPosition)` × travel, span = `|second.visualPosition −
+  first.visualPosition|` × travel + the point-overflow allowance (the
+  allowanced is the shape's own `height` horizontally, `width` vertically —
+  cut = short side / 2). The absolute difference keeps the span positive in
+  RTL and vertical (where `visualPosition` reverses); under horizontal LTR
+  it equals the plain interval, matching the simpler reading. The
+  foreground expands to the `rangeBox` size while hovered **or while a
+  recent value change holds** (via `ItemAnimatedResizer` + a `TimerLatch`)
+  and contracts to `size − shrinkSize` when neither holds.
+
+## Orientation and RTL
+
+`orientation` (`Qt.Horizontal`/`Qt.Vertical`) and RTL (`LayoutMirroring`)
+are orthogonal:
+
+- **Axis** — `horizontal` picks the handles' travel axis and the normal
+  (`side = horizontal ? availableHeight : availableWidth`) drives the
+  track/fill contraction, the shrink amount and the strip orientation.
+  `shrinkSize = Qore.bound(3, side * 0.25, 25)`.
+- **RTL affects only horizontal** — the handles travel via `visualPosition`
+  (mirrored: value-increasing moves left), and the `rangeBox` span stays
+  positive via the absolute difference; the track/fill are solid colors, so
+  no gradient endpoints need swapping (unlike `Slider`).
+- **Vertical ignores RTL** — Qt's vertical slider always shows value
+  increasing upward (`visualPosition` is constantly `1 − position`, so a
+  `LayoutMirroring` has no effect).
+- **Implicit size** swaps with orientation (`150 × 25` ↔ `25 × 150`),
+  matching the official "vertical is narrow" convention.
+- **Value mapping** is the template default — drag/keys/wheel map x or y
+  per orientation, RTL reverses via `visualPosition`. No self-written logic.
 
 ## Properties
 
@@ -56,7 +91,8 @@ Inherited from `T.RangeSlider`: `first`, `second` (each a
 `RangeSlider`/`Control` members (including `first.handle`/`second.handle`,
 the template handle plug points). See the Qt documentation for the
 inherited members. The implicit size is derived from the template formula
-(`background` 150 × 25 vs. the foreground content, whichever is larger).
+(`background` 150 × 25 vs. the foreground content, whichever is larger),
+swapping to 25 × 150 in the vertical orientation.
 
 ## Signals
 
@@ -90,7 +126,7 @@ RangeSlider {
 RangeSlider {
     width: 300
     color: Style.active.accent
-    backgroundColor: Style.active.background
+    backgroundColor: Style.active.base
     borderColor: Style.active.text
 }
 
@@ -120,6 +156,16 @@ RangeSlider {
 }
 ```
 
+// Vertical: implicit size swaps to 25×150, the handles travel along y
+// (value increases upward), the interval fills bottom → top.
+RangeSlider {
+    orientation: Qt.Vertical
+    width: 40
+    height: 300
+    Component.onCompleted: setValues(0.25, 0.75)
+}
+```
+
 ## Interaction feedback
 
 - **Dragging** is template behavior: each handle is hit-tested by the
@@ -134,9 +180,9 @@ RangeSlider {
   `height/2`) while hovered (hover only counts within the crystal shape —
   the `rangeBox` `containmentMask` restricts hit-testing to the crystal)
   or while a recent value change holds (`TimerLatch`, 500 ms sliding
-  window), then contracts by `shrinkSize` (`Qore.bound(3, height * 0.25,
-  25)`) when neither holds. The expansion is animated
-  (`ItemAnimatedResizer`) unless `animationEnabled` is off.
+  window), then contracts by `shrinkSize` (`Qore.bound(3, side * 0.25,
+  25)`, `side` = the normal size) when neither holds. The expansion is
+  animated (`ItemAnimatedResizer`) unless `animationEnabled` is off.
 - Inverted range (`from > to`): positions reverse; the interval stays
   positive (the template guarantees `first.position <= second.position`).
 - Narrow/coincident intervals: the crystal's cut follows the shape's own

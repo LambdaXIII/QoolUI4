@@ -245,4 +245,85 @@ TestCase {
         verify(s.first.handle.objectName === "customHandle", "first handle 已替换")
         verify(s.second.handle !== null, "second handle 存在")
     }
+
+    // —— orientation × RTL 契约（ADR-0011，对齐 Slider 的 0010 模式）——
+    // 正交统一：orientation 承载轴向、RTL 镜像仅水平生效；side = 法向尺寸
+    // （水平 = availableHeight、垂直 = availableWidth）横竖对称、镜像无关。
+    // 垂直 visualPosition 恒 = 1 − position（Qt 垂直惯例，值大在顶）。
+    // 区间盒跨轴统一：起点 = min(first.vP, second.vP) × 行程、跨度 =
+    // |second.vP − first.vP| × 行程 + 尖角余量（水平 = 自身高、垂直 = 自身
+    // 宽）——vP 差在垂直/RTL 为负，故 abs（区间大小镜像无关）；LTR 水平下
+    // min/abs 数学等价既有公式（不破水平断言）。
+    // 隔离：每用例独立实例；RTL 经 LayoutMirroring.enabled + tryCompare
+    // mirrored（轮询）。基准 40×200 → side = availableWidth = 40、
+    // shrinkSize = 10、handle 高 = 20、行程 = availableHeight − h×2 = 160。
+    // 注：compare/verify 第三参用英文——中文第三参触发 QML 引擎 bug
+    // （rc 无输出；见摩擦记录）。注释（//）用中文无碍。
+
+    function test_verticalGeometry() {
+        // 垂直：handle 横条（w = side、h = side/2）、x 居中、y 由
+        // visualPosition（值小在底）；轨道沿法向（宽）收缩 + 居中；区间盒
+        // 沿 y 轴锚定 + 纵向行程；implicit 交换
+        const s = makeSlider({ orientation: Qt.Vertical, width: 40, height: 200 })
+        const track = s.background.children[0]
+        compare(s.implicitWidth, 25, "v implicitW swapped")
+        compare(s.implicitHeight, 150, "v implicitH swapped")
+        compare(s.first.handle.width, 40, "h w = side")
+        compare(s.first.handle.height, 20, "h h = side/2")
+        compare(s.second.handle.width, 40, "sh w = side")
+        compare(s.second.handle.height, 20, "sh h = side/2")
+        compare(s.first.handle.x, 0, "fh x centered")
+        compare(s.second.handle.x, 0, "sh x centered")
+        compare(s.first.handle.y, 160, "fh val0 bottom")
+        compare(s.second.handle.y, 20, "sh val1 top")
+        verify(s.first.handle.y >= s.second.handle.y, "fh below sh (non-intersect)")
+        s.setValues(0.25, 0.75)
+        compare(s.first.handle.y, 0.75 * 160, "fh vP0.75 y120")
+        compare(s.second.handle.y, 20 + 0.25 * 160, "sh vP0.25 y60")
+        verify(s.first.handle.y + s.first.handle.height >= s.second.handle.y, "non-intersect after write")
+        compare(track.width, 40 - 10, "track shrink along normal")
+        compare(track.x, 5, "track normal centered")
+        compare(track.height, 200, "track full main")
+        compare(track.y, 0, "track no main offset")
+        const rb = rangeBox(s)
+        compare(rb.width, 40, "rb width full (vertical main)")
+        compare(rb.x, 0, "rb x centered")
+        s.setValues(0, 1)
+        compare(rb.y, 0, "rb default minvP0 top")
+        compare(rb.height, 160 * 1 + 40, "rb default full span")
+        s.setValues(0.25, 0.75)
+        compare(rb.y, 0.25 * 160, "rb start minvP")
+        compare(rb.height, 0.5 * 160 + 40, "rb span abs")
+    }
+
+    function test_rtlMapping() {
+        // 水平 + RTL：handle 值增大靠左（visualPosition 反转）、区间盒
+        // 起点 = 值大端（min vP）仍正向（abs）
+        const s = makeSlider({})
+        s.LayoutMirroring.enabled = true
+        tryCompare(s, "mirrored", true)
+        s.setValues(0.25, 0.75)
+        compare(s.first.handle.x, 0.75 * 160, "RTL first right")
+        compare(s.second.handle.x, 20 + 0.25 * 160, "RTL second left")
+        verify(s.first.handle.x >= s.second.handle.x + s.second.handle.width, "RTL non-intersect")
+        const rb = rangeBox(s)
+        compare(rb.x, 0.25 * 160, "RTL rb start minvP")
+        compare(rb.width, 0.5 * 160 + 40, "RTL rb span abs")
+        compare(s.implicitWidth, 150, "RTL implicitW same")
+        compare(s.implicitHeight, 25, "RTL implicitH same")
+    }
+
+    function test_verticalRtlCombined() {
+        // 垂直 + RTL：Qt 垂直视觉不受 RTL 影响（visualPosition 恒反转、值大
+        // 恒在顶）——与垂直 LTR 完全一致，验证两维度不冲突（RTL 仅水平生效）
+        const s = makeSlider({ orientation: Qt.Vertical, width: 40, height: 200 })
+        s.LayoutMirroring.enabled = true
+        tryCompare(s, "mirrored", true)
+        s.setValues(0.25, 0.75)
+        compare(s.first.handle.y, 0.75 * 160, "vrtl first bottom")
+        compare(s.second.handle.y, 20 + 0.25 * 160, "vrtl second top")
+        const rb = rangeBox(s)
+        compare(rb.y, 0.25 * 160, "vrtl rb start unchanged")
+        compare(rb.height, 0.5 * 160 + 40, "vrtl rb span unchanged")
+    }
 }
