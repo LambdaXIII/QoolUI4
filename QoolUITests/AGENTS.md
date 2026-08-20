@@ -30,6 +30,7 @@ QoolUI 的测试设施：Qt Test + Qt Quick Test 双栈程序化测试。本文�
 ### 断言与隔离
 
 - 浮点断言自备 `fuzzy_eq`（QCOMPARE 浮点是精确比较）；属性/信号契约用 `QSignalSpy` + 相等守卫断言
+- **compare/verify 第三参避免非 ASCII**（QML 引擎 bug）：第三参含中文等非 ASCII 时测试**加载期静默失败**（rc 3 无输出、无 Totals、无 initTestCase），英文第三参正常；**注释**（`//`）不受限
 
 ### QML 测试批次组织
 
@@ -37,6 +38,8 @@ QoolUI 的测试设施：Qt Test + Qt Quick Test 双栈程序化测试。本文�
 - 新增 QML 测试批次：复制 `qml/CMakeLists.txt` 的 tst_qool_qml 段（add_executable + 编译定义 + add_test + 注册表登记），QUICK_TEST_SOURCE_DIR 指向新批次目录
 - harness 共享 `qml_test_main.cpp` 模板；import path 不必按模块区分（`QT_QML_OUTPUT_DIRECTORY = build/build-<kit>-<Type>/qml` 全局，引擎沿模块依赖链自动解析）
 - **测试文件运行期扫描加载**（`QUICK_TEST_SOURCE_DIR` 指向源码目录，harness target 只编译 `qml_test_main.cpp`）：修改 `tst_*.qml` **无需重链/无需构建**，直接跑 exe 即加载新文件；新增 `tst_*.qml` 运行期自动发现。测试文件不在 CMake 依赖图内——ninja 报 "no work to do" 是正确行为，勿误判为需删 exe 强制重链（qml 内容变化永远即时生效）
+- **库 QML 改动需重建**（与上条区分）：改 `tst_*.qml` 即时生效，但改**库模块源码**（`QoolUI/QoolControls/*.qml`、`Qool/Qool/*.qml` 等）**必须 `build` 重建模块 + 重链 harness** 才生效——改动库组件后直接跑 exe 会按旧实现跑，勿误判「代码没生效/错了」
+- **QML 测试文件修改用 edit 工具**：勿整文件 python 重写（引入 CRLF/LF 行尾噪音，git diff 全文件变化）；确需脚本重写时 git diff 用 `-w` 复核真实差异
 
 ## 测试策略
 
@@ -46,9 +49,9 @@ QoolUI 的测试设施：Qt Test + Qt Quick Test 双栈程序化测试。本文�
 
 ## 工作流
 
-- **测试工作流**（SHOULD）：修改 QoolUI 库代码或测试后，运行 test 脚本（`python Scripts/qoolui_build_windows.py test`）验证——测试设施是全仓库改动的回归哨兵
+- **测试工作流**（SHOULD）：验证强度分级见根 `AGENTS.md`「验证策略」——全量 `test` 脚本（`python Scripts/qoolui_build_windows.py test`）是「完整落地一套修改」的收尾回归哨兵，**非默认动作**；小改动按分级模型选通道（针对性单测试 `ctest -R` / 用户运行验证 / 编译 build）
 - **摩擦求助**（MUST）：摩擦定义为「无法运行测试用例」；多次尝试无法解决 → 暂停测试求助用户
-- **摩擦反馈回路**（SHOULD）：测试后若发生摩擦，总结摩擦点并提出 Tests 规范改进方案，交用户批准（不自动改）
+- **摩擦反馈回路**（SHOULD）：测试后若发生摩擦，总结摩擦点并提出 Tests 规范改进方案，交用户批准（不自动改）；已定案的摩擦与规避**就地沉淀到本规范相应小节**（如「输出验证」「断言与隔离」「QML 测试批次组织」），不散落到临时文件
 
 ## CMake 组织（as-shipped）
 
@@ -75,8 +78,10 @@ Windows 一键（环境+配置+构建+测试）操作流程见 `README.md`（`py
 ### 输出验证（Qt Test stdout）
 
 - Qt Test 测试结果（PASS/FAIL/FAIL! 详情）走 **stdout**；Qt 消息（QDEBUG/QINFO/QWARN、QML debugging 提示）走 stderr
-- **陷阱（Windows）**：部分 shell（MSYS/bash 工具）的文件重定向（`> file` 得 0 字节）与长输出截断会破坏 Qt Test 的 stdout，造成「无输出/静默失败」误判——Qt Test 本身输出完整
-- **可靠验证通道**（SHOULD）：python subprocess 管道捕获，或真实终端；ctest `--output-on-failure`（testPresets 已配置 `outputOnFailure:true`）失败时透出聚合 exe 内部 FAIL! 详情（Actual/Expected/location）；单文件调试 `exe -input <绝对路径> -platform offscreen` 输出同样完整
+- **通道分级（MSYS 管道伪象是元问题）**：MSYS/bash 工具环境会吞 Qt Test 的 stdout（文件重定向得 0 字节、退出码不可信、bash 内 python subprocess 捕获为空），还会破坏 `-input` 的 Windows 盘符路径（`D:/...` 被解析成函数名 `D()`）——**这些不是测试或设施缺陷，是观测通道问题，勿误诊成「测试没跑/缺 env/路径错」**
+  - **可靠**：eval 内核 python subprocess + `stdout=open(tmp,"wb")` 文件重定向（真实 CreateProcess，不受 MSYS 影响）；真实终端（cmd/PowerShell/PTY）；直接运行 `exe -input <绝对路径> -platform offscreen`
+  - **不可靠**：MSYS bash 直接跑 exe、bash 内 python 脚本的 subprocess stdout 捕获（rc 可信、stdout 不可信）——测试输出验证一律走 eval 内核或真实终端，不在 bash 里判读
+- ctest `--output-on-failure`（testPresets 已配置 `outputOnFailure:true`）在可靠通道下失败时完整透出聚合 exe 内部 FAIL! 详情（Actual/Expected/location）
 
 ## 已知经验（Windows 特有，供跨平台对照）
 

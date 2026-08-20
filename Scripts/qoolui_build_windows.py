@@ -112,9 +112,9 @@ def main():
     parser.add_argument("--version", default=common.DEFAULT_VERSION,
                         help="deploy/release 归档版本号")
     parser.add_argument("extra", nargs="*",
-                        help="透传 cmake/ctest/程序参数（可前置 -- 分隔）")
-    args, unknown = parser.parse_known_args()
-    args.extra = [a for a in unknown if a != "--"]  # 剥离 -- 分隔符（不传给程序）
+                        help="透传 cmake/ctest/程序参数（须前置 -- 分隔）")
+    args = parser.parse_args()
+    # positional 已收集 -- 后全部 token；parse_args 不含 -- 分隔符，无需要过滤
 
     qt_kit = common.qt_kit_dir(args.qt_dir or os.environ.get("QT_DIR", ""),
                                args.kit)

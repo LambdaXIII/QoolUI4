@@ -4,6 +4,18 @@
 
 ## [4.0.0] — 2026-08-21
 
+### 变更（adr-timeliness，ADR 时效性总体规则）
+
+- **根 AGENTS.md 工作流约定新增「ADR 时效性（MUST）」**：ADR 是决策锚定、优先级最高——任何讨论/修订/决策之后、动手实施之前，先检查相关 ADR 是否需要同步调整，保证 ADR 与当前决策一致、不滞后（索引见 `docs/adr/README.md`）
+
+### 变更（verification-strategy + test-facility-friction，验证策略分级 + 测试设施整改）
+
+- **根 AGENTS.md 新增「验证策略」节**：验证强度随改动类型分级（注释/文档→走读；纯 QML/行为→用户运行验证或针对性单测试；构建结构→编译；完整落地→build+全量 ctest）——**全量编译+测试非默认动作，是「完整落地」的收尾回归哨兵**。验证决策遵循「提前判断、中途不纠结、具体情况问用户」：判断前置（动手前定深度/通道）；**问用户是默认而非兜底**（多个合理分支时默认把选择摆给用户、不无条件选「不问」分支）；commit 前不做全量只做「是否都有验证」思维检查、有未验证项提醒用户决定；优先用户运行验证——交付**验证协议**（验证什么/如何观察/如何反馈），不写临时探针（探针仅当测试本身是回归资产）
+- **构建脚本透传 bug 修复**（qoolui_build_windows.py / qoolui_build_linux.py）：`args.extra = [a for a in unknown if a != "--"]` 用 `unknown` 覆盖了 argparse 已正确收集到 positional 的透传参数——`test -- -R xxx` 的 `-R` 全部丢失（跑了全量而非筛选）。改为 `parse_args` + 直接使用 `args.extra`（透传须前置 `--` 分隔，未识别 option 报错而非静默丢参）。验证：`test -- -R tst_qoolcontrols` 由跑 19 个 → 只跑匹配的 1 个
+- **QoolUITests/AGENTS.md「输出验证」改通道分级**：明确 MSYS/bash 管道伪象是元问题（吞 stdout、坏退出码、bash 内 python subprocess 捕获为空、破坏 `-input` 盘符路径）——可靠通道 = eval 内核 python subprocess + 文件重定向 / 真实终端；不可靠 = MSYS bash 直接跑 exe / bash 内 python subprocess 捕获（rc 可信、stdout 不可信）——避免把观测通道问题误诊成测试/环境缺陷
+- **QoolUITests/AGENTS.md 测试工作流改分级**：全量 `test` 脚本是「完整落地」收尾哨兵非默认动作；摩擦反馈回路补「定案摩擦就地沉淀到规范小节、不散落临时文件」
+- **QoolUITests/AGENTS.md 补三条摩擦规避**：①compare/verify 第三参避免非 ASCII（QML 引擎加载期静默失败，注释不受限）；②库模块 QML 改动需 `build` 重建（`tst_*.qml` 才运行期即时生效）；③QML 测试文件修改用 edit 工具（python 整文件重写引入 CRLF/LF 行尾噪音）
+
 ### 变更（verticalslider-removal + adr-reconcile，VerticalSlider 完全移除 + ADR/文档记述校对）
 
 - **VerticalSlider 完全移除**：删除 `QoolControls/VerticalSlider.qml`、模块注册（CMakeLists）、`docs/reference/Qool.Controls/VerticalSlider.md`、reference index 登记（选择控件列表 + 组件参考）、示例页 QoolTip 引用——独立实现（T.Slider 根 + 自建 picker 交互 + 独立 color 属性）与 Slider 家族架构（模板 handle、Style 配色统一）割裂，维护成本高于保留价值；竖直需求由 Slider `orientation: Qt.Vertical` 正交适配承担（ADR-0010）
