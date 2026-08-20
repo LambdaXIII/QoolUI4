@@ -30,9 +30,12 @@ Basic.Slider 的 orientation 与 RTL 行为，且**两维度正交统一设计**
 - **法向尺寸抽象**：`side = horizontal ? availableHeight : availableWidth`
   （轨道法向尺寸）——手柄边长 = side（菱形 `width = height`）、shrinkSize、
   轨道收缩、展开全部基于它：横竖对称、镜像无关（法向居中不随镜像变化）。
-- **渐变镜像感知**：渐变两端锚定值增大视觉端。水平锚点 `x ∈ [cut,
-  width − cut]`、垂直锚点 `y ∈ [cut, height − cut]`；RTL 时同轴端点对调。
-  `cut = 轨道短边 / 2` 沿用 Crystal 切角几何。
+- **渐变镜像感知**：渐变两端锚定值增大视觉端。水平锚点 `x1 = cut → x2 =
+  width − cut`、垂直锚点 `y1 = cut → y2 = height − cut`；RTL 时同轴端点
+  对调（水平 `x1 = width − cut → x2 = cut`、垂直 `y1 = height − cut →
+  y2 = cut`）。**对调的是 x1/x2（或 y1/y2）坐标，GradientStop 的
+  position/色序不变**（position 0 = from 端 bg、position 1 = to 端
+  accent，随坐标移动）。`cut = 轨道短边 / 2` 沿用 Crystal 切角几何。
 - **Crystal 零改动**：`cut = min(width, height) / 2`（四角恒等）对宽高互换
   旋转对称——水平轨道（横向六边形）与垂直轨道（竖向六边形）同一几何自动
   成立，形状/掩码/渐变通道均不动。
@@ -45,8 +48,12 @@ Basic.Slider 的 orientation 与 RTL 行为，且**两维度正交统一设计**
 
 - 行为插拔点不变：background/handle 仍为模板插拔件，替换后自动布局仍生效
   （Control 自动布局），orientation/RTL 适配随默认件。
-- 手柄采样色（ColorMapper）已用 `visualPosition`，在任意 orientation/RTL
-  组合下自动等于轨道在值位置的色——无需改动。
+- 手柄采样色（ColorMapper）在任意 orientation/RTL 组合下等于轨道在值位置
+  的色——**采样参数改用 `position`（逻辑位置，不镜像）**，与对调后的渐变
+  几何互补（定位用 `visualPosition` 镜像、采样用 `position` 不镜像）。
+  注意：现有 `colorAt(visualPosition)` 不是"无需改动"——RTL 下渐变坐标对调
+  + `visualPosition` 采样会错位（handle 停值增大端却采 from 端色），须改
+  `colorAt(position)`。
 - 测试：tst_slider 新增三用例（垂直几何 / RTL 映射 / 垂直+RTL 组合），全部
   几何断言（offscreen 无合成鼠标——交互映射以示例页人工验收，既有惯例）。
 - 文档 Slider.md 5 节更新 orientation/RTL 契约；示例页可选加垂直演示。
