@@ -1,19 +1,21 @@
 # Slider
 
-A horizontal slider: a hexagonal gradient track with a crystal diamond
-handle (the v3 Color slider visual family, generalized).
+A slider (horizontal/vertical + RTL): a hexagonal gradient track with a
+crystal diamond handle (the v3 Color slider visual family, generalized).
 
 `Slider` provides the standard `T.Slider` API (`from`, `to`, `value`,
-`stepSize`, `snapMode`, ...). Interaction is the template default (click
-jumps, continuous drag, arrow-key stepping — official behavior; the interface
-is compatible with `QtQuick.Templates.Slider`). The track and the handle
-share the `Crystal` hexagon model (the track is a wide hexagon, the handle a
-square diamond — same-model bevel slopes align naturally), the track fills a
-`backgroundColor` (75% opacity) → `color` horizontal gradient anchored inside
-the cut corners (left end = `backgroundColor` at 75% opacity, right end =
+`stepSize`, `snapMode`, `orientation`, ...). Interaction is the template
+default (click jumps, continuous drag, arrow-key stepping — official
+behavior; the interface is compatible with `QtQuick.Templates.Slider`). The
+track and the handle share the `Crystal` hexagon model (the track is a wide
+hexagon, the handle a square diamond — same-model bevel slopes align
+naturally), the track fills a `backgroundColor` (75% opacity) → `color`
+gradient anchored to the value-increasing side (see "Orientation and RTL"
+below; the `from` end = `backgroundColor` at 75% opacity, the `to` end =
 `color`, default `Style.accent`), and the handle's resting color is the
 gradient sampled at the current value position, rendered opaque
-(`ColorMapper.colorAt(visualPosition)` — follows the position in real time).
+(`ColorMapper.colorAt(position)` — follows the position in real time;
+`position` is not mirrored, matching the gradient geometry).
 
 - **Track** — a static `Crystal` hexagonal gradient track in the
   `background`, full-width, held at the rest height and vertically centered.
@@ -22,21 +24,45 @@ gradient sampled at the current value position, rendered opaque
   focus), which expands to the handle's full size while hovered, pressed, or
   while a recent value change holds (via `ItemAnimatedResizer` + a
   `TimerLatch`), and contracts to `size − shrinkSize` when none holds. The
-  handle carries a hover cursor (`Qt.SizeHorCursor`, gated by `enabled`).
+  handle carries a hover cursor (`Qt.SizeHorCursor` horizontal /
+  `Qt.SizeVerCursor` vertical, gated by `enabled`).
   Replacing `handle` with any `Item` is behavior plugging (template handle
   contract) — the positioning binding is the host's responsibility (the
   template never moves handles).
 
+## Orientation and RTL
+
+`orientation` (`Qt.Horizontal`/`Qt.Vertical`) and RTL (`LayoutMirroring`)
+are orthogonal:
+
+- **Axis** — `horizontal` picks the handle's travel axis; the track
+  contracts and centers along the axis' normal. The handle's edge length is
+  the normal size (`side = horizontal ? availableHeight : availableWidth`),
+  so the diamond stays square in both orientations.
+- **RTL affects only horizontal** — the handle travels via `visualPosition`
+  (mirrored: value-increasing moves left) and the gradient's `x` endpoints
+  swap so the accent stays on the value-increasing side.
+- **Vertical ignores RTL** — Qt's vertical slider always shows value
+  increasing upward (`visualPosition` is constantly `1 − position`, so a
+  `LayoutMirroring` has no effect); the gradient runs bottom (`from`) →
+  top (`to`).
+- **Implicit size** swaps with orientation (`150 × 25` ↔ `25 × 150`),
+  matching the official "vertical is narrow" convention.
+- **Value mapping** is the template default — drag/keys/wheel map x or y per
+  orientation, RTL reverses via `visualPosition`. No self-written logic.
+
 ## Properties
 
 - `color : color` (default `Style.accent`)
-  The gradient's right-end color (the left end is `backgroundColor` at 75%
-  opacity) — and the handle's (opaque) sample source. Changing this one
-  property changes the whole track gradient + handle sampling. The track
-  gradient is inline by default and cannot be replaced wholesale (change
-  color via `color`; the background size follows the control automatically).
+  The gradient's `to`-end color (the `from` end is `backgroundColor` at 75%
+  opacity) — and the handle's (opaque) sample source. The `to` end sits on
+  the value-increasing side (horizontal LTR right, RTL left; vertical top).
+  Changing this one property changes the whole track gradient + handle
+  sampling. The track gradient is inline by default and cannot be replaced
+  wholesale (change color via `color`; the background size follows the
+  control automatically).
 - `backgroundColor : color` (default `Style.buttonText`)
-  The track background color — the gradient's left end, rendered at 75%
+  The track background color — the gradient's `from` end, rendered at 75%
   opacity on the track (the handle samples the opaque version).
 - `borderColor : color` (default `ThemeHQ.recommendForeground(backgroundColor)`)
   The stroke color of the track. The handle stays un-stroked (the diamond's
@@ -93,19 +119,28 @@ Slider {
     to: 0
     value: 30
 }
+
+// Vertical: implicit size swaps to 25×150, handle travels along y
+// (value increases upward), gradient runs bottom → top.
+Slider {
+    orientation: Qt.Vertical
+    value: 0.6
+}
 ```
 
 ## Interaction feedback
 
 - Hover / press / just-moved (the 500 ms sliding `TimerLatch` window after a
   value change, hosted inside the handle): the handle expands to the
-  handle's full size (resting size is `availableHeight −
-  Qore.bound(3, height × 0.25, 25)` — an internal default-implementation
+  handle's full size (resting size is `side − Qore.bound(3, side × 0.25,
+  25)` where `side` is the track's normal size — an internal
+  default-implementation
   convention shared by the default handle and the default track; the track
   and handle share the same resting height, stay center-aligned, and the
   handle's bevels hug the track's bevels), animated under the
   `animationEnabled` gate via `ItemAnimatedResizer`. The hover cursor becomes
-  a horizontal double-arrow (only when `enabled`). When `enabled` is off the
+  a horizontal double-arrow (vertical: a vertical double-arrow) only when
+  `enabled`. When `enabled` is off the
   handle freezes (the resizer's `enabled` follows `root.enabled`) — no hover,
   no expansion, no cursor feedback.
 - Programmatic `value` writes (e.g. an external binding): the handle expands
@@ -114,7 +149,7 @@ Slider {
   no public "just moved" property; the feedback is observed through the
   handle itself).
 - Inverted range (`from > to`): the scale reverses; the gradient and the
-  sampling follow `visualPosition` automatically.
+  sampling follow `position` automatically.
 
 The `handle` delegate must self-write its `x`/`y` (the `T.Slider` template
 does not inject positioning — official convention; a host replacing `handle`

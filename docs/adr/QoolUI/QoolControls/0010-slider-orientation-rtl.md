@@ -60,6 +60,27 @@ Basic.Slider 的 orientation 与 RTL 行为，且**两维度正交统一设计**
 - RangeSlider 同缺口（orientation/RTL）不在本决策范围——独立票另行评估。
 - VerticalSlider 独立组件（自建交互模型 + 既有 FIXME 计划）不受影响。
 
+## 实现演进（2026-08-20）
+
+实施 spec 时 offscreen 实测确认 Qt 垂直 Slider 的真实行为，修正两处 Key
+Decisions：
+
+- **垂直 visualPosition 恒 = 1 − position（与 RTL 无关）**：实测垂直 LTR 与
+  垂直 RTL 的 visualPosition 均为 `1 − position`（值增大 → handle 在顶部）
+  ——Qt 垂直滑块按"值大在上"惯例固定反转，`LayoutMirroring` 不影响垂直视觉。
+  原 Key Decisions "vertical + RTL 时 visualPosition 仍反转（跟随 RTL 镜像）"
+  表述不准：反转是垂直的固定语义，非 RTL 所致。
+- **垂直渐变 from 底 → to 顶、RTL 不对调**：值增大视觉端 = 顶部（Qt 垂直
+  惯例），故垂直渐变 from（position 0）= 底部 `y1 = height − cut`、to
+  （position 1）= 顶部 `y2 = cut`。原 Key Decisions 写反（`y1 = cut → y2 =
+  height − cut`），且垂直不受 RTL 影响——RTL 时不对调。水平渐变 RTL 对调
+  x 端不变（正确）。
+- 采样 `colorAt(position)` 决策保留（position 不镜像，与渐变几何一致——垂直
+  值增大 → handle 顶 + 渐变 to 顶）。
+
+受影响：Slider.qml（渐变坐标）、tst_slider.qml（垂直/垂直RTL 断言方向）、
+spec（同步修正）。
+
 ## 决策状态
 
 - 决策已定案（2026-08-20）；spec：`.scratch/slider-orientation-rtl/spec.md`

@@ -4,6 +4,18 @@
 
 ## [4.0.0] — 2026-08-20
 
+### 变更（slider-orientation-rtl，Slider 对齐 Qt 官方 orientation×RTL 正交统一）
+
+- **法向尺寸抽象 `side`**（Slider.qml）：`side = horizontal ? availableHeight : availableWidth`——手柄边长/收缩量/轨道收缩/展开全部基于它（横竖对称、镜像无关）；`shrinkSize` 基准 `root.height` → `side`（含 padding 时语义修正）
+- **handle 官方双分支定位**：水平 x 由 `visualPosition` 驱动、y 居中；垂直 y 由 `visualPosition` 驱动、x 居中（完整公式含 padding）——RTL 由模板免费承载（vertical+RTL 跟随 Qt 模板，不特判）
+- **轨道双分支**：沿主轴铺满 + 法向收缩居中（水平收缩高、垂直收缩宽）
+- **渐变锚定值增大端**：水平 LTR 左→右、RTL 右→左（x 端对调，stop 色序不变）；垂直 from 底→to 顶（Qt 垂直惯例 visualPosition 恒 = 1−position，**不受 RTL 影响**——offscreen 实测确认）
+- **采样改 `position`**：`colorAt(visualPosition)` → `colorAt(position)`（不镜像）——与对调渐变几何互补（RTL 下采样错位修复；rehearsal 推演发现）
+- **implicit 随 orientation 交换**：background 150×25 ↔ 25×150（对齐官方"垂直默认窄"惯例）
+- **光标随轴向**：水平 SizeHorCursor、垂直 SizeVerCursor
+- **测试**（tst_slider.qml）：新增 test_verticalGeometry / test_rtlMapping / test_verticalRtlCombined（几何断言；offscreen 实测确认 Qt 垂直 visualPosition 恒反转、垂直+RTL 与 LTR 一致）
+- **文档**：Slider.md 更新（概述 orientation/RTL 契约段、渐变值增大端语义、采样 position、垂直示例、光标随轴向）；ADR 0010 追加「实现演进」段（实测修正垂直渐变方向 + 垂直不受 RTL）
+
 ### 变更（slider-background-resizer-align，Slider 对齐 RangeSlider 架构演进）
 
 - **Slider 改标准 background 驱动尺寸**（Slider.qml）：删除「root 直接给默认尺寸 80×25」与 background 尺寸外部 Binding——改自写 implicit 公式（`leftInset + implicitBackgroundWidth + rightInset`，模板不自带）+ background 显式 implicit（150×25）；尺寸经 Control 标准自动布局（background 自动 fill 控件 − insets，替换新实例同样受控——插拔安全不降级）

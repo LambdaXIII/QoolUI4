@@ -1,4 +1,4 @@
-// Qool.Controls.Slider：水晶六边形渐变轨道 + 菱形手柄的水平滑块
+// Qool.Controls.Slider：水晶六边形渐变轨道 + 菱形手柄的滑块（水平/垂直 + RTL）
 // （T.Slider 模板 API 兼容）。
 //
 // 结构：模板 handle（激活模板交互——点击跳转/拖动连续/键盘步进/倒置范围
@@ -34,10 +34,14 @@ T.Slider {
 
     SmartObject {
         id: pCtrl
+        // 法向尺寸抽象：轨道法向尺寸——水平时 = 可用高（垂直轴）、垂直时 =
+        // 可用宽（水平轴）。横竖对称、镜像无关（法向居中不随镜像变化）；
+        // 手柄边长/收缩量/轨道收缩/展开全部基于它。
+        readonly property real side: root.horizontal ? root.availableHeight : root.availableWidth
         // 常态收缩量：轨道与手柄从全尺寸收缩的量（hover/按下/锁存展开时
-        // 手柄占满可用高；轨道恒为常态——静态，不参与交互反馈）。
-        readonly property real shrinkSize: Qore.bound(3, root.height * 0.25, 25)
-        // 收缩偏移量的一半——轨道垂直居中（收缩后上下各留 shrinkSize/2）。
+        // 手柄占满法向；轨道恒为常态——静态，不参与交互反馈）。
+        readonly property real shrinkSize: Qore.bound(3, side * 0.25, 25)
+        // 收缩偏移量的一半——轨道沿法向居中（收缩后两端各留 shrinkSize/2）。
         readonly property real halfShrinkSpace: shrinkSize / 2
     }
 
@@ -50,29 +54,51 @@ T.Slider {
     // ——三心对齐（水晶中心 = 轨道中心 = 控件中心，水晶常态与轨道同高贴斜
     // 边；展开时水晶顶出轨道但不出控件）
     background: Item {
-        implicitHeight: 25
-        implicitWidth: 150
+        // implicit 随 orientation 交换（水平 150×25 ↔ 垂直 25×150）——对齐
+        // 官方"垂直默认窄"惯例；根 implicit 公式本身不变（background 项
+        // implicit 自适应）
+        implicitWidth: root.horizontal ? 150 : 25
+        implicitHeight: root.horizontal ? 25 : 150
 
         Crystal {
             id: track
             objectName: "track" // 供 QML 测试读取（组件内部对象零暴露原则的测试例外——轨道静态性是公开视觉契约）
-            // 轨道宽 = 容器宽（尖点贴边——Slider 不外溢）；常态收缩 + 居中
-            width: parent.width
-            height: parent.height - pCtrl.shrinkSize
-            y: pCtrl.halfShrinkSpace
+            // 轨道沿主轴铺满容器（尖点贴边——Slider 不外溢）；沿法向常态收缩 +
+            // 居中（水平收缩高、垂直收缩宽）——法向居中不随镜像变化
+            width: root.horizontal ? parent.width : parent.width - pCtrl.shrinkSize
+            height: root.horizontal ? parent.height - pCtrl.shrinkSize : parent.height
+            x: root.horizontal ? 0 : pCtrl.halfShrinkSpace
+            y: root.horizontal ? pCtrl.halfShrinkSpace : 0
             // 兜底纯色（渐变通道失效时轨道仍可见——渐进降级；渐变生效时覆盖）
             color: root.color
             borderColor: root.borderColor
             fillGradient: LinearGradient {
                 // 渐变内联默认（Slider 不暴露 fillGradient 通道，换色走 color
-                // 属性）：左端 = backgroundColor 75% 透明（轨道同 RangeSlider
-                // ——背景色半透明）、右端 = color；锚定切角内侧——与 Crystal
-                // 中心行程对齐（colorAt(visualPosition) 精确采样）；坐标用
-                // track 自身尺寸（收缩后切角 = track.height/2）
-                x1: track.height / 2
-                y1: track.height / 2
-                x2: track.width - track.height / 2
-                y2: track.height / 2
+                // 属性）：from 端 = backgroundColor 75% 透明（轨道同
+                // RangeSlider——背景色半透明）、to 端 = color；锚定"值增大
+                // 视觉端"（非固定几何端）+ 镜像感知：轴向选 x/y（horizontal）、
+                // RTL（root.mirrored）时水平端对调——对调的是 x1/x2 坐标，stop
+                // 色序不变（position 0 = from 端 bg、1 = to 端 accent，随坐标
+                // 移动；垂直不受 RTL 影响，见坐标处）。cut = 轨道短边/2（Crystal
+                // 切角几何，与手柄中心行程一致——colorAt(position) 精确采样）；
+                // 坐标用 track 自身尺寸（收缩后切角 = 短边/2）
+                readonly property real cut: Math.min(track.width, track.height) / 2
+                // 水平：沿 x（x1=cut → x2=w−cut，y 居中），RTL（root.mirrored）
+                // 时 x 端对调（值增大端随 handle 移到左）；
+                // 垂直：沿 y 恒 from 底 → to 顶——Qt 垂直惯例（值增大 handle
+                // 在顶，visualPosition 恒 = 1−position，与 RTL 无关，故不对调）
+                x1: root.horizontal
+                     ? (root.mirrored ? track.width - cut : cut)
+                     : track.width / 2
+                y1: root.horizontal
+                     ? track.height / 2
+                     : track.height - cut
+                x2: root.horizontal
+                     ? (root.mirrored ? cut : track.width - cut)
+                     : track.width / 2
+                y2: root.horizontal
+                     ? track.height / 2
+                     : cut
                 GradientStop {
                     position: 0
                     color: Qt.alpha(root.backgroundColor, 0.75)
@@ -85,16 +111,25 @@ T.Slider {
         }
     } //background
 
-    // —— 手柄（Crystal 菱形）：尺寸跟随可用区高度（六边形对齐语义）；展开
+    // —— 手柄（Crystal 菱形）：边长跟随轨道法向（六边形对齐语义）；展开
     // 反馈 = hover/按下/值变化锁存三态展开——
     handle: Item {
         id: handleRoot
-        height: root.availableHeight
-        width: height
-        // handle delegate 须自写定位（模板不注入）——官方公式；Crystal 左上
-        // 锚定，菱形中心 = 值位置（中心行程 [h/2, availW-h/2]，顶点贴端）
-        x: root.leftPadding + root.visualPosition * (root.availableWidth - width)
-        y: root.topPadding + (root.availableHeight - height) / 2
+        // 边长 = 轨道法向（side）：水平 = 可用高、垂直 = 可用宽——菱形恒等，
+        // 横竖对称（法向居中不随镜像变化）
+        width: pCtrl.side
+        height: pCtrl.side
+        // handle delegate 须自写定位（模板不注入）——官方双分支完整公式（含
+        // padding）：水平 x 由 visualPosition（RTL 镜像）驱动、y 居中；垂直
+        // y 由 visualPosition 驱动、x 居中。RTL 由模板免费承载（vertical +
+        // RTL 时 visualPosition 仍反转，跟随 Qt 模板语义——不特判）。Crystal
+        // 左上锚定，菱形中心 = 值位置（中心行程 [边/2, 行程−边/2]，顶点贴端）
+        x: root.horizontal
+            ? root.leftPadding + root.visualPosition * (root.availableWidth - width)
+            : root.leftPadding + (root.availableWidth - width) / 2
+        y: root.horizontal
+            ? root.topPadding + (root.availableHeight - height) / 2
+            : root.topPadding + root.visualPosition * (root.availableHeight - height)
 
         // 值变化锁存（TimerLatch）：拖动/键盘/程序化改值后手柄保持展开
         // interval（500ms）——值变化即触发（滑动窗口内持续保持），与 hover/
@@ -126,8 +161,8 @@ T.Slider {
             }
         }
 
-        // 手柄尺寸动画（Qool 非可视组件）：from = 可用高 − 收缩量（常态）、
-        // to = 可用高全尺寸（hover/按下/值变化锁存展开）；resized =
+        // 手柄尺寸动画（Qool 非可视组件）：from = 法向 − 收缩量（常态）、
+        // to = 法向全尺寸（hover/按下/值变化锁存展开）；resized =
         // hoverer.hovered || root.pressed || latch.active 驱动 from↔to 切换
         // （动画门控 animationEnabled——关闭时跳变）；enabled 门控 resized
         // 响应——禁用时手柄冻结（与 hover/光标同受 root.enabled 控制）。
@@ -136,11 +171,11 @@ T.Slider {
             enabled: root.enabled
             animationEnabled: root.animationEnabled
 
-            fromWidth: handleRoot.height - pCtrl.shrinkSize
-            fromHeight: handleRoot.height - pCtrl.shrinkSize
+            fromWidth: pCtrl.side - pCtrl.shrinkSize
+            fromHeight: pCtrl.side - pCtrl.shrinkSize
 
-            toWidth: handleRoot.height
-            toHeight: handleRoot.height
+            toWidth: pCtrl.side
+            toHeight: pCtrl.side
 
             resized: hoverer.hovered || root.pressed || latch.active
         }
@@ -165,7 +200,7 @@ T.Slider {
                 anchors.fill: parent
                 acceptedButtons: Qt.NoButton
                 enabled: root.enabled
-                cursorShape: Qt.SizeHorCursor
+                cursorShape: root.horizontal ? Qt.SizeHorCursor : Qt.SizeVerCursor
             }
 
             HoverHandler {
@@ -173,8 +208,11 @@ T.Slider {
                 enabled: root.enabled
             }
 
-            // 常态色 = 轨道渐变在值位置的采样色（colorAt 精确）；反馈仅展开
-            color: colorMapper.colorAt(root.visualPosition)
+            // 常态色 = 轨道渐变在值位置的采样色（colorAt 精确）；反馈仅展开。
+            // 采样用 position（逻辑位置，不镜像）——与对调后的渐变几何一致
+            // （定位 visualPosition 镜像、采样 position 不镜像，互补：RTL 下
+            // handle 停值增大端、position 也指向同一端）
+            color: colorMapper.colorAt(root.position)
         }
     } //handle
 }

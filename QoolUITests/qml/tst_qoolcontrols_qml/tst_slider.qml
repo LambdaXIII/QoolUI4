@@ -192,4 +192,93 @@ TestCase {
         compare(track.height, 36 - 10, "轨道在容器内收缩")
         compare(track.y, (36 - 26) / 2, "轨道容器内居中")
     }
+
+    // —— orientation × RTL 契约（ADR-0010）——
+    // 正交统一：orientation 承载轴向（horizontal）、RTL 镜像仅水平生效；
+    // side = 法向尺寸（水平 = availableHeight、垂直 = availableWidth）横竖
+    // 对称、镜像无关。渐变锚定值增大端（水平 RTL 坐标对调、stop 色序不变；
+    // 垂直恒 from 底 → to 顶——Qt 垂直惯例 visualPosition 恒 1−position，
+    // 不受 RTL 影响）；采样用 position（不镜像）——与渐变几何一致（定位
+    // visualPosition 镜像、采样 position 不镜像，互补）。
+    // 隔离：每用例独立实例；RTL 经 s.LayoutMirroring.enabled + tryCompare
+    // mirrored（轮询——禁止固定 sleep）。
+
+    function test_verticalGeometry() {
+        // 垂直：handle 边长 = 法向（availableWidth）、x 居中、y 由
+        // visualPosition；轨道沿法向收缩 + 居中；渐变沿 y 轴锚定；
+        // implicit 随 orientation 交换
+        const s = makeSlider({ orientation: Qt.Vertical, width: 40, height: 200 })
+        const track = findChild(s.background, "track")
+        // side = availableWidth = 40 → shrinkSize = bound(3, 10, 25) = 10
+        compare(s.handle.width, 40, "handle 边长 = 法向（availableWidth）")
+        compare(s.handle.height, 40, "handle 恒为菱形")
+        compare(s.handle.x, 0, "垂直 handle x 居中")
+        // Qt 垂直惯例：visualPosition 恒 = 1−position（与 RTL 无关）——值 0 →
+        // visualPosition 1 → handle 底部、值 1 → 顶部
+        compare(s.handle.y, 200 - 40, "值 0 → visualPosition 1 → y 底部")
+        s.value = 1
+        compare(s.handle.y, 0, "值 1 → visualPosition 0 → y 顶部")
+        compare(s.handle.x, 0, "垂直 x 不随值变")
+        // 轨道：height 铺满、width 沿法向收缩 + x 居中
+        compare(track.width, 40 - 10, "轨道沿法向收缩（width = 容器宽 − shrinkSize）")
+        compare(track.x, 5, "轨道法向居中（x = halfShrinkSpace）")
+        compare(track.height, 200, "轨道沿主轴铺满")
+        compare(track.y, 0, "轨道主轴不偏移")
+        // 渐变：垂直锚定——cut = min(30,200)/2 = 15
+        const g = track.fillGradient
+        compare(g.x1, 15, "垂直渐变 x 居中")
+        compare(g.x2, 15)
+        compare(g.y1, 200 - 15, "垂直渐变 from 端 = 底（值小端，Qt 垂直惯例）")
+        compare(g.y2, 15, "垂直渐变 to 端 = 顶（值增大端 accent）")
+        // implicit 随 orientation 交换
+        compare(s.implicitWidth, 25, "垂直 implicit 交换（窄）")
+        compare(s.implicitHeight, 150, "垂直 implicit 交换（长）")
+    }
+
+    function test_rtlMapping() {
+        // 水平 + RTL：handle 值增大靠左（visualPosition 反转）、渐变端点
+        // 对调；采样用 position（不镜像）——与对调渐变几何一致
+        const s = makeSlider({})
+        s.LayoutMirroring.enabled = true
+        tryCompare(s, "mirrored", true)
+        const track = findChild(s.background, "track")
+        s.value = 0.75
+        compare(s.visualPosition, 1 - 0.75, "RTL visualPosition 反转")
+        // handle 边长 = side = availableHeight = 40
+        compare(s.handle.width, 40)
+        // x = leftPadding + visualPosition*(availableWidth − width)
+        // RTL value=0.75 → visualPosition 0.25 → x = 0.25*(200−40) = 40
+        compare(s.handle.x, 0.25 * (200 - 40), "RTL 值增大 → handle 靠左")
+        compare(s.handle.y, 0, "水平 RTL y 仍居中")
+        // 渐变端点对调：水平 RTL x1 = w−cut、x2 = cut（cut = min(200,30)/2 = 15）
+        const g = track.fillGradient
+        compare(g.x1, 200 - 15, "RTL 渐变 from 端移到右（对调）")
+        compare(g.x2, 15, "RTL 渐变 to 端移到左（accent 随值增大端）")
+        compare(g.y1, 15, "RTL 水平渐变 y 仍居中")
+        compare(g.y2, 15)
+        // 采样不镜像：position 0.75 → 与 LTR 同 value 采样色一致
+        const ltr = makeSlider({})
+        ltr.value = 0.75
+        compare(handleCrystal(s).color, handleCrystal(ltr).color, "采样用 position（不镜像）——与 LTR 同值一致")
+    }
+
+    function test_verticalRtlCombined() {
+        // 垂直 + RTL：Qt 垂直视觉不受 RTL 影响（visualPosition 恒反转、值大
+        // 恒在顶）——与垂直 LTR 完全一致，验证两维度不冲突（RTL 仅水平生效）
+        const s = makeSlider({ orientation: Qt.Vertical, width: 40, height: 200 })
+        s.LayoutMirroring.enabled = true
+        tryCompare(s, "mirrored", true)
+        const track = findChild(s.background, "track")
+        s.value = 0.75
+        compare(s.mirrored, true, "垂直 RTL 环境成立")
+        compare(s.visualPosition, 1 - 0.75, "垂直 visualPosition 恒反转（与 RTL 无关，跟随 Qt 模板）")
+        compare(s.handle.x, 0, "垂直 x 居中（不受 RTL）")
+        compare(s.handle.y, 0.25 * (200 - 40), "值大 → handle 靠上（与垂直 LTR 一致）")
+        // 渐变垂直不受 RTL：from 恒底、to 恒顶（不对调——与垂直 LTR 相同）
+        const g = track.fillGradient
+        compare(g.y1, 200 - 15, "垂直渐变 from 恒底（不受 RTL）")
+        compare(g.y2, 15, "垂直渐变 to 恒顶（accent 随值增大端，不受 RTL）")
+        compare(g.x1, 15, "垂直渐变 x 居中")
+        compare(g.x2, 15)
+    }
 }
