@@ -15,10 +15,11 @@ BasicPage {
     title: qsTr("测试场")
     note: qsTr("调试用例（RangeSlider 调试中）")
 
-    RangeSlider {
+    Slider {
         x: 30
         y: 30
-        width: 200
+        // width: 200
+        orientation: Qt.Vertical
         RectResizer {}
     }
 }
