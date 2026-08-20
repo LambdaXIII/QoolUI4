@@ -177,7 +177,10 @@ class TestMath : public QObject {
 
   QTest::newRow("inside") << 0.0 << 5.0 << 10.0 << 5.0;
   QTest::newRow("min endpoint") << 0.0 << 0.0 << 10.0 << 0.0;
-  QTest::newRow("max endpoint stays") << 0.0 << 10.0 << 10.0 << 10.0;
+  // 左闭右开：右端点不落在区间内，折回区间左端（10 == max → 0）
+  QTest::newRow("max endpoint wraps") << 0.0 << 10.0 << 10.0 << 0.0;
+  // 右开端点附近：value 略小于 max 时原样保留
+  QTest::newRow("just below max") << 0.0 << 9.999 << 10.0 << 9.999;
   // 模数回绕（区别于 auto_bound 的钳制）
   QTest::newRow("wrap above") << 0.0 << 12.0 << 10.0 << 2.0;
   QTest::newRow("wrap above twice") << 0.0 << 22.0 << 10.0 << 2.0;
@@ -206,6 +209,36 @@ class TestMath : public QObject {
                  .arg(expected)
                  .arg(actual)));
 }
+  // 整型路径（signed / unsigned 分支）与左闭右开边界。整型实现走
+  // std::make_unsigned 计算区间长度以规避溢出，负值依赖有符号取模修正；
+  // 无符号依赖无符号算术模特性处理下溢。
+  QOOL_TEST_CASE(cycle_in_range_int) {
+    // 有符号整型
+    QCOMPARE(math::cycle_in_range(0, 0, 10), 0);        // 左端点（含）
+    QCOMPARE(math::cycle_in_range(0, 9, 10), 9);        // 区间内
+    QCOMPARE(math::cycle_in_range(0, 10, 10), 0);       // 右端点（不含）→ 折回
+    QCOMPARE(math::cycle_in_range(0, 12, 10), 2);       // 上折回
+    QCOMPARE(math::cycle_in_range(0, -3, 10), 7);       // 下折回（负余数修正）
+    QCOMPARE(math::cycle_in_range(0, -10, 10), 0);      // 下折回整倍
+    QCOMPARE(math::cycle_in_range(-5, -5, 5), -5);      // 负下界左端点
+    QCOMPARE(math::cycle_in_range(-5, 5, 5), -5);       // 负下界右端点折回
+    QCOMPARE(math::cycle_in_range(-5, -7, 5), 3);       // 负下界下折回
+    QCOMPARE(math::cycle_in_range(10, 3, 0), 3);        // 端点乱序
+    QCOMPARE(math::cycle_in_range(10, 10, 0), 0);       // 端点乱序右端点折回
+
+    // 无符号整型
+    QCOMPARE(math::cycle_in_range(0u, 0u, 10u), 0u);
+    QCOMPARE(math::cycle_in_range(0u, 10u, 10u), 0u);   // 右端点折回
+    QCOMPARE(math::cycle_in_range(0u, 15u, 10u), 5u);   // 上折回
+    QCOMPARE(math::cycle_in_range(0u, 2u, 10u), 2u);
+    // 下折回（无符号下溢路径）：value < left，distance 无符号算术下溢
+    QCOMPARE(math::cycle_in_range(3u, 1u, 5u), 3u);
+    QCOMPARE(math::cycle_in_range(3u, 0u, 5u), 4u);
+
+    // 单点区间
+    QCOMPARE(math::cycle_in_range(3, 100, 3), 3);
+    QCOMPARE(math::cycle_in_range(3u, 100u, 3u), 3u);
+  }
   QOOL_TEST_CASE(average) {
   // 注意：average 接受 std::initializer_list，模板推导依赖列表元素，
   // 空列表必须显式指定类型（average<double>({}) 返回 0——"空集均值 = 0"

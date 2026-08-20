@@ -6,12 +6,16 @@ import "_private"
 T.Dial {
     id: root
 
+    // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
+    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
+
     property color highColor: Style.red
     property color midColor: Style.yellow
     property color lowColor: Style.green
 
     ColorMapper {
         id: colorMapper
+        objectName: "colorMapper" // 采样契约可观察点（测试经 dial.data 定位）
         ColorMapperStop {
             position: 0
             color: root.lowColor
@@ -24,7 +28,23 @@ T.Dial {
             position: 1
             color: root.highColor
         }
-        readonly property color valueColor: colorAt(root.position)
+        // valueColor 不经绑定——colorAt 为 C++ 方法、QML 绑定不追踪方法体
+        // 内 stops 访问（同 Slider handle 缺陷：直接绑定冻结初始采样、源色
+        // 变化不触发重算）。由 onCompleted 初始采样 + 信号 connect 手动驱动
+        // 真实更新时机（position 变 / high/mid/low 色任一变）。
+        property color valueColor
+
+        function updateValueColor() {
+            valueColor = colorAt(root.position)
+        }
+
+        Component.onCompleted: {
+            updateValueColor()
+            root.positionChanged.connect(updateValueColor)
+            root.highColorChanged.connect(updateValueColor)
+            root.midColorChanged.connect(updateValueColor)
+            root.lowColorChanged.connect(updateValueColor)
+        }
     }
 
     background: Rectangle {
@@ -37,7 +57,13 @@ T.Dial {
         width: Math.max(35, Math.min(root.width, root.height))
         height: width
         radius: width / 2
-        border.color: root.Style.buttonText
+        // 焦点高亮：键盘聚焦（visualFocus——仅 Tab/Backtab/Shortcut 键盘
+        // 原因聚焦）时边框切换 Style.highlight、失焦恢复 Style.buttonText
+        border.color: root.visualFocus ? root.Style.highlight : root.Style.buttonText
+        // 切换动画门控 animationEnabled（关闭时即时跳变）
+        BasicColorBehavior on border.color {
+            enabled: root.animationEnabled
+        }
         color: root.Style.controlBackgroundColor
         border.width: root.Style.controlBorderWidth
 

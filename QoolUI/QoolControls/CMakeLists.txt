@@ -25,7 +25,6 @@ qt_add_qml_module(QoolControls
     QML_FILES ComboBox.qml
     QML_FILES SpinBox.qml
     QML_FILES Slider.qml
-    QML_FILES VerticalSlider.qml
     QML_FILES RangeSlider.qml
     QML_FILES Dial.qml
     QML_FILES EditableText.qml

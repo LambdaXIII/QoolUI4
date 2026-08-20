@@ -1,6 +1,6 @@
 #ifndef COMPARE_DELEGATE_HPP
 #define COMPARE_DELEGATE_HPP
-
+// TODO: remove when migrating to C++20
 #define QOOL_EQUAL_COMPARE_DECL(CLASS)         \
   bool operator==(const CLASS&, const CLASS&); \
   bool operator!=(const CLASS&, const CLASS&);

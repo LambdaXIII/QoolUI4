@@ -2,6 +2,162 @@
 
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
+## [4.0.0] — 2026-08-21
+
+### 变更（verticalslider-removal + adr-reconcile，VerticalSlider 完全移除 + ADR/文档记述校对）
+
+- **VerticalSlider 完全移除**：删除 `QoolControls/VerticalSlider.qml`、模块注册（CMakeLists）、`docs/reference/Qool.Controls/VerticalSlider.md`、reference index 登记（选择控件列表 + 组件参考）、示例页 QoolTip 引用——独立实现（T.Slider 根 + 自建 picker 交互 + 独立 color 属性）与 Slider 家族架构（模板 handle、Style 配色统一）割裂，维护成本高于保留价值；竖直需求由 Slider `orientation: Qt.Vertical` 正交适配承担（ADR-0010）
+- **ADR 演进校对**：0009/0010/0011 追加「实现演进（2026-08-21）」段——三色实例属性删除改 Style 语义记述（轨道 = `Style.buttonText` 75% 透明 → `Style.accent`、描边 recommend）；VerticalSlider 移除与竖直需求承接说明；原「VerticalSlider 不受影响」决策时观点标注不再成立
+- **测试**：无 VerticalSlider 独立测试；全量 ctest 19/19 通过
+
+### 变更（slider-style-color-unification，Slider/RangeSlider 三色属性删除——配色统一走 Style）
+
+- **删除三色实例属性**（Slider.qml / RangeSlider.qml）：`color`/`backgroundColor`/`borderColor` 三个实例色属性删除——配色统一走统一样式接口 Style（附着传播换色：`Style.accent`/`Style.buttonText` 挂本实例或任意祖先，粒度单实例到全局）。内部消费改 Style 语义槽：轨道渐变 from 端 = `Style.buttonText` 75% 透明（名字兼容 Qt palette、实义 control 前景色）→ to 端 = `Style.accent`（control 前景 → accent 对照着色）；描边 = `ThemeHQ.recommendForeground(Style.buttonText)` 自动对比推荐
+- **手柄采样监听改 Style 传播**（Slider.qml）：colorAt 为 C++ 方法、QML 绑定不追踪方法体内 stops 访问——删除属性后源色来自 Style，手柄 Crystal 内独立只读哨兵属性（`_accentWatch`/`_textWatch` 绑定 `Style.accent`/`Style.buttonText`）+ onChanged 捕获附着传播变化触发重采样（completed 初始 + position 变化不变）
+- **文档**：Slider.md / RangeSlider.md 属性节删三色、加「Color model」节（control 前景 → accent 对照、recommend 描边、Style 附着换色示例）；示例页 Page_InputControls2（shellSlider/customHandleSlider/customColorSlider/HandleKnob 改 Style 附着 + QoolTip 措辞）
+- **测试**：tst_slider.qml / tst_rangeslider.qml——test_defaults 断言接口删除（`s.color === undefined`）+ 默认视觉消费 Style；test_handleSampleColorFollowsSource / test_foregroundColor 改经 Style 附着传播（`s.Style.buttonText = …`）触发跟随回归
+- **AGENTS.md**：QML 组件规范新增「animationEnabled 声明序（MUST）」——控件声明 `animationEnabled` 必须置自定义属性第一位
+- **API 破坏**：三色实例属性删除——宿主经 Style 附着属性换色（`Style.accent`/`Style.buttonText`）；描边不再可单独定制（自动对比推荐）
+
+### 变更（controls-focus-highlight，Qool.Controls 焦点高亮）
+
+- **焦点高亮行为**（Slider.qml / RangeSlider.qml / Dial.qml）：控件获得键盘焦点（`root.visualFocus`——Qt 标准语义，仅 Tab/Backtab/Shortcut 键盘原因聚焦为 true，鼠标/程序化/切窗聚焦不亮）时，默认 `background` 外边框切换至 `Style.highlight`、失焦恢复——内联条件绑定（`visualFocus ? Style.highlight : 原值`），不引入叠层/覆盖层；切换动画经 `BasicColorBehavior` 门控 `animationEnabled`（关闭时即时跳变）。Slider/RangeSlider 原值为既有 `borderColor` 属性；Dial 原值保持硬编码 `Style.buttonText`
+- **聚焦色硬编码 `Style.highlight`**：不设独立属性/opt-out 接口（grill 后用户否决 focusBorderColor 属性通道——聚焦色固定、宿主不可覆盖）
+- **Dial 新增 `animationEnabled`**：`parent?.animationEnabled ?? Style.animationEnabled`——对齐 Slider/RangeSlider 家族惯例（父链继承、回退 Style）
+- **可聚焦性不变**：不设 `activeFocusOnTab`，机制备用——宿主按 Qt 标准方式（`activeFocusOnTab`/`forceActiveFocus`）启用聚焦后行为自动生效
+- **范围**：仅 Slider/RangeSlider/Dial；排除 VerticalSlider、QoolBox 家族（依赖覆盖层机制，独立后续）
+- **文档**：Slider.md/RangeSlider.md 更新（属性节 + 交互反馈节）；**新建 Dial.md**（5 节完整参考——Dial 参考文档此前缺失，接口扩展后必须文档化）；reference index.md 收录 Dial（选择控件列表 + 组件参考）
+- **测试**：无专门自动化用例（纯 QML 外观开关，用户人工验收）
+
+### 变更（rangeslider-orientation-rtl，RangeSlider 对齐 Qt 官方 orientation×RTL 正交统一）
+
+- **法向尺寸抽象 `side`**（RangeSlider.qml）：`side = horizontal ? availableHeight : availableWidth`（同 Slider）——轨道/前景收缩、窄条换向全部基于它（横竖对称、镜像无关）；`shrinkSize` 基准 `root.height` → `side`（修正垂直时基准轴错误——垂直法向是宽非高）
+- **background implicit 随 orientation 交换**：150×25 ↔ 25×150（对齐官方"垂直默认窄"惯例）
+- **轨道换轴**：沿主轴铺满 + 法向常态收缩居中（水平收缩高、垂直收缩宽）
+- **双 handle 窄条换向 + 双分支定位**：水平竖条（w = side/2、h = side）↔ 垂直横条（w = side、h = side/2）；不相交公式随轴换（水平行程 = availableWidth − w×2、垂直 = availableHeight − h×2；second 起步偏移水平 +width、垂直 +height）；光标随轴向（SplitHCursor ↔ SplitVCursor）；RTL 由模板免费承载（vertical+RTL 跟随 Qt 模板，不特判）
+- **rangeBox 区间盒跨轴统一**：主轴起点 = min(first.vP, second.vP) × 行程、跨度 = |second.vP − first.vP| × 行程 + 尖角余量（水平 = 自身高、垂直 = 自身宽）——vP 差在垂直/RTL 为负故 abs（区间大小镜像无关）；LTR 水平下 min/abs 数学等价既有公式（不破水平行为）。**附带修复**：既有公式 (second.vP − first.vP) 在 RTL 下为负（区间盒负宽，未测暴露）
+- **纯色无渐变**：轨道/前景为 Crystal 纯色轴对称，RTL 下无需渐变端点对调（相对 Slider 省一处处理）
+- **测试**（tst_rangeslider.qml）：新增 test_verticalGeometry / test_rtlMapping / test_verticalRtlCombined（垂直横条 handle、不相交随轴、rangeBox 跨轴 min/abs、垂直+RTL 与 LTR 一致；offscreen 实测确认 T.RangeSlider 垂直 visualPosition 恒 = 1 − position，与 0010 对 T.Slider 实测一致）；现有水平断言数学等价不破
+- **文档**：RangeSlider.md 更新（概述 orientation/RTL 契约段、Track/Handles/Foreground 跨轴描述、shrinkSize 基准 side、implicit 交换、垂直示例）；ADR 0011 新建（决策先行锚定，spec 待立）
+- **示例页**（Page_InputControls2.qml，测试通过后实施）：RangeSlider 展示区补垂直演示（垂直 RangeSlider + 说明文本）+ QoolTip 补 orientation×RTL 契约（handle 换向/不相交随轴/区间盒纵向/implicit 交换/光标）；**修复既有无效属性引用** `Style.active.background` → `Style.active.base`（StyleGroupAgent 无 background 属性——QColor undefined 警告，示例页与 RangeSlider.md 文档示例同修）
+
+## [4.0.0] — 2026-08-20
+
+### 变更（build-auto-configure + tests-agents，build 自动前置 configure + 测试设施规范补充）
+
+- **build 命令自动前置 configure**（`Scripts/qoolui_build_common.py`）：每次编译前先 `cmake --preset dev-<kit>-<type>` 空跑——CMake 的 glob 结果与文件列表（`_private/`、QML 测试等未显式登记内容）在每次构建前重新求值，IDE/LSP 与构建依赖图保持新鲜；无真实变化时 cmake 空跑，实测稳态每次 +2.4s（首次触发一次性 dyndep/AUTOMOC 重扫描）。QT_DIR 从 CMakeCache 回读（preset 的 `CMAKE_PREFIX_PATH=$env{QT_DIR}` 每次求值，不补 env 重配会清空 Qt 路径）
+- **QoolUITests/AGENTS.md 补充测试设施规范**：① QML 测试文件**运行期扫描加载**（改 `tst_*.qml` 无需重链/构建，直接跑 exe 即新文件——ninja "no work" 是正确行为，勿误判需删 exe 强制重链）；② 新增「输出验证」小节（Qt Test 结果走 stdout、Qt 消息走 stderr；MSYS/bash 工具的文件重定向与长输出会破坏 stdout 造成误判；可靠验证 = python 管道/真实终端、ctest `--output-on-failure`、`-input` 单文件调试）
+
+### 修复（dial-valuecolor-source-follow + rangeslider-foreground-color，Dial 采样色跟随 + RangeSlider 前景色接线）
+
+- **Dial valueColor 源色不跟随**（Dial.qml）：`readonly valueColor: colorAt(position)` 是 C++ 方法绑定——QML 绑定只追踪参数 position、不追踪方法体内对 stops 的访问（同 Slider 缺陷模式）；改 high/mid/low 色不触发重算，按压采样色冻结在旧值。改手动驱动：去掉绑定，`Component.onCompleted` 初始采样（stops 就绪后）+ 信号 connect 四源（positionChanged/highColorChanged/midColorChanged/lowColorChanged → `updateValueColor()`）；colorMapper 加 objectName 供测试定位
+- **RangeSlider 前景色未接线**（RangeSlider.qml）：`rangeCrystal` 未绑定 `root.color`——文档承诺 `color` 为前景填充色，但实现未接线，前景恒 Crystal 默认 `Style.accent`、宿主设置 `color` 无效。补 `color: root.color`（属性级绑定，描边 borderColor 依赖本色自动跟随）
+- **测试**：新增 `tst_dial.qml`（test_defaults / test_valueColorPosition / test_valueColorFollowsSource——源色变化立即跟随的缺陷回归）；`tst_rangeslider.qml` 新增 `test_foregroundColor`（前景色 = root.color + 改色立即跟随回归）
+
+### 修复（slider-handle-sample-frozen，Slider 手柄采样冻结缺陷）
+
+- **根因**：handle 色 `color: colorMapper.colorAt(position)` 是 C++ 方法调用——QML 绑定不追踪方法体内对 stops 的访问，绑定只依赖 position。初始求值时 stops 未就绪 → handle 冻结在默认黑；之后 backgroundColor/color 变化（主题加载/换色）不触发重算——默认 value:0 时手柄恒黑直到拖动（真实缺陷）
+- **修复**（Slider.qml）：Crystal 去掉 color 绑定，改 handle 侧驱动——`Component.onCompleted` 初始采样（stops 已就绪）+ 信号 connect 三源（positionChanged/colorChanged/backgroundColorChanged → `updateColor()`）；初始正确 + 运行时源色变化实时跟随
+- **测试**（tst_slider.qml）：新增 `test_handleSampleColorFollowsSource`（初始采样正确 + 改 backgroundColor 立即跟随 + position 变化采样离开 from 端）
+
+### 变更（slider-orientation-rtl，Slider 对齐 Qt 官方 orientation×RTL 正交统一）
+
+- **法向尺寸抽象 `side`**（Slider.qml）：`side = horizontal ? availableHeight : availableWidth`——手柄边长/收缩量/轨道收缩/展开全部基于它（横竖对称、镜像无关）；`shrinkSize` 基准 `root.height` → `side`（含 padding 时语义修正）
+- **handle 官方双分支定位**：水平 x 由 `visualPosition` 驱动、y 居中；垂直 y 由 `visualPosition` 驱动、x 居中（完整公式含 padding）——RTL 由模板免费承载（vertical+RTL 跟随 Qt 模板，不特判）
+- **轨道双分支**：沿主轴铺满 + 法向收缩居中（水平收缩高、垂直收缩宽）
+- **渐变锚定值增大端**：水平 LTR 左→右、RTL 右→左（x 端对调，stop 色序不变）；垂直 from 底→to 顶（Qt 垂直惯例 visualPosition 恒 = 1−position，**不受 RTL 影响**——offscreen 实测确认）
+- **采样改 `position`**：`colorAt(visualPosition)` → `colorAt(position)`（不镜像）——与对调渐变几何互补（RTL 下采样错位修复；rehearsal 推演发现）
+- **implicit 随 orientation 交换**：background 150×25 ↔ 25×150（对齐官方"垂直默认窄"惯例）
+- **光标随轴向**：水平 SizeHorCursor、垂直 SizeVerCursor
+- **测试**（tst_slider.qml）：新增 test_verticalGeometry / test_rtlMapping / test_verticalRtlCombined（几何断言；offscreen 实测确认 Qt 垂直 visualPosition 恒反转、垂直+RTL 与 LTR 一致）
+- **文档**：Slider.md 更新（概述 orientation/RTL 契约段、渐变值增大端语义、采样 position、垂直示例、光标随轴向）；ADR 0010 追加「实现演进」段（实测修正垂直渐变方向 + 垂直不受 RTL）
+
+### 变更（slider-background-resizer-align，Slider 对齐 RangeSlider 架构演进）
+
+- **Slider 改标准 background 驱动尺寸**（Slider.qml）：删除「root 直接给默认尺寸 80×25」与 background 尺寸外部 Binding——改自写 implicit 公式（`leftInset + implicitBackgroundWidth + rightInset`，模板不自带）+ background 显式 implicit（150×25）；尺寸经 Control 标准自动布局（background 自动 fill 控件 − insets，替换新实例同样受控——插拔安全不降级）
+- **RangeSlider 默认尺寸统一 150×25**（RangeSlider.qml）：background implicit 200×22 → 150×25——Slider 与 RangeSlider 默认 implicit 统一
+- **Slider handle 改用 ItemAnimatedResizer**（Slider.qml）：删除 handle Crystal 的 `BasicNumberBehavior on height`（width=height 联动）——改 ItemAnimatedResizer 控制 Crystal 宽高缩放（from = 可用高 − 收缩量 / to = 可用高，`resized` 方向开关：hover/按下/锁存三态）——两方向动画独立模板 + 锁定 Binding 目标跟随
+- **锁存内化 + 接口移除**（Slider.qml）：删除公开属性 `justMoved`/`valueVelocity` 与 `NumberNotifier`；root 级 movementLatch 双触发改 handle 内 TimerLatch 单触发（`onValueChanged`）——连续变化窗口经滑动保持等价（RangeSlider 验证）；锁存不暴露接口（"刚移动"感知经手柄展开反馈呈现）
+- **禁用冻结**（Slider.qml）：cResizer 接 `enabled: root.enabled`——禁用时手柄整体静止（含程序化写入展开取消——禁用视觉静态化，同 RangeSlider 决策）
+- **其它对齐**（Slider.qml）：handle 高度 `root.height` → `availableHeight`（有 padding 时正确）；轨道定位 `anchors.centerIn` → `y: halfShrinkSpace` 显式（同 RangeSlider 同构）；`crystalShrinkSize` 更名 `shrinkSize`
+- **测试**（tst_slider.qml）：implicit 断言 80×25 → 150×25；删除 test_justMovedLatch（接口移除，锁存行为由 test_handleRestAndExpand 的展开/回落覆盖）；轨道/插拔注释措辞（外部 Binding → 标准自动布局）
+- **文档/示例**：Slider.md 重写（移除 valueVelocity/justMoved、标准尺寸公式、禁用冻结语义、锁存内化、resizer 动画）；RangeSlider.md 尺寸文本 200×22 → 150×25；示例页 5 处 QoolTip 同步（锁存内化/禁用冻结/自动布局/默认 150×25）
+
+### 变更（rangeslider-enabled-gate + itemanimatedresizer-docs）
+
+- **RangeSlider 前景 resizer 接 `enabled`**（RangeSlider.qml）：`cResizer` 增加
+  `enabled: root.enabled`——禁用时值变化锁存不再展开前景，hover/光标/展开动画
+  同受 `enabled` 门控（禁用即整体静止，交互反馈一致性）；正常态行为不变
+- **ItemAnimatedResizer 修复后退方向误引用前进模板**：`backwardAni` 的
+  easing/duration 原取 `templateFowardAni`（复制笔误）——现改取
+  `templateBackwardAni`，`backwardAnimation` alias 真正控制后退节奏；
+  `go_backward` 动画门控检查同步改查后退模板 duration（此前后退动画时长
+  恒等于前进模板）
+- **ItemAnimatedResizer 注释补全**：头部关键注释（resized 方向开关模型/
+  enabled 门控语义/动画模板/锁机制目标跟随）；方向锁与锁定 Binding 就地注释；
+  删除废弃 from/to 注释占位
+- **文档**：新增 `docs/reference/Qool/ItemAnimatedResizer.md`（5 节：概述/
+  属性/信号/方法/使用示例）；`index.md` 登记（组件参考 + 工具段）
+- **测试**：新增 `tst_itemanimatedresizer.qml`（批次自动发现）——默认态
+  from 尺寸/前进后退切换往返/目标跟随（锁定 Binding 持续生效）/enabled 冻结
+  与恢复/动画路径（running + 到达）/两方向模板独立定制/动画关跳变
+
+### 变更（rangeslider-template-handle，RangeSlider 回归模板 handle 体系）
+
+- **根因**：RangeHandle 自建三区交互体系（DragMoveArea → 意图信号 → 宿主换算）完全取代模板 handle 体系——`first.handle`/`second.handle` 从未设置，模板私有状态机（handlePress/handleMove/handleRelease）在区间内从不激活；模板把 snap/live 实现在该私有拖动链，而 `QQuickRangeSliderNode::setValue` 本身无 snap——`snapMode`/`stepSize`/`live` 在鼠标拖动路径下全部失效
+- **决策反转**：删除 `RangeHandle.qml`/`rangeHandle` 属性/三区意图信号（wannaMoveFirstX/SecondX/RangeX）/热区扩展/`down`/`hovered` 聚合/`pixelToValueDelta` 换算与自建钳制；组件内设置 `first.handle`/`second.handle` 默认 handle 激活模板状态机——snap/live/键盘/nearest/端点钳制全部模板行为（零自建）
+- **handle 窄条 + 不相交定位**：默认 handle = 窄条（`width = availableHeight / 2`），定位行程 = `availableWidth − width×2`（first 从 0、second 从 width——**任意值下两 handle 永不相交**）、按 `visualPosition` 映射（RTL/垂直感知）；`z:10` 盖在 contentItem 之上（拖动命中不受前景遮挡）；宿主替换即行为插拔（定位自写）
+- **前景入 contentItem**：`surface` 属性**删除**——前景（Crystal）直接置于 contentItem 内 `rangeBox` 区间盒（x 随 first 视觉位、宽 = 区间视觉宽 + 自身高作尖角外溢余量）；**hover 展开**由 HoverHandler + `ItemAnimatedResizer` 驱动（from = 区间盒 − 收缩量 / to = 区间盒全尺寸，动画门控 `animationEnabled`）
+- **锁存移除**：`firstJustMoved`/`secondJustMoved` 删除——前景展开只响应 hover（无 pressed/锁存路径）
+- **整体滑移取消**：模板无中段整体滑移——不做默认实现，文档注明宿主自建路径（contentItem 内 MouseArea 同步操作两端）
+- **API 破坏**：`rangeHandle` 属性、`RangeHandle` 类型、`surface` 属性、`firstJustMoved`/`secondJustMoved` 全部删除；行为插拔点 = `first.handle`/`second.handle`（模板 handle 契约）；"点击无操作"契约变化（点击轨道走模板 nearest）
+- **测试重写**（tst_rangeslider.qml）：窄条 handle 不相交、区间盒几何、前景常态收缩、键盘步进、程序化不吸附、端点钳制、倒置范围、handle 插拔；hover 展开为模板不可达人工验收
+- **文档/示例**：RangeHandle.md 删除、RangeSlider.md 重写（模板 handle + 区间盒前景 + hover 展开）、reference index.md 移除登记；ADR 0009 追加「模板 handle 回归」演进节；示例页更新（删 surface 示例改外观通道、HandleKnob 窄条不相交、QoolTip 更新）
+
+### 变更（slider-align，Slider 对齐 RangeSlider 接口面演进）
+
+- **RangeSlider `bgColor` 更名 `backgroundColor`**（RangeSlider.qml）：语义精确（属性即轨道背景色）；消费处同步——轨道颜色、tst_rangeslider.qml 断言、RangeSlider.md、ADR 0009 外观通道条目
+- **Slider 新增外观通道**：`color`（渐变右端色）/`backgroundColor`（渐变左端，轨道以 75% 透明渲染）/`borderColor`（轨道描边，默认 `ThemeHQ.recommendForeground(backgroundColor)` 自动对比推荐）；轨道渐变左端由 `Style.text` 改为 `backgroundColor` 75% 透明（同 RangeSlider 轨道半透明语义）；手柄采样渐变不透明化（实体不透明，同 RangeSlider 前景）
+- **`preferredHeight` 公开属性移除**（Slider）：改为默认 handle 与 background 的内部配套约定——收缩偏移量内化 pCtrl（只缓存偏移量不缓存高度，root 变化无 stale）
+- **background 尺寸改外部 Binding 施加**（Slider）：root 尺寸 − insets、常态收缩 + 居中——替换 background 后新实例同样受控（插拔安全；内联尺寸绑定随默认实例替换丢失）
+- **`encountered` 更名 `expanded`**（Slider）：与 RangeSlider surface 命名统一
+- **测试**：新增 tst_slider.qml（批次自动发现）——默认状态/轨道几何与渐变 stops/手柄常态收缩与展开反馈/锁存窗口/采样色不透明化/background 替换插拔/insets 响应
+- **展示页同步**（Page_InputControls2.qml）：LoggingHandle 改监听意图信号 `wannaMoveFirstX`/`wannaMoveSecondX`/`wannaMoveRangeX`（修复引用已删结果信号 firstMoved 等的加载隐患）；Slider/RangeSlider 各组 QoolTip 更新（`backgroundColor`/`borderColor` 通道、渐变 0.75 描述、锁存分化、surface 自布局插拔语义）；customSurfaceSlider 的 surface 补 `anchors.fill: parent`（布局责任反转）；Playground 头注释同步（RangeSlider 调试用例）
+- **文档**：Slider.md 更新（属性节、渐变描述、反馈节、background 插拔语义）；ADR 0009 实现演进节追加「Slider 同步」
+
+### 变更（rangeslider-interface-landing，RangeSlider/RangeHandle 接口面落地演进）
+
+- **RangeHandle 收敛为纯交互件**（RangeHandle.qml）：删除全部位置/外观输入（firstPosition/secondPosition/cutSize/preferredHeight/externalExpanded/color/animationEnabled/expanded/surfaceHeight/midPosition/zoneWidth）与钳制/分区判定——**不收位置、不发结果位置**；三区各为独立 DragMoveArea，发意图信号 `wannaMoveFirstX`/`wannaMoveSecondX`/`wannaMoveRangeX`（载荷 = 像素增量位移，DragMoveArea 增量语义）；三区物理分区（`handleHSpace = min(宽/2, 高/2)` 端点热区、`rangeHSpace = 宽 − 高` 中段行程区，w ≥ h 时 left [−ext, h/2] / center [h/2, w−h/2] / right [w−h/2, w+ext]）；新增热区扩展（first/secondMouseZoneExtension，默认 2）、光标 alias、`down`/`hovered` 聚合；三区 `autoBind: false`——修复拖动物理移动 rangeHandle 与区间盒 Binding 双重驱动致端点可越过（同 QoolWindowBG/RectResizer 句柄漂移教训）
+- **RangeSlider 区间盒几何**（RangeSlider.qml）：值→位置映射收敛为 `dummyRangeBox` 区间盒（`x = availableWidth × first.position + leftPadding`、`width = availableWidth × (second − first)`）经 Binding 组施加——**rangeHandle 的几何即区间盒**，不再需端点位置输入；端点/整体钳制在值域（`first ∈ [from, second.value]`、`second ∈ [first.value, to]` 可重合不交叉、整体滑移 `[from − first.value, to − second.value]` 不变形边界整体停）；`pixelToValueDelta` 为 pCtrl 内部方法（不暴露公开 API）
+- **色彩通道 + 外观**：`color`（前景填充）/`bgColor`（轨道背景，默认 75% 透明渲染）/`borderColor`（前景与轨道描边，默认基于 bgColor 自动对比推荐）；前景与轨道同为 Crystal 尖角外溢（`width = parent.width + height`，直边区 = 区间/控件宽），前景常态收缩/展开占满（尖角外溢量随高度变）；surface 自布局（RangeHandle 仅设 parent，默认 `anchors.fill` 区间盒）
+- **锁存分化**：`justMoved` → `firstJustMoved`/`secondJustMoved`（两端独立 500ms 窗口，写入哪端锁存哪端）
+- **测试契约重写**（tst_rangeslider.qml，批次 29 用例全绿）：区间盒几何/前景尖角外溢与收缩展开/三区几何与热区扩展/独立锁存/倒置范围/wannaMove 增量换算与端点钳制/整体滑移边界/surface 替换（自布局）/RangeHandle 独立实例化
+- **文档**：`docs/reference/Qool.Controls/RangeHandle.md` 与 `RangeSlider.md` 重写为新契约（意图信号、区间盒几何、尖角外溢、色彩通道、钳制语义、surface 自布局插拔示例）；ADR 0009 新增「实现演进（2026-08-20）」节（位置 vs 值输入结构演进、surface 布局责任反转、autoBind 教训、锁存分化、外观通道、测试策略）
+
+### 变更（rangeslider-three-layer，RangeSlider 三层重构实现落地）
+
+- **新组件 `Qool.Controls.RangeHandle`**（RangeHandle.qml，Item 基座）：区间逻辑单一归属——输入 firstPosition/secondPosition/cutSize/preferredHeight/externalExpanded/color/animationEnabled；信号 firstMoved(位置)/secondMoved(位置)/rangeMoved(像素位移)（载荷换算归宿主）；派生 expanded/surfaceHeight/midPosition；surface 布局控制（x/y/width/height/color 经动态 Binding 施加——宿主替换 surface 时新实例同样受控）。可独立实例化（implicit 80×25）
+- **RangeSlider 重构为三层**（RangeSlider.qml）：模板 + 静态 Crystal 轨道（Style.text、恒常态高、不参与交互反馈）→ 内置 RangeHandle（`rangeHandle` 属性——宿主继承替换即行为插拔；配套绑定与信号换算经动态 Binding/Connections 施加）→ surface（默认 Crystal 整体前景——中央直边区 = 区间、两端尖角 45° 溢出 cutSize = preferredHeight/2、端点重合自动退化水晶菱形；替换任意 Item 即外观插拔，与行为解耦）。值→位置映射留在 RangeSlider（positionToValue/shiftRange）；三区域交互（左拖 first/右拖 second/中拖整体滑移——两端同步、区间宽不变、边界钳制整体停），全部点击无操作，键盘保留模板；端点钳制（行程内、可重合不越界）在拖动路径
+- **测试契约重写**（tst_rangeslider.qml 单接缝，29 用例全绿）：默认状态/背景轨道静态/前景几何（中央直边区 = 区间、尖角溢出、重合菱形）/justMoved 锁存/展开反馈（justMoved → surface 高 = 控件全高、窗口落后回常态——动画关闭即时）/倒置范围/信号载荷换算（firstMoved/secondMoved 位置→值、rangeMoved 整体滑移与边界钳制、端点重合退化）/surface 替换最低要求（简单 Rectangle 自动填充区间 × 高度）/RangeHandle 独立实例化
+- **示例页**：Page_InputControls2.qml RangeSlider 展示更新（三层结构说明 + 三区域交互 + 外观/行为双插拔演示——自定义 surface Rectangle 与内联派生组件 LoggingHandle）
+- **文档**：`docs/reference/Qool.Controls/RangeSlider.md` 重写（三层结构 + 插拔契约）；新增 `docs/reference/Qool.Controls/RangeHandle.md`（输入/信号/派生/布局契约 5 节）；index.md 登记
+
+## [4.0.0] — 2026-08-19
+
+### 变更（rangeslider-three-layer-design，RangeSlider 三层重构设计决策落地）
+
+- **ADR 0009**：`docs/adr/QoolUI/QoolControls/0009-rangeslider-three-layer.md`——RangeSlider 重构决策落定：三层结构（静态背景轨道 + RangeHandle 独立组件 + surface 外观插拔件），整体 Crystal 前景取代双手柄（两端点重合退化水晶型）；三区域分区交互（左拖 first/右拖 second/中拖整体滑移，全部点击无操作）；保留 T.RangeSlider 模板与 API、不定义 handle delegate；surface 布局由 RangeHandle 控制（接口后梳理）。被拒方案记录：双手柄逐项修补（几何死结）、交互入 surface（退化为两层）、点击跳转保留
+- **FIXME 清理**：Slider.qml 移除 2 处（非交互动画位移/cursorShape 全局暴露）、RangeSlider.qml 2 处（手柄行为/动画位移）——对应议题经 grill 裁决取消（动画位移与 cursorShape 暴露不做）；VerticalSlider 重构 FIXME 保留（延后专项）
+- **后续**：三层结构实现 + tst_rangeslider 契约重写 + RangeSlider/RangeHandle 参考文档，为独立实现专项
+
+## [4.0.0] — 2026-08-19
+
+### 新增（cut-sizes-locker，QoolBoxSettings 四切角统一联动插件）
+
+- **CutSizesLocker（Qool/shapecontrol/qool_qoolboxcutsizeslocker.\*）**：`QoolBoxCutSizesLocker` C++ 类（继承 SmartObject，QML_NAMED_ELEMENT(CutSizesLocker) 注册进 Qool）。作为 `QoolBoxSettings` 专属插件：启用期（`enabled == true` 且 target 有效）四角切角统一为 `cutSize`；停用恢复进入本次锁定前一刻的快照。五条变更路径（locker.cutSize 与 target 四角）汇聚到同一统一逻辑；快照时机 = 进入锁定状态瞬间（enabled false→true 或 enabled 期间换 target 都重新快照）；换 target 时旧 target 恢复其快照、新 target 立即统一；构造时 parent 为 QoolBoxSettings 则自动挂接，否则 target 为 null 安全空转
+- **测试（双接缝）**：core 层 `tst_qoolboxcutsizeslocker.cpp` 10 用例——默认值/空转、parent 自动挂接、cutSize 统一、单角联动、停用恢复与停用期自由改、重启用快照时机、停用期 cutSize 不触碰 target、enabled 期换 target（旧恢复/新统一）、target 置 null 恢复旧 target、disabled 换 target 后 enable 快照新值；qml 层 `tst_cutsizeslocker.qml` 冒烟——类型注册、cutSize 绑定响应、单角联动、停用恢复、无 target 空转
+- **文档**：`docs/reference/Qool/CutSizesLocker.md`（MUST 5 节）+ index 组件参考登记
+
 ## [4.0.0] — 2026-08-17
 
 ### 变更（comment-cleanup，全仓库违规注释清理）

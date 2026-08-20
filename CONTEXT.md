@@ -18,6 +18,7 @@
 | **ColorNameHQ** | QML 单例（每 engine 实例，类名 = QML 注册名）：转发查询面——names/color/categories/hasColor/name，实现调 ColorNameDB。 |
 | **FileIconHQ** | QML 单例（每 engine 实例）：转发 iconUrl（Q_INVOKABLE 面）；requestPath/requrestUrl 纯 C++ 面不转发。iconUrl 实现直接调 `FileIconImageProvider::compileUrl` 静态（不经 DB）。 |
 | **FileInfoHQ** | QML 单例（每 engine 实例）：转发 getFileInfo ×2，实现调 FileInfoDB（命中共享缓存）。 |
+| **焦点高亮（focus highlight）** | 控件获得键盘焦点时（`visualFocus`——仅 Tab/Backtab/Shortcut 等键盘聚焦原因触发）其背景外边框临时切换至高亮色、失焦恢复的行为；为键盘操作提供可访问性可视提示。外观变化仅发生于默认 `background` 实现内，宿主替换背景后随默认实现消失。 |
 
 ## 违规集（已全部改造）
 

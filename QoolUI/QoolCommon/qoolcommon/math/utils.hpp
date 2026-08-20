@@ -6,42 +6,44 @@
 
 #include <algorithm>
 #include <cmath>
+#include <concepts>
 #include <numeric>
 
 QOOL_NS_BEGIN
 
 namespace math {
 
-template <typename N>
-inline bool is_equal(N a, N b, float epsilon = M_FUZZY_EPSILON) {
+template<typename T>
+concept Arithmetic = std::integral<T> || std::floating_point<T>;
+
+template<Arithmetic N>
+constexpr bool is_equal(N a, N b, float epsilon = M_FUZZY_EPSILON) {
   const auto aa = std::abs(a);
   const auto ab = std::abs(b);
-  if (aa < epsilon && ab < epsilon)
-    return true;
+  if (aa < epsilon && ab < epsilon) return true;
   return std::abs(a - b) / std::max(aa, ab) < epsilon;
 }
 
-template <typename N>
-inline bool is_zero(N a, float epsilon = M_EPSILON) {
+template<Arithmetic N>
+constexpr bool is_zero(N a, float epsilon = M_EPSILON) {
   return std::abs(a) < epsilon;
 }
 
-template <typename N>
-inline N auto_bound(N left, N x, N right) {
+template<Arithmetic N>
+constexpr N auto_bound(N left, N x, N right) {
   const auto min = std::min(left, right);
   const auto max = std::max(left, right);
   return std::min(std::max(x, min), max);
 }
 
-template <typename N, typename P>
-inline N set_precision(N number, P precision) {
+template<Arithmetic N, Arithmetic P>
+constexpr N set_precision(N number, P precision) {
   const double p = static_cast<double>(std::abs(precision));
-  if (is_zero(p))
-    return std::round(number);
+  if (is_zero(p)) return std::round(number);
 
   const long double factor = std::pow(10.0, p);
   const auto rounded =
-    std::round(static_cast<long double>(number) * factor) / factor;
+      std::round(static_cast<long double>(number) * factor) / factor;
   return static_cast<N>(rounded);
 }
 
@@ -50,67 +52,72 @@ inline N set_precision(N number, P precision) {
  * 范围；使用浮点中间计算以确保精度，最终结果转换为目标类型（整型/浮点
  * 型等）。输入范围端点相等时返回目标范围最小值（避免除以零）。
  */
-template<typename T, typename U>
-U remap(T input, T in_min, T in_max, U out_min, U out_max) {
-  if (in_min == in_max) {
-    return out_min; // 避免除以零，返回目标范围最小值
-  }
+template<Arithmetic T, Arithmetic U>
+constexpr U remap(T input, T in_min, T in_max, U out_min, U out_max) noexcept {
+  if (in_min == in_max) { return out_min; }
 
-  // 转换为 double 进行浮点运算，避免整数除法误差
-  double input_diff = static_cast<double>(input) - static_cast<double>(in_min);
-  double in_range = static_cast<double>(in_max) - static_cast<double>(in_min);
-  double out_range =
-      static_cast<double>(out_max) - static_cast<double>(out_min);
-  double scaled = (input_diff / in_range) * out_range;
+  // 统一用 double 做中间计算
+  const double ratio =
+      (static_cast<double>(input) - static_cast<double>(in_min))
+      / (static_cast<double>(in_max) - static_cast<double>(in_min));
+  const double result =
+      static_cast<double>(out_min)
+      + ratio * (static_cast<double>(out_max) - static_cast<double>(out_min));
 
-  return static_cast<U>(scaled + static_cast<double>(out_min));
+  return static_cast<U>(result);
 }
 
-/**
- * 将 `value` 循环折返约束到 [min, max] 区间（模数回绕，非钳制）。
- *
- * 与 auto_bound（超界钳制在边界）不同，本函数把区间视为环：
- * value 超出区间时按模数折回——从 max 一侧继续向外走会绕回 min。
- * 典型用途：角度归一化（任意角度折返到 [-180°, 180°]）、循环索引
- * （末位 +1 绕回开头，如 12 点制时钟 12 时 +1 → 1 时）。
- *
- * 端点乱序（min > max）时自动取小大为界，语义与 auto_bound 一致，
- * 区间定义为 [min(min,max), max(min,max)]。
- *
- * 算法：① 端点排序得 left/right；② value 落在 [left, right] 内原样
- * 返回（含两端点）；③ 区间外对 range = right - left 取模折返，
- * fmod 负余数加 range 修正，保证结果落在 [left, right)。
- *
- * 示例（min=0, max=10）：5 → 5；12 → 2；-3 → 7；10 → 10。
- *
- * 注意：N 应为有符号整型或浮点类型：无符号类型下区间外取值与
- * 负余数修正路径依赖 fmod 的负返回值，为未定义行为。
- */
-template <typename N>
-inline N cycle_in_range(N min, N value, N max) {
+/// @brief  将数值循环映射到 [min, max) 左闭右开区间
+/// @tparam N 算术类型（整型 / 浮点型）
+/// @param min 区间下界
+/// @param value 待映射值
+/// @param max 区间上界
+/// @return 循环映射后落在 [min, max) 内的结果
+template<Arithmetic N>
+constexpr N cycle_in_range(N min, N value, N max) noexcept {
   const N left = std::min(min, max);
   const N right = std::max(min, max);
-  if (left == right)
-    return left;
-  if (left <= value && value <= right) // 端点已排序，区间内判定须用 right
-    return value;
 
-  const N range = right - left;
-  const N distance = value - left;
-  N mod = std::fmod(distance, range);
-  if (mod < 0)
-    mod += range;
-  return left + mod;
+  // 区间退化为单点
+  if (left == right) { return left; }
+
+  // 快速路径：值已在目标区间内
+  if (left <= value && value < right) { return value; }
+
+  if constexpr (std::integral<N>) {
+    using unsigned_N = std::make_unsigned_t<N>;
+    // 无符号计算区间长度，彻底规避有符号整型溢出
+    const unsigned_N range =
+        static_cast<unsigned_N>(right) - static_cast<unsigned_N>(left);
+
+    if constexpr (std::signed_integral<N>) {
+      const N distance = value - left;
+      N mod = distance % static_cast<N>(range);
+      if (mod < 0) { mod += static_cast<N>(range); }
+      return left + mod;
+    } else {
+      // 无符号整型：利用无符号算术的模特性处理下溢
+      const unsigned_N distance =
+          static_cast<unsigned_N>(value) - static_cast<unsigned_N>(left);
+      return left + static_cast<N>(distance % range);
+    }
+  } else {
+    const N range = right - left;
+    const N distance = value - left;
+    N mod = std::fmod(distance, range);
+    if (mod < 0) { mod += range; }
+    return left + mod;
+  }
 }
 
-template<typename N> inline N average(std::initializer_list<N> numbers) {
+template<Arithmetic N>
+  requires std::integral<N> || std::floating_point<N>
+constexpr N average(std::initializer_list<N> numbers) {
   // 空列表显式返回 N(0)：0/0 在整型下为未定义行为、浮点下为 NaN，
   // "空集均值 = 0"是调用方依赖的自洽约定。
-  if (numbers.size() == 0)
-    return N(0);
+  if (numbers.size() == 0) return N(0);
   // 累加器初始值必须是 N：字面量 0 是 int，浮点列表会因整数除法截断结果。
-  return std::accumulate(numbers.begin(), numbers.end(), N(0))
-    / numbers.size();
+  return std::accumulate(numbers.begin(), numbers.end(), N(0)) / numbers.size();
 }
 
 } // namespace math

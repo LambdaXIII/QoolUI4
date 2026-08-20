@@ -12,7 +12,10 @@ std::pair<qreal, qreal> ColorHueCycleModel::hue_and_position(
   // 槽位按环语义循环（math::cycle_in_range 模数回绕，非钳制）：越界
   // row 折回区间内，保证 position 恒在 [0, 1)；hue 越界同样折返
   // （如 hueOffset 使 hue > 1 → 折回，而非越界负值）。
-  const int cycled = math::cycle_in_range(0, index, m_number - 1);
+  // 上界取 m_number 而非 m_number - 1：cycle_in_range 为左闭右开 [0, N)，
+  // 需覆盖全部 m_number 个槽位 0..m_number-1——若传 m_number-1，末槽
+  // m_number-1 落在右开端点之外会被折返，丢最后一个槽位。
+  const int cycled = math::cycle_in_range(0, index, m_number);
   const qreal pos = qreal(cycled) / qreal(m_number);
   const qreal hue = math::cycle_in_range(0.0, pos + m_hueOffset, 1.0);
   return std::make_pair(hue, pos);

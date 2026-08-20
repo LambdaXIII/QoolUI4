@@ -2,6 +2,7 @@ import QtQuick
 import Qool
 
 SmartObject {
+    // Binds cutsizes from an object to another
     id: root
 
     property var from
