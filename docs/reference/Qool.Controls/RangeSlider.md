@@ -19,7 +19,8 @@ behavior** — nothing is re-implemented.
   the rest height and vertically centered. It does not participate in
   interaction feedback (the visual focus is on the foreground).
 - **Handles** — `first.handle`/`second.handle` default to transparent
-  strips (`width = height / 2`). Their positioning uses a
+  strips (`width = height / 2`), each carrying a hover cursor
+  (`Qt.SplitHCursor`, gated by `enabled`). Their positioning uses a
   non-overlapping formula: the travel is `availableWidth − width × 2`
   (both handles' widths deducted), `first` starts at `0`, `second` at
   `width` — so the two never intersect at any value. Positioning uses
@@ -30,8 +31,9 @@ behavior** — nothing is re-implemented.
   `contentItem`). `rangeBox` maps the interval: `x` from `first`'s visual
   position, `width = interval visual width + height` (the extra `height`
   leaves room for the point overflow). The foreground expands to the
-  `rangeBox` size on hover (via `ItemAnimatedResizer`) and contracts to
-  `size − shrinkSize` at rest.
+  `rangeBox` size while hovered **or while a recent value change holds**
+  (via `ItemAnimatedResizer` + a `TimerLatch`) and contracts to
+  `size − shrinkSize` when neither holds.
 
 ## Properties
 
@@ -127,11 +129,14 @@ RangeSlider {
   overall-interval dragging (the template only moves single endpoints).
 - Keyboard stepping (`increase()`/`decrease()`, direction keys after
   focus) steps by `stepSize` with template clamping.
-- Expansion feedback: while the foreground is hovered, the foreground
-  crystal expands to fill the `rangeBox` interval (straight middle = the
-  interval, points overflowing `height/2`); at rest it contracts by
-  `shrinkSize` (`Qore.bound(3, height * 0.25, 25)`). The expansion is
-  animated (`ItemAnimatedResizer`) unless `animationEnabled` is off.
+- Expansion feedback: the foreground crystal expands to fill the
+  `rangeBox` interval (straight middle = the interval, points overflowing
+  `height/2`) while hovered (hover only counts within the crystal shape —
+  the `rangeBox` `containmentMask` restricts hit-testing to the crystal)
+  or while a recent value change holds (`TimerLatch`, 500 ms sliding
+  window), then contracts by `shrinkSize` (`Qore.bound(3, height * 0.25,
+  25)`) when neither holds. The expansion is animated
+  (`ItemAnimatedResizer`) unless `animationEnabled` is off.
 - Inverted range (`from > to`): positions reverse; the interval stays
   positive (the template guarantees `first.position <= second.position`).
 - Narrow/coincident intervals: the crystal's cut follows the shape's own

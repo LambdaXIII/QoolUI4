@@ -15,8 +15,9 @@ import Qool.Controls
 // - 区间盒（值→位置映射）：rangeBox.x = first.visualPosition × (可用宽 − 高)、
 //   width = (可用宽 − 高) × (second − first) + 高——左缘 = first handle 左缘、
 //   右缘 = second handle 右缘
-// - 前景常态尺寸：rangeCrystal = rangeBox 尺寸 − shrinkSize（hover 展开
-//   为模板不可达——人工验收）
+// - 前景尺寸：常态 rangeCrystal = rangeBox 尺寸 − shrinkSize；值变化后
+//   TimerLatch 锁存展开到全尺寸、释放后收缩回常态（hover 展开为模板
+//   不可达——人工验收）
 // - 键盘步进：increase()/decrease() 按 stepSize 步进（模板方法公开可调）
 // - 程序化赋值不吸附：snapMode/stepSize 下 setValues 不吸附
 // - 端点钳制：程序化写值模板钳制（first ∈ [from, second]、second ∈ [first, to]）
@@ -147,10 +148,13 @@ TestCase {
         verify(rc !== undefined, "rangeCrystal 存在")
         compare(rc.width, rb.width - 10, "前景常态宽 = 区间盒宽 − 收缩量")
         compare(rc.height, rb.height - 10, "前景常态高 = 区间盒高 − 收缩量")
-        // 值变化 → rangeBox 宽变，前景常态随之
+        // 值变化 → rangeBox 宽变；TimerLatch 立即锁存 → 前景展开到全尺寸
         s.setValues(0.25, 0.75)
         compare(rb.width, 160 * 0.5 + 40)
-        compare(rc.width, rb.width - 10, "前景常态跟随区间盒")
+        tryCompare(rc, "width", rb.width, 1000, "值变化锁存：前景保持展开到全尺寸")
+        tryCompare(rc, "height", rb.height, 1000, "锁存期间高度展开")
+        // 锁存释放（500ms 滑动窗口）→ 前景收缩回常态（跟随新 rangeBox 宽）
+        tryCompare(rc, "width", rb.width - 10, 3000, "锁存释放后前景收缩回常态")
     }
 
     function test_keyboardStepping() {

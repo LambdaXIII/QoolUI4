@@ -4,6 +4,25 @@
 
 ## [4.0.0] — 2026-08-20
 
+### 变更（rangeslider-enabled-gate + itemanimatedresizer-docs）
+
+- **RangeSlider 前景 resizer 接 `enabled`**（RangeSlider.qml）：`cResizer` 增加
+  `enabled: root.enabled`——禁用时值变化锁存不再展开前景，hover/光标/展开动画
+  同受 `enabled` 门控（禁用即整体静止，交互反馈一致性）；正常态行为不变
+- **ItemAnimatedResizer 修复后退方向误引用前进模板**：`backwardAni` 的
+  easing/duration 原取 `templateFowardAni`（复制笔误）——现改取
+  `templateBackwardAni`，`backwardAnimation` alias 真正控制后退节奏；
+  `go_backward` 动画门控检查同步改查后退模板 duration（此前后退动画时长
+  恒等于前进模板）
+- **ItemAnimatedResizer 注释补全**：头部关键注释（resized 方向开关模型/
+  enabled 门控语义/动画模板/锁机制目标跟随）；方向锁与锁定 Binding 就地注释；
+  删除废弃 from/to 注释占位
+- **文档**：新增 `docs/reference/Qool/ItemAnimatedResizer.md`（5 节：概述/
+  属性/信号/方法/使用示例）；`index.md` 登记（组件参考 + 工具段）
+- **测试**：新增 `tst_itemanimatedresizer.qml`（批次自动发现）——默认态
+  from 尺寸/前进后退切换往返/目标跟随（锁定 Binding 持续生效）/enabled 冻结
+  与恢复/动画路径（running + 到达）/两方向模板独立定制/动画关跳变
+
 ### 变更（rangeslider-template-handle，RangeSlider 回归模板 handle 体系）
 
 - **根因**：RangeHandle 自建三区交互体系（DragMoveArea → 意图信号 → 宿主换算）完全取代模板 handle 体系——`first.handle`/`second.handle` 从未设置，模板私有状态机（handlePress/handleMove/handleRelease）在区间内从不激活；模板把 snap/live 实现在该私有拖动链，而 `QQuickRangeSliderNode::setValue` 本身无 snap——`snapMode`/`stepSize`/`live` 在鼠标拖动路径下全部失效

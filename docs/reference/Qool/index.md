@@ -9,9 +9,9 @@ Qool 是 QoolUI 的核心模块，提供：
   线性不等式。
 - 样式体系：`Style` 附加属性 + `Theme` 值类型（见 `Style 体系`）。
 - 窗口：`QoolWindow`、`QoolWindowBasic`（见 `QoolWindow 配件哲学`）。
-- 工具：`CutSizeBinding`、`PositionLocker`、`TimerLatch`、`Floater`、
-  `PositionTracker`、`ItemTracker`、`Qore`、`QoolPalette`、
-  `PixelFont` 等。
+- 工具：`CutSizeBinding`、`ItemAnimatedResizer`、`PositionLocker`、
+  `TimerLatch`、`Floater`、`PositionTracker`、`ItemTracker`、`Qore`、
+  `QoolPalette`、`PixelFont` 等。
 
 ## 组件参考
 
@@ -23,6 +23,7 @@ Qool 是 QoolUI 的核心模块，提供：
 - [DragMoveArea](DragMoveArea.md)
 - [Floater](Floater.md)
 - [HalfCrystal](HalfCrystal.md)
+- [ItemAnimatedResizer](ItemAnimatedResizer.md)
 - [ItemTracker](ItemTracker.md)
 - [OctagonCurvedExternalShapePath](OctagonCurvedExternalShapePath.md)
 - [OctagonCurvedInternalShapePath](OctagonCurvedInternalShapePath.md)

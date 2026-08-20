@@ -2,9 +2,9 @@
 //
 // 结构：模板 handle（默认透明窄条，激活模板交互——snap/live/键盘/nearest/
 // 端点钳制免费）+ Crystal 轨道（background，静态）+ contentItem 内区间盒
-// 前景（rangeBox 承载区间几何，hover 展开动画）。
+// 前景（rangeBox 承载区间几何，hover/值变化锁存展开动画）。
 // 前景不设独立 surface 插拔属性——直接置于 contentItem，由 rangeBox 区间
-// 盒定位，hover 展开反馈。
+// 盒定位，hover/值变化锁存展开反馈。
 //
 // 完整契约（几何模型/交互反馈/插拔）见
 // docs/reference/Qool.Controls/RangeSlider.md。
@@ -107,6 +107,10 @@ T.RangeSlider {
     // visualPosition（值→位置映射）：左边缘 = first 视觉位、宽 = 区间视觉
     // 宽 + 自身高（多出 height 作尖角外溢/对齐余量）；height = 可用高。
     contentItem: Item {
+        // 值变化锁存（TimerLatch）：拖动/键盘/程序化改值后前景保持展开
+        // interval（500ms）——任一 handle 值变化即触发（滑动窗口内持续保持），
+        // 与 hover 共同驱动 resized（hovered || latch.active），避免改值
+        // 瞬间前景收缩再展开的闪动。
         TimerLatch {
             id: latch
             interval: 500
@@ -131,18 +135,23 @@ T.RangeSlider {
             x: root.first.visualPosition * (parent.width - height)
             width: (parent.width - height) * (root.second.visualPosition - root.first.visualPosition) + height
 
-            // hover 展开反馈驱动源：前景 hover 即展开、离开收缩——
-            // 本实现前景展开只响应 hover（无 pressed/锁存路径）。
+            // hover 展开反馈驱动源：前景 hover 即展开、离开收缩——与下方
+            // latch（值变化锁存）共同驱动 resized（hovered || latch.active）。
+            // hover 命中范围受 rangeBox 的 containmentMask（rangeCrystal）
+            // 限制——仅晶体内有效，区间盒空余处不触发。
             HoverHandler {
                 id: hoverer
                 enabled: root.enabled
             }
 
             // 前景尺寸动画（Qool 非可视组件）：from = 区间盒 − 收缩量（常态）、
-            // to = 区间盒全尺寸（hover 展开）；resized = hoverer.hovered 驱动
-            // from↔to 切换（动画门控 animationEnabled——关闭时跳变）。
+            // to = 区间盒全尺寸（hover/值变化锁存展开）；resized =
+            // hoverer.hovered || latch.active 驱动 from↔to 切换（动画门控
+            // animationEnabled——关闭时跳变）；enabled 门控 resized 响应——
+            // 禁用时前景冻结（与 hover/光标同受 root.enabled 控制）。
             ItemAnimatedResizer {
                 id: cResizer
+                enabled: root.enabled
                 animationEnabled: root.animationEnabled
 
                 fromWidth: rangeBox.width - pCtrl.shrinkSize
