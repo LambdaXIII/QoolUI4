@@ -4,6 +4,12 @@
 
 ## [4.0.0] — 2026-08-20
 
+### 修复（dial-valuecolor-source-follow + rangeslider-foreground-color，Dial 采样色跟随 + RangeSlider 前景色接线）
+
+- **Dial valueColor 源色不跟随**（Dial.qml）：`readonly valueColor: colorAt(position)` 是 C++ 方法绑定——QML 绑定只追踪参数 position、不追踪方法体内对 stops 的访问（同 Slider 缺陷模式）；改 high/mid/low 色不触发重算，按压采样色冻结在旧值。改手动驱动：去掉绑定，`Component.onCompleted` 初始采样（stops 就绪后）+ 信号 connect 四源（positionChanged/highColorChanged/midColorChanged/lowColorChanged → `updateValueColor()`）；colorMapper 加 objectName 供测试定位
+- **RangeSlider 前景色未接线**（RangeSlider.qml）：`rangeCrystal` 未绑定 `root.color`——文档承诺 `color` 为前景填充色，但实现未接线，前景恒 Crystal 默认 `Style.accent`、宿主设置 `color` 无效。补 `color: root.color`（属性级绑定，描边 borderColor 依赖本色自动跟随）
+- **测试**：新增 `tst_dial.qml`（test_defaults / test_valueColorPosition / test_valueColorFollowsSource——源色变化立即跟随的缺陷回归）；`tst_rangeslider.qml` 新增 `test_foregroundColor`（前景色 = root.color + 改色立即跟随回归）
+
 ### 修复（slider-handle-sample-frozen，Slider 手柄采样冻结缺陷）
 
 - **根因**：handle 色 `color: colorMapper.colorAt(position)` 是 C++ 方法调用——QML 绑定不追踪方法体内对 stops 的访问，绑定只依赖 position。初始求值时 stops 未就绪 → handle 冻结在默认黑；之后 backgroundColor/color 变化（主题加载/换色）不触发重算——默认 value:0 时手柄恒黑直到拖动（真实缺陷）

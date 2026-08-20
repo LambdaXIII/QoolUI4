@@ -167,6 +167,9 @@ T.RangeSlider {
             // 尺寸随 cResizer（hover 展开/常态收缩）、居中于区间盒。
             Crystal {
                 id: rangeCrystal
+                // 前景填充色 = root.color（文档契约；属性级绑定——描边
+                // borderColor 依赖本色自动跟随）
+                color: root.color
                 width: cResizer.width
                 height: cResizer.height
                 anchors.centerIn: parent

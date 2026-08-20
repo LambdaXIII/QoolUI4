@@ -157,6 +157,22 @@ TestCase {
         tryCompare(rc, "width", rb.width - 10, 3000, "锁存释放后前景收缩回常态")
     }
 
+    function test_foregroundColor() {
+        // 前景填充色 = root.color（文档契约——宿主可换前景色）；改 color →
+        // 前景立即跟随（属性级绑定）。回归：此前 rangeCrystal 未接线
+        // root.color，前景恒 Crystal 默认 Style.accent、宿主设置 color 无效。
+        // 通道比较（QColor 整值 compare 因内部表示差异不可靠——同 Slider）
+        const s = makeSlider({})
+        const rc = rangeCrystal(s)
+        compare(rc.color.r, s.color.r, "前景填充色 = root.color（默认 Style.accent）r")
+        compare(rc.color.g, s.color.g)
+        compare(rc.color.b, s.color.b)
+        s.color = "#ff8800"
+        compare(rc.color.r, s.color.r, "改 color → 前景 r 立即跟随")
+        compare(rc.color.g, s.color.g)
+        compare(rc.color.b, s.color.b)
+    }
+
     function test_keyboardStepping() {
         // 键盘步进：increase/decrease 按 stepSize 步进（模板方法公开可调）
         const s = makeSlider({ stepSize: 0.1 })

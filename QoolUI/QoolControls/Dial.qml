@@ -12,6 +12,7 @@ T.Dial {
 
     ColorMapper {
         id: colorMapper
+        objectName: "colorMapper" // 采样契约可观察点（测试经 dial.data 定位）
         ColorMapperStop {
             position: 0
             color: root.lowColor
@@ -24,7 +25,23 @@ T.Dial {
             position: 1
             color: root.highColor
         }
-        readonly property color valueColor: colorAt(root.position)
+        // valueColor 不经绑定——colorAt 为 C++ 方法、QML 绑定不追踪方法体
+        // 内 stops 访问（同 Slider handle 缺陷：直接绑定冻结初始采样、源色
+        // 变化不触发重算）。由 onCompleted 初始采样 + 信号 connect 手动驱动
+        // 真实更新时机（position 变 / high/mid/low 色任一变）。
+        property color valueColor
+
+        function updateValueColor() {
+            valueColor = colorAt(root.position)
+        }
+
+        Component.onCompleted: {
+            updateValueColor()
+            root.positionChanged.connect(updateValueColor)
+            root.highColorChanged.connect(updateValueColor)
+            root.midColorChanged.connect(updateValueColor)
+            root.lowColorChanged.connect(updateValueColor)
+        }
     }
 
     background: Rectangle {
