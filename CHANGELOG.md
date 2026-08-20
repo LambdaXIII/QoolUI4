@@ -4,6 +4,11 @@
 
 ## [4.0.0] — 2026-08-20
 
+### 变更（build-auto-configure + tests-agents，build 自动前置 configure + 测试设施规范补充）
+
+- **build 命令自动前置 configure**（`Scripts/qoolui_build_common.py`）：每次编译前先 `cmake --preset dev-<kit>-<type>` 空跑——CMake 的 glob 结果与文件列表（`_private/`、QML 测试等未显式登记内容）在每次构建前重新求值，IDE/LSP 与构建依赖图保持新鲜；无真实变化时 cmake 空跑，实测稳态每次 +2.4s（首次触发一次性 dyndep/AUTOMOC 重扫描）。QT_DIR 从 CMakeCache 回读（preset 的 `CMAKE_PREFIX_PATH=$env{QT_DIR}` 每次求值，不补 env 重配会清空 Qt 路径）
+- **QoolUITests/AGENTS.md 补充测试设施规范**：① QML 测试文件**运行期扫描加载**（改 `tst_*.qml` 无需重链/构建，直接跑 exe 即新文件——ninja "no work" 是正确行为，勿误判需删 exe 强制重链）；② 新增「输出验证」小节（Qt Test 结果走 stdout、Qt 消息走 stderr；MSYS/bash 工具的文件重定向与长输出会破坏 stdout 造成误判；可靠验证 = python 管道/真实终端、ctest `--output-on-failure`、`-input` 单文件调试）
+
 ### 修复（dial-valuecolor-source-follow + rangeslider-foreground-color，Dial 采样色跟随 + RangeSlider 前景色接线）
 
 - **Dial valueColor 源色不跟随**（Dial.qml）：`readonly valueColor: colorAt(position)` 是 C++ 方法绑定——QML 绑定只追踪参数 position、不追踪方法体内对 stops 的访问（同 Slider 缺陷模式）；改 high/mid/low 色不触发重算，按压采样色冻结在旧值。改手动驱动：去掉绑定，`Component.onCompleted` 初始采样（stops 就绪后）+ 信号 connect 四源（positionChanged/highColorChanged/midColorChanged/lowColorChanged → `updateValueColor()`）；colorMapper 加 objectName 供测试定位

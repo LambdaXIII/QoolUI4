@@ -123,12 +123,42 @@ def configure(kit: str, type_: str, qt_dir: str, extra: list, env=None):
             log_path=build_dir(kit, type_) / "configure.log")
 
 
+def _qt_dir_from_cache(bdir: Path) -> str:
+    """从 CMakeCache 回读 CMAKE_PREFIX_PATH（上次 configure 的 Qt 路径）。
+
+    build 前置重配需要它：preset 的 CMAKE_PREFIX_PATH=$env{QT_DIR} 每次
+    求值都读环境变量，不补 env 会把缓存里的 Qt 路径清空。返回空串 =
+    缓存未记录（configure 时未传 --qt，重配结果与上次一致，无害）。
+    """
+    cache = bdir / "CMakeCache.txt"
+    if not cache.exists():
+        return ""
+    for line in cache.read_text(encoding="utf-8", errors="replace").splitlines():
+        if line.startswith("CMAKE_PREFIX_PATH:"):
+            return line.split("=", 1)[1].strip()
+    return ""
+
+
 def build(kit: str, type_: str, jobs: int, extra: list, env=None):
-    cmd = ["cmake", "--build", str(build_dir(kit, type_))]
+    env = dict(env or os.environ)
+    bdir = build_dir(kit, type_)
+    # 前置重配（感知层刷新）：CMake 的 glob 结果与文件列表（_private/、
+    # qml 测试等未显式登记的内容）在 configure 时重新求值，IDE/LSP 与
+    # 构建依赖图随之新鲜；无真实变化时 cmake 空跑，代价可忽略。
+    # QT_DIR 从缓存回读——preset 的 CMAKE_PREFIX_PATH=$env{QT_DIR} 每次
+    # 求值，不补 env 重配会清空 Qt 路径。缓存缺失 = 尚未 configure，
+    # 交给下方 cmake --build 自然报错。
+    qt_from_cache = _qt_dir_from_cache(bdir)
+    if qt_from_cache:
+        env["QT_DIR"] = qt_from_cache
+    if bdir.exists():
+        run_cmd(["cmake", "--preset", preset_name(kit, type_)], env=env,
+                log_path=bdir / "configure.log")
+    cmd = ["cmake", "--build", str(bdir)]
     if jobs:
         cmd += ["-j", str(jobs)]
     cmd += extra
-    run_cmd(cmd, env=env, log_path=build_dir(kit, type_) / "build.log")
+    run_cmd(cmd, env=env, log_path=bdir / "build.log")
 
 
 def test(kit: str, type_: str, extra: list, env=None):

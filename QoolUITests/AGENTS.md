@@ -36,6 +36,7 @@ QoolUI 的测试设施：Qt Test + Qt Quick Test 双栈程序化测试。本文�
 - 每个 Qool 模块 = 一个 QML 测试批次 = 一个 harness target（`tst_<模块>_qml`），`assets/` 资源放批次目录下（文件系统相对路径访问，如 `"assets/foo.png"`）；`assets/` 内不得有 `tst_` 前缀文件
 - 新增 QML 测试批次：复制 `qml/CMakeLists.txt` 的 tst_qool_qml 段（add_executable + 编译定义 + add_test + 注册表登记），QUICK_TEST_SOURCE_DIR 指向新批次目录
 - harness 共享 `qml_test_main.cpp` 模板；import path 不必按模块区分（`QT_QML_OUTPUT_DIRECTORY = build/build-<kit>-<Type>/qml` 全局，引擎沿模块依赖链自动解析）
+- **测试文件运行期扫描加载**（`QUICK_TEST_SOURCE_DIR` 指向源码目录，harness target 只编译 `qml_test_main.cpp`）：修改 `tst_*.qml` **无需重链/无需构建**，直接跑 exe 即加载新文件；新增 `tst_*.qml` 运行期自动发现。测试文件不在 CMake 依赖图内——ninja 报 "no work to do" 是正确行为，勿误判为需删 exe 强制重链（qml 内容变化永远即时生效）
 
 ## 测试策略
 
@@ -70,6 +71,12 @@ QoolUI 的测试设施：Qt Test + Qt Quick Test 双栈程序化测试。本文�
 | 直接运行 | `build/build-<kit>-<Type>/QoolUITests/<层>/tst_*.exe -txt` | 单个测试调试；QML 加 `-platform offscreen` 无头；单文件用 `-input <绝对路径>` |
 
 Windows 一键（环境+配置+构建+测试）操作流程见 `README.md`（`python Scripts/qoolui_build_windows.py` 三次调用，唯一事实源）。
+
+### 输出验证（Qt Test stdout）
+
+- Qt Test 测试结果（PASS/FAIL/FAIL! 详情）走 **stdout**；Qt 消息（QDEBUG/QINFO/QWARN、QML debugging 提示）走 stderr
+- **陷阱（Windows）**：部分 shell（MSYS/bash 工具）的文件重定向（`> file` 得 0 字节）与长输出截断会破坏 Qt Test 的 stdout，造成「无输出/静默失败」误判——Qt Test 本身输出完整
+- **可靠验证通道**（SHOULD）：python subprocess 管道捕获，或真实终端；ctest `--output-on-failure`（testPresets 已配置 `outputOnFailure:true`）失败时透出聚合 exe 内部 FAIL! 详情（Actual/Expected/location）；单文件调试 `exe -input <绝对路径> -platform offscreen` 输出同样完整
 
 ## 已知经验（Windows 特有，供跨平台对照）
 
