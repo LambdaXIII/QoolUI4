@@ -22,6 +22,9 @@ T.Slider {
     property color backgroundColor: Style.buttonText
     // 轨道描边色——基于 backgroundColor 自动对比推荐（宿主可单独覆盖）。
     property color borderColor: ThemeHQ.recommendForeground(backgroundColor)
+    // 焦点高亮描边色——键盘聚焦（visualFocus）时轨道边框切换为该色、失焦
+    // 恢复 borderColor；设透明即关闭该行为。默认 Style.highlight。
+    property color focusBorderColor: Style.highlight
     // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
 
@@ -71,7 +74,13 @@ T.Slider {
             y: root.horizontal ? pCtrl.halfShrinkSpace : 0
             // 兜底纯色（渐变通道失效时轨道仍可见——渐进降级；渐变生效时覆盖）
             color: root.color
-            borderColor: root.borderColor
+            // 焦点高亮：键盘聚焦（visualFocus——仅 Tab/Backtab/Shortcut 键盘
+            // 原因聚焦）时边框切换 focusBorderColor、失焦恢复 borderColor
+            borderColor: root.visualFocus ? root.focusBorderColor : root.borderColor
+            // 切换动画门控 animationEnabled（关闭时即时跳变）
+            BasicColorBehavior on borderColor {
+                enabled: root.animationEnabled
+            }
             fillGradient: LinearGradient {
                 // 渐变内联默认（Slider 不暴露 fillGradient 通道，换色走 color
                 // 属性）：from 端 = backgroundColor 75% 透明（轨道同

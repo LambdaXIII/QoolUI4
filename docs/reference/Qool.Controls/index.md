@@ -8,7 +8,7 @@ Qool.Controls 提供 QoolUI 控件系列：
   `EditableTextBox`（带壳的 EditableText）、`BasicTextArea`（多行基底）。
 - 数值输入：`SpinBox`（裸步进器，int/double 一体）。
 - 选择控件：`ComboBox`（可编辑下拉框）、`Slider` / `VerticalSlider` /
-  `RangeSlider`（范围滑块）。
+  `RangeSlider`（范围滑块）、`Dial`（圆形转盘）。
 - 进度与滚动：`ProgressBar`、`ScrollIndicator`、`ScrollView`。
 - 基础件：`Button`、`QoolBGBox`（八边形背景盒）、`IndexIndicator`、
   `PaPaWall`（并行竖条动画墙）。
@@ -19,6 +19,7 @@ Qool.Controls 提供 QoolUI 控件系列：
 
 - [Button](Button.md)
 - [ComboBox](ComboBox.md)
+- [Dial](Dial.md)
 - [EditableText](EditableText.md)
 - [EditableTextBox](EditableTextBox.md)
 - [IndexIndicator](IndexIndicator.md)

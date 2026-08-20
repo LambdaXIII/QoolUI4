@@ -25,6 +25,9 @@ T.RangeSlider {
     property color backgroundColor: Style.buttonText
     // 前景/轨道描边色——基于 backgroundColor 自动对比推荐（宿主可单独覆盖）。
     property color borderColor: ThemeHQ.recommendForeground(backgroundColor)
+    // 焦点高亮描边色——键盘聚焦（visualFocus）时轨道边框切换为该色、失焦
+    // 恢复 borderColor；设透明即关闭该行为。默认 Style.highlight。
+    property color focusBorderColor: Style.highlight
 
     // 尺寸：反向排版策略——模板自带 implicit 公式（background 与 contentItem
     // 的 implicit 尺寸取大者）；组件只给 background 显式 implicit（150×25），
@@ -65,7 +68,13 @@ T.RangeSlider {
         implicitWidth: root.horizontal ? 150 : 25
 
         Crystal {
-            borderColor: root.borderColor
+            // 焦点高亮：键盘聚焦（visualFocus——仅 Tab/Backtab/Shortcut 键盘
+            // 原因聚焦）时边框切换 focusBorderColor、失焦恢复 borderColor
+            borderColor: root.visualFocus ? root.focusBorderColor : root.borderColor
+            // 切换动画门控 animationEnabled（关闭时即时跳变）
+            BasicColorBehavior on borderColor {
+                enabled: root.animationEnabled
+            }
             color: Qt.alpha(root.backgroundColor, 0.75)
             // 轨道沿主轴铺满（尖点贴边不外溢）、沿法向常态收缩 + 居中
             // （水平收缩高、垂直收缩宽）——法向居中不随镜像变化

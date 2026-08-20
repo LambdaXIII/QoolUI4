@@ -79,11 +79,18 @@ are orthogonal:
   track).
 - `borderColor : color` (default `ThemeHQ.recommendForeground(backgroundColor)`)
   The stroke color of the foreground crystal and the track.
+- `focusBorderColor : color` (default `Style.highlight`)
+  The focus-highlight stroke color — while the control holds keyboard
+  focus (`visualFocus`, see "Interaction feedback") the default track
+  border switches to this color and reverts to `borderColor` on losing
+  focus. Set a transparent color to disable the behavior. It only affects
+  the default `background`; replacing `background` drops the behavior.
 - `animationEnabled : bool`
   Animation gate — inherited up the parent chain (the host can turn it off
   uniformly on a parent), falling back to `Style.animationEnabled`. Gates
-  the foreground expansion animation (`ItemAnimatedResizer`); when off,
-  the resize jumps instead of animating.
+  the foreground expansion animation (`ItemAnimatedResizer`) and the
+  focus-highlight border transition; when off, both switch instantly
+  instead of animating.
 
 Inherited from `T.RangeSlider`: `first`, `second` (each a
 `RangeSliderHandle` with `value`/`position`/`visualPosition`/`pressed`/
@@ -188,3 +195,16 @@ RangeSlider {
 - Narrow/coincident intervals: the crystal's cut follows the shape's own
   geometry (`min(width, height)/2`), so a zero-width interval (coincident
   endpoints) degrades to a crystal (diamond) — no special casing.
+- Keyboard focus highlight: while the control holds keyboard focus
+  (`visualFocus` — Qt's standard semantic, `true` only when focus was
+  acquired through keyboard navigation, i.e. Tab/Backtab/shortcut; mouse,
+  programmatic and window-switch focus do not light it), the default track
+  border switches to `focusBorderColor` (default `Style.highlight`) and
+  reverts to `borderColor` on losing focus, animated under the
+  `animationEnabled` gate. `RangeSlider` is a Qt focus-scope control, but
+  keyboard entry lands on the root (the default handles are not separately
+  Tab-focusable), so `root.visualFocus` carries the full semantic. The
+  highlight lives inside the default `background` only — replacing
+  `background` removes it. Focusability stays at the Qt default; the host
+  enables focus the Qt-standard way (`activeFocusOnTab` or
+  `forceActiveFocus`).

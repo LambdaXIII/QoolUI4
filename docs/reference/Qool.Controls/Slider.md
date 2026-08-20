@@ -67,11 +67,18 @@ are orthogonal:
 - `borderColor : color` (default `ThemeHQ.recommendForeground(backgroundColor)`)
   The stroke color of the track. The handle stays un-stroked (the diamond's
   small size makes a stroke visually heavy).
+- `focusBorderColor : color` (default `Style.highlight`)
+  The focus-highlight stroke color — while the control holds keyboard
+  focus (`visualFocus`, see "Interaction feedback") the default track
+  border switches to this color and reverts to `borderColor` on losing
+  focus. Set a transparent color to disable the behavior. It only affects
+  the default `background`; replacing `background` drops the behavior.
 - `animationEnabled : bool`
   Animation gate — inherited up the parent chain (the host can turn it off
   uniformly on a parent), falling back to `Style.animationEnabled`. Gates
-  the handle expansion animation (`ItemAnimatedResizer`); when off, the
-  resize jumps instead of animating.
+  the handle expansion animation (`ItemAnimatedResizer`) and the
+  focus-highlight border transition; when off, both switch instantly
+  instead of animating.
 
 Inherited from `T.Slider`: `from`, `to`, `value`, `stepSize`, `snapMode`,
 `live`, `pressed`, `position`, `visualPosition`, `increase()`, `decrease()`,
@@ -150,6 +157,17 @@ Slider {
   handle itself).
 - Inverted range (`from > to`): the scale reverses; the gradient and the
   sampling follow `position` automatically.
+- Keyboard focus highlight: while the slider holds keyboard focus
+  (`visualFocus` — Qt's standard semantic, `true` only when focus was
+  acquired through keyboard navigation, i.e. Tab/Backtab/shortcut; mouse,
+  programmatic and window-switch focus do not light it), the default track
+  border switches to `focusBorderColor` (default `Style.highlight`) and
+  reverts to `borderColor` on losing focus, animated under the
+  `animationEnabled` gate. Focusability stays at the Qt default — the
+  control does not set `activeFocusOnTab`; the mechanism is ready to use
+  once the host enables focus the Qt-standard way (`activeFocusOnTab` or
+  `forceActiveFocus`). The highlight lives inside the default `background`
+  only — replacing `background` removes it.
 
 The `handle` delegate must self-write its `x`/`y` (the `T.Slider` template
 does not inject positioning — official convention; a host replacing `handle`
