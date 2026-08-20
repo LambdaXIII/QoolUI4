@@ -21,24 +21,26 @@ BasicPage {
 
     implicitHeight: cc.implicitHeight
 
-    // 行为插拔示例组件：自定义端点手柄（模板 handle 插拔契约——替换
+    // 行为插拔示例组件：自定义端点窄条（模板 handle 插拔契约——替换
     // first/second.handle 即自定义端点命中/视觉/光标；定位须自写——
-    // 模板不注入 handle 位置，中心对齐公式与默认 handle 同款）。
+    // 模板不注入 handle 位置，窄条不相交公式与默认 handle 同款）。
     component HandleKnob: Rectangle {
         required property RangeSlider owner
         required property var endpoint
-        width: height
+        required property bool isSecond
+        width: height / 2
         height: owner.availableHeight
-        radius: height / 2
+        radius: height / 4
         color: Qt.alpha(owner.color, 0.55)
         border.color: owner.borderColor
-        x: owner.leftPadding + owner.availableWidth * endpoint.position - width / 2
-        y: owner.topPadding
+        x: owner.leftPadding + (isSecond ? width : 0)
+            + endpoint.visualPosition * (owner.availableWidth - width * 2)
+        y: owner.topPadding + owner.availableHeight / 2 - height / 2
         // 仅光标反馈：NoButton 不拦截按压（模板拖动经 handle 命中有效）
         MouseArea {
             anchors.fill: parent
             acceptedButtons: Qt.NoButton
-            cursorShape: Qt.SplitHCursor
+            cursorShape: Qt.SizeHorCursor
         }
     }
 
@@ -199,7 +201,7 @@ BasicPage {
             }
         }
 
-        // —— RangeSlider：区间滑块（模板 handle 体系 + surface 插拔）——
+        // —— RangeSlider：区间滑块（模板 handle 体系 + 区间盒前景）——
         QoolControl {
             title: qsTr("RangeSlider 区间滑块")
             width: 260
@@ -237,7 +239,7 @@ BasicPage {
                 }
             }
             QoolTip {
-                text: qsTr("RangeSlider：**T.RangeSlider 模板 + 默认透明 handle**（激活模板交互——**snapMode/stepSize/live/键盘/nearest/端点钳制全部为模板行为**）+ **Crystal 轨道**（backgroundColor 75% 透明 + borderColor 描边、尖角外溢、静态不参与交互反馈）+ **surface**（默认 Crystal 连体前景——尖角外溢、常态收缩/展开占满区间盒）。\n**交互**：双端点拖动（模板 handle 命中即拖——按住端点中心精确跟手）；**点击轨道走模板 nearest**（跳最近端点）；**snap/live 为模板语义**（吸附 / 拖动中值实时性 / 释放落定全由模板承担）。\n**反馈**：hover/按下/刚移动（两端独立锁存 firstJustMoved/secondJustMoved 各 500ms——下方 Timer 程序化写入演示）→ 前景展开占满区间盒（常态 = 收缩量 limit(高度×0.25, 3, 25)）；动画随 animationEnabled 门控。\n**插拔**：`surface` 属性替换任意 Item ＝外观插拔（区间盒几何由组件施加——填满即精确区间）；`first.handle`/`second.handle` 替换 ＝行为插拔（模板 handle 契约，定位自写）。\n**整体滑移**（中段拖动区间整体移动）非默认能力——宿主自建（contentItem 内 MouseArea 同步操作两端）。")
+                text: qsTr("RangeSlider：**T.RangeSlider 模板 + 默认窄条 handle**（激活模板交互——**snapMode/stepSize/live/键盘/nearest/端点钳制全部为模板行为**）+ **Crystal 轨道**（backgroundColor 75% 透明 + borderColor 描边，静态不参与交互反馈）+ **contentItem 内区间盒前景**（rangeBox 承载区间几何，hover 展开）。\n**交互**：双端点拖动（模板 handle 命中即拖）；**snap/live 为模板语义**（吸附 / 拖动中值实时性 / 释放落定全由模板承担）；点击轨道走模板 nearest（跳最近端点）。\n**反馈**：**hover 前景**（rangeBox 内 HoverHandler）→ 前景展开占满区间盒（常态 = 收缩量 limit(高度×0.25, 3, 25)，ItemAnimatedResizer 动画——animationEnabled 门控）。\n**插拔**：`first.handle`/`second.handle` 替换 ＝行为插拔（模板 handle 契约，定位自写：窄条不相交公式）。\n**整体滑移**（中段拖动区间整体移动）非默认能力——宿主自建（contentItem 内 MouseArea 同步操作两端）。")
             }
         }
 
@@ -248,20 +250,15 @@ BasicPage {
             contentItem: ColumnLayout {
                 spacing: 12
                 RangeSlider {
-                    id: customSurfaceSlider
+                    id: customColorSlider
                     Layout.fillWidth: true
                     from: 0
                     to: 100
-                    // 外观插拔：替换 surface 为任意 Item——区间盒几何由组件
-                    // Binding 组施加（x/width/height = 值→位置映射），fill
-                    // 即得精确区间，宿主无需自算映射
-                    surface: Rectangle {
-                        anchors.fill: parent
-                        radius: 3
-                        color: customSurfaceSlider.color
-                        border.color: Style.highlight
-                        border.width: 1
-                    }
+                    // 外观通道：换色即换整条区间滑块视觉（color 前景 /
+                    // backgroundColor 轨道 / borderColor 描边）
+                    color: Style.active.accent
+                    backgroundColor: Style.active.background
+                    borderColor: Style.active.text
                 }
                 RangeSlider {
                     id: customHandleSlider2
@@ -274,15 +271,17 @@ BasicPage {
                     first.handle: HandleKnob {
                         owner: customHandleSlider2
                         endpoint: customHandleSlider2.first
+                        isSecond: false
                     }
                     second.handle: HandleKnob {
                         owner: customHandleSlider2
                         endpoint: customHandleSlider2.second
+                        isSecond: true
                     }
                 }
             }
             QoolTip {
-                text: qsTr("两层独立插拔（互不影响）：\n- **外观插拔**（上）——`surface` 替换任意 Item：区间盒几何（x/width/height = 值→位置映射）由组件 Binding 组施加——surface fill 即得精确区间，宿主无需自算映射。\n- **行为插拔**（下）——替换 `first.handle`/`second.handle`（模板 handle 插拔契约）：自定义端点命中/视觉/光标；**定位须自写**（模板不注入）——中心对齐公式 `x = leftPadding + availableWidth × position − w/2`；替换后 snap/live/键盘仍为模板行为。\n- 两层互不依赖：换外观不丢交互、换行为不丢外观。")
+                text: qsTr("两组定制（互不影响）：\n- **外观通道**（上）——换 `color`（前景）/`backgroundColor`（轨道）/`borderColor`（描边），宿主无需碰结构。\n- **行为插拔**（下）——替换 `first.handle`/`second.handle`（模板 handle 插拔契约）：自定义端点命中/视觉/光标；**定位须自写**（模板不注入）——窄条不相交公式 `x = leftPadding + (second? width:0) + visualPosition × (availableWidth − width×2)`（两个 handle 各自占 width，永不相交）；替换后 snap/live/键盘仍为模板行为。")
             }
         }
 

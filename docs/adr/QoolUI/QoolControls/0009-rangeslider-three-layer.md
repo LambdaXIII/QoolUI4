@@ -110,37 +110,39 @@ valueAt → setValue），`QQuickRangeSliderNode::setValue`（QML 赋值/setValu
 - **决策反转**：删除 `RangeHandle.qml`、`rangeHandle` 属性、三区意图信号
   （wannaMoveFirstX/SecondX/RangeX）、热区扩展、`down`/`hovered` 聚合、
   `pixelToValueDelta` 换算与自建钳制、`dummyRangeBox` 对 rangeHandle 的
-  Binding 组。组件内设置 `first.handle`/`second.handle` 默认透明 Item——
-  **中心对齐值位置**（`x = leftPadding + availableWidth × position − w/2`，
-  `w = h = availableHeight`，handle 中心 = surface 区间盒端点，与 surface
-  几何同源；区别于官方样式边缘对齐——Qool 端点即值位置，中心对齐才是正确
-  语义）；模板状态机复活，**snap/live/键盘/nearest/端点钳制全部免费获得**
-  （零自建）。
+  Binding 组、`surface` 属性、`firstJustMoved`/`secondJustMoved` 锁存。
+  组件内设置 `first.handle`/`second.handle` 默认 handle——模板状态机复活，
+  **snap/live/键盘/nearest/端点钳制全部免费获得**（零自建）。
 - **为何撤销"交互与外观解耦"论证**：原三层论证是"交互上移 RangeHandle，
   宿主替换外观不丢交互"。但该独立性以**第二套交互路径**为代价——与模板私
   有状态机并行的自建拖动必然失去模板交互属性（snap/live）。模板交互经
-  handle 体系已与 surface 天然解耦（替换 surface 不影响模板 handle 交互），
-  中间层无必要。
-- **surface 上移为 RangeSlider 直接属性**：几何（x/y/width/height = 区间
-  盒）由 `dummyRangeBox` Binding 组动态施加（替换实例同样受控——fill 即得
-  精确区间）；父对象挂 contentItem；默认实例为 Crystal 连体前景（尖角外
-  溢、常态收缩/展开占满）。外观插拔 = 替换 surface；行为插拔降级为模板
-  handle 插拔（替换 first/second.handle，定位自写——模板不注入）。
-- **展开反馈**：条件从 `rangeHandle.down/hovered` 聚合改为模板
-  `first.pressed`/`first.hovered`/`second.*` + 两端独立锁存
-  （firstJustMoved/secondJustMoved 保留）。
+  handle 体系已与前景天然解耦（前景只读模板 position/visualPosition，不参
+  与交互），中间层无必要。
+- **handle 窄条 + 不相交定位**：默认 handle = 窄条（`width = availableHeight
+  / 2`），定位行程 = `availableWidth − width×2`（扣除两个 handle 宽——first
+  从 0、second 从 width，**任意值下两 handle 永不相交**），按
+  `visualPosition` 映射（RTL/垂直感知，与模板一致）；`z:10` 盖在 contentItem
+  之上（拖动命中不受前景遮挡）。行为插拔 = 替换 `first.handle`/`second.handle`
+  （模板 handle 契约，定位自写——模板不注入）。
+- **前景入 contentItem**：`surface` 属性**删除**——前景（Crystal）直接置于
+  contentItem 内 `rangeBox` 区间盒：`x` 随 first 视觉位、`width` = 区间视觉
+  宽 + 自身高（多出 height 作尖角外溢/对齐余量），左缘 = first handle 左缘、
+  右缘 = second handle 右缘。**hover 展开**由 HoverHandler + `ItemAnimatedResizer`
+  驱动（from = 区间盒 − 收缩量 / to = 区间盒全尺寸，动画门控
+  `animationEnabled`——关闭时跳变）。
+- **展开反馈**：锁存移除——前景展开只响应 hover（HoverHandler），无
+  pressed/锁存路径。
 - **整体滑移取消**：模板没有中段整体滑移——不做默认实现；文档注明宿主自
   建路径（contentItem 内 MouseArea 同步操作两端，钳制/吸附仍由模板承担）。
-- **几何模型**：从"直映射（无 handle 偏移）"变为"模板 handle 中心映射"
-  （positionAt offset = hw/2）——handle 中心 = 值位置 = surface 端点，视觉
-  与交互一致；按住 handle 边缘拖动有 hw/2 偏移（模板固有模型，同 Slider
-  手柄）。
-- **测试**：tst_rangeslider.qml 重写——删 rangeHandle/三区/换算/整体滑移
-  用例；新增 handle 中心对齐、键盘步进（increase/decrease 公开可调）、程
-  序化赋值不吸附（setValues 无 snap）、端点钳制；展开反馈自动化仅锁存路径
-  （模板 pressed/hovered 只读、合成鼠标对模板不可达——交互契约人工验收）。
-- **API 破坏**：`rangeHandle` 属性与 `RangeHandle` 类型删除、`surface` 从
-  `rangeHandle.surface` 上移为 RangeSlider 直接属性、行为插拔点变为
+- **几何模型**：从"直映射（无 handle 偏移）"变为"rangeBox 区间盒 + 不相交
+  handle"——区间盒左缘 = first handle 左缘、右缘 = second handle 右缘；
+  handle 拖动映射经模板 positionAt（offset = hw/2）。
+- **测试**：tst_rangeslider.qml 重写——窄条 handle 不相交、区间盒几何、前
+  景常态收缩、键盘步进（increase/decrease 公开可调）、程序化赋值不吸附
+  （setValues 无 snap）、端点钳制、倒置范围、handle 插拔；hover 展开为模板
+  不可达（合成鼠标/只读 hovered）人工验收。
+- **API 破坏**：`rangeHandle` 属性、`RangeHandle` 类型、`surface` 属性、
+  `firstJustMoved`/`secondJustMoved` 全部删除；行为插拔点 =
   `first.handle`/`second.handle`；RangeHandle.md 删除、RangeSlider.md 重写、
-  示例页更新（HandleKnob 演示 handle 插拔）；整体滑移与"点击无操作"契约
-  变化（点击轨道走模板 nearest）。
+  示例页更新（删 surface 示例改外观通道、HandleKnob 窄条不相交、QoolTip
+  更新）；整体滑移与"点击无操作"契约变化（点击轨道走模板 nearest）。

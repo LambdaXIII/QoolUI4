@@ -90,6 +90,7 @@ qt_add_qml_module(
             CutSizeBinding.qml
             BasicLabel.qml
             TimerLatch.qml
+            ItemAnimatedResizer.qml
   SOURCES shapecontrol/gadgets/qool_shape_macros.hpp
   SOURCES shapecontrol/gadgets/qool_shapegadget_circle.h
           shapecontrol/gadgets/qool_shapegadget_circle.cpp
