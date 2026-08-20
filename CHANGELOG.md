@@ -4,6 +4,12 @@
 
 ## [4.0.0] — 2026-08-20
 
+### 修复（slider-handle-sample-frozen，Slider 手柄采样冻结缺陷）
+
+- **根因**：handle 色 `color: colorMapper.colorAt(position)` 是 C++ 方法调用——QML 绑定不追踪方法体内对 stops 的访问，绑定只依赖 position。初始求值时 stops 未就绪 → handle 冻结在默认黑；之后 backgroundColor/color 变化（主题加载/换色）不触发重算——默认 value:0 时手柄恒黑直到拖动（真实缺陷）
+- **修复**（Slider.qml）：Crystal 去掉 color 绑定，改 handle 侧驱动——`Component.onCompleted` 初始采样（stops 已就绪）+ 信号 connect 三源（positionChanged/colorChanged/backgroundColorChanged → `updateColor()`）；初始正确 + 运行时源色变化实时跟随
+- **测试**（tst_slider.qml）：新增 `test_handleSampleColorFollowsSource`（初始采样正确 + 改 backgroundColor 立即跟随 + position 变化采样离开 from 端）
+
 ### 变更（slider-orientation-rtl，Slider 对齐 Qt 官方 orientation×RTL 正交统一）
 
 - **法向尺寸抽象 `side`**（Slider.qml）：`side = horizontal ? availableHeight : availableWidth`——手柄边长/收缩量/轨道收缩/展开全部基于它（横竖对称、镜像无关）；`shrinkSize` 基准 `root.height` → `side`（含 padding 时语义修正）

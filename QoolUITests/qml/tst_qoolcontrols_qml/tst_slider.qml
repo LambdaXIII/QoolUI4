@@ -169,6 +169,33 @@ TestCase {
         verify(c.color.a === 1, "position 1 仍不透明")
     }
 
+    function test_handleSampleColorFollowsSource() {
+        // 源色变化（backgroundColor/color）须立即反映到手柄采样——即使
+        // position 不变。colorAt 为 C++ 方法、QML 绑定不追踪方法体内对
+        // stops 的访问——手柄颜色经 Connections 手动驱动（completed 初始
+        // 采样 + 三源变化重采样）；若直接绑定，初始会冻结在未就绪 stops
+        // 的默认黑（真实缺陷：默认 value:0 + 主题加载场景），本用例回归防护。
+        // 通道比较（QColor 整值 compare 因内部表示差异不可靠——既有
+        // test_handleSampleColor 同款）
+        const s = makeSlider({})
+        const c = handleCrystal(s)
+        compare(c.color.r, s.backgroundColor.r, "初始（completed 后）采样 = from 端 r")
+        compare(c.color.g, s.backgroundColor.g, "初始采样 = from 端 g")
+        compare(c.color.b, s.backgroundColor.b, "初始采样 = from 端 b")
+        s.backgroundColor = "#f8f8f8"
+        compare(c.color.r, s.backgroundColor.r, "backgroundColor 变化 → 手柄 r 立即跟随（position 未动）")
+        compare(c.color.g, s.backgroundColor.g)
+        compare(c.color.b, s.backgroundColor.b)
+        s.color = "#ff8800"
+        compare(c.color.r, s.backgroundColor.r, "value:0 时 color 变化不影响 from 端采样")
+        compare(c.color.g, s.backgroundColor.g)
+        compare(c.color.b, s.backgroundColor.b)
+        s.value = 0.5
+        verify(c.color.r !== s.backgroundColor.r || c.color.g !== s.backgroundColor.g,
+               "position 变化后采样离开 from 端")
+        verify(c.color.g < s.backgroundColor.g, "position 0.5 采样向 to 端（color 的 g 更低）偏移")
+    }
+
     function test_backgroundPluggable() {
         // 替换 background：新实例尺寸仍受标准自动布局控（root − insets）——
         // 插拔安全；收缩/外观由替换者自负（容器尺寸 = root − insets）

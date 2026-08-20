@@ -87,18 +87,10 @@ T.Slider {
                 // 时 x 端对调（值增大端随 handle 移到左）；
                 // 垂直：沿 y 恒 from 底 → to 顶——Qt 垂直惯例（值增大 handle
                 // 在顶，visualPosition 恒 = 1−position，与 RTL 无关，故不对调）
-                x1: root.horizontal
-                     ? (root.mirrored ? track.width - cut : cut)
-                     : track.width / 2
-                y1: root.horizontal
-                     ? track.height / 2
-                     : track.height - cut
-                x2: root.horizontal
-                     ? (root.mirrored ? cut : track.width - cut)
-                     : track.width / 2
-                y2: root.horizontal
-                     ? track.height / 2
-                     : cut
+                x1: root.horizontal ? (root.mirrored ? track.width - cut : cut) : track.width / 2
+                y1: root.horizontal ? track.height / 2 : track.height - cut
+                x2: root.horizontal ? (root.mirrored ? cut : track.width - cut) : track.width / 2
+                y2: root.horizontal ? track.height / 2 : cut
                 GradientStop {
                     position: 0
                     color: Qt.alpha(root.backgroundColor, 0.75)
@@ -124,12 +116,8 @@ T.Slider {
         // y 由 visualPosition 驱动、x 居中。RTL 由模板免费承载（vertical +
         // RTL 时 visualPosition 仍反转，跟随 Qt 模板语义——不特判）。Crystal
         // 左上锚定，菱形中心 = 值位置（中心行程 [边/2, 行程−边/2]，顶点贴端）
-        x: root.horizontal
-            ? root.leftPadding + root.visualPosition * (root.availableWidth - width)
-            : root.leftPadding + (root.availableWidth - width) / 2
-        y: root.horizontal
-            ? root.topPadding + (root.availableHeight - height) / 2
-            : root.topPadding + root.visualPosition * (root.availableHeight - height)
+        x: root.horizontal ? root.leftPadding + root.visualPosition * (root.availableWidth - width) : root.leftPadding + (root.availableWidth - width) / 2
+        y: root.horizontal ? root.topPadding + (root.availableHeight - height) / 2 : root.topPadding + root.visualPosition * (root.availableHeight - height)
 
         // 值变化锁存（TimerLatch）：拖动/键盘/程序化改值后手柄保持展开
         // interval（500ms）——值变化即触发（滑动窗口内持续保持），与 hover/
@@ -207,12 +195,26 @@ T.Slider {
                 id: hoverer
                 enabled: root.enabled
             }
+            // color 不经绑定——由 handle 侧 completed + Connections 手动更新
+            // （colorAt 为 C++ 方法、QML 绑定不追踪方法体内 stops 访问，
+            // 直接绑定会冻结在初始未就绪的采样——缺陷见下注释）
 
-            // 常态色 = 轨道渐变在值位置的采样色（colorAt 精确）；反馈仅展开。
-            // 采样用 position（逻辑位置，不镜像）——与对调后的渐变几何一致
-            // （定位 visualPosition 镜像、采样 position 不镜像，互补：RTL 下
-            // handle 停值增大端、position 也指向同一端）
-            color: colorMapper.colorAt(root.position)
+            function updateColor() {
+                crystal.color = colorMapper.colorAt(root.position);
+            }
+        }
+
+        // —— 采样更新（Connections 手动驱动）：colorAt 为 C++ 方法、QML
+        // 绑定不追踪方法体内对 stops 的访问——直接绑定会在初始求值时读到
+        // 未就绪的 stops（handle 冻结黑，默认 value:0 + 主题加载场景暴露）
+        // 且源色变化不触发重算。Connections 定义真实更新时机：handle 完成
+        // （stops 已就绪）刷新一次 + 采样三源（position/backgroundColor/
+        // color）各自变化触发重采样。
+        Component.onCompleted: {
+            crystal.updateColor();
+            root.positionChanged.connect(crystal.updateColor);
+            root.colorChanged.connect(crystal.updateColor);
+            root.backgroundColorChanged.connect(crystal.updateColor);
         }
     } //handle
 }
