@@ -97,3 +97,14 @@ LayoutMirroring）能力，但默认件此前全水平硬编码：轨道 Crystal
 - 实施 spec 待立（对齐 ADR-0010 的 spec 先行惯例：`.scratch/` 下 spec →
   `ready-for-agent`）。
 - 实现细节若与决策偏差，按既有惯例在本文档末尾追加"实现演进"记录。
+
+## 实现演进（2026-08-21 配色统一走 Style + VerticalSlider 移除）
+
+- **配色统一走 Style**：原 Key Decisions「轨道 = backgroundColor 75% 透明、
+  前景 = color」的实例色属性已删除（RangeSlider 与 Slider 同步）——现为轨
+  道 = `Style.buttonText` 75% 透明（Qt palette 名、实义 control 前景色）+
+  `ThemeHQ.recommendForeground(Style.buttonText)` 描边，前景 = `Style.accent`；
+  纯色轴对称、RTL 无需渐变端对调的简化结论不变。
+- **VerticalSlider 移除**：原「VerticalSlider 独立组件不受影响（本次不触碰）」
+  不再成立——已完全移除，竖直需求由 `orientation: Qt.Vertical` 承担（同
+  ADR-0010 演进）。

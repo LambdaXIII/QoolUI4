@@ -4,6 +4,21 @@
 
 ## [4.0.0] — 2026-08-21
 
+### 变更（verticalslider-removal + adr-reconcile，VerticalSlider 完全移除 + ADR/文档记述校对）
+
+- **VerticalSlider 完全移除**：删除 `QoolControls/VerticalSlider.qml`、模块注册（CMakeLists）、`docs/reference/Qool.Controls/VerticalSlider.md`、reference index 登记（选择控件列表 + 组件参考）、示例页 QoolTip 引用——独立实现（T.Slider 根 + 自建 picker 交互 + 独立 color 属性）与 Slider 家族架构（模板 handle、Style 配色统一）割裂，维护成本高于保留价值；竖直需求由 Slider `orientation: Qt.Vertical` 正交适配承担（ADR-0010）
+- **ADR 演进校对**：0009/0010/0011 追加「实现演进（2026-08-21）」段——三色实例属性删除改 Style 语义记述（轨道 = `Style.buttonText` 75% 透明 → `Style.accent`、描边 recommend）；VerticalSlider 移除与竖直需求承接说明；原「VerticalSlider 不受影响」决策时观点标注不再成立
+- **测试**：无 VerticalSlider 独立测试；全量 ctest 19/19 通过
+
+### 变更（slider-style-color-unification，Slider/RangeSlider 三色属性删除——配色统一走 Style）
+
+- **删除三色实例属性**（Slider.qml / RangeSlider.qml）：`color`/`backgroundColor`/`borderColor` 三个实例色属性删除——配色统一走统一样式接口 Style（附着传播换色：`Style.accent`/`Style.buttonText` 挂本实例或任意祖先，粒度单实例到全局）。内部消费改 Style 语义槽：轨道渐变 from 端 = `Style.buttonText` 75% 透明（名字兼容 Qt palette、实义 control 前景色）→ to 端 = `Style.accent`（control 前景 → accent 对照着色）；描边 = `ThemeHQ.recommendForeground(Style.buttonText)` 自动对比推荐
+- **手柄采样监听改 Style 传播**（Slider.qml）：colorAt 为 C++ 方法、QML 绑定不追踪方法体内 stops 访问——删除属性后源色来自 Style，手柄 Crystal 内独立只读哨兵属性（`_accentWatch`/`_textWatch` 绑定 `Style.accent`/`Style.buttonText`）+ onChanged 捕获附着传播变化触发重采样（completed 初始 + position 变化不变）
+- **文档**：Slider.md / RangeSlider.md 属性节删三色、加「Color model」节（control 前景 → accent 对照、recommend 描边、Style 附着换色示例）；示例页 Page_InputControls2（shellSlider/customHandleSlider/customColorSlider/HandleKnob 改 Style 附着 + QoolTip 措辞）
+- **测试**：tst_slider.qml / tst_rangeslider.qml——test_defaults 断言接口删除（`s.color === undefined`）+ 默认视觉消费 Style；test_handleSampleColorFollowsSource / test_foregroundColor 改经 Style 附着传播（`s.Style.buttonText = …`）触发跟随回归
+- **AGENTS.md**：QML 组件规范新增「animationEnabled 声明序（MUST）」——控件声明 `animationEnabled` 必须置自定义属性第一位
+- **API 破坏**：三色实例属性删除——宿主经 Style 附着属性换色（`Style.accent`/`Style.buttonText`）；描边不再可单独定制（自动对比推荐）
+
 ### 变更（controls-focus-highlight，Qool.Controls 焦点高亮）
 
 - **焦点高亮行为**（Slider.qml / RangeSlider.qml / Dial.qml）：控件获得键盘焦点（`root.visualFocus`——Qt 标准语义，仅 Tab/Backtab/Shortcut 键盘原因聚焦为 true，鼠标/程序化/切窗聚焦不亮）时，默认 `background` 外边框切换至 `Style.highlight`、失焦恢复——内联条件绑定（`visualFocus ? Style.highlight : 原值`），不引入叠层/覆盖层；切换动画经 `BasicColorBehavior` 门控 `animationEnabled`（关闭时即时跳变）。Slider/RangeSlider 原值为既有 `borderColor` 属性；Dial 原值保持硬编码 `Style.buttonText`

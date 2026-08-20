@@ -8,8 +8,9 @@ import Qool.Controls
 // 区间盒前景 hover 展开）
 //
 // 被测契约（外部行为与公开契约——不测内部实现）：
-// - 默认状态自洽（color/backgroundColor/borderColor 默认、两手柄值 0/1、
-//   first/second handle 存在）
+// - 默认状态自洽（无实例色属性——配色经 Style 语义槽消费：轨道 =
+//   Qt.alpha(Style.buttonText,0.75)、描边 = recommend(buttonText)、
+//   前景 = Style.accent；两手柄值 0/1、first/second handle 存在）
 // - handle 几何：窄条（width = availableHeight/2）、不相交公式（行程 =
 //   availableWidth − width×2，first 从 0、second 从 width——任意值不相交）
 // - 区间盒（值→位置映射）：rangeBox.x = first.visualPosition × (可用宽 − 高)、
@@ -84,9 +85,14 @@ TestCase {
 
     function test_defaults() {
         const s = makeSlider({})
-        compare(s.color, s.Style.accent)
-        compare(s.backgroundColor, s.Style.buttonText)
-        compare(s.borderColor, ThemeHQ.recommendForeground(s.backgroundColor))
+        // 接口收敛：控件不再暴露实例色属性——配色经 Style 语义槽消费
+        // （统一样式接口，宿主经 Style 附着传播换色）
+        verify(s.color === undefined, "RangeSlider 无 color 属性")
+        verify(s.backgroundColor === undefined, "无 backgroundColor 属性")
+        verify(s.borderColor === undefined, "无 borderColor 属性")
+        // 默认视觉消费 Style：前景 = Style.accent
+        const rc = rangeCrystal(s)
+        compare(rc.color, s.Style.accent, "前景填充 = Style.accent")
         compare(s.first.value, 0)
         compare(s.second.value, 1)
         verify(s.first.handle !== null, "first handle 存在")
@@ -158,19 +164,20 @@ TestCase {
     }
 
     function test_foregroundColor() {
-        // 前景填充色 = root.color（文档契约——宿主可换前景色）；改 color →
-        // 前景立即跟随（属性级绑定）。回归：此前 rangeCrystal 未接线
-        // root.color，前景恒 Crystal 默认 Style.accent、宿主设置 color 无效。
+        // 前景填充色 = Style.accent（统一样式接口——宿主经 Style 附着传播
+        // 换色）。回归：此前 rangeCrystal 未接线 root.color，前景恒默认、
+        // 宿主换色无效；现经 Style.accent 传播——改 Style.accent → 前景
+        // 立即跟随。
         // 通道比较（QColor 整值 compare 因内部表示差异不可靠——同 Slider）
         const s = makeSlider({})
         const rc = rangeCrystal(s)
-        compare(rc.color.r, s.color.r, "前景填充色 = root.color（默认 Style.accent）r")
-        compare(rc.color.g, s.color.g)
-        compare(rc.color.b, s.color.b)
-        s.color = "#ff8800"
-        compare(rc.color.r, s.color.r, "改 color → 前景 r 立即跟随")
-        compare(rc.color.g, s.color.g)
-        compare(rc.color.b, s.color.b)
+        compare(rc.color.r, s.Style.accent.r, "前景填充色 = Style.accent r")
+        compare(rc.color.g, s.Style.accent.g)
+        compare(rc.color.b, s.Style.accent.b)
+        s.Style.accent = "#ff8800"
+        compare(rc.color.r, s.Style.accent.r, "改 Style.accent → 前景 r 立即跟随")
+        compare(rc.color.g, s.Style.accent.g)
+        compare(rc.color.b, s.Style.accent.b)
     }
 
     function test_keyboardStepping() {

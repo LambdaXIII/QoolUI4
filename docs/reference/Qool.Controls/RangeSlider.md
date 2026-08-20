@@ -14,8 +14,9 @@ handles activate the template interaction, so **snap, live, keyboard
 stepping, nearest click behavior and endpoint clamping are all template
 behavior** — nothing is re-implemented.
 
-- **Track** — a static `Crystal` hexagonal track (`backgroundColor` at 75%
-  opacity, `borderColor` stroke) in the `background`, spanning the main
+- **Track** — a static `Crystal` hexagonal track (`Style.buttonText` at 75%
+  opacity, `ThemeHQ.recommendForeground(Style.buttonText)` stroke) in the
+  `background`, spanning the main
   axis and held at the rest size along the normal, centered on it
   (horizontal: full width, `height − shrinkSize`, vertically centered;
   vertical: full height, `width − shrinkSize`, horizontally centered). It
@@ -72,13 +73,18 @@ are orthogonal:
 
 ## Properties
 
-- `color : color` (default `Style.accent`)
-  The foreground fill color (the crystal spanning the interval).
-- `backgroundColor : color` (default `Style.buttonText`)
-  The track background color (rendered at 75% opacity by the default
-  track).
-- `borderColor : color` (default `ThemeHQ.recommendForeground(backgroundColor)`)
-  The stroke color of the foreground crystal and the track.
+This control defines **no per-instance color properties** — colors come from
+the unified style interface (`Style`), same model as `Slider`. The host
+recolors via attached-property propagation (set `Style.accent` /
+`Style.buttonText` on this control or any ancestor).
+
+**Color model** — a contrast pair, control foreground → accent:
+- Track = `Style.buttonText` at 75% opacity (the name follows the Qt
+  palette convention; the semantics is the **control foreground color**)
+  with `ThemeHQ.recommendForeground(Style.buttonText)` stroke — contrast-safe
+  without host intervention.
+- Foreground fill (the crystal spanning the interval) = `Style.accent`.
+
 - `animationEnabled : bool`
   Animation gate — inherited up the parent chain (the host can turn it off
   uniformly on a parent), falling back to `Style.animationEnabled`. Gates
@@ -123,12 +129,12 @@ RangeSlider {
     Component.onCompleted: setValues(25, 75)
 }
 
-// Custom colors: interval fill, track background, and stroke.
+// Custom colors: interval fill, track background — via Style attached-property
+// propagation (the stroke follows the track automatically).
 RangeSlider {
     width: 300
-    color: Style.active.accent
-    backgroundColor: Style.active.base
-    borderColor: Style.active.text
+    Style.accent: Style.active.accent
+    Style.buttonText: Style.active.base
 }
 
 // Behavior plug: replace the template handles. Positioning is the host's
@@ -193,8 +199,9 @@ RangeSlider {
   (`visualFocus` — Qt's standard semantic, `true` only when focus was
   acquired through keyboard navigation, i.e. Tab/Backtab/shortcut; mouse,
   programmatic and window-switch focus do not light it), the default track
-  border switches to `Style.highlight` and reverts to `borderColor` on
-  losing focus, animated under the `animationEnabled` gate. The highlight
+  border switches to `Style.highlight` and reverts to
+  `ThemeHQ.recommendForeground(Style.buttonText)` on losing focus, animated
+  under the `animationEnabled` gate. The highlight
   color is fixed (`Style.highlight`, no public property) and lives inside
   the default `background` only — replacing `background` removes it.
   `RangeSlider` is a Qt focus-scope control, but keyboard entry lands on

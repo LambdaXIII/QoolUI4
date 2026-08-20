@@ -172,3 +172,21 @@ valueAt → setValue），`QQuickRangeSliderNode::setValue`（QML 赋值/setValu
 - **API 破坏（9119c9f）**：Slider 公开接口移除 `justMoved`/`valueVelocity`
   （连同 NumberNotifier）——宿主"刚移动"感知经手柄展开反馈呈现（无独立
   接口）；行为插拔点不变（模板 handle 契约）。
+
+## 实现演进（2026-08-21 配色统一走 Style + VerticalSlider 移除）
+
+- **三色实例属性删除（Slider/RangeSlider 同步）**：`color`/`backgroundColor`/
+  `borderColor` 三个实例色属性删除——配色统一走统一样式接口 Style（附着传
+  播换色，`Style.accent`/`Style.buttonText` 挂本实例或任意祖先，粒度单实例
+  到全局）；轨道 = `Style.buttonText` 75% 透明（Qt palette 名、实义 control
+  前景色）→ 前景 = `Style.accent` 对照着色，描边 =
+  `ThemeHQ.recommendForeground(Style.buttonText)` 自动对比推荐。Slider 手柄
+  采样改 `Connections` 监听 `Style.valueChanged`（key = accent/buttonText）
+  驱动重采样（colorAt 为 C++ 方法、QML 绑定不追踪方法体内 stops 访问——
+  实例属性信号不可用后，哨兵绑定与下划线属性 onChanged 均不可靠，Style
+  信号监听为正解）。
+- **VerticalSlider 完全移除**：#5 重构专项取消——独立实现（T.Slider 根 +
+  自建 picker 交互 + 独立 color 属性）与 Slider 家族架构（模板 handle、
+  Style 配色统一）割裂，维护成本与一致性代价高于保留价值；删除源文件、模
+  块注册、参考文档、index 登记。竖直需求由 Slider `orientation: Qt.Vertical`
+  正交适配承担（ADR-0010）。

@@ -207,6 +207,7 @@ Qool 自定义强化版 `QtObject`（**非 `QObject`**，兼容 QtObject），�
 - 统一 `id: root`
 - **Style 双重身份**：QoolUI 提供强大样式系统，`Qool.Style` 是其实现。Style 在 Qool 内是重要组件（谨慎维护）；在其它模块（Controls 等）是样式扩散机制（类比 QoolCommon 之于 C++，QML 侧应充分使用）
 - **animationEnabled 含义**：完整外观效果的取舍开关——「高性能模式 vs 完整效果」切换，非单纯的动画开关；控制的不只是动画，还包括一切高开销的样式效果（Shader 特效、粒子、复杂效果样式）
+- **animationEnabled 声明序（MUST）**：控件声明 `animationEnabled` 属性时必须置于自定义属性第一位（统一声明序——动画门控是控件常驻接口，固定首位便于宿主识别）
 - `pragma ComponentBehavior: Bound`：按需编写（Bound = 组件内 id 绑定到实例）
 
 ## 注释与文档规范（Markdown）

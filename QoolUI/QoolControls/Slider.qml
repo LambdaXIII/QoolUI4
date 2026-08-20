@@ -16,12 +16,12 @@ import Qool
 
 T.Slider {
     id: root
-    // 轨道渐变右端色（左端 = backgroundColor 75% 透明），默认 Style.accent。
-    property color color: root.Style.accent
-    // 轨道背景色（渐变左端以 75% 透明度渲染），默认 Style.buttonText。
-    property color backgroundColor: Style.buttonText
-    // 轨道描边色——基于 backgroundColor 自动对比推荐（宿主可单独覆盖）。
-    property color borderColor: ThemeHQ.recommendForeground(backgroundColor)
+    // 配色模型（统一样式接口——控件不设实例色属性）：轨道渐变 from 端 =
+    // Style.buttonText（名字兼容 Qt palette，实际语义是 control 前景色）
+    // 75% 透明 → to 端 = Style.accent——control 前景 → accent 对照着色；
+    // 描边 = ThemeHQ.recommendForeground(Style.buttonText) 自动对比推荐。
+    // 宿主换色经 Style 附着传播（Style.accent / Style.buttonText，挂本实例
+    // 或任意祖先——附着传播粒度覆盖单实例到全局，无需控件级色接口）。
     // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
 
@@ -70,18 +70,19 @@ T.Slider {
             x: root.horizontal ? 0 : pCtrl.halfShrinkSpace
             y: root.horizontal ? pCtrl.halfShrinkSpace : 0
             // 兜底纯色（渐变通道失效时轨道仍可见——渐进降级；渐变生效时覆盖）
-            color: root.color
+            color: root.Style.accent
             // 焦点高亮：键盘聚焦（visualFocus——仅 Tab/Backtab/Shortcut 键盘
-            // 原因聚焦）时边框切换 Style.highlight、失焦恢复 borderColor
-            borderColor: root.visualFocus ? root.Style.highlight : root.borderColor
+            // 原因聚焦）时边框切换 Style.highlight、失焦恢复
+            // ThemeHQ.recommendForeground(Style.buttonText)（自动对比推荐）
+            borderColor: root.visualFocus ? root.Style.highlight : ThemeHQ.recommendForeground(root.Style.buttonText)
             // 切换动画门控 animationEnabled（关闭时即时跳变）
             BasicColorBehavior on borderColor {
                 enabled: root.animationEnabled
             }
             fillGradient: LinearGradient {
-                // 渐变内联默认（Slider 不暴露 fillGradient 通道，换色走 color
-                // 属性）：from 端 = backgroundColor 75% 透明（轨道同
-                // RangeSlider——背景色半透明）、to 端 = color；锚定"值增大
+                // 渐变内联默认（不暴露 fillGradient 通道——换色经 Style 附着
+                // 传播）：from 端 = Style.buttonText 75% 透明（轨道同
+                // RangeSlider——背景色半透明）、to 端 = Style.accent；锚定"值增大
                 // 视觉端"（非固定几何端）+ 镜像感知：轴向选 x/y（horizontal）、
                 // RTL（root.mirrored）时水平端对调——对调的是 x1/x2 坐标，stop
                 // 色序不变（position 0 = from 端 bg、1 = to 端 accent，随坐标
@@ -99,11 +100,11 @@ T.Slider {
                 y2: root.horizontal ? track.height / 2 : cut
                 GradientStop {
                     position: 0
-                    color: Qt.alpha(root.backgroundColor, 0.75)
+                    color: Qt.alpha(root.Style.buttonText, 0.75)
                 }
                 GradientStop {
                     position: 1
-                    color: root.color
+                    color: root.Style.accent
                 }
             }
         }
@@ -147,11 +148,11 @@ T.Slider {
             // 不透明（同 RangeSlider——轨道半透明、前景不透明）
             ColorMapperStop {
                 position: 0
-                color: root.backgroundColor
+                color: root.Style.buttonText
             }
             ColorMapperStop {
                 position: 1
-                color: root.color
+                color: root.Style.accent
             }
         }
 
@@ -201,26 +202,31 @@ T.Slider {
                 id: hoverer
                 enabled: root.enabled
             }
-            // color 不经绑定——由 handle 侧 completed + Connections 手动更新
-            // （colorAt 为 C++ 方法、QML 绑定不追踪方法体内 stops 访问，
-            // 直接绑定会冻结在初始未就绪的采样——缺陷见下注释）
+            // color 不经绑定——手动更新（colorAt 为 C++ 方法、QML 绑定不追踪
+            // 方法体内 stops 访问，直接绑定会冻结在初始未就绪的采样）。源色
+            // 来自 Style（统一样式接口）：Connections 监听 Style.valueChanged
+            // （key = accent/buttonText）捕获附着传播变化触发重采样。
+            Connections {
+                target: root.Style
+                function onValueChanged(group, key) {
+                    if (key === "accent" || key === "buttonText")
+                        crystal.updateColor()
+                }
+            }
 
             function updateColor() {
                 crystal.color = colorMapper.colorAt(root.position);
             }
         }
 
-        // —— 采样更新（Connections 手动驱动）：colorAt 为 C++ 方法、QML
-        // 绑定不追踪方法体内对 stops 的访问——直接绑定会在初始求值时读到
-        // 未就绪的 stops（handle 冻结黑，默认 value:0 + 主题加载场景暴露）
-        // 且源色变化不触发重算。Connections 定义真实更新时机：handle 完成
-        // （stops 已就绪）刷新一次 + 采样三源（position/backgroundColor/
-        // color）各自变化触发重采样。
+        // —— 采样更新时机：handle 完成（stops 已就绪）刷新一次 + position
+        // 变化（拖动/键盘/程序化）重采样；源色（Style.accent/buttonText）
+        // 变化经 crystal 内哨兵只读属性捕获（见上）。colorAt 为 C++ 方法、
+        // QML 绑定不追踪方法体内 stops 访问——初始未就绪会冻结黑（真实缺陷
+        // 场景），故全部手动驱动。
         Component.onCompleted: {
             crystal.updateColor();
             root.positionChanged.connect(crystal.updateColor);
-            root.colorChanged.connect(crystal.updateColor);
-            root.backgroundColorChanged.connect(crystal.updateColor);
         }
     } //handle
 }

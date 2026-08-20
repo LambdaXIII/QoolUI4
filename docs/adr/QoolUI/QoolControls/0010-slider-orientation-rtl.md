@@ -81,6 +81,19 @@ Decisions：
 受影响：Slider.qml（渐变坐标）、tst_slider.qml（垂直/垂直RTL 断言方向）、
 spec（同步修正）。
 
+## 实现演进（2026-08-21 VerticalSlider 移除 + 配色统一走 Style）
+
+- **VerticalSlider 完全移除**：原 Consequences「VerticalSlider 独立组件（自
+  建交互模型 + 既有 FIXME 计划）不受影响」不再成立——该组件已完全移除（独
+  立实现与家族架构割裂），竖直需求由本 ADR 的 `orientation: Qt.Vertical`
+  正交适配承担（垂直 implicit 交换 25×150、垂直渐变 from 底 → to 顶、垂直
+  visualPosition 恒反转全部已覆盖）。
+- **三色实例属性删除（同 ADR-0009 演进）**：Slider 的 `color`/
+  `backgroundColor`/`borderColor` 删除，配色统一走 Style（`Style.accent`/
+  `Style.buttonText` 附着传播）；手柄采样改 `Connections` 监听
+  `Style.valueChanged` 驱动重采样。本 ADR 的渐变端对调结论语义不变（from 端
+  = `Style.buttonText`、to 端 = `Style.accent`）。
+
 ## 决策状态
 
 - 决策已定案（2026-08-20）；spec：`.scratch/slider-orientation-rtl/spec.md`

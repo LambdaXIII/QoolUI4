@@ -16,15 +16,13 @@ import Qool
 
 T.RangeSlider {
     id: root
+    // 配色模型（统一样式接口——控件不设实例色属性，同 Slider）：轨道 =
+    // Style.buttonText（名字兼容 Qt palette，实际语义是 control 前景色）
+    // 75% 透明 + ThemeHQ.recommendForeground(Style.buttonText) 描边；
+    // 前景 rangeCrystal = Style.accent——control 前景 → accent 对照着色。
+    // 宿主换色经 Style 附着传播（挂本实例或任意祖先，粒度单实例到全局）。
     // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-
-    // 前景填充色（rangeCrystal），默认 Style.accent。
-    property color color: Style.accent
-    // 轨道背景色（轨道以 75% 透明度渲染），默认 Style.buttonText。
-    property color backgroundColor: Style.buttonText
-    // 前景/轨道描边色——基于 backgroundColor 自动对比推荐（宿主可单独覆盖）。
-    property color borderColor: ThemeHQ.recommendForeground(backgroundColor)
 
     // 尺寸：反向排版策略——模板自带 implicit 公式（background 与 contentItem
     // 的 implicit 尺寸取大者）；组件只给 background 显式 implicit（150×25），
@@ -66,13 +64,14 @@ T.RangeSlider {
 
         Crystal {
             // 焦点高亮：键盘聚焦（visualFocus——仅 Tab/Backtab/Shortcut 键盘
-            // 原因聚焦）时边框切换 Style.highlight、失焦恢复 borderColor
-            borderColor: root.visualFocus ? root.Style.highlight : root.borderColor
+            // 原因聚焦）时边框切换 Style.highlight、失焦恢复
+            // ThemeHQ.recommendForeground(Style.buttonText)（自动对比推荐）
+            borderColor: root.visualFocus ? root.Style.highlight : ThemeHQ.recommendForeground(root.Style.buttonText)
             // 切换动画门控 animationEnabled（关闭时即时跳变）
             BasicColorBehavior on borderColor {
                 enabled: root.animationEnabled
             }
-            color: Qt.alpha(root.backgroundColor, 0.75)
+            color: Qt.alpha(root.Style.buttonText, 0.75)
             // 轨道沿主轴铺满（尖点贴边不外溢）、沿法向常态收缩 + 居中
             // （水平收缩高、垂直收缩宽）——法向居中不随镜像变化
             width: root.horizontal ? parent.width : parent.width - pCtrl.shrinkSize
@@ -212,9 +211,9 @@ T.RangeSlider {
             // 尺寸随 cResizer（hover 展开/常态收缩）、居中于区间盒。
             Crystal {
                 id: rangeCrystal
-                // 前景填充色 = root.color（文档契约；属性级绑定——描边
-                // borderColor 依赖本色自动跟随）
-                color: root.color
+                // 前景填充色 = Style.accent（统一样式接口——换色经 Style 附着
+                // 传播，宿主不设实例色属性）
+                color: root.Style.accent
                 width: cResizer.width
                 height: cResizer.height
                 anchors.centerIn: parent

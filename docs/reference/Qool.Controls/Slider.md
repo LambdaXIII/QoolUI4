@@ -9,10 +9,11 @@ default (click jumps, continuous drag, arrow-key stepping — official
 behavior; the interface is compatible with `QtQuick.Templates.Slider`). The
 track and the handle share the `Crystal` hexagon model (the track is a wide
 hexagon, the handle a square diamond — same-model bevel slopes align
-naturally), the track fills a `backgroundColor` (75% opacity) → `color`
+naturally), the track fills a `Style.buttonText` (75% opacity) → `Style.accent`
 gradient anchored to the value-increasing side (see "Orientation and RTL"
-below; the `from` end = `backgroundColor` at 75% opacity, the `to` end =
-`color`, default `Style.accent`), and the handle's resting color is the
+below; the `from` end = `Style.buttonText` at 75% opacity — the name follows
+the Qt palette convention, the semantics is the control foreground color —
+the `to` end = `Style.accent`), and the handle's resting color is the
 gradient sampled at the current value position, rendered opaque
 (`ColorMapper.colorAt(position)` — follows the position in real time;
 `position` is not mirrored, matching the gradient geometry).
@@ -53,20 +54,25 @@ are orthogonal:
 
 ## Properties
 
-- `color : color` (default `Style.accent`)
-  The gradient's `to`-end color (the `from` end is `backgroundColor` at 75%
-  opacity) — and the handle's (opaque) sample source. The `to` end sits on
-  the value-increasing side (horizontal LTR right, RTL left; vertical top).
-  Changing this one property changes the whole track gradient + handle
-  sampling. The track gradient is inline by default and cannot be replaced
-  wholesale (change color via `color`; the background size follows the
-  control automatically).
-- `backgroundColor : color` (default `Style.buttonText`)
-  The track background color — the gradient's `from` end, rendered at 75%
-  opacity on the track (the handle samples the opaque version).
-- `borderColor : color` (default `ThemeHQ.recommendForeground(backgroundColor)`)
-  The stroke color of the track. The handle stays un-stroked (the diamond's
+This control defines **no per-instance color properties** — colors come from
+the unified style interface (`Style`). The host recolors via attached-property
+propagation: set `Style.accent` / `Style.buttonText` on this control or any
+ancestor (propagation granularity covers a single instance up to the whole
+tree).
+
+**Color model** — a contrast pair, control foreground → accent:
+- Track gradient `from` end = `Style.buttonText` at 75% opacity (the name
+  follows the Qt palette convention; the semantics is the **control
+  foreground color**), `to` end = `Style.accent` — control foreground →
+  accent, contrasting by design. The `to` end sits on the value-increasing
+  side (horizontal LTR right, RTL left; vertical top).
+- Track stroke = `ThemeHQ.recommendForeground(Style.buttonText)` — the
+  contrast-recommended foreground derived automatically (contrast-safe
+  without host intervention). The handle stays un-stroked (the diamond's
   small size makes a stroke visually heavy).
+- The handle's resting color samples the gradient at the current value
+  position, rendered opaque (not the track's 75% transparency).
+
 - `animationEnabled : bool`
   Animation gate — inherited up the parent chain (the host can turn it off
   uniformly on a parent), falling back to `Style.animationEnabled`. Gates
@@ -108,9 +114,11 @@ Slider {
 }
 
 // Custom accent: changes the whole track gradient and handle sampling.
+// Colors are Style attached properties — set on this instance to recolor
+// just this slider, or on an ancestor to cover a subtree.
 Slider {
     width: 300
-    color: Style.active.accent
+    Style.accent: Style.active.accent
 }
 
 // Inverted range: scale reverses, gradient/sampling follow automatically.
@@ -155,8 +163,9 @@ Slider {
   (`visualFocus` — Qt's standard semantic, `true` only when focus was
   acquired through keyboard navigation, i.e. Tab/Backtab/shortcut; mouse,
   programmatic and window-switch focus do not light it), the default track
-  border switches to `Style.highlight` and reverts to `borderColor` on
-  losing focus, animated under the `animationEnabled` gate. The highlight
+  border switches to `Style.highlight` and reverts to
+  `ThemeHQ.recommendForeground(Style.buttonText)` on losing focus, animated
+  under the `animationEnabled` gate. The highlight
   color is fixed (`Style.highlight`, no public property) and lives inside
   the default `background` only — replacing `background` removes it.
   Focusability stays at the Qt default — the control does not set

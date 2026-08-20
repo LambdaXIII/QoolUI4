@@ -7,8 +7,8 @@ import Qool.Controls
 // + 菱形手柄；交互为模板默认，本批次不测鼠标路径）
 //
 // 被测契约（外部行为与公开契约——不测内部实现）：
-// - 默认状态自洽（implicit 150×25、color = Style.accent、
-//   backgroundColor = Style.buttonText、borderColor = 自动对比推荐）
+// - 默认状态自洽（implicit 150×25、无实例色属性——配色经 Style 语义槽
+//   消费：轨道兜底 = Style.accent、描边 = recommendForeground(buttonText)）
 // - 轨道几何：background 为 Item 容器（尺寸经 Control 标准自动布局 =
 //   root − insets），内部 Crystal 常态收缩 = root.height −
 //   bound(3, h×25%, 25) + 完全居中（水平铺满容器宽、垂直居中）——替换
@@ -91,11 +91,19 @@ TestCase {
         const s = makeSlider({})
         compare(s.implicitWidth, 150)
         compare(s.implicitHeight, 25)
-        compare(s.color, s.Style.accent)
-        compare(s.backgroundColor, s.Style.buttonText)
-        compare(s.borderColor, ThemeHQ.recommendForeground(s.backgroundColor))
-        // 轨道 = background 本身（默认 Crystal）
+        // 接口收敛：控件不再暴露实例色属性——配色经 Style 语义槽消费
+        // （统一样式接口，宿主经 Style 附着传播换色）
+        verify(s.color === undefined, "Slider 无 color 属性")
+        verify(s.backgroundColor === undefined, "无 backgroundColor 属性")
+        verify(s.borderColor === undefined, "无 borderColor 属性")
+        // 默认视觉消费 Style：轨道兜底 = Style.accent、描边 =
+        // recommendForeground(Style.buttonText)
         verify(s.background !== null, "background 存在")
+        const track = findChild(s.background, "track")
+        verify(track !== null, "轨道存在")
+        compare(track.color, s.Style.accent, "轨道兜底色 = Style.accent")
+        compare(track.borderColor, ThemeHQ.recommendForeground(s.Style.buttonText),
+                "轨道描边 = recommend(buttonText)")
     }
 
     function test_trackGeometry() {
@@ -110,7 +118,8 @@ TestCase {
         compare(track.height, 40 - 10, "轨道常态收缩 = root 高 − 偏移")
         compare(track.x, 0, "轨道水平铺满容器宽（完全居中——不外溢）")
         compare(track.y, (40 - 30) / 2, "轨道垂直居中")
-        compare(track.borderColor, s.borderColor, "轨道描边消费 borderColor")
+        compare(track.borderColor, ThemeHQ.recommendForeground(s.Style.buttonText),
+                "轨道描边 = recommend(buttonText)")
         // 轨道静态——值写入不改变轨道几何
         s.value = 0.5
         compare(track.width, 200)
@@ -119,21 +128,21 @@ TestCase {
     }
 
     function test_trackGradient() {
-        // 渐变：左端 = backgroundColor 75% 透明、右端 = color；
+        // 渐变：左端 = Style.buttonText 75% 透明、右端 = Style.accent；
         // 锚定切角内侧（直边区行程 [h/2, w−h/2]）
         const s = makeSlider({})
         const t = findChild(s.background, "track")
         const g = t.fillGradient
         verify(g !== undefined, "fillGradient 存在")
         compare(g.stops.length, 2)
-        compare(g.stops[0].color, Qt.alpha(s.backgroundColor, 0.75), "渐变左端 = bg 75% 透明")
-        compare(g.stops[1].color, s.color, "渐变右端 = color")
+        compare(g.stops[0].color, Qt.alpha(s.Style.buttonText, 0.75), "渐变左端 = buttonText 75% 透明")
+        compare(g.stops[1].color, s.Style.accent, "渐变右端 = accent")
         compare(g.x1, 30 / 2, "锚定切角内侧左端")
         compare(g.x2, 200 - 30 / 2, "锚定切角内侧右端")
         compare(g.y1, 30 / 2)
         compare(g.y2, 30 / 2)
-        // 兜底色 = color（渐变失效时渐进降级）
-        compare(t.color, s.color)
+        // 兜底色 = Style.accent（渐变失效时渐进降级）
+        compare(t.color, s.Style.accent)
     }
 
     function test_handleRestAndExpand() {
@@ -153,47 +162,54 @@ TestCase {
 
     function test_handleSampleColor() {
         // 手柄常态色 = 渐变在值位置的采样色但不透明化：position 0 → 不透明
-        // backgroundColor（轨道端是 0.75 透明版——手柄为实体）
+        // Style.buttonText（轨道端是 0.75 透明版——手柄为实体）
         const s = makeSlider({})
         const c = handleCrystal(s)
         s.value = 0
         verify(c.color.a === 1, "手柄采样不透明化（a=1）")
-        compare(c.color.r, s.backgroundColor.r, "position 0 采样 = bg 的 r 通道")
-        compare(c.color.g, s.backgroundColor.g, "position 0 采样 = bg 的 g 通道")
-        compare(c.color.b, s.backgroundColor.b, "position 0 采样 = bg 的 b 通道")
-        verify(c.color.a !== Qt.alpha(s.backgroundColor, 0.75).a, "手柄非轨道 0.75 透明版")
+        compare(c.color.r, s.Style.buttonText.r, "position 0 采样 = buttonText 的 r 通道")
+        compare(c.color.g, s.Style.buttonText.g, "position 0 采样 = buttonText 的 g 通道")
+        compare(c.color.b, s.Style.buttonText.b, "position 0 采样 = buttonText 的 b 通道")
+        verify(c.color.a !== Qt.alpha(s.Style.buttonText, 0.75).a, "手柄非轨道 0.75 透明版")
         s.value = 1
-        compare(c.color.r, s.color.r, "position 1 采样 = color 的 r 通道")
-        compare(c.color.g, s.color.g, "position 1 采样 = color 的 g 通道")
-        compare(c.color.b, s.color.b, "position 1 采样 = color 的 b 通道")
+        compare(c.color.r, s.Style.accent.r, "position 1 采样 = accent 的 r 通道")
+        compare(c.color.g, s.Style.accent.g, "position 1 采样 = accent 的 g 通道")
+        compare(c.color.b, s.Style.accent.b, "position 1 采样 = accent 的 b 通道")
         verify(c.color.a === 1, "position 1 仍不透明")
     }
 
     function test_handleSampleColorFollowsSource() {
-        // 源色变化（backgroundColor/color）须立即反映到手柄采样——即使
-        // position 不变。colorAt 为 C++ 方法、QML 绑定不追踪方法体内对
-        // stops 的访问——手柄颜色经 Connections 手动驱动（completed 初始
-        // 采样 + 三源变化重采样）；若直接绑定，初始会冻结在未就绪 stops
-        // 的默认黑（真实缺陷：默认 value:0 + 主题加载场景），本用例回归防护。
-        // 通道比较（QColor 整值 compare 因内部表示差异不可靠——既有
-        // test_handleSampleColor 同款）
+        // 源色（Style.buttonText/accent）传播变化须立即反映到手柄采样——
+        // 即使 position 不变。colorAt 为 C++ 方法、QML 绑定不追踪方法体内
+        // 对 stops 的访问——手柄颜色经手动驱动（completed 初始采样 +
+        // position 变化重采样 + crystal 内哨兵只读属性捕获 Style 传播变化）；
+        // 若直接绑定，初始会冻结在未就绪 stops 的默认黑（真实缺陷：默认
+        // value:0 + 主题加载场景），本用例回归防护。换色经宿主在实例挂
+        // Style 附着属性（s.Style.buttonText = …——附着传播，粒度单实例）。
+        // 通道比较（QColor 整值 compare 因内部表示差异不可靠——同款）
         const s = makeSlider({})
         const c = handleCrystal(s)
-        compare(c.color.r, s.backgroundColor.r, "初始（completed 后）采样 = from 端 r")
-        compare(c.color.g, s.backgroundColor.g, "初始采样 = from 端 g")
-        compare(c.color.b, s.backgroundColor.b, "初始采样 = from 端 b")
-        s.backgroundColor = "#f8f8f8"
-        compare(c.color.r, s.backgroundColor.r, "backgroundColor 变化 → 手柄 r 立即跟随（position 未动）")
-        compare(c.color.g, s.backgroundColor.g)
-        compare(c.color.b, s.backgroundColor.b)
-        s.color = "#ff8800"
-        compare(c.color.r, s.backgroundColor.r, "value:0 时 color 变化不影响 from 端采样")
-        compare(c.color.g, s.backgroundColor.g)
-        compare(c.color.b, s.backgroundColor.b)
+        compare(c.color.r, s.Style.buttonText.r, "初始（completed 后）采样 = from 端 r")
+        compare(c.color.g, s.Style.buttonText.g, "初始采样 = from 端 g")
+        compare(c.color.b, s.Style.buttonText.b, "初始采样 = from 端 b")
+        s.Style.buttonText = "#f8f8f8"
+        // Style 附着传播 + 哨兵绑定重算在事件循环内完成——轮询等待手柄
+        // 跟随（非同步；视觉上 UI 帧内更新即可）
+        for (let i = 0; i < 100 && c.color.r !== s.Style.buttonText.r; ++i)
+            wait(10)
+        compare(c.color.r, s.Style.buttonText.r, "buttonText 传播变化 → 手柄 r 跟随")
+        compare(c.color.g, s.Style.buttonText.g)
+        compare(c.color.b, s.Style.buttonText.b)
+        s.Style.accent = "#ff8800"
+        for (let i = 0; i < 100 && c.color.r !== s.Style.buttonText.r; ++i)
+            wait(10)
+        compare(c.color.r, s.Style.buttonText.r, "value:0 时 accent 变化不影响 from 端采样")
+        compare(c.color.g, s.Style.buttonText.g)
+        compare(c.color.b, s.Style.buttonText.b)
         s.value = 0.5
-        verify(c.color.r !== s.backgroundColor.r || c.color.g !== s.backgroundColor.g,
+        verify(c.color.r !== s.Style.buttonText.r || c.color.g !== s.Style.buttonText.g,
                "position 变化后采样离开 from 端")
-        verify(c.color.g < s.backgroundColor.g, "position 0.5 采样向 to 端（color 的 g 更低）偏移")
+        verify(c.color.g < s.Style.buttonText.g, "position 0.5 采样向 to 端（accent 的 g 更低）偏移")
     }
 
     function test_backgroundPluggable() {
