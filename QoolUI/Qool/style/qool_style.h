@@ -20,6 +20,19 @@ Q_MOC_INCLUDE("qool_stylegroupagent.h")
 
 QOOL_NS_BEGIN
 class StyleGroupAgent;
+
+// Style 附加属性：样式体系的 QML 入口（宿主经 Style.xxx 取用/注入）。
+// 三层设计：
+// 1) 组数据：每实例持 Active/Inactive/Disabled 三张已解析值表（theme
+//    flatMap 的拷贝）+ 逐组修改标记；currentGroup 由宿主状态推导
+//    （ItemTracker bindable 绑定：禁用→Disabled、窗口失活→Inactive、
+//    否则 Active），组切换时重发全部 typed 属性信号。
+// 2) typed 属性：60+ 属性读当前组（get_value(currentGroup, key)）；
+//    写则落全部三组 + mark_modified——宿主注入契约：显式覆盖永不被
+//    继承/主题重解析冲掉。
+// 3) 主题绑定：theme 变更从 ThemeDB 重解析（跳过修改键）并沿附加
+//    属性树向下传播；inherit 只拷贝父级已解析值，子树不回查数据库。
+// animationEnabled 是独立成员（不走组数据），仅向下传播。
 class Style : public QQuickAttachedPropertyPropagator {
   Q_OBJECT
   QML_ELEMENT
@@ -49,9 +62,21 @@ public:
   bool is_modified(int group, const QString& key) const;
 
 protected:
+  // 主题源标记：宿主显式设置 theme（set_theme）后置 true——该节点成为
+  // 子树主题源，inherit 拒绝父级/其他传播（主题边界契约 C3）。与 typed
+  // 覆盖（mark_modified）同为「显式设置 = 持久设计意图」；无取消机制
+  //（宿主改回默认 theme 即重设源）。
+  bool m_explicitTheme{false};
+  QString m_theme;
   ItemTracker* m_itemTracker;
+  // 三组已解析值表（主题 flatMap 的拷贝）：typed 属性按 currentGroup
+  // 从中取值；set_value 写入并触发 valueChanged 扇出。
   QVariantMap m_activeData, m_inactiveData, m_disabledData;
+  // 逐组修改标记：宿主显式覆盖的键（true）在 inherit/主题重解析时跳过，
+  // 保证注入值不被传播覆盖。
   QMap<QString, bool> m_activeModified, m_inactiveModified, m_disabledModified;
+  // animationEnabled 独立于组数据（主题常量中的同名键是遗留数据，属性
+  // 通道不消费它）；setter 仅沿附加属性树向下传播。
   bool m_animationEnabled{true};
 
   QOOL_BINDABLE_MEMBER(Style, Groups, currentGroup);
@@ -73,7 +98,8 @@ protected:
   Q_SLOT void follow_value(int group, QString key);
 
   /****** PROPERTIES ******/
-  QOBJECT_WRITABLE_PROPERTY(QString, theme, )
+  // theme 手写实现（非宏内联）：set_theme 需置 m_explicitTheme 主题源标记
+  QOBJECT_WRITABLE_PROPERTY_DECLARE(QString, theme)
   QOBJECT_WRITABLE_PROPERTY_DECLARE(bool, animationEnabled)
   QOBJECT_CONSTANT_PROPERTY(StyleGroupAgent*, active, )
   QOBJECT_CONSTANT_PROPERTY(StyleGroupAgent*, inactive, )

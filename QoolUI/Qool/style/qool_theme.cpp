@@ -120,6 +120,9 @@ QStringList Theme::keys(Groups group) const {
   return m_data.value(group).keys();
 }
 
+// 查找优先级：Custom > group 自身 > Active 兜底（group 非 Active 时）>
+// Constants > defvalue。Constants 是全局引用基准（动画时长/字号/基础
+// 色名），Active 兜底保证未显式定义组内值的状态色沿用激活态。
 QVariant Theme::value(
   Groups group, const QString& key, const QVariant& defvalue) const {
   Q_ASSERT(m_data.contains(group));
@@ -241,6 +244,9 @@ bool Theme::operator!=(const Theme& other) const {
   return ! operator==(other);
 }
 
+// 展平为单表：Constants + Active（group 非 Active）+ group 自身 +
+// Custom（group 非 Constants）——后插入者覆盖先插入者。Style 的组数据
+// 即各组 flatMap 的拷贝，值语义与 value() 的查找优先级一致。
 QVariantMap Theme::flatMap(Groups group) const {
   QVariantMap result;
 

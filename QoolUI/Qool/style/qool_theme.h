@@ -10,6 +10,13 @@
 
 QOOL_NS_BEGIN
 
+// 主题值类型（QML value type qooltheme）：五组 QVariantMap（Constants/
+// Active/Inactive/Disabled/Custom）+ 元数据，描述一套完整外观。
+// 取值优先级（value(group, key)）：Custom → group 自身 → Active 兜底
+// （group 非 Active 时）→ Constants → defvalue；flatMap(group) 则按
+// Constants + Active（group 非 Active）+ group + Custom（group 非
+// Constants）合并为单表——Style 实例化时即取各组的 flatMap 拷贝。
+// 数据源：SystemTheme（系统调色板）与 XML 主题插件，经 ThemeDB 统一持有。
 class Theme {
   Q_GADGET
   QML_VALUE_TYPE(qooltheme)

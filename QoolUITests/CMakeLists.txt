@@ -48,7 +48,7 @@ target_include_directories(
 # Qt 安装前缀（Qt6_DIR = <prefix>/lib/cmake/Qt6，上三级回到前缀）。
 # 供各层 qt.conf 模板（qt.conf.in）与依赖复制使用。
 find_package(
-  Qt6 REQUIRED COMPONENTS Test QuickTest Qml Quick QuickShapes
+  Qt6 REQUIRED COMPONENTS Test QuickTest Qml Quick QuickShapes QuickControls2
 )
 get_filename_component(QOOLUI_QT6_PREFIX "${Qt6_DIR}/../../.." ABSOLUTE)
 

@@ -1,6 +1,12 @@
 import QtQuick
 import Qool
 
+// 跨桥组件：把 Style 三组（active/inactive/disabled）映射进 QtQuick
+// Palette（Text/TextField 等原生组件的调色板契约），theme 属性直接
+// 注入 Style.theme。宿主改 Style 即同步原生组件默认色。
+// 已知缺口：brightText 未在 Style/StyleGroupAgent 声明，下方
+// Style.*.brightText 绑定恒为 undefined——Palette 的 brightText 无效，
+// 其余角色正常；修复需在两组类中补声明或移除该行。
 Palette {
     id: root
     property string theme: "system"

@@ -233,3 +233,34 @@ target_include_directories(tst_qool_singleton_db PRIVATE
   "${QOOL_FILE_SRC}")
 target_link_libraries(tst_qool_singleton_db PRIVATE
   Qool QoolColor QoolCommon QoolUITestSupport Qt6::Quick Qt6::Qml)
+
+# Style 核心契约（C4 set_value 守卫 / C8 修改键 / C9 Theme 查找 /
+# C10 ThemeDB / C11 follow）——C++ 直编被测源（Style 传播机制依赖 QML
+# 附加属性场景，由 QML 面测试覆盖；本 target 覆盖纯逻辑面）
+qoolui_add_cpp_test(
+  tst_qool_style_core
+  tst_style_core.cpp
+  "${QOOL_SRC}/style/qool_style.cpp"
+  "${QOOL_SRC}/style/qool_stylegroupagent.cpp"
+  "${QOOL_SRC}/style/qool_system_theme.cpp"
+  "${QOOL_SRC}/style/qool_theme_db.cpp"
+  "${QOOL_SRC}/style/qool_theme.cpp"
+  "${QOOL_SRC}/utils/qool_itemtracker.cpp"
+)
+target_include_directories(tst_qool_style_core PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
+target_link_libraries(tst_qool_style_core PRIVATE
+  Qool QoolCommon QoolUITestSupport Qt6::Quick Qt6::QuickControls2 Qt6::Qml)
+
+# Style 主题切换/边界（C2 覆盖持久 / C3 主题边界）——C++ 驱动 QML 场景：
+# context property 注入 Theme 值（QML_STRUCTURED_VALUE 不可从 QML 构造），
+# 场景内 ThemeHQ.installTheme 安装后切换根主题，断言节点/子树行为
+qoolui_add_cpp_test(
+  tst_qool_style_theme_switch
+  tst_style_theme_switch.cpp
+  "${QOOL_SRC}/style/qool_theme.cpp"
+)
+target_include_directories(tst_qool_style_theme_switch PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
+target_link_libraries(tst_qool_style_theme_switch PRIVATE
+  Qool QoolCommon QoolUITestSupport Qt6::Quick Qt6::Qml)
+target_compile_definitions(tst_qool_style_theme_switch PRIVATE
+  QOOLUI_TEST_QML_IMPORT_PATH="${QT_QML_OUTPUT_DIRECTORY}")

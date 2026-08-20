@@ -19,6 +19,10 @@ Style::Style(QObject *parent)
   m_disabled = new StyleGroupAgent(Disabled, this);
 
   m_itemTracker->set_target(parent);
+  // currentGroup 用 bindable 绑定而非信号 connect：绑定表达式对
+  // ItemTracker 的 bindable 读建立依赖追踪，item/itemEnabled/
+  // windowActived 任一变化即重求值（值不变不发信号）；组切换经
+  // when_curentGroupChanged 重发全部 typed 属性信号。
   m_currentGroup.setBinding([&] {
     const auto item = m_itemTracker->bindable_item().value();
     const bool enabled = m_itemTracker->bindable_itemEnabled().value();
@@ -30,11 +34,17 @@ Style::Style(QObject *parent)
 
   connect(
       this, &Style::currentGroupChanged, this, &Style::when_curentGroupChanged);
+  // 组数据变化 → 当前组匹配时补发对应属性信号（check_changes）
   connect(this, &Style::valueChanged, this, &Style::check_changes);
   connect(this, &Style::themeChanged, this, &Style::when_themeChanged);
 
+  // 监听自身 ParentChange：宿主 item 被重设父级时 Style 的 QObject 父级
+  // 随之变化，据此重新追踪 item（itemTracker 的 target 跟随新父级）。
   installEventFilter(this);
 
+  // 挂接附加属性传播：寻找 attached parent 并触发 attachedParentChange
+  // → inherit；必须由子类在构造末尾调用（QQuickAttachedPropertyPropagator
+  // 契约，initialize() 之前读到的默认值才是传播的基准）。
   initialize();
   // if (! attachedParent())
   //   manually_attach_to_parentStyle();
@@ -42,6 +52,18 @@ Style::Style(QObject *parent)
 
 Style *Style::qmlAttachedProperties(QObject *object) {
   return new Style(object);
+}
+
+QString Style::theme() const { return m_theme; }
+
+// 宿主显式设置 theme → 标记主题源（即使值不变也标记——意图已表达，
+// 该节点自此成为子树主题源，拒绝父级传播）；值变则 emit themeChanged
+// → when_themeChanged 从 ThemeDB 重解析并向下传播。
+void Style::set_theme(const QString &new_theme) {
+  m_explicitTheme = true;
+  if (m_theme == new_theme) return;
+  m_theme = new_theme;
+  emit themeChanged();
 }
 
 void Style::dumpInfo() const {
@@ -89,21 +111,24 @@ QVariant Style::get_value(
   return {};
 }
 
+// 相等守卫比较「该键的当前值」与写入值（原实现 `m_activeData == value`
+// 为整表与单值比较恒 false——相等赋值也发信号，C4 契约修复）：
+// 值相同 → 短路返回 false、不发 valueChanged。
 bool Style::set_value(int group, const QString &key, const QVariant &value) {
   if (group == Active) {
-    if (m_activeData == value) return false;
+    if (m_activeData.value(key) == value) return false;
     m_activeData.insert(key, value);
     emit valueChanged(Active, key);
     return true;
   }
   if (group == Inactive) {
-    if (m_inactiveData == value) return false;
+    if (m_inactiveData.value(key) == value) return false;
     m_inactiveData.insert(key, value);
     emit valueChanged(Inactive, key);
     return true;
   }
   if (group == Disabled) {
-    if (m_disabledData == value) return false;
+    if (m_disabledData.value(key) == value) return false;
     m_disabledData.insert(key, value);
     emit valueChanged(Disabled, key);
     return true;
@@ -137,6 +162,8 @@ bool Style::is_modified(int group, const QString &key) const {
   return false;
 }
 
+// 初始基准 = system 主题三组 flatMap（构造期快照）；此后数据由
+// inherit（父级传播）/ when_themeChanged（主题重解析）更新。
 void Style::initialize_data() {
   m_theme = QStringLiteral("system");
   m_activeData = SystemTheme::instance()->flatMap(Theme::Active);
@@ -144,6 +171,8 @@ void Style::initialize_data() {
   m_disabledData = SystemTheme::instance()->flatMap(Theme::Disabled);
 }
 
+// 向附加属性树的下级 Style 传播当前解析结果（各下级 inherit 本实例，
+// 逐层级联直到叶子）；theme 变更与继承链更新后调用。
 void Style::propagate_theme() {
   const auto childs = attachedChildren();
   if (childs.isEmpty()) return;
@@ -158,9 +187,20 @@ void Style::propagate_theme() {
   }
 }
 
+// 从父级继承：拷贝父级 theme 名 + 三组已解析值，跳过本地修改键。
+// 传播的是解析后的 flatMap（非主题键），子树因此无需回查 ThemeDB。
+// begin/endPropertyUpdateGroup 批量合并通知，QML 引擎对同组属性变化
+// 只做一次完整刷新；末尾 propagate_theme 继续向下级联。
+//
+// 主题边界契约（C3）：本节点若为宿主显式设置 theme 的主题源
+// （m_explicitTheme），拒绝父级/其他传播——祖先 theme 变化不穿透，
+// 子树保持自身主题。
 void Style::inherit(Style *other) {
   if (! other) return;
+  if (m_explicitTheme) return;
 
+  // 直接写成员不 emit themeChanged——继承不是宿主级 theme 变更，
+  // 不需要触发 ThemeDB 重解析（值已由父级解析好）。
   m_theme = other->m_theme;
 
   Qt::beginPropertyUpdateGroup();
@@ -189,6 +229,9 @@ void Style::inherit(Style *other) {
   propagate_theme();
 }
 
+// theme 属性变更：唯一回查 ThemeDB 的路径。按名取主题、三组 flatMap
+// 重解析（跳过修改键），然后向下传播；宿主在根节点绑定 Style.theme
+// 即主题注入入口。
 void Style::when_themeChanged() {
   const auto t = ThemeDB::instance()->theme(m_theme);
   xInfoQ << "setting up theme" xDBGBlue << t.name() << xDBGReset "for" xDBGRed
@@ -217,6 +260,9 @@ void Style::when_themeChanged() {
   propagate_theme();
 }
 
+// 组数据变化 → 仅当变化发生在当前组时补发对应 typed 属性信号。
+// 非当前组的变化不发（组面绑定固定组、由 StyleGroupAgent 自行过滤），
+// 组切换时由 when_curentGroupChanged 统一补发全部信号。
 void Style::check_changes(int group, QString key) {
   if (group != m_currentGroup.value()) return;
 #define __SET__(T, N)                               \
@@ -256,6 +302,9 @@ void Style::check_changes(int group, QString key) {
 #undef __SET__
 }
 
+// 当前组切换（宿主禁用/启用、窗口激活/失活）：重发全部 typed 属性
+// 信号，使 QML 绑定重读新组的值；begin/endPropertyUpdateGroup 批量
+// 通知合并。
 void Style::when_curentGroupChanged() {
   // const Groups group = m_currentGroup.value();
 
@@ -301,6 +350,9 @@ void Style::when_curentGroupChanged() {
   Qt::endPropertyUpdateGroup();
 }
 
+// 注意：递归累加写入了局部 result，但函数返回的是 childs——递归分支
+// 是死代码，本函数实际只返回直接子级（dumpAllChildren 只显示一层）。
+// 调试工具缺陷，不影响样式功能；若需全树展开应改为 return result。
 QList<QQuickAttachedPropertyPropagator *> Style::find_children() const {
   QList<QQuickAttachedPropertyPropagator *> result;
   const auto childs = attachedChildren();
@@ -319,6 +371,9 @@ void Style::attachedParentChange(QQuickAttachedPropertyPropagator *newParent,
   if (style) inherit(style);
 }
 
+// Style 的 QObject 父级 = 宿主 item；item 被重设父级时 Style 收到
+// ParentChange，据此把 ItemTracker 的目标迁到新父级（currentGroup
+// 绑定随之重求值）。
 bool Style::eventFilter(QObject *object, QEvent *event) {
   if (object != this) return false;
   if (event->type() == QEvent::ParentChange)
@@ -326,6 +381,8 @@ bool Style::eventFilter(QObject *object, QEvent *event) {
   return QObject::eventFilter(object, event);
 }
 
+// follow 语义：实时拷贝另一 Style 的值，跳过本地修改键——popup 委托
+// 经 Style.follow 跟随宿主控件样式（见 ComboBox delegate）。
 void Style::follow_value(int group, QString key) {
   Style *other = qobject_cast<Style *>(sender());
   if (! other) return;
@@ -349,6 +406,8 @@ void Style::set_animationEnabled(const bool &x) {
 
 Style *Style::follow() const { return m_follow; }
 
+// 设置跟随目标：先 inherit 一次（快照），再挂 valueChanged 跟随
+// （后续变化实时拷贝，本地修改键不受影响）；换目标时先断开旧连接。
 void Style::set_follow(Style *other) {
   if (m_follow == other) return;
   if (m_follow) disconnect(m_follow);
@@ -361,6 +420,11 @@ void Style::set_follow(Style *other) {
   emit followChanged();
 }
 
+// typed 属性统一实现：
+// - getter 读当前组（currentGroup 由宿主状态推导）——同值读取随组切换
+//   变化，组切换时 when_curentGroupChanged 已重发全部信号；
+// - setter 写全部三组 + 三组 mark_modified——宿主注入契约：覆盖在任意
+//   状态生效，且不被 inherit/主题重解析覆盖（修改键跳过）。
 #define IMPL(T, N)                                    \
   T Style::N() const {                                \
     const auto group = m_currentGroup.value();        \

@@ -7,7 +7,8 @@ Qool 是 QoolUI 的核心模块，提供：
 - 形状体系：`QoolBox`（八边形）、`OctagonShape`、`OctagonCurvedShape`
   ——由 `QoolBoxShapeControl` 数值计算控制点，命中判定走 O(1)
   线性不等式。
-- 样式体系：`Style` 附加属性 + `Theme` 值类型（见 `Style 体系`）。
+- 样式体系：`Style` 附加属性 + `Theme` 值类型（见 [Style](Style.md) 与
+  [Style 体系](../../articles/style-system.md)）。
 - 窗口：`QoolWindow`、`QoolWindowBasic`（见 `QoolWindow 配件哲学`）。
 - 工具：`CutSizeBinding`、`ItemAnimatedResizer`、`PositionLocker`、
   `TimerLatch`、`Floater`、`PositionTracker`、`ItemTracker`、`Qore`、
@@ -39,6 +40,7 @@ Qool 是 QoolUI 的核心模块，提供：
 - [QoolBoxShapeControl](QoolBoxShapeControl.md)
 - [RectGadget](RectGadget.md)
 - [ShapeControl](ShapeControl.md)
+- [Style](Style.md)
 - [ThemeHQ](ThemeHQ.md)
 - [ThemeHQModel](ThemeHQModel.md)
 - [TimerLatch](TimerLatch.md)

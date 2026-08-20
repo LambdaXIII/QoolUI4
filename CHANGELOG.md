@@ -4,6 +4,37 @@
 
 ## [4.0.0] — 2026-08-21
 
+### 变更（style-design-article，Style 设计原理深度文章）
+
+- **新建 `docs/articles/style-design.md`**：从「为什么」与「怎么用」角度记述样式体系——核心设计决策（theme 是参数更新指令非传播令牌/覆盖持久=设计意图/主题边界=显式设置建源/快照传播/currentGroup 推导）、实现技术（QQuickAttachedPropertyPropagator 附加树/bindable 依赖追踪/两道通知过滤/修改键与主题源双意图登记/ADR-0001 数据层/XML 主题解析/follow）、亮点用法（根主题注入与热切换/单实例覆盖/子树门控/局部主题区域/状态定制/QoolPalette 桥/主题选择器）、心智模型三原则、演进记录（C3/C4 修复）
+- `style-system.md` 增互链（机制备忘录 ↔ 设计原理）
+
+### 变更（style-contract-tests，Style 行为契约锚定 + 测试设施——定位两处真实缺陷）
+
+- **行为契约锚定**（docs/articles/style-system.md「行为契约」节）：12 条可证伪契约 C1-C12（传播构造/覆盖持久/主题边界/相等赋值不刷新/覆盖不传播/组切换/附加树连通/修改键/Theme 查找/ThemeDB/follow/组面读写），文档与测试一一对应、同步演进
+- **测试设施**（3 个新测试 target / 13 个用例）：
+  - `tst_style.qml`（QML 批次，6 用例）：C1 传播构造、C4 相等赋值、C5 覆盖不传播、C6 组切换、C7 未声明节点穿透、C12 组面读写
+  - `tst_style_core.cpp`（C++ 直编被测源，5 用例）：C4 set_value 守卫、C8 修改键、C9 Theme 查找优先级/flatMap、C10 ThemeDB、C11 follow
+  - `tst_style_theme_switch.cpp`（C++ 驱动 QML 场景——context property 注入 Theme，QML_STRUCTURED_VALUE 不可从 QML 构造；3 主题经 ThemeHQ.installTheme 安装后切换）：C2 覆盖持久、C3 主题边界
+- **定位两处真实缺陷（测试 FAIL 实证）**：
+  - **C3 主题边界疏漏**：子树显式设置 theme 后，祖先 theme 运行时变化会穿透覆盖子树（`inherit` 无条件写 `m_theme` + 数据，无 explicit 源标记）——期望「设置 theme = 主题边界，区域保持自身主题」，当前实现违反（tst_qool_style_theme_switch::theme_boundary FAIL）
+  - **C4 set_value 相等守卫笔误**：`m_activeData == value` 为整表与单值比较恒 false——相等赋值也返回 true + 发 valueChanged + mark_modified，产生多余信号/传播（tst_style_core::set_value_guard 与 tst_style.qml::test_equalAssignNoRefresh 双通道 FAIL）
+- **测试设施摩擦**（已规避，报告待用户定夺是否沉淀规范）：① moc 对 `R"(...)"` 原始字符串解析有缺陷——内容含 `"#..."` 或 `//` 注释时 Q_OBJECT 类不被收集（链接缺 metaObject 符号），Q_OBJECT 测试类内禁用原始字符串、改普通字符串拼接；② QML color 值类型无 `.name` 属性（QColor C++ 属性未暴露），`.name` 恒 undefined 且 `compare(undefined, undefined)` 假 PASS——颜色断言用 `toString()` 规范化
+- **文档**：Style.md Design 节补「Theme boundary (design contract)」段（标注当前实现缺口）；reference index 不变
+- **验证**：全量 ctest 21 项——18 项现有测试全部 PASS（零回归），3 项新测试 FAIL 均为预期缺陷暴露（C3/C4）
+- **修复（测试驱动闭环）**：
+  - **C4 set_value 相等守卫**：`m_activeData == value`（整表与单值比较恒 false）→ `m_activeData.value(key) == value`（比较该键当前值，对齐 `Theme::setValue` 正确写法）——相等赋值短路、不再发多余信号
+  - **C3 主题边界**：`set_theme` 置 `m_explicitTheme` 主题源标记（显式设置即标记，即使值不变）；`inherit` 开头检查 `if (m_explicitTheme) return`——显式源节点拒绝父级/其他传播，祖先 theme 变化在边界处断裂。源节点无「恢复继承」路径（同 typed 覆盖的无撤销哲学）
+- **修复后**：全量 ctest 21/21 全部通过（测试由红转绿 = 缺陷证据闭环）
+
+### 变更（style-docs，Style 体系文档化 + 机制注释）
+
+- **新建 `docs/reference/Qool/Style.md`**：5 节完整参考（概述/属性/信号/方法/使用示例）——Style 附加属性的三层设计（组数据 + typed 属性 + 主题绑定）、读/写不对称语义（读当前组、写三组 + 修改标记）、`follow`/`animationEnabled`/`active`/`inactive`/`disabled` 组面、`valueChanged` 与逐属性信号机制；reference index.md 收录 Style 并修正「Style 体系」链接
+- **深化 `docs/articles/style-system.md`**：补数据流全链（XML/SystemTheme → ThemeDB → Style 解析 → 传播）、继承/传播机制（inherit 复制已解析值、跳过修改键、begin/endPropertyUpdateGroup 批量通知）、currentGroup 推导（ItemTracker bindable 依赖追踪）、修改追踪与宿主注入契约、通知机制（check_changes 组过滤）、animationEnabled 独立通道；新增「已知缺口与陷阱」节
+- **机制注释**（qool_style.h/cpp、qool_theme.h/cpp、qool_stylegroupagent.h、QoolPalette.qml）：类级设计说明 + 关键机制点状注释（currentGroup bindable 绑定、inherit/主题重解析语义、IMPL getter/setter 契约、value 查找优先级、flatMap 组合序、组面职责）
+- **发现并记录三处既有缺口**（未改动行为，仅注释/文档标记）：`QoolPalette` 引用不存在的 `Style.*.brightText`（绑定恒 undefined，Palette brightText 无效）；`system` 主题常量缺 `infoColor`（读得无效 QColor，midnight 等 XML 主题已定义）；`Style::find_children` 递归累加被丢弃（返回直子级，`dumpAllChildren` 只显示一层，调试工具缺陷）
+- **验证**：文档/注释改动按分级验证走读核对（代码零逻辑变更，无需编译）
+
 ### 变更（adr-timeliness，ADR 时效性总体规则）
 
 - **根 AGENTS.md 工作流约定新增「ADR 时效性（MUST）」**：ADR 是决策锚定、优先级最高——任何讨论/修订/决策之后、动手实施之前，先检查相关 ADR 是否需要同步调整，保证 ADR 与当前决策一致、不滞后（索引见 `docs/adr/README.md`）
