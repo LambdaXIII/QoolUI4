@@ -26,7 +26,7 @@ T.RangeSlider {
     property color borderColor: ThemeHQ.recommendForeground(backgroundColor)
 
     // 尺寸：反向排版策略——模板自带 implicit 公式（background 与 contentItem
-    // 的 implicit 尺寸取大者）；组件只给 background 显式 implicit（200×22），
+    // 的 implicit 尺寸取大者）；组件只给 background 显式 implicit（150×25），
     // contentItem implicit 由前景内容承载。
     implicitWidth: {
         const w1 = leftInset + implicitBackgroundWidth + rightInset;
@@ -48,9 +48,9 @@ T.RangeSlider {
         readonly property real halfShrinkSpace: shrinkSize / 2
     }
 
-    // —— 轨道层：Crystal 六边形（backgroundColor 75% 透明 + borderColor
+    // 轨道层：Crystal 六边形（backgroundColor 75% 透明 + borderColor
     // 描边）——全宽、恒为常态高度（不随交互变）+ 垂直居中（y = 收缩偏移/
-    // 2）。background 显式 implicit（200×22）供控件 implicit 计算。
+    // 2）。background 显式 implicit（150×25）供控件 implicit 计算。
     background: Item {
         implicitHeight: 25
         implicitWidth: 150

@@ -146,3 +146,29 @@ valueAt → setValue），`QQuickRangeSliderNode::setValue`（QML 赋值/setValu
   `first.handle`/`second.handle`；RangeHandle.md 删除、RangeSlider.md 重写、
   示例页更新（删 surface 示例改外观通道、HandleKnob 窄条不相交、QoolTip
   更新）；整体滑移与"点击无操作"契约变化（点击轨道走模板 nearest）。
+
+## 实现演进（2026-08-20 锁存回归 / enabled 门控 / Slider 架构对齐）
+
+模板 handle 回归后到 Slider 架构对齐期间的演进（ADR 上次同步于 e911e05）：
+
+- **前景锁存回归（2395c55）**：推翻"锁存移除"——RangeSlider 前景恢复
+  TimerLatch（interval 500ms，onValueChanged 单触发，任一 handle 值变化
+  触发），`resized = hoverer.hovered || latch.active`。动机：仅 hover 展开
+  时，拖动/键盘/程序化改值瞬间前景收缩再展开闪动；锁存窗口（连续变化内
+  持续保持）消除闪动。与 Slider 锁存内化同源。
+- **enabled 门控（40010d2）**：cResizer 接 `enabled: root.enabled`——禁用时
+  前景冻结（含程序化写入展开取消——禁用视觉静态化）；hover/光标同受
+  root.enabled 控制。
+- **Slider 架构对齐（9119c9f）**：Slider 对齐 RangeSlider 模板 handle 回归
+  后的形态——(a) 标准 background 驱动尺寸：推翻"外部 Binding"，改自写
+  implicit 公式 + background 显式 implicit **150×25** + Control 自动布局
+  （替换新 background 同样受控，插拔安全不降级）；(b) handle 内
+  ItemAnimatedResizer 控制 Crystal 缩放（替换 BasicNumberBehavior on
+  height——两方向动画独立模板 + 锁定 Binding 目标跟随）；(c) 锁存内化
+  handle（TimerLatch 单触发 onValueChanged）；(d) 轨道定位
+  anchors.centerIn → y 显式；(e) handle 高 root.height → availableHeight；
+  (f) crystalShrinkSize → shrinkSize；(g) RangeSlider 默认尺寸统一 150×25
+  （原 200×22）。
+- **API 破坏（9119c9f）**：Slider 公开接口移除 `justMoved`/`valueVelocity`
+  （连同 NumberNotifier）——宿主"刚移动"感知经手柄展开反馈呈现（无独立
+  接口）；行为插拔点不变（模板 handle 契约）。
