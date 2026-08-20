@@ -19,18 +19,20 @@ QoolUI 的测试设施：Qt Test + Qt Quick Test 双栈程序化测试。本文�
 
 ## 测试方法规范
 
-### 宏族（qool_test.hpp）
+### 宏族与测试类文件约束
 
 - 唯一自定义宏 `QOOL_TEST_CASE(_N_)` = `private: Q_SLOT void _N_()`，类体内内联定义（init/cleanup/xxx_data 同宏）；类声明必须显式书写（`class X : public QObject { Q_OBJECT`），宏不包裹类
 - 禁止 `private slots:` 区语法入宏——moc 不收集宏内槽区（槽丢失，测试表现为仅 init/cleanup 通过）
 - main 不包装：无 GUI 用 `QTEST_APPLESS_MAIN`、GUI 用 `QTEST_MAIN`（原生按需选）
 - moc include 用显式文件名（`#include "tst_xxx.moc"`）：`QT_MOC` 宏在 CMake AUTOMOC 下不可用（CMake 4.4.2 文档无 QT_MOC 支持，AUTOMOC 只识别字面 `#include "xxx.moc"`）
 - 不引入自定义 logger：QTest 标准输出足够
+- **Q_OBJECT 测试类内禁用 `R"(...)"` 原始字符串字面量**（moc 解析缺陷）：函数体原始字符串内容含 `"#..."` 或 `//` 注释时，moc 报「No relevant classes found」、Q_OBJECT 类不被收集——编译期无错、链接才爆（缺 metaObject/qt_metacall 符号）。QML 场景字符串一律用普通字符串拼接（多行相邻字面量）
 
 ### 断言与隔离
 
 - 浮点断言自备 `fuzzy_eq`（QCOMPARE 浮点是精确比较）；属性/信号契约用 `QSignalSpy` + 相等守卫断言
 - **compare/verify 第三参避免非 ASCII**（QML 引擎 bug）：第三参含中文等非 ASCII 时测试**加载期静默失败**（rc 3 无输出、无 Totals、无 initTestCase），英文第三参正常；**注释**（`//`）不受限
+- **QML 颜色断言用 `toString()`**（QML color 值类型无 `.name` 属性——QColor 的 C++ 属性未暴露）：`.name` 恒 undefined，且 `compare(undefined, undefined)` **假 PASS** 掩盖断言失效；用 `tryVerify(function(){ return s.color.toString() === "#rrggbb" })` 规范化比较
 
 ### QML 测试批次组织
 

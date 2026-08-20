@@ -19,7 +19,7 @@
 - **定位两处真实缺陷（测试 FAIL 实证）**：
   - **C3 主题边界疏漏**：子树显式设置 theme 后，祖先 theme 运行时变化会穿透覆盖子树（`inherit` 无条件写 `m_theme` + 数据，无 explicit 源标记）——期望「设置 theme = 主题边界，区域保持自身主题」，当前实现违反（tst_qool_style_theme_switch::theme_boundary FAIL）
   - **C4 set_value 相等守卫笔误**：`m_activeData == value` 为整表与单值比较恒 false——相等赋值也返回 true + 发 valueChanged + mark_modified，产生多余信号/传播（tst_style_core::set_value_guard 与 tst_style.qml::test_equalAssignNoRefresh 双通道 FAIL）
-- **测试设施摩擦**（已规避，报告待用户定夺是否沉淀规范）：① moc 对 `R"(...)"` 原始字符串解析有缺陷——内容含 `"#..."` 或 `//` 注释时 Q_OBJECT 类不被收集（链接缺 metaObject 符号），Q_OBJECT 测试类内禁用原始字符串、改普通字符串拼接；② QML color 值类型无 `.name` 属性（QColor C++ 属性未暴露），`.name` 恒 undefined 且 `compare(undefined, undefined)` 假 PASS——颜色断言用 `toString()` 规范化
+- **测试设施摩擦**（已规避 + 沉淀到 QoolUITests/AGENTS.md）：① moc 对 `R"(...)"` 原始字符串解析有缺陷——内容含 `"#..."` 或 `//` 注释时 Q_OBJECT 类不被收集（链接缺 metaObject 符号），Q_OBJECT 测试类内禁用原始字符串、改普通字符串拼接（沉淀「宏族与测试类文件约束」节）；② QML color 值类型无 `.name` 属性（QColor C++ 属性未暴露），`.name` 恒 undefined 且 `compare(undefined, undefined)` 假 PASS——颜色断言用 `toString()` 规范化（沉淀「断言与隔离」节）
 - **文档**：Style.md Design 节补「Theme boundary (design contract)」段（标注当前实现缺口）；reference index 不变
 - **验证**：全量 ctest 21 项——18 项现有测试全部 PASS（零回归），3 项新测试 FAIL 均为预期缺陷暴露（C3/C4）
 - **修复（测试驱动闭环）**：
