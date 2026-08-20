@@ -142,7 +142,7 @@ T.Slider {
                 color: root.color
             }
         }
-
+        //TODO: 引入ItemAnimatedResizer，确保动画的精确性
         Crystal {
             id: crystal
             // 动画期间 CurveRenderer（原生 AA——展开缩放时小菱形边缘平滑且不重

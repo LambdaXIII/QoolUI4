@@ -2,9 +2,12 @@ import QtQuick
 import Qool
 import Qool.Controls
 
+//TODO:docs and notes
+//TODO:add tests
+
 SmartObject {
     id: root
-    // property bool enabled: true
+    property bool enabled: true
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
 
     property alias forewardAnimation: templateFowardAni
@@ -166,6 +169,7 @@ SmartObject {
         }
 
         Connections {
+            enabled: root.enabled
             target: root
             function onResizedChanged() {
                 pCtrl.ensure();

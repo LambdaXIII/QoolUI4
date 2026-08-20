@@ -79,6 +79,13 @@ T.RangeSlider {
         x: root.leftPadding + root.first.visualPosition * (root.availableWidth - width * 2)
         y: root.topPadding + root.availableHeight / 2 - height / 2
         z: 10
+
+        MouseArea {
+            enabled: root.enabled
+            cursorShape: Qt.SplitHCursor
+            acceptedButtons: Qt.NoButton
+            anchors.fill: parent
+        }
     }
 
     second.handle: Item {
@@ -87,12 +94,36 @@ T.RangeSlider {
         x: root.leftPadding + width + root.second.visualPosition * (root.availableWidth - width * 2)
         y: root.topPadding + root.availableHeight / 2 - height / 2
         z: 10
+
+        MouseArea {
+            enabled: root.enabled
+            cursorShape: Qt.SplitHCursor
+            acceptedButtons: Qt.NoButton
+            anchors.fill: parent
+        }
     }
 
     // —— 前景层（contentItem 内）：rangeBox 区间盒承载——x/width 随两端
     // visualPosition（值→位置映射）：左边缘 = first 视觉位、宽 = 区间视觉
     // 宽 + 自身高（多出 height 作尖角外溢/对齐余量）；height = 可用高。
     contentItem: Item {
+        TimerLatch {
+            id: latch
+            interval: 500
+            Connections {
+                target: root.first
+                function onValueChanged() {
+                    latch.trigger();
+                }
+            }
+            Connections {
+                target: root.second
+                function onValueChanged() {
+                    latch.trigger();
+                }
+            }
+        }
+
         Item {
             id: rangeBox
             height: parent.height
@@ -104,6 +135,7 @@ T.RangeSlider {
             // 本实现前景展开只响应 hover（无 pressed/锁存路径）。
             HoverHandler {
                 id: hoverer
+                enabled: root.enabled
             }
 
             // 前景尺寸动画（Qool 非可视组件）：from = 区间盒 − 收缩量（常态）、
@@ -111,6 +143,7 @@ T.RangeSlider {
             // from↔to 切换（动画门控 animationEnabled——关闭时跳变）。
             ItemAnimatedResizer {
                 id: cResizer
+                animationEnabled: root.animationEnabled
 
                 fromWidth: rangeBox.width - pCtrl.shrinkSize
                 fromHeight: rangeBox.height - pCtrl.shrinkSize
@@ -118,7 +151,7 @@ T.RangeSlider {
                 toWidth: rangeBox.width
                 toHeight: rangeBox.height
 
-                resized: hoverer.hovered
+                resized: hoverer.hovered || latch.active
             }
 
             // 区间前景（Crystal 连体：左点 + 直边 + 右点、尖角外溢）——
@@ -129,6 +162,8 @@ T.RangeSlider {
                 height: cResizer.height
                 anchors.centerIn: parent
             }
+
+            containmentMask: rangeCrystal
         }
     }//contentItem
 
