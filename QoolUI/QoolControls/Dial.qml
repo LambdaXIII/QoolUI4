@@ -8,9 +8,6 @@ T.Dial {
 
     // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-    // 焦点高亮描边色——键盘聚焦（visualFocus）时背景边框切换为该色、失焦
-    // 恢复 Style.buttonText；设透明即关闭该行为。默认 Style.highlight。
-    property color focusBorderColor: Style.highlight
 
     property color highColor: Style.red
     property color midColor: Style.yellow
@@ -61,8 +58,8 @@ T.Dial {
         height: width
         radius: width / 2
         // 焦点高亮：键盘聚焦（visualFocus——仅 Tab/Backtab/Shortcut 键盘
-        // 原因聚焦）时边框切换 focusBorderColor、失焦恢复 Style.buttonText
-        border.color: root.visualFocus ? root.focusBorderColor : root.Style.buttonText
+        // 原因聚焦）时边框切换 Style.highlight、失焦恢复 Style.buttonText
+        border.color: root.visualFocus ? root.Style.highlight : root.Style.buttonText
         // 切换动画门控 animationEnabled（关闭时即时跳变）
         BasicColorBehavior on border.color {
             enabled: root.animationEnabled

@@ -44,13 +44,6 @@ range).
   uniformly on a parent), falling back to `Style.animationEnabled`. Gates
   the focus-highlight border transition; when off, the switch is instant
   instead of animated.
-- `focusBorderColor : color` (default `Style.highlight`)
-  The focus-highlight border color — while the control holds keyboard
-  focus (`visualFocus`, see "Interaction feedback") the default background
-  border switches to this color and reverts to `Style.buttonText` on
-  losing focus. Set a transparent color to disable the behavior. It only
-  affects the default `background`; replacing `background` drops the
-  behavior.
 
 Inherited from `T.Dial`: `from`, `to`, `value`, `stepSize`, `wrap`,
 `position`, `angle`, `startAngle`, `endAngle`, `inputMode`, `live`,
@@ -101,13 +94,6 @@ Dial {
     startAngle: -90
     endAngle: 90
 }
-
-// Focus highlight opt-out: transparent focusBorderColor disables it.
-Dial {
-    width: 120
-    height: 120
-    focusBorderColor: "transparent"
-}
 ```
 
 ## Interaction feedback
@@ -126,12 +112,11 @@ Dial {
   (`visualFocus` — Qt's standard semantic, `true` only when focus was
   acquired through keyboard navigation, i.e. Tab/Backtab/shortcut; mouse,
   programmatic and window-switch focus do not light it), the default
-  background border switches to `focusBorderColor` (default
-  `Style.highlight`) and reverts to `Style.buttonText` on losing focus,
-  animated under the `animationEnabled` gate. Focusability stays at the
-  Qt default — the control does not set `activeFocusOnTab`; the mechanism
-  is ready to use once the host enables focus the Qt-standard way
-  (`activeFocusOnTab` or `forceActiveFocus`). The highlight lives inside
-  the default `background` only — replacing `background` removes it.
-  Note: `Style.highlight` may have low contrast against light track
-  colors — set `focusBorderColor` for a contrast-safe color.
+  background border switches to `Style.highlight` and reverts to
+  `Style.buttonText` on losing focus, animated under the
+  `animationEnabled` gate. The highlight color is fixed
+  (`Style.highlight`, no public property) and lives inside the default
+  `background` only — replacing `background` removes it. Focusability
+  stays at the Qt default — the control does not set `activeFocusOnTab`;
+  the mechanism is ready to use once the host enables focus the
+  Qt-standard way (`activeFocusOnTab` or `forceActiveFocus`).

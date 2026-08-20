@@ -67,12 +67,6 @@ are orthogonal:
 - `borderColor : color` (default `ThemeHQ.recommendForeground(backgroundColor)`)
   The stroke color of the track. The handle stays un-stroked (the diamond's
   small size makes a stroke visually heavy).
-- `focusBorderColor : color` (default `Style.highlight`)
-  The focus-highlight stroke color — while the control holds keyboard
-  focus (`visualFocus`, see "Interaction feedback") the default track
-  border switches to this color and reverts to `borderColor` on losing
-  focus. Set a transparent color to disable the behavior. It only affects
-  the default `background`; replacing `background` drops the behavior.
 - `animationEnabled : bool`
   Animation gate — inherited up the parent chain (the host can turn it off
   uniformly on a parent), falling back to `Style.animationEnabled`. Gates
@@ -161,13 +155,13 @@ Slider {
   (`visualFocus` — Qt's standard semantic, `true` only when focus was
   acquired through keyboard navigation, i.e. Tab/Backtab/shortcut; mouse,
   programmatic and window-switch focus do not light it), the default track
-  border switches to `focusBorderColor` (default `Style.highlight`) and
-  reverts to `borderColor` on losing focus, animated under the
-  `animationEnabled` gate. Focusability stays at the Qt default — the
-  control does not set `activeFocusOnTab`; the mechanism is ready to use
-  once the host enables focus the Qt-standard way (`activeFocusOnTab` or
-  `forceActiveFocus`). The highlight lives inside the default `background`
-  only — replacing `background` removes it.
+  border switches to `Style.highlight` and reverts to `borderColor` on
+  losing focus, animated under the `animationEnabled` gate. The highlight
+  color is fixed (`Style.highlight`, no public property) and lives inside
+  the default `background` only — replacing `background` removes it.
+  Focusability stays at the Qt default — the control does not set
+  `activeFocusOnTab`; the mechanism is ready to use once the host enables
+  focus the Qt-standard way (`activeFocusOnTab` or `forceActiveFocus`).
 
 The `handle` delegate must self-write its `x`/`y` (the `T.Slider` template
 does not inject positioning — official convention; a host replacing `handle`

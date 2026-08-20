@@ -6,8 +6,8 @@
 
 ### 变更（controls-focus-highlight，Qool.Controls 焦点高亮）
 
-- **焦点高亮行为**（Slider.qml / RangeSlider.qml / Dial.qml）：控件获得键盘焦点（`root.visualFocus`——Qt 标准语义，仅 Tab/Backtab/Shortcut 键盘原因聚焦为 true，鼠标/程序化/切窗聚焦不亮）时，默认 `background` 外边框切换至高亮色、失焦恢复——内联条件绑定（`visualFocus ? focusBorderColor : 原值`），不引入叠层/覆盖层；切换动画经 `BasicColorBehavior` 门控 `animationEnabled`（关闭时即时跳变）。Slider/RangeSlider 原值为既有 `borderColor` 属性；Dial 原值保持硬编码 `Style.buttonText`
-- **新增属性 `focusBorderColor`**（三控件，默认 `Style.highlight`）：opt-out 通道——宿主可覆盖换色、设透明即关闭；与既有 color/backgroundColor/borderColor 外观属性族对称
+- **焦点高亮行为**（Slider.qml / RangeSlider.qml / Dial.qml）：控件获得键盘焦点（`root.visualFocus`——Qt 标准语义，仅 Tab/Backtab/Shortcut 键盘原因聚焦为 true，鼠标/程序化/切窗聚焦不亮）时，默认 `background` 外边框切换至 `Style.highlight`、失焦恢复——内联条件绑定（`visualFocus ? Style.highlight : 原值`），不引入叠层/覆盖层；切换动画经 `BasicColorBehavior` 门控 `animationEnabled`（关闭时即时跳变）。Slider/RangeSlider 原值为既有 `borderColor` 属性；Dial 原值保持硬编码 `Style.buttonText`
+- **聚焦色硬编码 `Style.highlight`**：不设独立属性/opt-out 接口（grill 后用户否决 focusBorderColor 属性通道——聚焦色固定、宿主不可覆盖）
 - **Dial 新增 `animationEnabled`**：`parent?.animationEnabled ?? Style.animationEnabled`——对齐 Slider/RangeSlider 家族惯例（父链继承、回退 Style）
 - **可聚焦性不变**：不设 `activeFocusOnTab`，机制备用——宿主按 Qt 标准方式（`activeFocusOnTab`/`forceActiveFocus`）启用聚焦后行为自动生效
 - **范围**：仅 Slider/RangeSlider/Dial；排除 VerticalSlider、QoolBox 家族（依赖覆盖层机制，独立后续）
