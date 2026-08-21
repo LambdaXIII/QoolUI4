@@ -3,12 +3,12 @@
 
 #include "qoolns.hpp"
 
+#include "qool_colorliterals.h"
 #include <QColor>
 #include <QList>
 #include <QObject>
 #include <QQmlEngine>
 #include <QString>
-
 QOOL_NS_BEGIN
 
 // 局部宏：分量属性（int/F 双轨）——Q_PROPERTY 注册 + getter/setter/信号声明 + 成员。
@@ -32,6 +32,7 @@ protected:                                       \
 class ColorAssistant : public QObject {
   Q_OBJECT
   QML_ELEMENT
+  QML_EXTENDED(ColorLiterals)
 
   // ---- 核心与列表属性 ----
   Q_PROPERTY(QColor color READ color WRITE set_color NOTIFY colorChanged)

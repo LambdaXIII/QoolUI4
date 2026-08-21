@@ -9,14 +9,14 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Qool
+import Qool.Color
 import "_private"
 
 GridLayout {
     id: root
 
     // 动画总开关：父级属性 → Style 传播。
-    property bool animationEnabled: parent?.animationEnabled
-                                    ?? Style.animationEnabled
+    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
 
     // 默认状态自洽：默认实例自带默认色，独立使用成立。
     property ColorAssistant colorAssistant: ColorAssistant {

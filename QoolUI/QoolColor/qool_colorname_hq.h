@@ -3,6 +3,7 @@
 
 #include "qoolns.hpp"
 
+#include "qool_colorliterals.h"
 #include <QColor>
 #include <QObject>
 #include <QQmlEngine>
@@ -19,6 +20,7 @@ QOOL_NS_BEGIN
 class ColorNameHQ: public QObject {
   Q_OBJECT
   QML_NAMED_ELEMENT(ColorNameHQ)
+  QML_EXTENDED(ColorLiterals)
   QML_SINGLETON
 
 public:
