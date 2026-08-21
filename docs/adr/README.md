@@ -38,4 +38,10 @@
 | 0010 | Slider orientation × RTL：默认件对齐 Qt 官方接口（正交统一，visualPosition 承载镜像） |
 | 0011 | RangeSlider orientation × RTL：默认件对齐 Qt 官方接口（同 Slider 决策模式；纯色轴对称故 RTL 零处理） |
 
+### QoolUI/QoolColor/（Color 模块）
+
+| 编号 | 主题 |
+|---|---|
+| 0013 | ColorChannelSlider 高定设计：T.Slider 平级 + 通道视觉内化 + 交互契约裁剪（旧 ColorSlider 拆分收尾） |
+
 领域术语见根 `CONTEXT.md`「形状体系（QoolBox）」节。

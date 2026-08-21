@@ -28,6 +28,7 @@ qt_add_qml_module(QoolColor
     QML_FILES ColorBankPanel.qml
     SOURCES qool_colorliterals.h qool_colorliterals.cpp
     QML_FILES ColorChannelEdit.qml
+    QML_FILES ColorChannelSlider.qml
 )
 
 # _private 私有件：**不注册进模块 qmldir**（不进 QML_FILES）——仅作为普通

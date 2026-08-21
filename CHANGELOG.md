@@ -4,6 +4,16 @@
 
 ## [4.0.0] — 2026-08-21
 
+### 变更（colorchannelslider，ColorChannelSlider 通道滑块组件）
+
+- **新增公开组件 ColorChannelSlider**（Qool.Color——T.Slider 平级，ADR-0013 高定）：旧 `_private/ColorSlider.qml` 拆分工作的拖动部分（文字部分已由 ColorChannelEdit 承接）；通用单通道（`channel: int` 覆盖 14 通道枚举，无变体文件）；`value ↔ PropertyProxy ↔ colorAssistant` 无条件双向链（同值守卫收敛、onCompleted 播种、拖动写通道/外部改色回写）；sat-bump（hue + 无色相色先写 sat=0.001 再写 hue——旧 UX 契约保留）；[0,1] 裁剪（旧环绕废弃）；无 defaultValue/reset/双击重置；value 初始默认 1（hue 1≡0 无副作用）；**高定边界**——通道视觉完全内化、不暴露 fillGradient/strokeColor 外观接口，模板级 background/handle delegate 整体替换是唯一插拔口
+- **_private 视觉件**：`ColorChannelSliderTrack`（Crystal 六边形双色轨道——Colors 映射端点 + 自动对比描边 + 收缩模型对齐 Qool.Controls.Slider：side/shrinkSize、轨道双维收缩 + 全向居中）、`ColorChannelSliderTrackHue`（彩虹覆写——11 档 hsva(p,1,1,1)、锚定几何同源零重复）、`ColorChannelSliderHandle`（共享光标——Crystal 菱形 + solidColor + hover/pressed/值变化锁存三态展开 + Crystal4ContainmentMask + displayValue 位置动画，pressed 门控拖动跟手/松手平滑）、`ColorChannelSliderColors.js`（fromColor/toColor 双函数：10 静态 + Alpha/Sat 动态端点 + gradientAnchors 锚定几何单点维护）
+- **交互契约**：拖动/键盘步进/点击跳转/RTL/垂直模板免费承载；渐变端锚定值增大视觉端（ADR-0010 模式：水平 RTL 对调 x 端、垂直 from 底→to 顶）
+- **测试**：tst_colorchannelslider.qml 新增 19 用例（链双向同步/同值收敛/播种/sat-bump/裁剪/初始默认/channel 分派/静态+动态端点/光标实色/轨道几何/渐变锚定 LTR-RTL-垂直/handle 定位/background 插拔/insets）——tst_qoolcolor_qml 36/36 全绿（含 init/cleanup；既有 15 用例回归不动）
+- **文档**：`docs/reference/Qool.Color/ColorChannelSlider.md`（5 节）+ index 登记；ADR-0013 文件命名同步（_private 视觉件按 spec 定稿命名）
+- **Playground**：三通道 ColorChannelSlider 与既有 ColorChannelEdit 同 assistant 同 channel 配对演示；**反向绑定修复**——移除 `colorAssistant.color: picker.currentColor` 单向绑定（缺陷根源：编辑/拖动改色被绑定回写覆盖、效果回滚、picker 不回显），改无条件双向同步（picker 取色写 assistant、assistant 变色回写 picker，同值收敛无环）
+- **验证**：build 通过（注册面改动）；tst_qoolcolor_qml 36/36 PASS
+
 ### 变更（geolocker，Qool.GeoLocker 几何锁定器）
 
 - **新增 Qool.GeoLocker**（SmartObject 便捷工具，非 Item 容器）：把 target 的 x/y/width/height 锁定跟随 lockTo——总开关 enabled + 四维度独立开关（xEnabled/yEnabled/widthEnabled/heightEnabled，默认全 true）；target/lockTo 可为任何带四属性的对象（Item/QtObject）；内置四个 Binding（开关门控）；开关关闭 = 解除该维度锁定（目标自由、保持最后值），重开恢复
