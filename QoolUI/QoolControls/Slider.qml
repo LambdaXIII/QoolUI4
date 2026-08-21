@@ -63,12 +63,12 @@ T.Slider {
         Crystal {
             id: track
             objectName: "track" // 供 QML 测试读取（组件内部对象零暴露原则的测试例外——轨道静态性是公开视觉契约）
-            // 轨道沿主轴铺满容器（尖点贴边——Slider 不外溢）；沿法向常态收缩 +
-            // 居中（水平收缩高、垂直收缩宽）——法向居中不随镜像变化
-            width: root.horizontal ? parent.width : parent.width - pCtrl.shrinkSize
-            height: root.horizontal ? parent.height - pCtrl.shrinkSize : parent.height
-            x: root.horizontal ? 0 : pCtrl.halfShrinkSpace
-            y: root.horizontal ? pCtrl.halfShrinkSpace : 0
+
+            // 无论垂直还是水平，高度和宽度都应该缩减，保证缩减状态的handle正确对齐
+            width: parent.width - pCtrl.shrinkSize
+            height: parent.height - pCtrl.shrinkSize
+            x: pCtrl.halfShrinkSpace
+            y: pCtrl.halfShrinkSpace
             // 兜底纯色（渐变通道失效时轨道仍可见——渐进降级；渐变生效时覆盖）
             color: root.Style.accent
             // 焦点高亮：键盘聚焦（visualFocus——仅 Tab/Backtab/Shortcut 键盘
@@ -133,7 +133,7 @@ T.Slider {
         // "刚移动"感知经手柄展开反馈呈现，无需读锁存状态）。
         TimerLatch {
             id: latch
-            interval: 500
+            interval: Style.movementDuration * 2
             Connections {
                 target: root
                 function onValueChanged() {
@@ -210,7 +210,7 @@ T.Slider {
                 target: root.Style
                 function onValueChanged(group, key) {
                     if (key === "accent" || key === "buttonText")
-                        crystal.updateColor()
+                        crystal.updateColor();
                 }
             }
 

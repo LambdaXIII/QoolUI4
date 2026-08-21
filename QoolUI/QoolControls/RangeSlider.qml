@@ -73,11 +73,10 @@ T.RangeSlider {
             }
             color: Qt.alpha(root.Style.buttonText, 0.75)
             // 轨道沿主轴铺满（尖点贴边不外溢）、沿法向常态收缩 + 居中
-            // （水平收缩高、垂直收缩宽）——法向居中不随镜像变化
-            width: root.horizontal ? parent.width : parent.width - pCtrl.shrinkSize
-            height: root.horizontal ? parent.height - pCtrl.shrinkSize : parent.height
-            x: root.horizontal ? 0 : pCtrl.halfShrinkSpace
-            y: root.horizontal ? pCtrl.halfShrinkSpace : 0
+            width: parent.width - pCtrl.shrinkSize
+            height: parent.height - pCtrl.shrinkSize
+            x: pCtrl.halfShrinkSpace
+            y: pCtrl.halfShrinkSpace
         }
     }
 
@@ -103,10 +102,8 @@ T.RangeSlider {
         // （水平行程 = availableWidth − w×2、垂直 = availableHeight − h×2——
         // 两 handle 各自占侧、任意值不相交）。RTL 由模板免费承载（vertical +
         // RTL 时 visualPosition 仍反转，跟随 Qt 模板语义——不特判）
-        x: root.horizontal ? root.leftPadding + root.first.visualPosition * (root.availableWidth - width * 2)
-                           : root.leftPadding + root.availableWidth / 2 - width / 2
-        y: root.horizontal ? root.topPadding + root.availableHeight / 2 - height / 2
-                           : root.topPadding + root.first.visualPosition * (root.availableHeight - height * 2)
+        x: root.horizontal ? root.leftPadding + root.first.visualPosition * (root.availableWidth - width * 2) : root.leftPadding + root.availableWidth / 2 - width / 2
+        y: root.horizontal ? root.topPadding + root.availableHeight / 2 - height / 2 : root.topPadding + root.first.visualPosition * (root.availableHeight - height * 2)
         z: 10
 
         MouseArea {
@@ -122,10 +119,8 @@ T.RangeSlider {
         // first 宽处起步）、垂直 + height（从 first 高处起步）
         width: root.horizontal ? pCtrl.side / 2 : pCtrl.side
         height: root.horizontal ? pCtrl.side : pCtrl.side / 2
-        x: root.horizontal ? root.leftPadding + width + root.second.visualPosition * (root.availableWidth - width * 2)
-                           : root.leftPadding + root.availableWidth / 2 - width / 2
-        y: root.horizontal ? root.topPadding + root.availableHeight / 2 - height / 2
-                           : root.topPadding + height + root.second.visualPosition * (root.availableHeight - height * 2)
+        x: root.horizontal ? root.leftPadding + width + root.second.visualPosition * (root.availableWidth - width * 2) : root.leftPadding + root.availableWidth / 2 - width / 2
+        y: root.horizontal ? root.topPadding + root.availableHeight / 2 - height / 2 : root.topPadding + height + root.second.visualPosition * (root.availableHeight - height * 2)
         z: 10
 
         MouseArea {
@@ -147,7 +142,7 @@ T.RangeSlider {
         // 瞬间前景收缩再展开的闪动。
         TimerLatch {
             id: latch
-            interval: 500
+            interval: Style.movementDuration * 2
             Connections {
                 target: root.first
                 function onValueChanged() {
@@ -170,14 +165,10 @@ T.RangeSlider {
             // 故 abs（区间大小镜像无关）；法向满宽/满高 + 居中。LTR 水平下
             // min/abs 数学等价既有公式（不破水平行为）。Crystal 连体尖角外溢
             // 余量随轴换：水平 = height、垂直 = width（切角 = 短边/2）
-            x: root.horizontal ? Math.min(root.first.visualPosition, root.second.visualPosition) * (parent.width - height)
-                               : parent.width / 2 - width / 2
-            y: root.horizontal ? parent.height / 2 - height / 2
-                               : Math.min(root.first.visualPosition, root.second.visualPosition) * (parent.height - width)
-            width: root.horizontal ? (parent.width - height) * Math.abs(root.second.visualPosition - root.first.visualPosition) + height
-                                   : parent.width
-            height: root.horizontal ? parent.height
-                                    : (parent.height - width) * Math.abs(root.second.visualPosition - root.first.visualPosition) + width
+            x: root.horizontal ? Math.min(root.first.visualPosition, root.second.visualPosition) * (parent.width - height) : parent.width / 2 - width / 2
+            y: root.horizontal ? parent.height / 2 - height / 2 : Math.min(root.first.visualPosition, root.second.visualPosition) * (parent.height - width)
+            width: root.horizontal ? (parent.width - height) * Math.abs(root.second.visualPosition - root.first.visualPosition) + height : parent.width
+            height: root.horizontal ? parent.height : (parent.height - width) * Math.abs(root.second.visualPosition - root.first.visualPosition) + width
 
             // hover 展开反馈驱动源：前景 hover 即展开、离开收缩——与下方
             // latch（值变化锁存）共同驱动 resized（hovered || latch.active）。
