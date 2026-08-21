@@ -28,8 +28,6 @@
 // 显示 solidColor 实色。orientation/RTL 由模板免费承载，渐变端锚定值增大
 // 视觉端（ADR-0010 模式）。
 
-pragma ComponentBehavior: Bound
-
 import QtQuick
 import QtQuick.Templates as T
 import Qool
@@ -41,8 +39,7 @@ T.Slider {
 
     // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
     // 声明序首位（AGENTS MUST——统一声明序）。
-    property bool animationEnabled: parent?.animationEnabled
-                                    ?? Style.animationEnabled
+    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
     // 通用通道寻址（ColorLiterals 枚举，对齐 ColorChannelEdit——无需
     // per-channel 变体文件）。
     property int channel: ColorNameHQ.HSLHue
@@ -67,14 +64,11 @@ T.Slider {
         // 法向尺寸抽象：side = 法向可用尺寸（水平 = 可用高、垂直 = 可用
         // 宽）——横竖对称、镜像无关（法向居中不随镜像变化）；手柄边长/
         // 收缩量/轨道收缩全部基于它（Qool.Controls.Slider 同款模型）。
-        readonly property real side: root.horizontal
-                                     ? root.availableHeight
-                                     : root.availableWidth
+        readonly property real side: root.horizontal ? root.availableHeight : root.availableWidth
         readonly property real shrinkSize: Qore.bound(3, side * 0.25, 25)
         readonly property real halfShrinkSpace: shrinkSize / 2
         // Hue 通道（HSV/HSL 共用）→ 彩虹轨道特化
-        readonly property bool hueChannel: root.channel === ColorNameHQ.HSVHue
-                                           || root.channel === ColorNameHQ.HSLHue
+        readonly property bool hueChannel: root.channel === ColorNameHQ.HSVHue || root.channel === ColorNameHQ.HSLHue
         // 播种完成标记：完成前位置动画关闭（创建/播种期不动画——初始
         // 定位无动画惯例，ColorCursor initialized 同款延迟一帧）。
         property bool seedDone: false
@@ -91,8 +85,7 @@ T.Slider {
 
         Loader {
             anchors.fill: parent
-            sourceComponent: pCtrl.hueChannel ? hueTrackComponent
-                                              : baseTrackComponent
+            sourceComponent: pCtrl.hueChannel ? hueTrackComponent : baseTrackComponent
         }
     }
 
@@ -157,9 +150,9 @@ T.Slider {
     Connections {
         target: proxy
         function onValueChanged() {
-            const v = proxy.value
+            const v = proxy.value;
             if (v >= 0 && v <= 1)
-                root.value = v
+                root.value = v;
         }
     }
 
@@ -170,14 +163,14 @@ T.Slider {
         function onValueChanged() {
             // 限幅：模板拖动映射恒在界内，越界仅外部程序写入——裁剪可达
             // 同等安全（旧环绕废弃）；NaN 透传不写（防御——不污染通道）。
-            const v = Math.max(0, Math.min(1, root.value))
+            const v = Math.max(0, Math.min(1, root.value));
             if (Number.isNaN(v))
-                return
+                return;
             if (v !== root.value) {
-                root.value = v
-                return
+                root.value = v;
+                return;
             }
-            writeChannel(v)
+            writeChannel(v);
         }
     }
 
@@ -185,13 +178,11 @@ T.Slider {
     // sat = 0.001 再写 hue——sat=0 时色相无意义、直接写 hue 不产生预期
     // 颜色（旧 UX 契约，勿删/勿改为 0）。
     function writeChannel(v) {
-        if (root.channel === ColorNameHQ.HSVHue
-                && root.colorAssistant.hsvHueF < 0)
-            root.colorAssistant.hsvSaturationF = 0.001
-        else if (root.channel === ColorNameHQ.HSLHue
-                 && root.colorAssistant.hslHueF < 0)
-            root.colorAssistant.hslSaturationF = 0.001
-        proxy.value = v
+        if (root.channel === ColorNameHQ.HSVHue && root.colorAssistant.hsvHueF < 0)
+            root.colorAssistant.hsvSaturationF = 0.001;
+        else if (root.channel === ColorNameHQ.HSLHue && root.colorAssistant.hslHueF < 0)
+            root.colorAssistant.hslSaturationF = 0.001;
+        proxy.value = v;
     }
 
     Component.onCompleted: {
@@ -199,9 +190,9 @@ T.Slider {
         // 时 target/property 绑定求值 + 初始同步 read）。越界（无色相 hue）
         // 跳过——保留默认 1（hue 1≡0 循环等价无副作用）；播种写回同值 →
         // assistant 相等守卫无环。之后解锁位置动画。
-        const v = proxy.value
+        const v = proxy.value;
         if (v >= 0 && v <= 1)
-            root.value = v
-        pCtrl.seedDone = true
+            root.value = v;
+        pCtrl.seedDone = true;
     }
 }
