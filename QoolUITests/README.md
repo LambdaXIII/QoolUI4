@@ -48,6 +48,8 @@ QoolUITests/
 
 > 测试 exe 输出在 `build/build-<kit>-<Type>/QoolUITests/{common,core,qml}` 三层；测试 target 在默认构建（all）中——`cmake --build build/build-<kit>-<Type>` 即构建测试（落地修正：EXCLUDE_FROM_ALL 导致 QtCreator 面板运行前构建不含测试、exe 缺失全红，已移除）。
 
+> **QML 测试与 Qt Creator 的 QuickTest 集成不兼容（重要）**：本设施 QML harness 共享同一个 `qml_test_main.cpp`（各批次经编译宏 `-D QUICK_TEST_SOURCE_DIR=...` 注入批次目录），Qt Creator 的 QuickTest 扫描器无法从该 cpp 推断「exe ↔ QML 目录」对应关系（同一 cpp 被多个 target 编译 → 关联歧义）。表现为：Tests 面板只能发现默认目录（`tst_qool_qml/`）的 QML 测试，且运行 QML 测试时弹出「选择 executable」、列出全部 EXECUTABLE；其余批次的 QML 测试根本不被发现。**QML 测试一律通过 CTest 运行**（`ctest --preset dev-<kit>-<type>`，或筛选 `ctest -R "tst_.*_qml"` / `--rerun-failed`），不要依赖 Qt Creator 面板的 QuickTest 运行按钮。
+
 ### Windows 一键（环境+配置+构建+测试）
 
 ```bash

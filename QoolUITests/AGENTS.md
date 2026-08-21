@@ -84,6 +84,8 @@ Windows 一键（环境+配置+构建+测试）操作流程见 `README.md`（`py
   - **可靠**：eval 内核 python subprocess + `stdout=open(tmp,"wb")` 文件重定向（真实 CreateProcess，不受 MSYS 影响）；真实终端（cmd/PowerShell/PTY）；直接运行 `exe -input <绝对路径> -platform offscreen`
   - **不可靠**：MSYS bash 直接跑 exe、bash 内 python 脚本的 subprocess stdout 捕获（rc 可信、stdout 不可信）——测试输出验证一律走 eval 内核或真实终端，不在 bash 里判读
 - ctest `--output-on-failure`（testPresets 已配置 `outputOnFailure:true`）在可靠通道下失败时完整透出聚合 exe 内部 FAIL! 详情（Actual/Expected/location）
+- **QML harness（Qt Quick Test）结果不进 stdout**（踩坑）：`QUICK_TEST_MAIN_WITH_SETUP` 的 `Totals`/`PASS`/`FAIL!` 默认不写 stdout——`capture_output` 或 stdout 重定向只能拿到 stderr 的 "QML debugging is enabled"，**误判成「测试没跑/全跳过」**。可靠取结果：`-o <file>,txt` 落盘后读文件（`tst_qool_qml.exe -platform offscreen -o res.txt,txt`）。ctest `--output-on-failure` 与聚合 target 不受影响（内部走该落盘机制）
+- **QtCreator QuickTest 面板与 QML harness 不兼容（exe 关联歧义）**：本设施 QML harness 共享同一 `qml_test_main.cpp`、批次目录经编译宏注入，Qt Creator 的 QuickTest 扫描器无法推断「exe ↔ QML 目录」对应（同 cpp 多 target 编译）——Tests 面板只能发现默认目录（`tst_qool_qml/`）的 QML 测试，运行 QML 测试时弹「选择 executable」列出全部 EXECUTABLE，其余批次不被发现。`run_tests`（Autotest「Run All」）因此也跑不到 QML 用例——面板 `run_tests` 通过 ≠ QML 已跑。**QML 批次一律走 ctest**（`ctest -R "tst_.*_qml"` / `--rerun-failed`）或直接跑 exe。方案 B（CTest 通道）定案：不改为每批次独立 cpp，README 已记录该限制
 
 ## 已知经验（Windows 特有，供跨平台对照）
 

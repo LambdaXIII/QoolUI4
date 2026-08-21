@@ -4,6 +4,12 @@
 
 ## [4.0.0] — 2026-08-22
 
+### 变更（qml-test-run-channels，QML 测试运行通道摩擦记录）
+
+- **QML harness（Qt Quick Test）结果不进 stdout**：`QUICK_TEST_MAIN_WITH_SETUP` 的 `Totals`/`PASS`/`FAIL!` 默认不写 stdout——`capture_output` 或 stdout 重定向只能拿到 stderr 的 "QML debugging is enabled"，易误判「测试没跑/全跳过」；可靠取结果 `-o <file>,txt` 落盘后读文件
+- **QtCreator QuickTest 面板与 QML harness 不兼容（exe 关联歧义）**：QML harness 共享同一 `qml_test_main.cpp`、批次目录经编译宏注入，Qt Creator QuickTest 扫描器无法推断「exe ↔ QML 目录」对应（同 cpp 多 target 编译）——Tests 面板只能发现默认目录（`tst_qool_qml/`）的 QML 测试，运行弹「选择 executable」列全部 EXECUTABLE，其余批次不被发现；`run_tests` 面板通过 ≠ QML 已跑。**QML 批次一律走 ctest**（`ctest -R "tst_.*_qml"` / `--rerun-failed`）；方案 B（CTest 通道）定案，不改为每批次独立 cpp
+- **验证**：三批 QML harness（tst_qool/controls/color_qml）经 ctest 或 `-o` 落盘 117+49+42=208 全绿；C++ 292 全绿；QML 测试始终正常，前述「跳过/卡住」为观测通道（Qt Creator 面板 vs add_test 参数）差异，非测试缺陷
+
 ### 变更（colorchannelcontrol，ColorChannelControl 单通道组合行组件）
 
 - **新增公开组件 ColorChannelControl**（Qool.Color——Control 基座组合 ColorChannelEdit + ColorChannelSlider，旧 `_private/ColorSlider.qml` 单控件形态还原）：contentItem ColumnLayout 竖直堆叠（编辑在上、滑块在下、两行等宽 fillWidth、零间距），外壳隐式高 = 编辑高 + 滑块高（内容贴合）
