@@ -36,9 +36,12 @@ public:
 
   explicit ColorLiterals(QObject* parent = nullptr);
 
-  Q_INVOKABLE QString channelName(Channels channel) const;  // 属性名
-  Q_INVOKABLE QString channelNameF(Channels channel) const; // F系列属性名
-  Q_INVOKABLE QString channelTag(Channels channel) const; // 外观标签文本
+  Q_INVOKABLE QString channelName(int channel) const;  // 属性名
+  Q_INVOKABLE QString channelNameF(int channel) const; // F系列属性名
+  Q_INVOKABLE QString channelTag(int channel) const;   // 外观标签文本
+
+  Q_INVOKABLE static QString formatChannelNumberFloat(
+      qreal num); // 格式化归一化通道数值
 
 protected:
   static QHash<int, QString> m_channelNames;

@@ -207,3 +207,112 @@ elseif(EXISTS "${QT6_QUICKSHAPES_DLL_RELEASE}")
   )
 endif()
 
+# ---- Qool.Color 模块的 QML 测试批次 ----
+# 覆盖 Qool.Color（ColorChannelEdit——通道值编辑 + ColorAssistant 双向同步）。
+# 依赖链：Qool + QoolControls（EditableText 基础件）+ QoolColor。DLL 复制与
+# LINK_DEPENDS 同 tst_qoolcontrols_qml 策略（QML 修改只更新 DLL 的 qrc 资源，
+# 无 LINK_DEPENDS 时 exe 不重链、POST_BUILD 不执行，副本过期静默加载旧组件）。
+add_executable(tst_qoolcolor_qml qml_test_main.cpp)
+
+target_link_libraries(
+  tst_qoolcolor_qml PRIVATE Qt6::QuickTest Qt6::Qml
+)
+
+set_property(TARGET tst_qoolcolor_qml APPEND PROPERTY
+  LINK_DEPENDS
+    "$<TARGET_FILE:Qool>"
+    "$<TARGET_FILE:QoolControls>"
+    "$<TARGET_FILE:QoolControlsComponents>"
+    "$<TARGET_FILE:QoolColor>")
+
+target_compile_definitions(
+  tst_qoolcolor_qml
+  PRIVATE QUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tst_qoolcolor_qml"
+  PRIVATE QOOLUI_TEST_QML_IMPORT_PATH="${QT_QML_OUTPUT_DIRECTORY}"
+)
+
+add_test(NAME tst_qoolcolor_qml COMMAND tst_qoolcolor_qml -platform offscreen)
+
+list(APPEND QOOLUI_TEST_TARGETS tst_qoolcolor_qml)
+set(QOOLUI_TEST_TARGETS ${QOOLUI_TEST_TARGETS} CACHE INTERNAL "")
+set(QOOLUI_TEST_ARGS_tst_qoolcolor_qml "-platform;offscreen" CACHE INTERNAL "")
+
+# 依赖 DLL 复制到 exe 目录（同 tst_qoolcontrols_qml 策略 + QoolColor 本体）。
+if(WIN32)
+  add_custom_command(
+    TARGET tst_qoolcolor_qml POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:tst_qoolcolor_qml> $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:Qool> $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:Qool> $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:QoolControls> $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:QoolControls> $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:QoolControlsComponents> $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:QoolControlsComponents> $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:QoolColor> $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:QoolColor> $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+    COMMAND_EXPAND_LISTS
+  )
+else()
+  add_custom_command(
+    TARGET tst_qoolcolor_qml POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:Qool> $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:QoolControls> $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:QoolControlsComponents> $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:QoolColor> $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+  )
+endif()
+if(EXISTS "${QT6_QUICKSHAPES_DLL_DEBUG}")
+  add_custom_command(
+    TARGET tst_qoolcolor_qml POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${QT6_QUICKSHAPES_DLL_DEBUG}" $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+  )
+elseif(EXISTS "${QT6_QUICKSHAPES_DLL_RELEASE}")
+  add_custom_command(
+    TARGET tst_qoolcolor_qml POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${QT6_QUICKSHAPES_DLL_RELEASE}" $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+  )
+endif()
+
+# ColorChannelEdit import QtQuick.Layouts（RowLayout）——引擎运行时加载
+# qquicklayoutsplugin，依赖 Qt6QuickLayoutsd.dll；该 DLL 非任何 target 的
+# 链接依赖（QML 插件，QML import 时才加载），同 QuickShapes 策略 find_file
+# 定位复制。
+find_file(QT6_QUICKLAYOUTS_DLL_DEBUG
+  NAMES Qt6QuickLayoutsd.dll
+  HINTS "${QOOLUI_QT6_PREFIX}/bin"
+  NO_DEFAULT_PATH
+)
+find_file(QT6_QUICKLAYOUTS_DLL_RELEASE
+  NAMES Qt6QuickLayouts.dll
+  HINTS "${QOOLUI_QT6_PREFIX}/bin"
+  NO_DEFAULT_PATH
+)
+if(EXISTS "${QT6_QUICKLAYOUTS_DLL_DEBUG}")
+  add_custom_command(
+    TARGET tst_qoolcolor_qml POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${QT6_QUICKLAYOUTS_DLL_DEBUG}" $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+  )
+elseif(EXISTS "${QT6_QUICKLAYOUTS_DLL_RELEASE}")
+  add_custom_command(
+    TARGET tst_qoolcolor_qml POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${QT6_QUICKLAYOUTS_DLL_RELEASE}" $<TARGET_FILE_DIR:tst_qoolcolor_qml>
+  )
+endif()
+

@@ -121,6 +121,19 @@ editable controls (ComboBox, SpinBox, ...).
   another presentation component). Hidden while editing (opacity switch — not
   unloaded; restored when the session ends).
 
+  **Design intent — replacing `displayItem` decouples display from `text`.**
+  The default `Text` exists as a ready upper layer only; overriding
+  `displayItem` is the sanctioned way to detach the display from the
+  `text`/`displayText` chain — bind the replacement's content to any
+  external source (a real data value, a different derivation), and `text`
+  degrades to the pure saved form (edit baseline + commit target). The
+  edit session is unaffected: it always opens with `editText` (the saved
+  form) and commits through `textFromEditText`. When the display no longer
+  derives from `text`, the host keeps the edit baseline fresh — e.g. a
+  `Binding` writing `text` while not editing — otherwise the next edit
+  session opens with a stale value. The default display layer stays
+  available and is simply not used.
+
 - `displayTextFromText : var` (default: identity function)
   Pluggable function: `text` (saved form) → display text — the
   presentation-process conversion (masking/formatting and other display

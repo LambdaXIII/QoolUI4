@@ -9,7 +9,8 @@ Qool.Color 提供完整的颜色操纵组件面：
   `RandomHSVColorGenerator`。
 - 编辑面板：`HSVPanel`、`HSLPanel`、`RGBPanel`、`CMYKPanel`——
   数字输入 + 表面控件 + 滑块组合，可注入共享 ColorAssistant。
-- 取色/编辑/预览：`ColorQuickPicker`、`ColorEdit`、`ColorPreviewer`。
+- 取色/编辑/预览：`ColorQuickPicker`、`ColorEdit`、`ColorChannelEdit`
+  （单通道值编辑）、`ColorPreviewer`。
 - 列表与银行：`ColorNameList`（分类色名选择）、`ColorBankPanel`
   （槽位存取）。
 
@@ -19,6 +20,7 @@ Qool.Color 提供完整的颜色操纵组件面：
 - [ColorAssistant](ColorAssistant.md)
 - [ColorBank](ColorBank.md)
 - [ColorBankPanel](ColorBankPanel.md)
+- [ColorChannelEdit](ColorChannelEdit.md)
 - [ColorEdit](ColorEdit.md)
 - [ColorHueCycleModel](ColorHueCycleModel.md)
 - [ColorNameHQ](ColorNameHQ.md)

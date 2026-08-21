@@ -1,5 +1,7 @@
 #include "qool_colorliterals.h"
+#include "qoolcommon/math.hpp"
 #include <QMutex>
+QOOLCOMMON_MATH_MARK
 QOOL_NS_BEGIN
 
 QHash<int, QString> ColorLiterals::m_channelNames{
@@ -45,18 +47,25 @@ QHash<int, QString> ColorLiterals::m_channelTags{
 ColorLiterals::ColorLiterals(QObject* parent)
   : QObject{parent} { }
 
-QString ColorLiterals::channelName(Channels channel) const {
+QString ColorLiterals::channelName(int channel) const {
   return m_channelNames[channel];
 }
 
-QString ColorLiterals::channelNameF(Channels channel) const {
+QString ColorLiterals::channelNameF(int channel) const {
   QString result{channelName(channel)};
   result.append('F');
   return result;
 }
 
-QString ColorLiterals::channelTag(Channels channel) const {
+QString ColorLiterals::channelTag(int channel) const {
   return m_channelTags.value(channel, "???");
+}
+
+QString ColorLiterals::formatChannelNumberFloat(qreal num) {
+  if (math::is_zero(num)) return QStringLiteral("0");
+  if (math::is_equal(num, 1.0)) return QStringLiteral("1");
+  int a = int(std::round(num * 1000.0)) % 1000;
+  return QString(".%1").arg(a);
 }
 
 void __variantify_string_hash(

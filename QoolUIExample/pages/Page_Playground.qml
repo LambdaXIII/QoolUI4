@@ -6,6 +6,7 @@
 import QtQuick
 import Qool
 import Qool.Controls
+import Qool.Color
 import Qool.Debug
 import QtQuick.Layouts
 
@@ -15,10 +16,28 @@ BasicPage {
     title: qsTr("测试场")
     note: qsTr("调试用例（RangeSlider 调试中）")
 
-    Tumbler {
-        x: 30
-        y: 30
-        model: 4
-        RectResizer {}
+    ColorAssistant {
+        id: ca
+        color: picker.currentColor
+        onColorChanged: console.log(color)
+    }
+
+    Column {
+        ColorQuickPicker {
+            id: picker
+            defaultColor: "red"
+        }
+        ColorChannelEdit {
+            colorAssistant: ca
+            channel: ColorNameHQ.HSVHue
+        }
+        ColorChannelEdit {
+            colorAssistant: ca
+            channel: ColorNameHQ.HSVSaturation
+        }
+        ColorChannelEdit {
+            colorAssistant: ca
+            channel: ColorNameHQ.HSVValue
+        }
     }
 }

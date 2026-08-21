@@ -4,6 +4,26 @@
 
 ## [4.0.0] — 2026-08-21
 
+### 变更（colorchanneledit-displayitem-validator，ColorChannelEdit 显示解耦 + 输入校验 + EditableText 文档）
+
+- **显示层重构（displayItem 覆写）**：显示从「劫持 editor.text（Binding 写保存形式当显示）」改为覆写 EditableText.displayItem——显示直连真实源 format(proxy.value)，text 退化为纯保存形式（编辑基准 + 收尾提交目标）——EditableText displayItem 插拔设计意图（显示与 text 解耦）落地，外部联动不经 text 中转；textFromEditText 收尾钩子职责回归纯转换（写 value + 返回规范化串）
+- **同步机制改为手动（确定性）**：显示与编辑基准经 update_display() 手动同步（onCompleted 播种 + proxy.valueChanged 驱动）——实证任何声明式绑定初始求值都早于 PropertyProxy 观察建立（target/property 为绑定、组件完成时才求值；初始同步不发 valueChanged）→ 冻结未就绪 NaN；Binding 组件 when 恢复时依赖未变回放陈旧 NaN 缓存（rejected 路径回放 ".-648" 实证）；声明序前置方案亦不成立（引擎不保证绑定求值序）——手动同步不依赖求值序
+- **输入校验（validator）**：RegularExpressionValidator 正则 `^[+-]?(\d+(\.\d*)?|\.\d+)$`——允许无前导零（显示格式 ".350" 可直接输入）、拒绝空串/非法/科学计数法；只验格式不设范围——DoubleValidator 的 locale 依赖会接受分组符/阿拉伯数字（"1,234" 误解析），且范围校验破坏 x>1 → /1000 约定；非法输入收尾 rejected（不写 text、不调 textFromEditText）→ 显示自然回位
+- **EditableText.md 文档补充**：displayItem 条目新增「Design intent——replacing displayItem decouples display from text」段——覆写是接触 displayText/text 绑定的正规途径（显示绑外部源、text 退化为纯保存形式）、宿主自管编辑基准、编辑会话不受影响、默认 display 层闲置不用的合法状态
+- **ColorChannelEdit reference 文档**：新建 `docs/reference/Qool.Color/ColorChannelEdit.md`（5 节——概述/Numeric convention/属性/信号/方法/使用示例）+ index.md 登记
+- **测试**：tst_colorchanneledit.qml 新增 test_displayItem（显示直连真实源、外部联动不经 text）、test_validator（非法 rejected/空串/无前导零/带符号接受）——13 用例全 PASS
+- **验证**：build 通过；tst_qoolcolor_qml 13/13 PASS
+
+### 变更（colorchanneledit-sync-tests，ColorChannelEdit 同步重构 + Qool.Color 测试批次）
+
+- **ColorChannelEdit 同步架构定案**（与用户逐轮确认）：`value ↔ colorAssistant` 无条件双向同步——`value` 为组件源/唯一写入口（编辑收尾 `textFromEditText` 解析后只写 `value`），`proxy`（PropertyProxy）仅承担 `channelNameF` 动态寻址桥，显示读真实源 `proxy.value`。**不搬 `_private` ChannelSlider 的 `userInteracting` 互斥门控**——该门控是为 slider 拖动每帧连续写值的防抖层，文本编辑是离散收尾写一次（parseChannelValue 限幅保证写读同值、同值守卫收敛），无此场景
+- **修复三处确定性缺陷**：
+  - **首帧空白**：显示依赖 `proxy.value` 的事件链（PropertyProxy 初始同步不发 `valueChanged`）→ 显示改声明式 Binding 读真实源 + `Component.onCompleted` 播种（proxy.target/property 为绑定、组件完成才求值，Binding 初始求值读到未就绪 NaN `".-648"`——测试实证）
+  - **收尾不回位**（编辑结束显示停留用户原文）：Binding 组件目标被程序化写后不重新应用 → `textFromEditText` 返回规范化串 `format(解析值)`（text 收尾即规范形式，值相同/空输入同样回位）
+  - **解析语义**：自创 `valueFromText`（无小数点前置点）改仓库 `parseChannelValue` 约定（x>1 → /1000、限幅 [0,1]、NaN 透传）；空输入/非法（NaN）不写数据
+- **新增 Qool.Color QML 测试批次**（`tst_qoolcolor_qml`，`QoolUITests/qml/tst_qoolcolor_qml/`，11 用例）：初始显示 / 读链（assistant→value→显示）/ 写链（value→assistant 通道+color）/ 编辑收尾（程序化 + 真实交互聚焦键入失焦路径）/ 值相同规范化 / NaN 不写 / 解析语义 / **绑定源场景**（colorAssistant.color 绑外部源：编辑写链不破坏绑定、外部源变化仍跟随——C++ setter 赋值不破坏 QML 绑定，Playground「编辑后颜色不变化」为观察位置问题非组件缺陷，写链本身经测试确认贯通）。批次依赖 QtQuick.Layouts（RowLayout）——DLL 复制补 `Qt6QuickLayouts`（find_file 模式，同 QuickShapes 策略）
+- **验证**：`tst_qoolcolor_qml` 11/11 PASS；重建 QoolColor + 重链 harness 通过
+
 ### 变更（cpp-conventions + qool-final-removal，C++ 惯例落盘 + 全 Qool 去 FINAL + PropertyProxy 合规）
 
 - **AGENTS 编码规范新增惯例（MUST）**：
