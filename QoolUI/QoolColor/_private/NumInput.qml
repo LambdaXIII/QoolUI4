@@ -28,12 +28,12 @@ import Qool.Color
 //
 // 数值输入约定（刻意设计）
 // 本组件被 Color 面板用作 0..1 通道值输入框（HSV/HSL/RGB/CMYK 各通道）。
-// 该约定收拢为 parseChannelValue() 一个入口：
-// - 输入 `x` > 1 时按 `x` / 1000 处理——允许用户直接键入 0..1000 的
-//   整数来表示 0..1 的比例（如 `350` 表示 0.35），这是面板行为，
-//   不是 bug，请勿"修复"为普通除法或删除。
-// - 结果限幅到 [0, 1]（与 `Tools.limitNumber(x, 0, 1)` 等价；
-//   NaN 透传，消费方自行处理空输入）。
+// 该约定收拢为 parseChannelValue() 一个入口（委托
+// ColorNameHQ.parseChannelNumberFloat——统一实现）：清洗输入（仅保留
+// 数字与第一个小数点）→ 无小数点头部补点（整数输入按纯小数解释，
+// 如 `350` → ".350" → 0.35——对齐显示格式的无前导零约定，非 bug，
+// 请勿"修复"为普通除法或删除）→ 解析数字（失败 NaN 透传，消费方
+// 自行处理空输入）。
 //
 // 为什么在 Color/_private 而非 Controls
 // 本件暂不耦合 Controls（拍平件的消费方只有 Color 模块内部），TODO：
@@ -293,12 +293,12 @@ T.Control {
         }
     }
 
-    // 方法 parseChannelValue(s)：real：将输入字符串解析为 0..1 归一化通道值。
-    // - `parseFloat` 解析；
-    // - 结果 `x` > 1 时按 `x` / 1000 处理（允许键入 0..1000 整数表示
-    //   0..1 比例，刻意设计，勿当 bug 修）；
-    // - 限幅到 [0, 1]；NaN 透传（与 `Tools.limitNumber` 一致，
-    //   消费方自行处理空输入）。
+    // 方法 parseChannelValue(s)：real：将输入字符串解析为归一化通道值
+    // （委托 ColorNameHQ.parseChannelNumberFloat——统一实现，与
+    // formatChannelNumberFloat 配对）：清洗输入（仅保留数字与第一个
+    // 小数点）→ 无小数点头部补点（整数输入按纯小数解释：350 → ".350"
+    // → 0.35——对齐显示格式的无前导零约定）→ 解析数字（失败 NaN 透传，
+    // 消费方自行处理空输入）。
     //
     // 典型用法（Color 面板通道输入）：
     //     Connections {
@@ -309,14 +309,7 @@ T.Control {
     //         }
     //     }
     function parseChannelValue(s) {
-        let x = parseFloat(s)
-        if (x > 1)
-            x = x / 1000
-        if (x < 0)
-            return 0
-        if (x > 1)
-            return 1
-        return x
+        return ColorNameHQ.parseChannelNumberFloat(s)
     }
 
     // 方法 edit()：外部主动进入编辑态（等价点击行为）。

@@ -12,10 +12,11 @@ import Qool.Controls
 //   ".500"），首帧即正确（不空白）
 // - 读链：assistant 通道变化 → root.value 跟随 + 显示更新
 // - 写链：root.value 写入（程序化 / 编辑收尾）→ assistant 通道变化
-// - 编辑收尾：textFromEditText 解析（parseChannelValue 语义）→ 写
-//   root.value → assistant
-// - NaN 输入：空/非法不写数据，显示回位
-// - 解析语义：350 → 0.35、5 → 0.005、1.5 → 1（限幅）、空 → NaN
+// - 编辑收尾：textFromEditText 解析（ColorNameHQ.parseChannelNumberFloat
+//   统一语义——清洗+补点）→ 写 root.value → assistant
+// - NaN 输入：空/非法不写数据（validator 拒绝 + 解析 NaN 双路径），显示回位
+// - 解析语义：350 → .350 = 0.35（无点头部补点）、1.5 保留原值、空 → NaN；
+//   格式化四种输出 '0'/'1'/'.xxx'/'NaN'（format/parse 配对）
 //
 // 隔离：每个测试函数独立实例；动画统一关闭。
 // 编辑会话模拟：editing/editText 程序化进出（EditableText Qool 扩展——
@@ -91,7 +92,7 @@ TestCase {
     function test_editCommit() {
         const e = makeEdit()
         const ed = editorOf(e)
-        // 进会话 → 输入 "350"（parseChannelValue: 350/1000 = 0.35）→ 收尾
+        // 进会话 → 输入 "350"（parseChannelNumberFloat: 350 → .350 = 0.35）→ 收尾
         ed.editing = true
         ed.editText = "350"
         ed.editing = false
@@ -113,8 +114,8 @@ TestCase {
     }
 
     // —— NaN 输入：空/非法不写数据，显示回位（空串现由 validator 拒绝——
-    // rejected 不调 textFromEditText；parseChannelValue 的 NaN 透传契约仍
-    // 保留，见 parseSemantics）——
+    // rejected 不调 textFromEditText；parseChannelNumberFloat 的 NaN 透传
+    // 契约仍保留，见 parseSemantics）——
     function test_nanNoWrite() {
         const e = makeEdit()
         const ed = editorOf(e)
@@ -140,11 +141,46 @@ TestCase {
         ed.editText = "350"
         ed.editing = false
         tryCompare(ed.displayItem, "text", ".350", 500, "display follows commit")
+        // 几何统一锚定：displayItem fill 内容容器（EditableText 内部处理，
+        // 覆写者不声明几何）
+        tryCompare(ed.displayItem, "width", ed.width, 500,
+                   "display fills content area (width)")
+        tryCompare(ed.displayItem, "height", ed.height, 500,
+                   "display fills content area (height)")
+    }
+
+    // 编辑框宽度锁定的度量（对齐测试用——PixelFont.normal 同源）
+    FontMetrics {
+        id: testFm
+        font: PixelFont.normal
+    }
+
+    // —— 字体统一：标签/显示/编辑层同源（PixelFont.normal，MozartNBP
+    // 24px——ChannelNumText 统一组件）——
+    function test_fontUnified() {
+        const e = makeEdit()
+        const ed = editorOf(e)
+        // 显示（displayItem = ChannelNumText）
+        compare(ed.displayItem.font.family, PixelFont.family, "display font = PixelFont")
+        compare(ed.displayItem.font.pixelSize, 24, "display 24px")
+        // 编辑基准/编辑层（editor.font 覆盖为 PixelFont.normal）
+        compare(ed.font.family, PixelFont.family, "editor font = PixelFont")
+        // 标签（contentItem 第一个子项 = ChannelNumText）
+        const tag = e.contentItem.children[0]
+        compare(tag.font.family, PixelFont.family, "tag font = PixelFont")
+        compare(tag.font.pixelSize, 24, "tag 24px")
+        // 对齐：标签左、显示右（ChannelNumText 默认右——display 用途）
+        compare(tag.horizontalAlignment, Text.AlignLeft, "tag left-aligned")
+        compare(ed.displayItem.horizontalAlignment, Text.AlignRight,
+                "display right-aligned")
+        // 编辑框宽度锁定 4 字符（FontMetrics——显示形态最长 '.xxx'）
+        tryCompare(ed, "width", testFm.advanceWidth("0000"), 500,
+                   "editor width locked to 4 chars")
     }
 
     // —— validator：格式校验（RegularExpressionValidator——允许无前导零
-    // ".350"；拒绝非法/空串/科学计数法；不设范围——范围语义归
-    // parseChannelValue）——
+    // ".350"；拒绝非法/空串/科学计数法；不设范围——范围/补点语义归
+    // parseChannelNumberFloat）——
     function test_validator() {
         const e = makeEdit()
         const ed = editorOf(e)
@@ -196,16 +232,48 @@ TestCase {
         tryCompare(ed, "text", ".350", 500, "real interaction -> display normalized")
     }
 
-    // —— 解析语义（修4 回归：parseChannelValue 约定）——
+    // —— 解析/格式化语义（统一实现 ColorNameHQ.parseChannelNumberFloat /
+    // formatChannelNumberFloat——清洗+补点约定与四种输出，format/parse 配对）——
     function test_parseSemantics() {
-        const e = makeEdit()
-        verify(fuzzy(e.parseChannelValue("350"), 0.35), "350 -> 0.35")
-        verify(fuzzy(e.parseChannelValue("5"), 0.005), "5 -> 0.005")
-        verify(fuzzy(e.parseChannelValue("1.5"), 0.0015), "1.5 -> 0.0015 (x>1 /1000)")
-        verify(e.parseChannelValue("1500") === 1, "1500 -> 1.5 clamped to 1")
-        verify(e.parseChannelValue("0.35") === 0.35, "0.35 unchanged")
-        verify(isNaN(e.parseChannelValue("")), "empty -> NaN")
-        verify(isNaN(e.parseChannelValue("abc")), "invalid -> NaN")
+        // 补点：无小数点的整数输入按纯小数解释（对齐显示格式无前导零）
+        verify(fuzzy(ColorNameHQ.parseChannelNumberFloat("350"), 0.35), "350 -> .350 = 0.35")
+        verify(fuzzy(ColorNameHQ.parseChannelNumberFloat("5"), 0.5), "5 -> .5 = 0.5")
+        verify(fuzzy(ColorNameHQ.parseChannelNumberFloat("1500"), 0.15), "1500 -> .1500 = 0.15")
+        // 带点：保留原值（不补点）
+        verify(ColorNameHQ.parseChannelNumberFloat("1.5") === 1.5, "1.5 unchanged")
+        verify(ColorNameHQ.parseChannelNumberFloat(".350") === 0.35, ".350 -> 0.35")
+        verify(ColorNameHQ.parseChannelNumberFloat("0.35") === 0.35, "0.35 unchanged")
+        // 清洗：仅保留数字与第一个小数点
+        verify(fuzzy(ColorNameHQ.parseChannelNumberFloat("1a2b3"), 0.123), "1a2b3 -> .123")
+        verify(ColorNameHQ.parseChannelNumberFloat("3.14.15") === 3.1415,
+               "3.14.15 -> 3.1415 (extra dots dropped, digits kept)")
+        verify(fuzzy(ColorNameHQ.parseChannelNumberFloat("1,234"), 0.1234), "1,234 -> .1234")
+        // 失败 → NaN 透传
+        verify(isNaN(ColorNameHQ.parseChannelNumberFloat("")), "empty -> NaN")
+        verify(isNaN(ColorNameHQ.parseChannelNumberFloat("abc")), "abc -> NaN")
+        verify(isNaN(ColorNameHQ.parseChannelNumberFloat(".")), "lone dot -> NaN")
+    }
+
+    // —— 格式化四种输出（'0'/'1'/'.xxx'/'NaN'）——
+    function test_formatSemantics() {
+        compare(ColorNameHQ.formatChannelNumberFloat(0), "0", "0 -> '0'")
+        compare(ColorNameHQ.formatChannelNumberFloat(1), "1", "1 -> '1'")
+        compare(ColorNameHQ.formatChannelNumberFloat(0.35), ".350", "0.35 -> .350")
+        compare(ColorNameHQ.formatChannelNumberFloat(0.5), ".500", "0.5 -> .500")
+        compare(ColorNameHQ.formatChannelNumberFloat(NaN), "NaN", "NaN -> NaN")
+        // 千分位边界：round 到 1000（≥0.9995）归 '1'，不进位取模归零
+        compare(ColorNameHQ.formatChannelNumberFloat(0.9995), "1", "0.9995 -> 1")
+        compare(ColorNameHQ.formatChannelNumberFloat(0.9996), "1", "0.9996 -> 1")
+        // 互逆（'1' 除外——'1' 解析为 '.1'=0.1，刻意补点语义的推论）：
+        // format 输出可解析回原值
+        verify(fuzzy(ColorNameHQ.parseChannelNumberFloat(
+                ColorNameHQ.formatChannelNumberFloat(0.35)), 0.35), "roundtrip .350")
+        verify(fuzzy(ColorNameHQ.parseChannelNumberFloat(
+                ColorNameHQ.formatChannelNumberFloat(0.123)), 0.123), "roundtrip .123")
+        verify(ColorNameHQ.parseChannelNumberFloat(
+                ColorNameHQ.formatChannelNumberFloat(0)) === 0, "roundtrip 0")
+        verify(isNaN(ColorNameHQ.parseChannelNumberFloat(
+                ColorNameHQ.formatChannelNumberFloat(NaN))), "roundtrip NaN")
     }
 
     Component {

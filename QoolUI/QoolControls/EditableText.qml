@@ -167,9 +167,10 @@ T.Control {
        中允许鼠标选择（selectAll 后键入覆盖的会话惯例）；外部可关闭。 */
     property bool selectByMouse: true
 
-    /* 展示组件（内容主体——Item 实例属性，几何自管；默认 Text 写
-       anchors.fill: parent）。编辑时经 Binding 隐藏（不卸载——会话结束
-       恢复，无重建开销）。 */
+    /* 展示组件（内容主体——Item 实例属性）：parent 置入控件根（Binding），
+       几何由 GeoLocker 统一锁定到内容容器（见下）——覆写者只负责内容，
+       不声明几何。默认 Text 显示 displayText。编辑时经 Binding 隐藏
+       （不卸载——会话结束恢复，无重建开销）。 */
     property Item displayItem: Text {
         text: root.displayText
         font: root.font
@@ -177,7 +178,6 @@ T.Control {
         enabled: root.enabled
         horizontalAlignment: root.horizontalAlignment
         verticalAlignment: root.verticalAlignment
-        anchors.fill: parent
         visible: opacity > 0
         BasicTextBehavior on text {
             enabled: root.animationEnabled && !root.editing
@@ -397,6 +397,9 @@ T.Control {
            未就绪）。 */
         Loader {
             id: editLoader
+            z: -1   // 编辑层沉底：叠放最底层——显示层（displayItem）在上
+                    // （编辑时经 opacity 隐藏露出编辑层），任何情况下编辑
+                    // 层不遮挡显示层之上内容
             anchors.fill: parent
             // 由 internalEditing（编辑层存活）驱动——editing 是装配完成后的
             // 最终状态（setup_editor 才置 true），若绑 editing 则交互路径
@@ -482,14 +485,24 @@ T.Control {
         }
     }//contentItem
 
-    // displayItem 置入内容层：宿主内联声明实例默认 parent = 控件根，需重
-    // parent；几何不动（自管）。target 为绑定——宿主替换 displayItem 时
-    // 新实例同样置入。
+    // displayItem 置入控件根（parent = root——与 contentItem 同父，GeoLocker
+    // 坐标系语义直观）；几何由 GeoLocker 统一锁定到内容容器（见下）。
+    // target 为绑定——宿主替换 displayItem 时新实例同样置入。
     Binding {
         when: root.displayItem
         target: root.displayItem
         property: "parent"
-        value: contentContainer
+        value: root
+    }
+
+    // displayItem 几何统一锁定：GeoLocker 四维锁定到内容容器（x/y/width/
+    // height 跟随 root.contentItem——displayItem 与 contentItem 同父 root，
+    // 对齐的是内容区在其父坐标系中的位置，语义直观）。宿主覆写
+    // displayItem 无需声明几何（不再 anchors.fill——parent 已是 root，
+    // fill root 会铺满整个控件含背景区）。
+    GeoLocker {
+        target: root.displayItem
+        lockTo: root.contentItem
     }
 
     // 编辑时隐藏展示层（不卸载——会话结束恢复，无重建开销；opacity 切换

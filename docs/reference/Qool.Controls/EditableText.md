@@ -115,11 +115,14 @@ editable controls (ComboBox, SpinBox, ...).
   Default unset (forwarding keeps the platform default, officially 600 ms).
 
 - `displayItem : Item`
-  The display component (the content body — an `Item` instance, geometry
-  self-managed). Defaults to a `Text` bound to `displayText`/font/color/
-  alignment with `anchors.fill: parent`. Can be replaced wholesale (e.g. with
-  another presentation component). Hidden while editing (opacity switch — not
-  unloaded; restored when the session ends).
+  The display component (the content body — an `Item` instance, content
+  only). It is parented to the control root and its geometry is locked to
+  the content area by an internal `GeoLocker` (`x`/`y`/`width`/`height`
+  follow `contentItem` — same parent, intuitive alignment), so overrides
+  declare **content only, no geometry**. Defaults to a `Text` bound to
+  `displayText`/font/color/alignment. Can be replaced wholesale (e.g. with
+  another presentation component). Hidden while editing (opacity switch —
+  not unloaded; restored when the session ends).
 
   **Design intent — replacing `displayItem` decouples display from `text`.**
   The default `Text` exists as a ready upper layer only; overriding

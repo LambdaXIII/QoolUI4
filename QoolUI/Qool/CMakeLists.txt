@@ -91,6 +91,7 @@ qt_add_qml_module(
             BasicLabel.qml
             TimerLatch.qml
             ItemAnimatedResizer.qml
+            GeoLocker.qml
   SOURCES shapecontrol/gadgets/qool_shape_macros.hpp
   SOURCES shapecontrol/gadgets/qool_shapegadget_circle.h
           shapecontrol/gadgets/qool_shapegadget_circle.cpp

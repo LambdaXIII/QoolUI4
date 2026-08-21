@@ -19,7 +19,8 @@ import Qool.Color
 // - 竖直映射 v = 1 - mouseY/height（向上增大），与 ChannelBar 的
 //   "从底部向上填充"配套——改任一侧都会错位。
 // - 标题在底部（数值输入在轨道下方、标题在最下），布局原样。
-// - 数值编辑经 NumInput.parseChannelValue（x > 1 → /1000）。
+// - 数值编辑经 NumInput.parseChannelValue（统一实现
+//   ColorNameHQ.parseChannelNumberFloat——清洗+无点头部补点）。
 ColumnLayout {
     id: root
 

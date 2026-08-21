@@ -78,6 +78,21 @@ This type defines no signals.
   ascending priority order that can answer wins. If none can, returns the
   `#RRGGBB` / `#AARRGGBB` text of `QColor::name()`.
 
+- `string formatChannelNumberFloat(real num)`
+  Formats a normalized channel value — deliberately exactly four outputs:
+  `"0"`, `"1"`, `".xxx"` (three decimal digits without a leading zero,
+  e.g. `.350`), `"NaN"`. Values rounding to 1000 (≥ 0.9995) collapse to
+  `"1"`.
+
+- `real parseChannelNumberFloat(string input)`
+  Parses a normalized channel value (the reverse of
+  `formatChannelNumberFloat`): cleans the input (keeps digits and the
+  *first* decimal point only), prepends a decimal point when none is
+  present — integers are read as pure decimals, so `"350"` means `.350` =
+  0.35 — then parses the number; failure (empty / no digits) yields `NaN`.
+  Note `"1"` parses back as `.1` = 0.1 (a consequence of the
+  leading-dot convention).
+
 ## Usage Example
 
 ```qml

@@ -26,14 +26,22 @@ editable value:
 
 ### Numeric convention
 
-`parseChannelValue(s)` parses with `parseFloat` and applies the
-repository's channel-input convention (shared with
-`NumInput.parseChannelValue`):
+The numeric text is the pair
+`ColorNameHQ.formatChannelNumberFloat` / `ColorNameHQ.parseChannelNumberFloat`
+(shared with the `_private` `NumInput`), deliberately restricted:
 
-- `x > 1` is interpreted as `x / 1000` — typing `350` means `0.35`
-  (integers 0..1000 represent 0..1 ratios; 1000 means 1.0).
-- The result is clamped to `[0, 1]`; `NaN` passes through (empty / invalid
-  input is rejected by the validator first).
+- **Format** produces exactly four outputs: `"0"`, `"1"`, `".xxx"` (three
+  decimal digits without a leading zero, e.g. `.350`), `"NaN"`. Values
+  rounding to 1000 (≥ 0.9995) collapse to `"1"`.
+- **Parse** cleans the input (keeps digits and the *first* decimal point
+  only), prepends a decimal point when none is present — integers are read
+  as pure decimals, so typing `350` means `.350` = 0.35, matching the
+  display form — then parses the number; failure (empty / no digits)
+  yields `NaN`.
+
+The display and the saved form are therefore the same `.xxx` shape and
+round-trip (except `"1"`, which parses back as `.1` = 0.1 — an accepted
+consequence of the leading-dot convention).
 
 ## Properties
 
@@ -66,9 +74,9 @@ This component defines no additional signals.
 
 ## Methods
 
-- `real parseChannelValue(string s)`
-  Parses an input string into a normalized channel value: `parseFloat`,
-  `x > 1` → `x / 1000`, clamped to `[0, 1]`; `NaN` passes through.
+This component defines no additional methods. Parsing is provided by the
+shared implementation `ColorNameHQ.parseChannelNumberFloat()` (see
+"Numeric convention").
 
 ## Usage Example
 

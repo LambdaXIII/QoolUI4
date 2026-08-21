@@ -12,7 +12,7 @@ Qool 是 QoolUI 的核心模块，提供：
 - 窗口：`QoolWindow`、`QoolWindowBasic`（见 `QoolWindow 配件哲学`）。
 - 工具：`CutSizeBinding`、`ItemAnimatedResizer`、`PositionLocker`、
   `TimerLatch`、`Floater`、`PositionTracker`、`ItemTracker`、`PropertyProxy`、
-  `Qore`、`QoolPalette`、`PixelFont` 等。
+  `GeoLocker`、`Qore`、`QoolPalette`、`PixelFont` 等。
 
 ## 组件参考
 
@@ -23,6 +23,7 @@ Qool 是 QoolUI 的核心模块，提供：
 - [CutSizesLocker](CutSizesLocker.md)
 - [DragMoveArea](DragMoveArea.md)
 - [Floater](Floater.md)
+- [GeoLocker](GeoLocker.md)
 - [HalfCrystal](HalfCrystal.md)
 - [ItemAnimatedResizer](ItemAnimatedResizer.md)
 - [ItemTracker](ItemTracker.md)

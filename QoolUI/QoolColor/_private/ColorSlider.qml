@@ -6,7 +6,8 @@
 //   - value 与光标 displayValue 分离：拖动中（userInteracting）displayValue
 //     不动画（Behavior 被门控关闭，光标跟手）；松手后 Behavior
 //     （movementDuration）动画补位。
-//   - 数值输入：编辑态用 NumInput.parseChannelValue（x > 1 → /1000，见 NumInput
+//   - 数值输入：编辑态用 NumInput.parseChannelValue（统一实现
+//     ColorNameHQ.parseChannelNumberFloat——清洗+无点头部补点，见 NumInput
 //     头注释），再经 valueLimiter 限幅；非编辑态由 Binding 回写显示文本。
 //   - 轨道高度跟随 cursor.hoveredSize（Layout.preferredHeight），悬停展开时
 //     轨道同步变高，sliderBG 用 y 偏移保持轨道在展开区垂直居中。

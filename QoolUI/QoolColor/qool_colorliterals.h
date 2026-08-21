@@ -41,7 +41,9 @@ public:
   Q_INVOKABLE QString channelTag(int channel) const;   // 外观标签文本
 
   Q_INVOKABLE static QString formatChannelNumberFloat(
-      qreal num); // 格式化归一化通道数值
+      qreal num); // 格式化归一化通道数值——四种输出：'0'/'1'/'.xxx'/'NaN'
+  Q_INVOKABLE static qreal parseChannelNumberFloat(
+      const QString& input); // 归一化通道值解析——清洗+头部补点（format 反向）
 
 protected:
   static QHash<int, QString> m_channelNames;

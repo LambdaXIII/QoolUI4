@@ -4,6 +4,31 @@
 
 ## [4.0.0] — 2026-08-21
 
+### 变更（geolocker，Qool.GeoLocker 几何锁定器）
+
+- **新增 Qool.GeoLocker**（SmartObject 便捷工具，非 Item 容器）：把 target 的 x/y/width/height 锁定跟随 lockTo——总开关 enabled + 四维度独立开关（xEnabled/yEnabled/widthEnabled/heightEnabled，默认全 true）；target/lockTo 可为任何带四属性的对象（Item/QtObject）；内置四个 Binding（开关门控）；开关关闭 = 解除该维度锁定（目标自由、保持最后值），重开恢复
+- **坐标系提醒（文档明示）**：x/y 是 lockTo 在**其父级坐标系**中的坐标——target 与 lockTo 同父时对齐语义直观；跨父时锁定的是 lockTo 的父级坐标值，非 target 父系相对位置（跨父对齐需宿主 mapToItem 换算）
+- **文档**：`docs/reference/Qool/GeoLocker.md`（5 节——Overview 含 Coordinate system 与 Switch semantics/Properties/Signals/Methods/Usage Example）+ index 登记（工具行 + 组件参考列表）
+- **首个消费方——EditableText displayItem**：displayItem parent 置控件根（root）+ 内部 GeoLocker 四维锁定到 contentItem——几何统一由 GeoLocker 承担（覆写者免声明几何；displayItem 与 contentItem 同父 root，坐标系直观）；默认 displayItem 与 ColorChannelEdit 覆写的 anchors 均移除
+- **验证**：build 通过；tst_qoolcolor_qml 15/15 PASS；tst_qoolcontrols_qml 41 通过、8 失败均为既有 Slider/RangeSlider 轨道几何基线失败（本会话未触碰相关文件）
+
+### 变更（channelnumtext-unify，ColorChannelEdit 文本组件统一）
+
+- **新增 `_private/ChannelNumText`**（拍平件，同 NumInput）：ColorChannelEdit 的通道标签与数值显示的统一文本组件——字体来源统一 `PixelFont.normal`（MozartNBP 24px），标签/显示/编辑层同一字体防漂移；对齐默认右/垂直中（display 用途），标签左对齐覆盖；透明即隐藏（EditableText 显示层隐藏机制）
+- **ColorChannelEdit 重构**：标签（原 BasicControlText）与 displayItem 均换 ChannelNumText（标签 `Style.buttonText` 色 + 左对齐、显示 `Style.text` + 右对齐）；编辑层字体覆盖 `PixelFont.normal`（与显示一致，编辑会话切换无字号跳动）；编辑框宽度 FontMetrics 锁定 4 字符（`advanceWidth("0000")`——显示形态最长 `.xxx`，数值变化宽度稳定不跳动）
+- **测试**：test_fontUnified 扩展——字体统一/标签左对齐/显示右对齐/宽度锁定 4 字符——15 用例全 PASS
+- **验证**：重新 configure（GLOB 捕捉新 _private 文件）+ build 通过；tst_qoolcolor_qml 15/15 PASS
+
+### 变更（colorchannel-format-parse-unify，归一化通道值 format/parse 统一到 ColorLiterals）
+
+- **formatChannelNumberFloat 重构（四种输出）**：刻意仅 '0'/'1'/'.xxx'/'NaN' 四种输出——显式 NaN 分支（此前 NaN 经 round/int 产生垃圾串 ".-648"）；round 到 1000（≥0.9995）归 '1'、round 到 0 归 '0'——修复千分位边界（此前 0.9995+ → round=1000 → %1000=0 → ".0" 且回读 0）
+- **新增 parseChannelNumberFloat（统一反向解析，ColorLiterals）**：清洗输入（仅保留数字与第一个小数点，其余字符/后续点丢弃）→ 无小数点头部补点（整数按纯小数解释：350 → ".350" → 0.35——对齐显示格式无前导零约定）→ 解析数字（失败 NaN 透传）——与 format 配对（format 输出可解析回原值；'1' 例外——解析为 '.1'=0.1，补点语义的接受推论）
+- **两处组件方法重构为委托**：`_private` NumInput.parseChannelValue 与 ColorChannelEdit 组件内解析统一走 `ColorNameHQ.parseChannelNumberFloat`——旧 x>1 → /1000 + clamp [0,1] 约定被补点约定取代（行为变化："5" → 0.5 而非 0.005、"1.5" → 1.5 而非 0.0015、"1500" → 0.15 而非 clamp 1——HSVPanel/HSLPanel/ChannelSlider/ColorSlider 经 NumInput 委托自动跟随）；ColorChannelEdit 删除组件方法（公开 API 移除，改用 ColorNameHQ 统一入口）
+- **validator 不变**（正则只验格式——清洗解析成为防御层）
+- **文档**：ColorNameHQ.md Methods 补 format/parse 配对（format 此前未文档化）；ColorChannelEdit.md Numeric convention 重写 + Methods 节更新
+- **测试**：test_parseSemantics 重写（补点/带点/清洗/NaN）+ 新增 test_formatSemantics（四种输出/千分位边界/互逆）——14 用例全 PASS
+- **验证**：build 通过；tst_qoolcolor_qml 14/14 PASS
+
 ### 变更（colorchanneledit-displayitem-validator，ColorChannelEdit 显示解耦 + 输入校验 + EditableText 文档）
 
 - **显示层重构（displayItem 覆写）**：显示从「劫持 editor.text（Binding 写保存形式当显示）」改为覆写 EditableText.displayItem——显示直连真实源 format(proxy.value)，text 退化为纯保存形式（编辑基准 + 收尾提交目标）——EditableText displayItem 插拔设计意图（显示与 text 解耦）落地，外部联动不经 text 中转；textFromEditText 收尾钩子职责回归纯转换（写 value + 返回规范化串）
