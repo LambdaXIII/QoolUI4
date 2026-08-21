@@ -34,10 +34,11 @@ using namespace qoolui;
 
 // ---- 测试目标类型（core seam 内暴露各属性特征）----
 
-// 带 NOTIFY 的可写属性（事件驱动 + 可写方向）
+// 带 NOTIFY 的可写属性（事件驱动 + 可写方向）；双属性供 property 切换测试
 class NotifyTarget : public QObject {
   Q_OBJECT
   Q_PROPERTY(int counter READ counter WRITE setCounter NOTIFY counterChanged FINAL)
+  Q_PROPERTY(int level READ level WRITE setLevel NOTIFY levelChanged FINAL)
 public:
   int counter() const { return m_counter; }
   void setCounter(int v) {
@@ -46,9 +47,18 @@ public:
     m_counter = v;
     emit counterChanged();
   }
+  int level() const { return m_level; }
+  void setLevel(int v) {
+    if (v == m_level)
+      return;
+    m_level = v;
+    emit levelChanged();
+  }
   Q_SIGNAL void counterChanged();
+  Q_SIGNAL void levelChanged();
 private:
   int m_counter = 0;
+  int m_level = 0;
 };
 
 // 常量属性（读一次即终值、不可写）
@@ -319,6 +329,17 @@ class TestPropertyProxyCore : public QObject {
     a.setCounter(999);
     QCOMPARE(spy.count(), 0);
     QCOMPARE(proxy.value().toInt(), 100);
+    // property 有效→有效切换：重建观测、初始同步新值、旧 property notify 断开
+    b.setLevel(7); // 先改目标（proxy 仍观测 counter，不受影响）
+    proxy.set_property("level");
+    QCOMPARE(proxy.value().toInt(), 7); // 初始同步新 property 当前值
+    QCOMPARE(spy.count(), 0);           // 重建初始同步不发 valueChanged
+    b.setCounter(555);                  // 旧 property(counter) notify 已断开
+    QCOMPARE(spy.count(), 0);
+    QCOMPARE(proxy.value().toInt(), 7); // value 仍 level
+    b.setLevel(9);                      // 新 property(level) notify 生效
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(proxy.value().toInt(), 9);
     // 换 property 到不存在的属性 → 无效态
     proxy.set_property("no_such_property");
     QVERIFY(proxy.value().isNull());

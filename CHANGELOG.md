@@ -24,7 +24,7 @@
 - **无效态**：target null / 属性无效 / 不可读 → value 无效（QML undefined）+ 能力全 false + 不连信号不启动定时器；动态属性（QQmlProperty 不解析）属无效态；**target 先析构**（监听 destroyed → 重置观测 + 停表，防轮询/getter 解引用已释放对象）
 - **决策记录**：ADR-0012 + CONTEXT.md「属性代理（PropertyProxy）」术语（无状态代理/判变快照/净化可写性）
 - **接口文档**：`docs/reference/Qool/PropertyProxy.md`（5 节）+ reference index.md 登记
-- **测试**：core 层 `tst_qool_propertyproxy`（12 用例）——初始值/常量/有 NOTIFY/无 NOTIFY interval 三态/写方向/xWarningQ/五能力/无效态/动态切换/动态属性无效/target 析构安全
+- **测试**：core 层 `tst_qool_propertyproxy`（12 用例）——初始值/常量/有 NOTIFY/无 NOTIFY interval 三态/写方向/xWarningQ/五能力/无效态/动态切换（target 有效→有效、property 有效→有效与有效→无效、旧观测断开、重建初始同步不发）/动态属性无效/target 析构安全
 - **验证**：ctest -R tst_qool_propertyproxy 通过（12/12）
 
 ### 变更（style-design-article，Style 设计原理深度文章）
