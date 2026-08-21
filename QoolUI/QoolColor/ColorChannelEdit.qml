@@ -18,6 +18,11 @@ Control {
 
     property real value
 
+    // 编辑只读（TextField 惯例命名，转发 → EditableText.readOnly：不启动
+    // 编辑会话——点击/聚焦空转；组合件 ColorChannelControl 经本属性转发
+    // 外壳 readOnly，宿主亦可直接设）。
+    property bool readOnly: false
+
     contentItem: RowLayout {
         ChannelNumText {
             text: ColorNameHQ.channelTag(root.channel)
@@ -29,6 +34,9 @@ Control {
         EditableText {
             id: editor
             animationEnabled: false
+            // 编辑只读（root.readOnly 转发——不启动编辑会话；动画关闭同理：
+            // 只读纯行为开关，不触发样式变化）
+            readOnly: root.readOnly
             // 编辑框宽度锁定 4 字符（FontMetrics——显示形态最长 '.xxx'；
             // 数值变化宽度稳定不跳动）
             Layout.preferredWidth: textMetrics.advanceWidth("0000")

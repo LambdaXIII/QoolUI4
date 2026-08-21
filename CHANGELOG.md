@@ -4,6 +4,16 @@
 
 ## [4.0.0] — 2026-08-22
 
+### 变更（colorchannelcontrol，ColorChannelControl 单通道组合行组件）
+
+- **新增公开组件 ColorChannelControl**（Qool.Color——Control 基座组合 ColorChannelEdit + ColorChannelSlider，旧 `_private/ColorSlider.qml` 单控件形态还原）：contentItem ColumnLayout 竖直堆叠（编辑在上、滑块在下、两行等宽 fillWidth、零间距），外壳隐式高 = 编辑高 + 滑块高（内容贴合）
+- **集束共有属性**（外壳统一声明、转发两子组件）：`animationEnabled`（声明序首位 + **显式 `root.animationEnabled` 转发**——子组件 parent 是 contentItem 布局、`parent?.animationEnabled` 链够不到外壳）、`channel`（默认 HSLHue）、`colorAssistant`（**单一共享实例**——集束不变量：两子组件链向同一实例，编辑与拖动始终作用于同一通道；任一方落回自带默认即分叉）、`value`（外壳**自持第三投影**——PropertyProxy ↔ assistant 无条件双向链 + onCompleted 播种，不 alias 任一子组件 value；NaN 防御不写）、`readOnly`（转发 → ColorChannelEdit.readOnly → EditableText.readOnly——不启动编辑会话，滑块拖动保留）
+- **ColorChannelEdit 扩展**：新增 `readOnly` 属性（TextField 惯例 camelCase）转发内部 EditableText——组合件转发链落点，宿主亦可直接设
+- **纯封装**：不暴露 edit/slider 子组件别名——插拔面由子组件自身承接（ColorChannelEdit displayItem / ColorChannelSlider 模板级 background/handle）；仅水平形态（无 orientation）
+- **测试**：tst_colorchannelcontrol.qml 新增 4 用例（布局——等宽/竖直堆叠/零间距/隐式高；属性集束转发——channel/单一共享 assistant/animationEnabled；value 双向链 + 播种 + 子组件汇聚；readOnly 传递 + 只读不进编辑会话 + 链不受只读影响）——tst_qoolcolor_qml 42/42 全绿（含 init/cleanup；既有 32 用例回归不动）
+- **文档**：`docs/reference/Qool.Color/ColorChannelControl.md`（5 节）+ index.md 登记（简介行 + 组件参考列表字母序）
+- **验证**：build 通过（注册面改动）；tst_qoolcolor_qml 42/42 PASS
+
 ### 变更（slider-track-both-axes，Slider/RangeSlider 轨道双向收缩 + 测试/文档/ADR 同步）
 
 - **轨道几何改双向收缩（036fe63 视觉调整落定）**：Slider 与 RangeSlider 的默认轨道由「主轴铺满 + 法向收缩居中」（水平宽满/高收缩、垂直高满/宽收缩）改为**宽高双向各收缩 shrinkSize + 双向居中**（`width/height = parent − shrinkSize`、`x = y = halfShrinkSpace`，水平/垂直同式）——收缩态（常态）handle 与轨道贴边对齐；`side` 法向抽象与 `shrinkSize`/`halfShrinkSpace` 公式不变（收缩量仍基于 side），垂直瘦六边形形态学结论不变
