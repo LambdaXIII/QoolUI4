@@ -10,19 +10,19 @@ import Qool.Controls
 // - 默认状态自洽（implicit 150×25、无实例色属性——配色经 Style 语义槽
 //   消费：轨道兜底 = Style.accent、描边 = recommendForeground(buttonText)）
 // - 轨道几何：background 为 Item 容器（尺寸经 Control 标准自动布局 =
-//   root − insets），内部 Crystal 常态收缩 = root.height −
-//   bound(3, h×25%, 25) + 完全居中（水平铺满容器宽、垂直居中）——替换
+//   root − insets），内部 Crystal 双向常态收缩（宽高各 −
+//   bound(3, side×25%, 25)）+ 双向居中（x = y = halfShrinkSpace）——替换
 //   background 后新实例尺寸同样受控（插拔安全）；轨道静态——值写入不改变
 //   轨道几何
 // - 渐变契约：左端 = backgroundColor 75% 透明、右端 = color，锚定切角内侧
 //   （x = [h/2, w−h/2]——直边区行程）；兜底色 = color（渐进降级）
 // - 手柄：菱形（width = height）、常态 = 可用高 − 收缩偏移（与轨道
-//   同高贴斜边）、写入值 → 展开占满控件高（TimerLatch 锁存 500ms）、窗口
-//   落回常态；展开不超出控件边界
+//   同高贴斜边）、写入值 → 展开占满控件高（TimerLatch 锁存
+//   Style.movementDuration×2）、窗口落回常态；展开不超出控件边界
 // - 采样色不透明化：手柄常态色 = 渐变在值位置的采样色但不透明（position
 //   0 → backgroundColor 不透明版，非 0.75 透明轨道端）
-// - 锁存窗口（500ms 滑动——写入即触发、独立回落）——经手柄展开路径断言
-//   （锁存内化于 handle，无独立接口）
+// - 锁存窗口（movementDuration×2 滑动——写入即触发、独立回落）——经手柄
+//   展开路径断言（锁存内化于 handle，无独立接口）
 // - insets 响应：background 尺寸 = root 尺寸 − insets
 //
 // 注：真实鼠标交互（模板拖动、hover、pressed 反馈）不在自动化范围——
@@ -31,8 +31,9 @@ import Qool.Controls
 // 隔离策略：每个测试函数 createTemporaryObject 独立实例；
 // 动画统一关闭（animationEnabled: false）——展开断言即时。
 //
-// 测试基准：200×40 → 收缩偏移 = bound(3, 10, 25) = 10；轨道 200×30 居中
-// y=5；手柄常态高 30、展开 40。渐变切角锚定：x1 = 15、x2 = 185（h=30）。
+// 测试基准：200×40 → 收缩偏移 = bound(3, 10, 25) = 10；轨道 190×30 双向
+// 居中（x=5、y=5）；手柄常态高 30、展开 40。渐变切角锚定：x1 = 15、
+// x2 = 175（h=30、轨道宽 190）。
 
 TestCase {
     id: root
@@ -107,23 +108,24 @@ TestCase {
     }
 
     function test_trackGeometry() {
-        // 轨道：容器尺寸 = root − insets（标准自动布局），内部 Crystal 常态
-        // 收缩 + 居中——静态（不随值变）
+        // 轨道：容器尺寸 = root − insets（标准自动布局），内部 Crystal 双向
+        // 常态收缩（宽高各 − shrinkSize）+ 双向居中——静态（不随值变）
         const s = makeSlider({})
         const track = findChild(s.background, "track")
         verify(track !== null, "轨道存在")
         compare(s.background.width, 200, "容器宽 = root 宽（无 insets）")
         compare(s.background.height, 40, "容器高 = root 高")
-        compare(track.width, 200, "轨道宽 = 容器宽（尖点贴边不外溢）")
+        compare(track.width, 200 - 10, "轨道双向收缩（宽 = 容器宽 − shrinkSize）")
         compare(track.height, 40 - 10, "轨道常态收缩 = root 高 − 偏移")
-        compare(track.x, 0, "轨道水平铺满容器宽（完全居中——不外溢）")
+        compare(track.x, 5, "轨道双向居中（x = halfShrinkSpace）")
         compare(track.y, (40 - 30) / 2, "轨道垂直居中")
         compare(track.borderColor, ThemeHQ.recommendForeground(s.Style.buttonText),
                 "轨道描边 = recommend(buttonText)")
         // 轨道静态——值写入不改变轨道几何
         s.value = 0.5
-        compare(track.width, 200)
+        compare(track.width, 190)
         compare(track.height, 30)
+        compare(track.x, 5)
         compare(track.y, 5)
     }
 
@@ -138,7 +140,7 @@ TestCase {
         compare(g.stops[0].color, Qt.alpha(s.Style.buttonText, 0.75), "渐变左端 = buttonText 75% 透明")
         compare(g.stops[1].color, s.Style.accent, "渐变右端 = accent")
         compare(g.x1, 30 / 2, "锚定切角内侧左端")
-        compare(g.x2, 200 - 30 / 2, "锚定切角内侧右端")
+        compare(g.x2, 190 - 30 / 2, "锚定切角内侧右端（轨道宽 190）")
         compare(g.y1, 30 / 2)
         compare(g.y2, 30 / 2)
         // 兜底色 = Style.accent（渐变失效时渐进降级）
@@ -155,7 +157,8 @@ TestCase {
         s.value = 0.5
         compare(c.height, 40, "锁存展开占满控件高")
         compare(c.width, 40, "展开仍为菱形")
-        wait(600)
+        // latch 窗口 = Style.movementDuration×2 = 800ms——等待释放
+        wait(1000)
         compare(c.height, 30, "窗口落后回常态")
         compare(c.width, 30)
     }
@@ -224,15 +227,16 @@ TestCase {
 
     function test_insets() {
         // background 容器响应 insets（width = root − left − right、
-        // height = root − top − bottom）；内部轨道在容器内收缩 + 居中
+        // height = root − top − bottom）；内部轨道在容器内双向收缩 + 居中
         const s = makeSlider({})
         const track = findChild(s.background, "track")
         s.leftInset = 10
         s.topInset = 4
         compare(s.background.width, 190, "leftInset 收缩容器宽")
         compare(s.background.height, 36, "topInset 收缩容器高")
-        compare(track.width, 190, "轨道宽随容器")
+        compare(track.width, 180, "轨道宽随容器收缩（190 − shrinkSize）")
         compare(track.height, 36 - 10, "轨道在容器内收缩")
+        compare(track.x, 5, "轨道双向居中（x = halfShrinkSpace）")
         compare(track.y, (36 - 26) / 2, "轨道容器内居中")
     }
 
@@ -248,7 +252,7 @@ TestCase {
 
     function test_verticalGeometry() {
         // 垂直：handle 边长 = 法向（availableWidth）、x 居中、y 由
-        // visualPosition；轨道沿法向收缩 + 居中；渐变沿 y 轴锚定；
+        // visualPosition；轨道双向收缩 + 居中；渐变沿 y 轴锚定；
         // implicit 随 orientation 交换
         const s = makeSlider({ orientation: Qt.Vertical, width: 40, height: 200 })
         const track = findChild(s.background, "track")
@@ -262,16 +266,16 @@ TestCase {
         s.value = 1
         compare(s.handle.y, 0, "值 1 → visualPosition 0 → y 顶部")
         compare(s.handle.x, 0, "垂直 x 不随值变")
-        // 轨道：height 铺满、width 沿法向收缩 + x 居中
-        compare(track.width, 40 - 10, "轨道沿法向收缩（width = 容器宽 − shrinkSize）")
-        compare(track.x, 5, "轨道法向居中（x = halfShrinkSpace）")
-        compare(track.height, 200, "轨道沿主轴铺满")
-        compare(track.y, 0, "轨道主轴不偏移")
-        // 渐变：垂直锚定——cut = min(30,200)/2 = 15
+        // 轨道：双向收缩 + 居中（宽高各 − shrinkSize、x = y = halfShrinkSpace）
+        compare(track.width, 40 - 10, "轨道双向收缩（width = 容器宽 − shrinkSize）")
+        compare(track.x, 5, "轨道双向居中（x = halfShrinkSpace）")
+        compare(track.height, 200 - 10, "轨道双向收缩（height = 容器高 − shrinkSize）")
+        compare(track.y, 5, "轨道双向居中（y = halfShrinkSpace）")
+        // 渐变：垂直锚定——cut = min(30,190)/2 = 15
         const g = track.fillGradient
         compare(g.x1, 15, "垂直渐变 x 居中")
         compare(g.x2, 15)
-        compare(g.y1, 200 - 15, "垂直渐变 from 端 = 底（值小端，Qt 垂直惯例）")
+        compare(g.y1, 190 - 15, "垂直渐变 from 端 = 底（值小端，Qt 垂直惯例）")
         compare(g.y2, 15, "垂直渐变 to 端 = 顶（值增大端 accent）")
         // implicit 随 orientation 交换
         compare(s.implicitWidth, 25, "垂直 implicit 交换（窄）")
@@ -293,9 +297,9 @@ TestCase {
         // RTL value=0.75 → visualPosition 0.25 → x = 0.25*(200−40) = 40
         compare(s.handle.x, 0.25 * (200 - 40), "RTL 值增大 → handle 靠左")
         compare(s.handle.y, 0, "水平 RTL y 仍居中")
-        // 渐变端点对调：水平 RTL x1 = w−cut、x2 = cut（cut = min(200,30)/2 = 15）
+        // 渐变端点对调：水平 RTL x1 = w−cut、x2 = cut（cut = min(190,30)/2 = 15）
         const g = track.fillGradient
-        compare(g.x1, 200 - 15, "RTL 渐变 from 端移到右（对调）")
+        compare(g.x1, 190 - 15, "RTL 渐变 from 端移到右（对调）")
         compare(g.x2, 15, "RTL 渐变 to 端移到左（accent 随值增大端）")
         compare(g.y1, 15, "RTL 水平渐变 y 仍居中")
         compare(g.y2, 15)
@@ -319,7 +323,7 @@ TestCase {
         compare(s.handle.y, 0.25 * (200 - 40), "值大 → handle 靠上（与垂直 LTR 一致）")
         // 渐变垂直不受 RTL：from 恒底、to 恒顶（不对调——与垂直 LTR 相同）
         const g = track.fillGradient
-        compare(g.y1, 200 - 15, "垂直渐变 from 恒底（不受 RTL）")
+        compare(g.y1, 190 - 15, "垂直渐变 from 恒底（不受 RTL）")
         compare(g.y2, 15, "垂直渐变 to 恒顶（accent 随值增大端，不受 RTL）")
         compare(g.x1, 15, "垂直渐变 x 居中")
         compare(g.x2, 15)

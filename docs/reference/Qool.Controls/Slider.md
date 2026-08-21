@@ -19,8 +19,10 @@ gradient sampled at the current value position, rendered opaque
 `position` is not mirrored, matching the gradient geometry).
 
 - **Track** — a static `Crystal` hexagonal gradient track in the
-  `background`, full-width, held at the rest height and vertically centered.
-  It does not participate in interaction feedback.
+  `background`, contracted by `shrinkSize` on **both** axes and centered
+  (`x = y = shrinkSize / 2`; resting size = container − `shrinkSize` in
+  width and height — the shrunk handle stays aligned with the track). It
+  does not participate in interaction feedback.
 - **Handle** — the default `handle` hosts the crystal diamond (the visual
   focus), which expands to the handle's full size while hovered, pressed, or
   while a recent value change holds (via `ItemAnimatedResizer` + a
@@ -37,7 +39,8 @@ gradient sampled at the current value position, rendered opaque
 are orthogonal:
 
 - **Axis** — `horizontal` picks the handle's travel axis; the track
-  contracts and centers along the axis' normal. The handle's edge length is
+  contracts on both axes (resting size = container − `shrinkSize` in width
+  and height) and stays centered. The handle's edge length is
   the normal size (`side = horizontal ? availableHeight : availableWidth`),
   so the diamond stays square in both orientations.
 - **RTL affects only horizontal** — the handle travels via `visualPosition`
@@ -139,8 +142,9 @@ Slider {
 
 ## Interaction feedback
 
-- Hover / press / just-moved (the 500 ms sliding `TimerLatch` window after a
-  value change, hosted inside the handle): the handle expands to the
+- Hover / press / just-moved (the `Style.movementDuration × 2` sliding
+  `TimerLatch` window after a value change, hosted inside the handle): the
+  handle expands to the
   handle's full size (resting size is `side − Qore.bound(3, side × 0.25,
   25)` where `side` is the track's normal size — an internal
   default-implementation
@@ -153,7 +157,8 @@ Slider {
   handle freezes (the resizer's `enabled` follows `root.enabled`) — no hover,
   no expansion, no cursor feedback.
 - Programmatic `value` writes (e.g. an external binding): the handle expands
-  for about 500 ms (the same latch — "a value was written gets feedback",
+  for about `Style.movementDuration × 2` (the same latch — "a value was
+  written gets feedback",
   regardless of who wrote it). The latch is internal to the handle (there is
   no public "just moved" property; the feedback is observed through the
   handle itself).

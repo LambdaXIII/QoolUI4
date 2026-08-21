@@ -94,6 +94,20 @@ spec（同步修正）。
   `Style.valueChanged` 驱动重采样。本 ADR 的渐变端对调结论语义不变（from 端
   = `Style.buttonText`、to 端 = `Style.accent`）。
 
+## 实现演进（2026-08-21 轨道双向收缩 + 锁存跟随 movementDuration）
+
+- **轨道几何改双向收缩**：原 Key Decisions「法向尺寸抽象」隐含的轨道几何
+  （轨道收缩沿垂直方向——仅法向收缩、主轴铺满）已修订——现轨道宽高**双向
+  各收缩 shrinkSize** 并双向居中（`width/height = parent − shrinkSize`、
+  `x = y = halfShrinkSpace`），水平/垂直同式。动机：手柄常态（收缩态）尺寸
+  = side − shrinkSize，轨道双向收缩后收缩态手柄与轨道贴边对齐（旧式主轴
+  铺满时，收缩态手柄在主轴方向与轨道端点错位）。收缩量仍基于 `side`（法向
+  抽象），`shrinkSize`/`halfShrinkSpace` 公式与 handle 定位/渐变锚定全部
+  不变（渐变 `cut = 轨道短边/2` 随收缩后短边自动成立）。
+- **锁存间隔跟随 Style.movementDuration**：手柄 TimerLatch `interval` 由
+  固定 500ms 改为 `Style.movementDuration × 2`——锁存窗口随主题运动时长
+  缩放（主题可调，不再硬编码；默认 movementDuration = 400 → 800ms）。
+
 ## 决策状态
 
 - 决策已定案（2026-08-20）；spec：`.scratch/slider-orientation-rtl/spec.md`

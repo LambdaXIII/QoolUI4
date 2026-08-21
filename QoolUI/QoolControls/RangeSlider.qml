@@ -45,16 +45,18 @@ T.RangeSlider {
         // 收缩/前景收缩/窄条换向全部基于它。
         readonly property real side: root.horizontal ? root.availableHeight : root.availableWidth
         // 常态收缩量：轨道与前景从全尺寸收缩的量（hover 展开时前景占满
-        // 区间盒；轨道恒为常态——静态，不参与交互反馈）。
+        // 区间盒；轨道恒为常态——静态，不参与交互反馈）。轨道宽高双向各
+        // 收缩此量（保证收缩态 handle 与轨道对齐）。
         readonly property real shrinkSize: Qore.bound(3, side * 0.25, 25)
-        // 收缩偏移量的一半——轨道沿法向居中（收缩后两端各留 shrinkSize/2）。
+        // 收缩偏移量的一半——轨道双向居中（收缩后四边各留 shrinkSize/2）。
         readonly property real halfShrinkSpace: shrinkSize / 2
     }
 
     // 轨道层：Crystal 六边形（backgroundColor 75% 透明 + borderColor
-    // 描边）——沿主轴铺满、恒为法向常态（不随交互变）+ 沿法向居中（y =
-    // 收缩偏移/2 水平、x = 收缩偏移/2 垂直）。background 显式 implicit
-    // （150×25，垂直 25×150）供控件 implicit 计算。
+    // 描边）——恒为常态尺寸（不随交互变）+ 双向收缩居中（宽高各 −
+    // shrinkSize、x = y = shrinkSize/2，同 Slider——收缩态 handle 与轨道
+    // 对齐）。background 显式 implicit（150×25，垂直 25×150）供控件
+    // implicit 计算。
     background: Item {
         // implicit 随 orientation 交换（水平 150×25 ↔ 垂直 25×150）——对齐
         // 官方"垂直默认窄"惯例；根 implicit 公式本身不变（background 项
@@ -72,7 +74,7 @@ T.RangeSlider {
                 enabled: root.animationEnabled
             }
             color: Qt.alpha(root.Style.buttonText, 0.75)
-            // 轨道沿主轴铺满（尖点贴边不外溢）、沿法向常态收缩 + 居中
+            // 轨道双向收缩 + 居中（宽高各 − shrinkSize、x = y = halfShrinkSpace）
             width: parent.width - pCtrl.shrinkSize
             height: parent.height - pCtrl.shrinkSize
             x: pCtrl.halfShrinkSpace
@@ -137,9 +139,9 @@ T.RangeSlider {
     // 作尖角外溢/对齐）；法向满宽/满高 + 居中。
     contentItem: Item {
         // 值变化锁存（TimerLatch）：拖动/键盘/程序化改值后前景保持展开
-        // interval（500ms）——任一 handle 值变化即触发（滑动窗口内持续保持），
-        // 与 hover 共同驱动 resized（hovered || latch.active），避免改值
-        // 瞬间前景收缩再展开的闪动。
+        // interval（Style.movementDuration×2）——任一 handle 值变化即触发
+        // （滑动窗口内持续保持），与 hover 共同驱动 resized（hovered ||
+        // latch.active），避免改值瞬间前景收缩再展开的闪动。
         TimerLatch {
             id: latch
             interval: Style.movementDuration * 2

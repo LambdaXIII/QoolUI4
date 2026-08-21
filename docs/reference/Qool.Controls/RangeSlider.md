@@ -16,10 +16,9 @@ behavior** — nothing is re-implemented.
 
 - **Track** — a static `Crystal` hexagonal track (`Style.buttonText` at 75%
   opacity, `ThemeHQ.recommendForeground(Style.buttonText)` stroke) in the
-  `background`, spanning the main
-  axis and held at the rest size along the normal, centered on it
-  (horizontal: full width, `height − shrinkSize`, vertically centered;
-  vertical: full height, `width − shrinkSize`, horizontally centered). It
+  `background`, contracted by `shrinkSize` on **both** axes and centered
+  (`x = y = shrinkSize / 2`; resting size = container − `shrinkSize` in
+  width and height — the shrunk handles stay aligned with the track). It
   does not participate in interaction feedback (the visual focus is on the
   foreground).
 - **Handles** — `first.handle`/`second.handle` default to transparent
@@ -58,6 +57,8 @@ are orthogonal:
 - **Axis** — `horizontal` picks the handles' travel axis and the normal
   (`side = horizontal ? availableHeight : availableWidth`) drives the
   track/fill contraction, the shrink amount and the strip orientation.
+  The track contracts on both axes (resting size = container −
+  `shrinkSize` in width and height) and stays centered.
   `shrinkSize = Qore.bound(3, side * 0.25, 25)`.
 - **RTL affects only horizontal** — the handles travel via `visualPosition`
   (mirrored: value-increasing moves left), and the `rangeBox` span stays
@@ -186,8 +187,9 @@ RangeSlider {
   `rangeBox` interval (straight middle = the interval, points overflowing
   `height/2`) while hovered (hover only counts within the crystal shape —
   the `rangeBox` `containmentMask` restricts hit-testing to the crystal)
-  or while a recent value change holds (`TimerLatch`, 500 ms sliding
-  window), then contracts by `shrinkSize` (`Qore.bound(3, side * 0.25,
+  or while a recent value change holds (`TimerLatch`,
+  `Style.movementDuration × 2` sliding window), then contracts by
+  `shrinkSize` (`Qore.bound(3, side * 0.25,
   25)`, `side` = the normal size) when neither holds. The expansion is
   animated (`ItemAnimatedResizer`) unless `animationEnabled` is off.
 - Inverted range (`from > to`): positions reverse; the interval stays

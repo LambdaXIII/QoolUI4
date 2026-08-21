@@ -159,7 +159,8 @@ TestCase {
         compare(rb.width, 160 * 0.5 + 40)
         tryCompare(rc, "width", rb.width, 1000, "值变化锁存：前景保持展开到全尺寸")
         tryCompare(rc, "height", rb.height, 1000, "锁存期间高度展开")
-        // 锁存释放（500ms 滑动窗口）→ 前景收缩回常态（跟随新 rangeBox 宽）
+        // 锁存释放（Style.movementDuration×2 = 800ms 滑动窗口）→ 前景收缩回常态
+        // （跟随新 rangeBox 宽）——tryCompare 窗口 3000ms 覆盖
         tryCompare(rc, "width", rb.width - 10, 3000, "锁存释放后前景收缩回常态")
     }
 
@@ -269,7 +270,7 @@ TestCase {
 
     function test_verticalGeometry() {
         // 垂直：handle 横条（w = side、h = side/2）、x 居中、y 由
-        // visualPosition（值小在底）；轨道沿法向（宽）收缩 + 居中；区间盒
+        // visualPosition（值小在底）；轨道双向收缩 + 居中；区间盒
         // 沿 y 轴锚定 + 纵向行程；implicit 交换
         const s = makeSlider({ orientation: Qt.Vertical, width: 40, height: 200 })
         const track = s.background.children[0]
@@ -288,10 +289,10 @@ TestCase {
         compare(s.first.handle.y, 0.75 * 160, "fh vP0.75 y120")
         compare(s.second.handle.y, 20 + 0.25 * 160, "sh vP0.25 y60")
         verify(s.first.handle.y + s.first.handle.height >= s.second.handle.y, "non-intersect after write")
-        compare(track.width, 40 - 10, "track shrink along normal")
-        compare(track.x, 5, "track normal centered")
-        compare(track.height, 200, "track full main")
-        compare(track.y, 0, "track no main offset")
+        compare(track.width, 40 - 10, "track shrink both axes")
+        compare(track.x, 5, "track centered both axes")
+        compare(track.height, 200 - 10, "track shrink both axes")
+        compare(track.y, 5, "track centered both axes")
         const rb = rangeBox(s)
         compare(rb.width, 40, "rb width full (vertical main)")
         compare(rb.x, 0, "rb x centered")

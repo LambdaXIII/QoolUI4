@@ -35,13 +35,14 @@ T.Slider {
     SmartObject {
         id: pCtrl
         // 法向尺寸抽象：轨道法向尺寸——水平时 = 可用高（垂直轴）、垂直时 =
-        // 可用宽（水平轴）。横竖对称、镜像无关（法向居中不随镜像变化）；
+        // 可用宽（水平轴）。横竖对称、镜像无关（收缩居中不随镜像变化）；
         // 手柄边长/收缩量/轨道收缩/展开全部基于它。
         readonly property real side: root.horizontal ? root.availableHeight : root.availableWidth
         // 常态收缩量：轨道与手柄从全尺寸收缩的量（hover/按下/锁存展开时
-        // 手柄占满法向；轨道恒为常态——静态，不参与交互反馈）。
+        // 手柄占满法向；轨道恒为常态——静态，不参与交互反馈）。轨道宽高
+        // 双向各收缩此量（保证收缩态 handle 与轨道正确对齐）。
         readonly property real shrinkSize: Qore.bound(3, side * 0.25, 25)
-        // 收缩偏移量的一半——轨道沿法向居中（收缩后两端各留 shrinkSize/2）。
+        // 收缩偏移量的一半——轨道双向居中（收缩后四边各留 shrinkSize/2）。
         readonly property real halfShrinkSpace: shrinkSize / 2
     }
 
@@ -50,9 +51,10 @@ T.Slider {
     // 切角极限形态合法，Crystal 即 cut = shortEdge/2 特化）。background 显式
     // implicit（150×25）供控件 implicit 计算；尺寸经 Control 标准自动布局
     // （background 自动 fill 控件 − insets，宿主替换新实例同样受控——插拔
-    // 安全）。轨道恒为常态高度（不随展开变）+ 垂直居中（y = shrinkSize/2）
-    // ——三心对齐（水晶中心 = 轨道中心 = 控件中心，水晶常态与轨道同高贴斜
-    // 边；展开时水晶顶出轨道但不出控件）
+    // 安全）。轨道恒为常态尺寸（不随展开变）+ 双向收缩居中——宽高各收缩
+    // shrinkSize、x = y = shrinkSize/2（收缩态 handle 与轨道对齐）；三心
+    // 对齐：水晶中心 = 轨道中心 = 控件中心（水晶常态与轨道同高贴斜边；
+    // 展开时水晶顶出轨道但不出控件）
     background: Item {
         // implicit 随 orientation 交换（水平 150×25 ↔ 垂直 25×150）——对齐
         // 官方"垂直默认窄"惯例；根 implicit 公式本身不变（background 项
@@ -127,10 +129,11 @@ T.Slider {
         y: root.horizontal ? root.topPadding + (root.availableHeight - height) / 2 : root.topPadding + root.visualPosition * (root.availableHeight - height)
 
         // 值变化锁存（TimerLatch）：拖动/键盘/程序化改值后手柄保持展开
-        // interval（500ms）——值变化即触发（滑动窗口内持续保持），与 hover/
-        // 按下共同驱动 resized（hovered || pressed || latch.active），避免
-        // 改值瞬间收缩再展开的闪动。锁存内化于 handle——不暴露接口（宿主的
-        // "刚移动"感知经手柄展开反馈呈现，无需读锁存状态）。
+        // interval（Style.movementDuration×2）——值变化即触发（滑动窗口内
+        // 持续保持），与 hover/按下共同驱动 resized（hovered || pressed ||
+        // latch.active），避免改值瞬间收缩再展开的闪动。锁存内化于 handle
+        // ——不暴露接口（宿主的"刚移动"感知经手柄展开反馈呈现，无需读锁存
+        // 状态）。
         TimerLatch {
             id: latch
             interval: Style.movementDuration * 2

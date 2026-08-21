@@ -2,6 +2,15 @@
 
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
+## [4.0.0] — 2026-08-22
+
+### 变更（slider-track-both-axes，Slider/RangeSlider 轨道双向收缩 + 测试/文档/ADR 同步）
+
+- **轨道几何改双向收缩（036fe63 视觉调整落定）**：Slider 与 RangeSlider 的默认轨道由「主轴铺满 + 法向收缩居中」（水平宽满/高收缩、垂直高满/宽收缩）改为**宽高双向各收缩 shrinkSize + 双向居中**（`width/height = parent − shrinkSize`、`x = y = halfShrinkSpace`，水平/垂直同式）——收缩态（常态）handle 与轨道贴边对齐；`side` 法向抽象与 `shrinkSize`/`halfShrinkSpace` 公式不变（收缩量仍基于 side），垂直瘦六边形形态学结论不变
+- **锁存间隔跟随 Style.movementDuration**：Slider 手柄与 RangeSlider 前景的 TimerLatch `interval` 由固定 500ms 改为 `Style.movementDuration × 2`（默认 400 → 800ms）——锁存窗口随主题运动时长缩放，不再硬编码
+- **测试同步**：tst_slider（轨道几何/渐变锚定/insets/垂直几何/RTL/垂直+RTL 断言按新几何修正：水平轨道 190×30 x=y=5、垂直 30×190 x=y=5、渐变 x2/y1 端点随轨道收缩后尺寸；handleRestAndExpand 等待窗口 600→1000ms 对齐新锁存 800ms）、tst_rangeslider（垂直几何轨道双向收缩断言）
+- **注释/文档/ADR 同步**：Slider.qml / RangeSlider.qml 轨道几何与锁存注释、`docs/reference/Qool.Controls/Slider.md` / `RangeSlider.md`（Track bullet / Axis / Interaction feedback）；ADR-0010/0011 追加「轨道双向收缩 + 锁存跟随 movementDuration」实现演进（Key Decisions 原文保留、演进记录对齐现状）
+
 ## [4.0.0] — 2026-08-21
 
 ### 变更（colorchannelslider，ColorChannelSlider 通道滑块组件）
