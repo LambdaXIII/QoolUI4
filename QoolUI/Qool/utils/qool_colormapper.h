@@ -17,8 +17,8 @@ class ColorMapperStop : public QObject {
 public:
   explicit ColorMapperStop(QObject* parent = nullptr)
     : QObject(parent) { }
-  QOBJECT_WRITABLE_PROPERTY(qreal, position, 0, FINAL)
-  QOBJECT_WRITABLE_PROPERTY(QColor, color, , FINAL)
+  QOBJECT_WRITABLE_PROPERTY(qreal, position, 0)
+  QOBJECT_WRITABLE_PROPERTY(QColor, color, )
 };
 
 class ColorMapper : public QObject {

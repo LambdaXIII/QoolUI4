@@ -44,12 +44,12 @@ class PropertyProxy : public QObject {
 
   // value 属无状态非标准场景：手工 Q_PROPERTY（无 m_ 成员），勿用 QBINDABLE
   // 宏（宏带 m_ 成员破坏无状态契约）。
-  Q_PROPERTY(QVariant value READ value WRITE setValue NOTIFY valueChanged FINAL)
-  Q_PROPERTY(bool isReadable READ isReadable NOTIFY isReadableChanged FINAL)
-  Q_PROPERTY(bool isWritable READ isWritable NOTIFY isWritableChanged FINAL)
-  Q_PROPERTY(bool isConstant READ isConstant NOTIFY isConstantChanged FINAL)
-  Q_PROPERTY(bool isResettable READ isResettable NOTIFY isResettableChanged FINAL)
-  Q_PROPERTY(bool isBindable READ isBindable NOTIFY isBindableChanged FINAL)
+  Q_PROPERTY(QVariant value READ value WRITE setValue NOTIFY valueChanged)
+  Q_PROPERTY(bool isReadable READ isReadable NOTIFY isReadableChanged)
+  Q_PROPERTY(bool isWritable READ isWritable NOTIFY isWritableChanged)
+  Q_PROPERTY(bool isConstant READ isConstant NOTIFY isConstantChanged)
+  Q_PROPERTY(bool isResettable READ isResettable NOTIFY isResettableChanged)
+  Q_PROPERTY(bool isBindable READ isBindable NOTIFY isBindableChanged)
 
 public:
   explicit PropertyProxy(QObject* parent = nullptr);
@@ -64,9 +64,9 @@ public:
   bool isBindable() const;
 
   // target/property/interval 为普通可写属性（非无状态约束范围），用宏。
-  QBINDABLE_WRITABLE_PROPERTY(PropertyProxy, QObject*, target, FINAL)
-  QBINDABLE_WRITABLE_PROPERTY(PropertyProxy, QString, property, FINAL)
-  QBINDABLE_WRITABLE_PROPERTY(PropertyProxy, int, interval, FINAL)
+  QBINDABLE_WRITABLE_PROPERTY(PropertyProxy, QObject*, target)
+  QBINDABLE_WRITABLE_PROPERTY(PropertyProxy, QString, property)
+  QBINDABLE_WRITABLE_PROPERTY(PropertyProxy, int, interval)
 
 public:
   Q_SIGNAL void valueChanged();
@@ -88,10 +88,10 @@ private:
   Q_SLOT void sample();
 
   QQmlProperty m_observed;
-  QTimer* m_timer = nullptr;
+  QTimer* m_timer{nullptr};
   QMetaObject::Connection m_notifyConnection;
   QMetaObject::Connection m_destroyedConnection;
-  bool m_hasLast = false;
+  bool m_hasLast{false};
   QVariant m_lastValue;
 };
 

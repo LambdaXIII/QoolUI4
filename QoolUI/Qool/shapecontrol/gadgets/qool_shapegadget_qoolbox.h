@@ -87,27 +87,27 @@ public:
 
 private:
   // —— 输入面（width/height 经 control 读取，不声明）——
-  QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, cutTL, FINAL)
-  QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, cutTR, FINAL)
-  QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, cutBL, FINAL)
-  QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, cutBR, FINAL)
+  QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, cutTL)
+  QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, cutTR)
+  QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, cutBL)
+  QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, cutBR)
   // 属性 borderWidth（real）：内缩距离（默认 0 = 外轮廓；双实例描边：
   // 内环实例 = d）。永不介入 referenceBox（本实例唯一自由输入）。
-  QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, borderWidth, FINAL)
-  QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, offsetX, FINAL)
-  QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, offsetY, FINAL)
+  QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, borderWidth)
+  QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, offsetX)
+  QBINDABLE_WRITABLE_PROPERTY(QoolBoxGadget, qreal, offsetY)
 
   // —— referenceBox 成员（Q_PROPERTY 手写；信号见 public 侧声明）——
   Q_OBJECT_BINDABLE_PROPERTY(QoolBoxGadget, QoolBoxGadget*, m_referenceBox,
       &QoolBoxGadget::referenceBoxChanged)
   Q_PROPERTY(QoolBoxGadget* referenceBox READ referenceBox WRITE
           set_referenceBox NOTIFY referenceBoxChanged BINDABLE
-          bindable_referenceBox FINAL)
+          bindable_referenceBox)
 
   // —— 派生链（全部 setBinding，逐级依赖追踪）——
   // ① used（ref 介入：ref.used : 自算）——对外面（QML 输出）
-  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, usedWidth, FINAL)
-  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, usedHeight, FINAL)
+  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, usedWidth)
+  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, usedHeight)
   // ② usedHalf（降权内部量）
   QProperty<qreal> m_usedHalfWidth;
   QProperty<qreal> m_usedHalfHeight;
@@ -131,10 +131,10 @@ private:
   // ⑩ point×8 / ⑪ 分量×16（对外面：QML 输出）
   // 命名规范：首字母 = 点所在边、次字母 = 该边端点位置（TL = Top 边 Left
   // 端点、LT = Left 边 Top 端点）——8 个命名互不混淆。
-#define DECL_POINT(_N_)                                                \
-  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, QPointF, point##_N_, FINAL) \
-  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, point##_N_##x, FINAL) \
-  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, point##_N_##y, FINAL)
+#define DECL_POINT(_N_)                                              \
+  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, QPointF, point##_N_)     \
+  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, point##_N_##x)    \
+  QBINDABLE_READONLY_PROPERTY(QoolBoxGadget, qreal, point##_N_##y)
   QOOL_FOREACH_8(DECL_POINT, TL, TR, RT, RB, BR, BL, LB, LT)
 #undef DECL_POINT
 };

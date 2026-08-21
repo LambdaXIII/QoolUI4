@@ -9,9 +9,9 @@ QOOL_NS_BEGIN
 
 PropertyProxy::PropertyProxy(QObject* parent)
     : QObject(parent), m_timer(new QTimer(this)) {
-  // interval 默认 -1（宏无默认值参数——构造赋值；不轮询为默认，busy polling
-  // opt-in）
-  m_interval = -1;
+  // interval 默认 -1（宏无默认值参数——构造用 QBINDABLE_SET_VALUE 初始化，
+  // 强调 QBINDABLE 身份；不轮询为默认，busy polling opt-in）
+  QBINDABLE_SET_VALUE(interval, -1);
   connect(m_timer, &QTimer::timeout, this, &PropertyProxy::sample);
   // target/property 写入 → 重建观测；interval 写入 → 重配轮询
   connect(this, &PropertyProxy::targetChanged, this,

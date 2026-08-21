@@ -25,12 +25,12 @@ public:
   Q_SIGNAL void circleChanged();
 
 protected:
-  QOOL_DECL_POINT(center, FINAL)
-  QBINDABLE_WRITABLE_PROPERTY(CircleGadget, qreal, radius, FINAL)
-  QBINDABLE_READONLY_PROPERTY(CircleGadget, qreal, area, FINAL)
+  QOOL_DECL_POINT(center)
+  QBINDABLE_WRITABLE_PROPERTY(CircleGadget, qreal, radius)
+  QBINDABLE_READONLY_PROPERTY(CircleGadget, qreal, area)
 
 #define DECL(ANGLE)                                               \
-  QOBJECT_READONLY_PROPERTY_DECLARE(QPointF, point##ANGLE, FINAL) \
+  QOBJECT_READONLY_PROPERTY_DECLARE(QPointF, point##ANGLE)         \
 public:                                                           \
   QBindable<QPointF> bindable_point##ANGLE();
 

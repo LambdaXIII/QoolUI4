@@ -24,8 +24,8 @@ public:
 
   Q_INVOKABLE virtual bool contains(const QPointF& point) const;
 
-  QBINDABLE_WRITABLE_PROPERTY(ShapeControlGadget, ShapeControl*, control, FINAL)
-  QBINDABLE_WRITABLE_PROPERTY(ShapeControlGadget, QQuickItem*, target, FINAL)
+  QBINDABLE_WRITABLE_PROPERTY(ShapeControlGadget, ShapeControl*, control)
+  QBINDABLE_WRITABLE_PROPERTY(ShapeControlGadget, QQuickItem*, target)
 };
 
 QOOL_NS_END

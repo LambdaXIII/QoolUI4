@@ -152,6 +152,8 @@ python Scripts/qoolui_build_linux.py deploy         # install + zip 归档
 
 ## 编码规范（C++）
 
+**惯例定义（MUST）**：仅 AGENTS 中列出的惯例才是惯例。如确有必要新增惯例，须先在 AGENTS 中注册再推行；不得以「沿用先例」「仓库惯例」等说法推行未在 AGENTS 注册的做法。
+
 ### 命名风格
 
 **「属性」概念界定**：本项目语境下「属性」特指 Qt 元对象系统 property 机制（Q_PROPERTY 注册的成员），非自然语言泛指。
@@ -168,14 +170,21 @@ python Scripts/qoolui_build_linux.py deploy         # install + zip 归档
 | 内部辅助方法 | snake_case | `get_value`、`initialize_data`、`propagate_theme` |
 | 槽函数 | `when` 命名（响应信号） | `whenColorChanged` |
 | QQmlListProperty 回调 / 私有辅助 | `__` 双下划线前缀 | `__appendFunction`、`__auto_insert` |
+| bindable 访问器 | `bindable_camelCase` | `bindable_interval` |
 
-**成员变量与 setter 参数**：成员 `m_` 前缀、setter 参数 `new_` 前缀（属性宏体系固定命名，宏详情见 QoolCommon 源码）。
+**成员变量与 setter / bindable 命名**：私有成员 `m_camelCase`（`m_` 前缀）、setter 参数 `new_` 前缀；bindable 方法 `bindable_camelCase`（camelCase 与属性名一致，不随 Qt 惯例改变大小写）。属性宏体系按此命名，可假定宏行为与惯例一致。
 
 **命名全称**：标识符与注释一律全称少缩写（`maxShrinkDistance` 而非 dStar、`shrinkDistance` 而非 shrinkD）；数学记号（√2、θ/2 等）仅限文档公式与算法注释，不进标识符。
 
 ### 属性
 
-属性应当优先用 QoolCommon 属性宏定义，以统一风格并集中维护；无宏覆盖的非标准场景手工实现。
+属性应当优先用 QoolCommon 属性宏定义，以统一风格并集中维护；无宏覆盖的非标准场景手工实现。`Q_PROPERTY` 宏与 qoolcommon 属性宏（`QBINDABLE_*_PROPERTY` 等）集中声明、放在一起，不分开列出。
+
+### 成员初始化
+
+- **声明处初始化**：成员在声明部分用 `{初始值}` 初始化；`nullptr` / 零值均须显式初始化。
+- **static 成员**：在 cpp 中从外部初始化。
+- **宏成员**：因宏（如属性宏）无法在头文件初始化成员时，在构造函数中初始化；此时 QBINDABLE 属性必须用 `QBINDABLE_SET_VALUE` / `QBINDABLE_SET_BINDING` 宏初始化，以强调其 QBINDABLE 身份，字面上与普通值区分。
 
 ### SmartObject
 
@@ -197,6 +206,10 @@ Qool 自定义强化版 `QtObject`（**非 `QObject`**，兼容 QtObject），�
 - **变化汇聚**：多个变更信号汇聚到一个槽 → `when` 命名：`[xChanged, yChanged]` → `whenPositionChanged`
 
 组合链示例（环节可增减，示例非规定）：`wannaChangeName → whenNameChangeRequested → nameChanged → whenNameChanged`。
+
+### 调试信息
+
+调试信息打印使用 `xDebug` / `xDebugQ` 系列宏（QoolCommon 调试工具），不裸用 `qDebug()` / `qWarning()`。
 
 ## QML 组件规范
 

@@ -50,15 +50,15 @@ public:
 
   // 属性声明优先 Bindable 系列宏（仓库规范——bindable 由宏自动实现；
   // 本类无需手动 setter 逻辑，重建观测走 Changed 信号连接）
-  QBINDABLE_WRITABLE_PROPERTY(NumberNotifier, QObject*, target, FINAL)
-  QBINDABLE_WRITABLE_PROPERTY(NumberNotifier, QString, property, FINAL)
-  QBINDABLE_WRITABLE_PROPERTY(NumberNotifier, int, interval, FINAL)
+  QBINDABLE_WRITABLE_PROPERTY(NumberNotifier, QObject*, target)
+  QBINDABLE_WRITABLE_PROPERTY(NumberNotifier, QString, property)
+  QBINDABLE_WRITABLE_PROPERTY(NumberNotifier, int, interval)
 
   // 采样检测事件（新值在前——Qt 惯例 + 单参 handler 自动降级为新值、
   // 旧值丢弃）。命名：单属性变化通知携带新旧值数据 → xxxUpdated（AGENTS
   // 信号命名规范——区别于宏生成的无参 xxxChanged 属性通知）
   Q_SIGNAL void valueUpdated(qreal newValue, qreal oldValue);
-  QBINDABLE_READONLY_PROPERTY(NumberNotifier, qreal, velocity, FINAL)
+  QBINDABLE_READONLY_PROPERTY(NumberNotifier, qreal, velocity)
 
 private:
   void sample();

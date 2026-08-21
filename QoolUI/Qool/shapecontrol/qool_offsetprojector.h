@@ -21,11 +21,11 @@ public:
   QBindable<qreal> bindable_refDistance();
 
 protected:
-  QOBJECT_WRITABLE_PROPERTY(QVector2D, direction, QVector2D(1, 0), FINAL)
-  QOBJECT_WRITABLE_PROPERTY(QVector2D, refDirection, QVector2D(1, 0), FINAL)
-  QOBJECT_WRITABLE_PROPERTY(qreal, refDistance, 0, FINAL)
+  QOBJECT_WRITABLE_PROPERTY(QVector2D, direction, QVector2D(1, 0))
+  QOBJECT_WRITABLE_PROPERTY(QVector2D, refDirection, QVector2D(1, 0))
+  QOBJECT_WRITABLE_PROPERTY(qreal, refDistance, 0)
 
-  QBINDABLE_READONLY_PROPERTY(OffsetProjector, QVector2D, offset, FINAL)
+  QBINDABLE_READONLY_PROPERTY(OffsetProjector, QVector2D, offset)
 };
 
 QOOL_NS_END

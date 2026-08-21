@@ -22,16 +22,16 @@ public:
 protected:
   void componentComplete() override;
 
-  QBINDABLE_WRITABLE_PROPERTY(CirclePoint, CircleGadget*, attachedCircle, FINAL)
-  QBINDABLE_WRITABLE_PROPERTY(CirclePoint, QPointF, center, FINAL)
-  QBINDABLE_WRITABLE_PROPERTY(CirclePoint, qreal, radius, FINAL)
+  QBINDABLE_WRITABLE_PROPERTY(CirclePoint, CircleGadget*, attachedCircle)
+  QBINDABLE_WRITABLE_PROPERTY(CirclePoint, QPointF, center)
+  QBINDABLE_WRITABLE_PROPERTY(CirclePoint, qreal, radius)
 
-  QOBJECT_WRITABLE_PROPERTY_DECLARE(qreal, angle, FINAL)
-  QOBJECT_WRITABLE_PROPERTY(qreal, radians, 0, FINAL)
+  QOBJECT_WRITABLE_PROPERTY_DECLARE(qreal, angle)
+  QOBJECT_WRITABLE_PROPERTY(qreal, radians, 0)
 
-  QBINDABLE_READONLY_PROPERTY(CirclePoint, QPointF, position, FINAL)
-  QBINDABLE_READONLY_PROPERTY(CirclePoint, qreal, x, FINAL)
-  QBINDABLE_READONLY_PROPERTY(CirclePoint, qreal, y, FINAL)
+  QBINDABLE_READONLY_PROPERTY(CirclePoint, QPointF, position)
+  QBINDABLE_READONLY_PROPERTY(CirclePoint, qreal, x)
+  QBINDABLE_READONLY_PROPERTY(CirclePoint, qreal, y)
 };
 
 QOOL_NS_END

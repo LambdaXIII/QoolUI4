@@ -17,8 +17,8 @@ class NumberMapperStop : public QObject {
 public:
   explicit NumberMapperStop(QObject* parent = nullptr);
 
-  QOBJECT_WRITABLE_PROPERTY(qreal, position, 0, FINAL)
-  QOBJECT_WRITABLE_PROPERTY(qreal, value, 0, FINAL)
+  QOBJECT_WRITABLE_PROPERTY(qreal, position, 0)
+  QOBJECT_WRITABLE_PROPERTY(qreal, value, 0)
 };
 
 class NumberMapper : public QObject {

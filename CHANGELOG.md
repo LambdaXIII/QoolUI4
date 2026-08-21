@@ -4,6 +4,18 @@
 
 ## [4.0.0] — 2026-08-21
 
+### 变更（cpp-conventions + qool-final-removal，C++ 惯例落盘 + 全 Qool 去 FINAL + PropertyProxy 合规）
+
+- **AGENTS 编码规范新增惯例（MUST）**：
+  - 「惯例定义」：仅 AGENTS 列出的惯例才是惯例；确有必要新增须先在 AGENTS 注册再推行，不得以「沿用先例」「仓库惯例」等说法推行未注册做法
+  - 「成员初始化」：成员声明处 `{初始值}` 初始化（nullptr/零值均显式）；static 成员在 cpp 外部初始化；宏成员（属性宏无法头文件初始化）在构造函数用 `QBINDABLE_SET_VALUE` / `QBINDABLE_SET_BINDING` 初始化（强调 QBINDABLE 身份、字面与普通值区分）
+  - 「命名风格」补成员 `m_camelCase` / bindable 方法 `bindable_camelCase`（camelCase 与属性名一致，不随 Qt 惯例改变大小写；属性宏行为与惯例一致）
+  - 「属性」补 Q_PROPERTY 与 qoolcommon 属性宏集中声明、不分开列出
+  - 「调试信息」用 xDebug / xDebugQ 系列宏，不裸用 qDebug/qWarning
+- **全 Qool 去 FINAL**（回到稀疏 FINAL 库基线——默认不加、特殊需要才个别加）：扫描 Qool 模块 28 头文件，8 类「所有属性全 FINAL 且 class 非 final」去 FINAL——NumberNotifier、ShapeControl、ShapeControlGadget、OffsetProjector、CircleGadget、CirclePoint、QoolBoxGadget（含手写 referenceBox Q_PROPERTY 尾部 FINAL）、ColorMapperStop、NumberMapperStop；宏展开内 FINAL 一并去（QOOL_DECL_POINT / DECL / DECL_POINT）。保留非候选类（存在无 FINAL 属性者）的 FINAL
+- **PropertyProxy 合规调整**：value/五能力/宏属性去 FINAL；`m_interval = -1` 改 `QBINDABLE_SET_VALUE(interval, -1)`（构造函数——宏无法头文件初始化成员，走 QBINDABLE 宏强调身份）；成员声明处花括号初始化（m_timer{nullptr} / m_hasLast{false}）
+- **验证**：build 通过；全量 ctest 21/22 通过（唯一失败 `tst_qoolcontrols_qml` 为既有 Slider/RangeSlider 轨道几何基线失败，与本次改动无关——git 未触碰相关文件）
+
 ### 变更（propertyproxy，PropertyProxy 无状态属性代理）
 
 - **新增 PropertyProxy**（Qool 模块 C++ QML 类型，`qool_propertyproxy.h/cpp` + Qool CMakeLists SOURCES 登记）：`target`（对象）+ `property`（字符串）桥接任意对象属性，暴露 `value` 作为其**无状态代理**——getter 现读 `target.property`、setter 直写（可写时），无内部存储、数据源唯一 → 无同步竞态、无"回滚"概念（ADR-0012；value 手工 Q_PROPERTY 无 m_ 成员，勿用 QBINDABLE 宏）
