@@ -41,27 +41,17 @@ BasicPage {
 
         // 三通道滑块 + 编辑配对（同 assistant 同 channel——拖动/编辑双向
         // 联动；与 picker 经 ca 全链闭合）
-        ColorChannelSlider {
+        ColorChannelControl {
             colorAssistant: ca
             channel: ColorNameHQ.HSVHue
         }
-        ColorChannelEdit {
-            colorAssistant: ca
-            channel: ColorNameHQ.HSVHue
-        }
-        ColorChannelSlider {
+
+        ColorChannelControl {
             colorAssistant: ca
             channel: ColorNameHQ.HSVSaturation
         }
-        ColorChannelEdit {
-            colorAssistant: ca
-            channel: ColorNameHQ.HSVSaturation
-        }
-        ColorChannelSlider {
-            colorAssistant: ca
-            channel: ColorNameHQ.HSVValue
-        }
-        ColorChannelEdit {
+
+        ColorChannelControl {
             colorAssistant: ca
             channel: ColorNameHQ.HSVValue
         }
