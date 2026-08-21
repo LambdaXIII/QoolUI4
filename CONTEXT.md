@@ -54,3 +54,11 @@
 | **内弧半径** | 圆角变体内弧半径 = 内环相邻点弦长/√2（|intRT − intTR|/√2 等四角，Shape 自身从 control 的内环点推出；control 不加派生属性；退化弦长 0 → 半径 0）。 |
 | **低级 API 组件** | OctagonShape/OctagonCurvedShape 的定位：`required` 整个 control（QoolBoxShapeControl）注入、纯消费（点/space/settings）、不持有几何——独立使用不自洽是刻意的（低级组成件，供 QoolBox 组装）。 |
 | **QoolBoxShapeControl** | 八边形几何单元（ShapeControl 子类，C++）：内部安装两个 QoolBoxGadget，转发 ext*/int* 16 点、usedWidth/usedHeight、四个 *Space、contains，公开 settings（QoolBoxSettings*）——可替换/共享（QoolBox 公开 control 属性）。 |
+
+## 属性代理（PropertyProxy）
+
+| 术语 | 定义 |
+|---|---|
+| **无状态代理** | PropertyProxy 的 value 是 target.property 的透明窗口：getter 现读、setter 直写（可写时），无内部存储，数据源唯一。QML 绑定无法用字符串指定属性名，故用 C++ 无状态代理桥接任意对象属性（读 + 可选写）。 |
+| **判变快照** | 轮询功能私有缓存（上次采样值），仅用于比较"值是否变化"以决定是否发 valueChanged；不参与读写行为（value 无状态，不经过它）。 |
+| **净化可写性** | isWritable 属性 = 元对象可写（`QMetaProperty::isWritable`）且非常量（`!isConstant`）——写方向守卫的单一条件；isConstant 仍独立透传。 |

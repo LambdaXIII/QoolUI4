@@ -264,3 +264,14 @@ target_link_libraries(tst_qool_style_theme_switch PRIVATE
   Qool QoolCommon QoolUITestSupport Qt6::Quick Qt6::Qml)
 target_compile_definitions(tst_qool_style_theme_switch PRIVATE
   QOOLUI_TEST_QML_IMPORT_PATH="${QT_QML_OUTPUT_DIRECTORY}")
+
+# PropertyProxy（无状态属性代理：value 直通 target.property、双路径同步、
+# 净化可写性、五能力、无效态、动态切换）——C++ 直编被测源（core seam）
+qoolui_add_cpp_test(
+  tst_qool_propertyproxy
+  tst_propertyproxy.cpp
+  "${QOOL_SRC}/qool_propertyproxy.cpp"
+)
+target_include_directories(tst_qool_propertyproxy PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
+target_link_libraries(tst_qool_propertyproxy PRIVATE
+  Qool QoolCommon QoolUITestSupport Qt6::Quick Qt6::Qml)

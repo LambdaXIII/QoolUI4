@@ -103,6 +103,7 @@ qt_add_qml_module(
   SOURCES utils/qool_numbermapper.h utils/qool_numbermapper.cpp
   SOURCES utils/qool_colormapper.h utils/qool_colormapper.cpp
   SOURCES qool_numbernotifier.h qool_numbernotifier.cpp
+  SOURCES qool_propertyproxy.h qool_propertyproxy.cpp
   SOURCES
   SOURCES shapecontrol/qool_qoolboxcutsizeslocker.h shapecontrol/qool_qoolboxcutsizeslocker.cpp
 )

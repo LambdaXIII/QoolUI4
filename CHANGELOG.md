@@ -4,6 +4,17 @@
 
 ## [4.0.0] — 2026-08-21
 
+### 变更（propertyproxy，PropertyProxy 无状态属性代理）
+
+- **新增 PropertyProxy**（Qool 模块 C++ QML 类型，`qool_propertyproxy.h/cpp` + Qool CMakeLists SOURCES 登记）：`target`（对象）+ `property`（字符串）桥接任意对象属性，暴露 `value` 作为其**无状态代理**——getter 现读 `target.property`、setter 直写（可写时），无内部存储、数据源唯一 → 无同步竞态、无"回滚"概念（ADR-0012；value 手工 Q_PROPERTY 无 m_ 成员，勿用 QBINDABLE 宏）
+- **双路径同步（读方向）**：观测建立立即 read() 一次（常量即终值）；有 NOTIFY → 事件驱动（连 notify 发 valueChanged）；无 NOTIFY → 轮询，`interval` 三态（`<0` 不轮询默认 -1 / `=0` 事件循环周期零定时器 / `>0` 固定间隔，用 QTimer(0) 勿沿用 NumberNotifier 的 clamp）；判变快照仅比较变化、不参与读写
+- **净化可写性 + 五能力**：`isWritable` = 元对象可写且非常量（写方向守卫单一条件）；isReadable/isWritable/isConstant/isResettable/isBindable 只读、随观测刷新；写失败 xWarningQ 显化组件名
+- **无效态**：target null / 属性无效 / 不可读 → value 无效（QML undefined）+ 能力全 false + 不连信号不启动定时器；动态属性（QQmlProperty 不解析）属无效态；**target 先析构**（监听 destroyed → 重置观测 + 停表，防轮询/getter 解引用已释放对象）
+- **决策记录**：ADR-0012 + CONTEXT.md「属性代理（PropertyProxy）」术语（无状态代理/判变快照/净化可写性）
+- **接口文档**：`docs/reference/Qool/PropertyProxy.md`（5 节）+ reference index.md 登记
+- **测试**：core 层 `tst_qool_propertyproxy`（12 用例）——初始值/常量/有 NOTIFY/无 NOTIFY interval 三态/写方向/xWarningQ/五能力/无效态/动态切换/动态属性无效/target 析构安全
+- **验证**：ctest -R tst_qool_propertyproxy 通过（12/12）
+
 ### 变更（style-design-article，Style 设计原理深度文章）
 
 - **新建 `docs/articles/style-design.md`**：从「为什么」与「怎么用」角度记述样式体系——核心设计决策（theme 是参数更新指令非传播令牌/覆盖持久=设计意图/主题边界=显式设置建源/快照传播/currentGroup 推导）、实现技术（QQuickAttachedPropertyPropagator 附加树/bindable 依赖追踪/两道通知过滤/修改键与主题源双意图登记/ADR-0001 数据层/XML 主题解析/follow）、亮点用法（根主题注入与热切换/单实例覆盖/子树门控/局部主题区域/状态定制/QoolPalette 桥/主题选择器）、心智模型三原则、演进记录（C3/C4 修复）

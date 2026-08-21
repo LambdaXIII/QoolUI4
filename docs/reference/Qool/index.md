@@ -11,8 +11,8 @@ Qool 是 QoolUI 的核心模块，提供：
   [Style 体系](../../articles/style-system.md)）。
 - 窗口：`QoolWindow`、`QoolWindowBasic`（见 `QoolWindow 配件哲学`）。
 - 工具：`CutSizeBinding`、`ItemAnimatedResizer`、`PositionLocker`、
-  `TimerLatch`、`Floater`、`PositionTracker`、`ItemTracker`、`Qore`、
-  `QoolPalette`、`PixelFont` 等。
+  `TimerLatch`、`Floater`、`PositionTracker`、`ItemTracker`、`PropertyProxy`、
+  `Qore`、`QoolPalette`、`PixelFont` 等。
 
 ## 组件参考
 
@@ -34,6 +34,7 @@ Qool 是 QoolUI 的核心模块，提供：
 - [OctagonShape](OctagonShape.md)
 - [OffsetProjector](OffsetProjector.md)
 - [PositionTracker](PositionTracker.md)
+- [PropertyProxy](PropertyProxy.md)
 - [QoolBox](QoolBox.md)
 - [QoolBoxGadget](QoolBoxGadget.md)
 - [QoolBoxSettings](QoolBoxSettings.md)

@@ -28,6 +28,7 @@
 | 0006 | QoolBoxGadget 内部质量：中间量降权 + 全称命名 + QVector2D |
 | 0007 | QoolBox 组件职责划分：control 公开（可替换/共享）+ 变体注入 |
 | 0008 | QoolBoxHud：QoolBox 专用调试工具 |
+| 0012 | PropertyProxy：无状态属性代理（value 直通 target.property，双路径同步 + 净化可写性） |
 
 ### QoolUI/QoolControls/（Slider 家族）
 
