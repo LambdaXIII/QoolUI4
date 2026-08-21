@@ -31,6 +31,7 @@ qt_add_qml_module(QoolControls
     QML_FILES EditableTextBox.qml
     QML_FILES ScrollBar.qml
     QML_FILES ScrollView.qml
+    QML_FILES Tumbler.qml
 )
 
 
