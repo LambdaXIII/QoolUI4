@@ -29,11 +29,21 @@ BasicPage {
     }
 
     QoolControl {
-        // width: hsvPanel.width
-        // height: hsvPanel.height
+        x: 30
         title: qsTr("HSV色轮面板")
         contentItem: HSVPanel {
             id: hsvPanel
+            colorAssistant: mainColor
+        }
+
+        RectResizer {}
+    }
+
+    QoolControl {
+        x: 200
+        title: qsTr("HSL面板")
+        contentItem: HSLPanel {
+            id: hslPanel
             colorAssistant: mainColor
         }
 

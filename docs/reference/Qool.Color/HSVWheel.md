@@ -24,8 +24,9 @@ older `_private` carrier, now promoted to a first-class component.
   cursor in the circle).
 - **No `defaultValue`/`reset`, double-click undefined** — the interaction
   contract is trimmed to match `ColorChannelSlider`/`ColorChannelControl`.
-- The `_private` wheel surface (`HSVSurface`) and cursor
-  (`HSVWheelCursor`) stay private; the public surface is the composition.
+- The `_private` wheel surface (`HSVSurface`) stays private; the cursor is
+  the shared `_private` `ColorCursor` composite (also used by `HSLBox`).
+  The public surface is the composition.
 
 ## Properties
 

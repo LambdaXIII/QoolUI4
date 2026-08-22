@@ -6,7 +6,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Qool
-import "NumTools.js" as Tools
 import Qool.Color
 
 // 通道竖直滑块基类：ChannelBar 轨道 + 数值输入 + 底部标题。
@@ -73,7 +72,7 @@ ColumnLayout {
     NumInput {
         id: valueText
         showUnderline: false
-        text: Tools.simplifyChannelNumber(root.value)
+        text: ColorNameHQ.formatChannelNumberFloat(root.value)
         font: PixelFont.normal
         color: root.Style.text
         horizontalAlignment: Text.AlignHCenter
@@ -82,7 +81,7 @@ ColumnLayout {
         Layout.preferredWidth: 72
         Binding {
             when: !valueText.editing
-            valueText.text: Tools.simplifyChannelNumber(root.value)
+            valueText.text: ColorNameHQ.formatChannelNumberFloat(root.value)
             restoreMode: Binding.RestoreNone
         }
         Connections {

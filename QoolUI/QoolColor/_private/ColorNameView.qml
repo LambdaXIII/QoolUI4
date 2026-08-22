@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Qool
-import "NumTools.js" as Tools
 import Qool.Color
 
 // 色名列表视图：分类色名 + 互斥点选。
@@ -104,7 +103,7 @@ ListView {
         MouseArea {
             id: topMA
             width: Math.max(scroller.width, 20)
-            height: Tools.limitNumber(scroller.width, scroller.height / 2, 20)
+            height: Qore.bound(scroller.height / 2, scroller.width, 20)
             x: (scroller.width - width) / 2
             y: (scroller.width - height) / 2
             cursorShape: Qt.PointingHandCursor
@@ -124,7 +123,7 @@ ListView {
         MouseArea {
             id: bottomMA
             width: Math.max(scroller.width, 20)
-            height: Tools.limitNumber(scroller.width, scroller.height / 2, 20)
+            height: Qore.bound(scroller.height / 2, scroller.width, 20)
             x: (scroller.width - width) / 2
             y: (scroller.width - height) / 2 + (scroller.height - scroller.width)
             cursorShape: Qt.PointingHandCursor

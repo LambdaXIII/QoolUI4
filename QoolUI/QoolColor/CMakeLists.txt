@@ -30,6 +30,7 @@ qt_add_qml_module(QoolColor
     QML_FILES ColorChannelSlider.qml
          QML_FILES ColorChannelControl.qml
      QML_FILES HSVWheel.qml
+    QML_FILES HSLBox.qml
  )
 
 # _private 私有件：**不注册进模块 qmldir**（不进 QML_FILES）——仅作为普通

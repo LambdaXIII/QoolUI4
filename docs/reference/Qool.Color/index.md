@@ -12,7 +12,9 @@ Qool.Color 提供完整的颜色操纵组件面：
 - 取色/编辑/预览：`ColorQuickPicker`、`ColorEdit`、`ColorChannelEdit`
   （单通道值编辑）、`ColorChannelSlider`（单通道拖动调值）、
      和 `ColorChannelControl`（单通道编辑+拖动组合行）、`ColorPreviewer`。
- - 取色表面：`HSVWheel`（HSV 二维色轮取色——hue/sat 双写 + value 压暗层，单向链架构，公开一级组件）。
+- 取色表面：`HSVWheel`（HSV 二维色轮取色——hue/sat 双写 + value 压暗层，
+  单向链架构，公开一级组件）；`HSLBox`（HSL 二维取色框——sat/lightness
+  双写 + hue 外部驱动，单向链架构，公开一级组件）。
 - 列表与银行：`ColorNameList`（分类色名选择）、`ColorBankPanel`
   （槽位存取）。
 
@@ -32,9 +34,10 @@ Qool.Color 提供完整的颜色操纵组件面：
 - [ColorNameList](ColorNameList.md)
 - [ColorPreviewer](ColorPreviewer.md)
 - [ColorQuickPicker](ColorQuickPicker.md)
- - [HSLPanel](HSLPanel.md)
- - [HSVPanel](HSVPanel.md)
- - [HSVWheel](HSVWheel.md)
+- [HSLBox](HSLBox.md)
+- [HSLPanel](HSLPanel.md)
+- [HSVPanel](HSVPanel.md)
+- [HSVWheel](HSVWheel.md)
 - [RGBPanel](RGBPanel.md)
 - [RandomHSVColorGenerator](RandomHSVColorGenerator.md)
 
@@ -50,9 +53,9 @@ Qool.Color 提供完整的颜色操纵组件面：
   注入前构造填充、监听 colorChanged 纪录、继承仿写）。
 - 数值输入约定：数字输入框允许 0..1000 整数，`x>1` 时按 `x/1000`
   解释（1000 表示 1.0）。
-- 私有拍平件（NumInput/CycleChoice/NumTools.js 与视觉件族）经目录
-  import 使用、不注册进模块 qmldir（宿主不可见），将来扩展为完整版
-  进入 Qool.Controls。
+- 私有拍平件（NumInput/CycleChoice 与视觉件族）经目录 import 使用、
+  不注册进模块 qmldir（宿主不可见），将来扩展为完整版进入
+  Qool.Controls。
 - 色名插件优先级统一由插件 json 的 `priority` 字段定义，接口不提供
   priority 方法。
 - 前景对比色统一用 v4 既有设施：`ThemeHQ.recommendForeground`

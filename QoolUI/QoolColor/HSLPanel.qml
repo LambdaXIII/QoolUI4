@@ -1,8 +1,8 @@
 // HSL 面板：饱和度/明度通道编辑行（ColorChannelEdit）→ HSLBox 表面 →
 // 色相（ColorChannelControl）/ 透明度（ColorChannelControl）组合行。
-// 交互：HSLBox 拖动取色/双击重置（hue<0→0，然后 sat=1、ltn=0.5）、
-//   ColorChannelEdit/Control 编辑与拖动通道值、showAlpha 控制透明度
-//   组合行显隐、animationEnabled 门控动画。
+// 交互：HSLBox 拖动取色（sat/ltn → hslSaturationF/hslLightnessF，hue
+//   外部驱动）、ColorChannelEdit/Control 编辑与拖动通道值、showAlpha
+//   控制透明度组合行显隐、animationEnabled 门控动画。
 // 刻意：标签为排版文字（channelTag），不翻译。
 // NOTE: HSLBox 驱动 hslHueF/hslSaturationF/hslLightnessF，
 //   色相组合行 channel=HSVHue（旧 ColorSlider_Hue 驱动 hsvHueF——
@@ -14,7 +14,6 @@ import QtQuick
 import QtQuick.Layouts
 import Qool
 import Qool.Color
-import "_private"
 
 ColumnLayout {
     id: root
@@ -48,9 +47,7 @@ ColumnLayout {
         colorAssistant: root.colorAssistant
     } //lightnessEdit
 
-    // HSLBox：拖动取色（sat/ltn → hslSaturationF/hslLightnessF）；
-    // 双击重置为 sat=1、ltn=0.5（纯色中点——与 HSVWheel 重置到无彩色的
-    // 语义不同，勿统一）。
+    // HSLBox：拖动取色（sat/ltn → hslSaturationF/hslLightnessF，hue 外部驱动）。
     HSLBox {
         id: hslBox
         Layout.fillWidth: true

@@ -1,0 +1,115 @@
+# HSLBox
+
+A regenerable, public HSL two-dimensional color-picking surface: a
+rectangular box that responds to the mouse to pick `saturation`/`lightness`
+while `hue` drives the plane's hue, shaped as a single reusable
+`Qool.Color` component (v4, new design). `HSLBox` uses a **single-chain
+architecture** aligned with the public `HSVWheel`.
+
+- **Single chain, no loop**: mouse events flow one way —
+  `mouse → setValues() → sat/ltn data → position(sat,ltn) → cursor`. The
+  cursor is a *visualization of the value* (a pure derivation of
+  `position`), not a separately draggable object, and the box reads the same
+  data source independently. There is **no** "cursor ↔ value" two-way
+  binding.
+- **Atomic two-value writes**: one mouse event sets both `saturation` and
+  `lightness` together on the `colorAssistant` (a 2-D atomic action), rather
+  than projecting a 1-D chain — no intermediate timing states. Interaction
+  does **not** write `hue` — the hue is external / linked and visualized on
+  the plane (`hslHueF < 0`, achromatic, is forced to `0` first so the plane
+  has a valid hue to pick against).
+- **Clamping for value validity** (not coordinate clamping): interactive
+  writes keep `HSLSurface`'s existing mapping (`Tools.limitNumber`
+  rectangle clipping → `saturationAt = x/w`, `lightnessAt = 1 - y/h`);
+  the interface-level `hue`/`saturation`/`lightness` property writes add
+  their own clamps (`hue < 0` (achromatic) is not written — the display
+  keeps the last valid position; `hue > 1` wraps circularly (`% 1`);
+  `saturation`/`lightness` clamp to `[0,1]`). `position` stays a pure
+  function.
+- **No `defaultValue`/`reset`, double-click undefined** — the interaction
+  contract is trimmed to match `ColorChannelSlider`/`ColorChannelControl`
+  (and `HSVWheel`). Unlike the wheel there is no ring clamp — the whole
+  rectangle is a hit target, clipped linearly.
+- The `_private` surface (`HSLSurface`) stays private; the cursor is the
+  shared `_private` `ColorCursor` composite (also used by `HSVWheel`). The
+  public surface is the composition. Cursor positioning is **event-driven**
+  (`updateCursor()` on assistant channel changes) — binding `centerx`/
+  `centery` is forbidden (the composite's back-write breaks bindings).
+
+## Properties
+
+- `animationEnabled : bool`
+  Animation switch (inherited from the parent chain — defaults to
+  `Style.animationEnabled`). Declared first (repository convention).
+
+- `colorAssistant : ColorAssistant` (default: `ColorAssistant {}`)
+  The color object that is the single data source. Interaction writes
+  `saturation`/`lightness`; `hue` drives the plane's hue but is not written
+  by the surface. Default standalone instance makes `HSLBox` usable on its
+  own.
+
+- `hue : real`
+  The hue channel (0..1). Two-way: writing it updates the assistant's
+  `hslHueF`; a change from the assistant reads back. `hue < 0` (achromatic)
+  writes are *not* forwarded (the display keeps the last valid position),
+  matching `ColorChannelSlider`'s out-of-range guard; `hue > 1` wraps
+  circularly (`% 1`). Not written by surface interaction (external /
+  linked).
+
+- `saturation : real`
+  The saturation channel (0..1). Two-way; interface writes clamp to
+  `[0,1]`.
+
+- `lightness : real`
+  The lightness channel (0..1). Two-way; interface writes clamp to
+  `[0,1]`. Defaults to `1` (white — aligned with `HSVWheel`'s `value: 1`;
+  the seeding pass overwrites it from the assistant on creation).
+
+- `userInteracting : bool` (read-only)
+  Reflects whether the surface is being dragged (from the interacting
+  area). Used by the cursor expansion / animation gating.
+
+## Signals
+
+- `hueChanged()`
+  Emitted when `hue` changes.
+
+- `saturationChanged()`
+  Emitted when `saturation` changes.
+
+- `lightnessChanged()`
+  Emitted when `lightness` changes.
+
+## Methods
+
+This component defines no additional methods.
+
+## Usage Example
+
+```qml
+import QtQuick
+import Qool
+import Qool.Color
+
+ColorAssistant {
+    id: ca
+    color: "red"
+}
+
+Column {
+    spacing: 4
+    HSLBox {
+        colorAssistant: ca
+        width: 200
+        height: 200
+        animationEnabled: false
+    }
+}
+```
+
+Drag on the box to pick `saturation`/`lightness` (both written at once); the
+cursor follows as a pure visualization of the value. Writing `hue` (or
+linking it from a channel row) rotates the plane's hue without being touched
+by the surface drag; the assistant stays the sole data source, so linked
+controls and `HSLBox` stay in step. Double-clicking does nothing (the reset
+contract is trimmed, matching `HSVWheel`).

@@ -2,6 +2,26 @@
  
  版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
  
+### 变更（numtools-removal，NumTools.js 移除——功能并入 Qore.bound / ColorNameHQ.formatChannelNumberFloat）
+
+- **删除 `_private/NumTools.js`**（v3 迁移残留工具库）：三个函数均已有 v4 替代——`limitNumber` → `Qore.bound`（auto_bound：min/max 顺序无关 + NaN 透传，语义等价）；`simplifyChannelNumber` → `ColorNameHQ.formatChannelNumberFloat`（'0'/'1'/'.xxx'/'NaN' 四输出同款）；`mapNumber` 无消费方（v3 API 面保留），随文件删除
+- **消费方迁移**（4 文件）：`_private/ChannelSlider.qml`（数值文本 simplifyChannelNumber ×2）、`_private/ColorNameView.qml`（滚动条高度 limitNumber ×2）、`_private/HSVSurface.qml`（饱和度钳制 limitNumber）、公开 `HSLBox.qml`（交互矩形裁剪 limitNumber ×2——票 05 引入的 `import "_private/NumTools.js"` 一并消除，公开组件不再依赖私有 JS 工具）
+- **文档**：`docs/reference/Qool.Color/index.md` 私有拍平件列举移除 NumTools.js
+- **验证**：build 通过（glob 自动不含、无 QML_FILES 引用）；全量 ctest 23/23 PASS（tst_qoolcolor_qml 含 tst_hslbox/tst_hsvwheel 回归；tst_qoolcontrols_qml 61 含滚动条回归）
+
+### 变更（hslbox-public，HSLBox 公开化 + HSLPanel 接线 + HSVWheel.md 更正——票 05）
+
+- **新增公开组件 HSLBox**（Qool.Color——v4 正式一级组件）：HSL 二维取色表面，单向链架构对齐 HSVWheel——矩形平面响应鼠标取色（`saturation`/`lightness` 同时写），`hue` 外部/联动驱动（hslHueF<0 无色相时交互先置 0）；三属性 `hue`/`saturation`/`lightness` 双向接口（外部写 → assistant；assistant 变 → 回读；onCompleted 播种，lightness 默认 1 对齐 HSVWheel value:1）
+- **单向链架构**：交互 `setValues()` 经 `HSLSurface` 映射（`Tools.limitNumber` 矩形裁剪 → `saturationAt=x/w`、`lightnessAt=1−y/h`）两个同时写 assistant 的 `hslSaturationF`/`hslLightnessF`；光标（共用 `_private/ColorCursor`，objectName "hslBoxCursor"）与平面独立从同一数据源派生，事件驱动定位（CenterPlacer 回写破坏绑定，禁止绑定 centerx/centery）
+- **写入钳制两路**（值合法，非坐标 clamp）：交互路径保留 `HSLSurface` 既有映射；接口路径——hue 越界（<0 无色相/NaN）不写/显示保持、hue>1 圆周归一化（`% 1`）、sat/ltn clamp [0,1]（同值守卫断环，对齐 HSVWheel）
+- **契约裁剪**：无 `defaultValue`/`reset`、双击无定义行为（对齐 HSVWheel）；`animationEnabled` 父链继承（声明序首位）；命中域无圆环钳制（矩形全命中，旧 HSLBox 行为保留）
+- **初始定位时序修复复刻**（票 04 定案）：`Component.onCompleted` 播种 + `Qt.callLater(updateCursor)`——CenterPlacer 初始 resync 晚于 onCompleted 执行，立即调用被同值守卫吞掉，延迟到下一轮写入必然生效
+- **HSLPanel 改引用公开 HSLBox**：删 `import "_private"`；`HSLBox{}` 块（id/layout/animationEnabled/colorAssistant）不变；文件头注释删双击重置描述
+- **清理**：删除旧 `_private/HSLBox.qml`（交互映射迁移进公开件，reset/双击随契约裁剪移除）；`HSLSurface` 保持 `_private` 不动（spec/ADR 定死）
+- **文档**：新增 `docs/reference/Qool.Color/HSLBox.md`（5 节）+ index.md 登记（组件参考 + 取色表面描述行）；`HSVWheel.md` 第 27–28 行光标引用更正（`HSVWheelCursor` → 共享 `_private` `ColorCursor` 组合件，对齐 ADR-0017）
+- **测试**：tst_qoolcolor_qml 新增 `tst_hslbox.qml`（7 用例：三值双向同步/同值收敛/播种/越界 hue 不写/clamp 含 hue>1 独立组件归一化/光标矩形内（tryVerify 异步定位 + QColor 量化容差 0.02）/无 reset）——批次全绿（含既有 tst_hsvwheel/tst_colorcursor 回归）
+- **验证**：build 通过（HSLBox 注册面 + qmlcache 编译）；tst_qoolcolor_qml 批次 ctest 全绿；全量 ctest 23/23 PASS
+
 ### 变更（colorcursor-hsvwheel，ColorCursor 组合件 + HSVWheel 接线 + 清理——票 04）
 
 - **重写 `_private/ColorCursor.qml` 为组合件**（ADR-0016/0017）：CrystalCursor（延迟缩放 + Crystal 自带菱形 contains 命中域）+ CenterPlacer（center ↔ x/y 双向）+ TimerLatch（值变化锁存归约）——HSV/HSL 两表面共用取色光标；公开契约对齐旧 HSVWheelCursor（animationEnabled 父链继承 / currentColor / userInteracting / centerx / centery / size / expandDelta）；裁剪 latchTarget / hoverEnabled / defaultValue/reset / centerPoint / 双模式死代码；消费方禁止绑定写 centerx/centery（CenterPlacer 回写破坏绑定——事件驱动赋值定案）

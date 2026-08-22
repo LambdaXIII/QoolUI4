@@ -26,7 +26,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Shapes
 import Qool
-import "NumTools.js" as Tools
 import Qool.Color
 
 // HSV 色轮表面：色相环 + 饱和度径向 + 明度压暗三层叠加。
@@ -73,7 +72,7 @@ Shape {
 
     function saturationAt(point) {
         const p_dist = pMath.centerDistance(point)
-        const sat = Tools.limitNumber(p_dist / pMath.radius, 0, 1)
+        const sat = Qore.bound(0, p_dist / pMath.radius, 1)
         return sat
     }
 
