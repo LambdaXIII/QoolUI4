@@ -25,35 +25,18 @@ BasicPage {
 
     // 共享色源：与 picker 无条件双向同步（同值守卫收敛——见文件头）
     ColorAssistant {
-        id: ca
-
-        // 读方向：assistant 变色（滑块/编辑写链、外部程序）→ picker 回显
-        onColorChanged: picker.currentColor = ca.color
+        id: mainColor
     }
 
-    Column {
-        // 取色方向：picker 取色 → assistant（写链）
-        ColorQuickPicker {
-            id: picker
-            defaultColor: "red"
-            onCurrentColorChanged: ca.color = picker.currentColor
+    QoolControl {
+        // width: hsvPanel.width
+        // height: hsvPanel.height
+        title: qsTr("HSV色轮面板")
+        contentItem: HSVPanel {
+            id: hsvPanel
+            colorAssistant: mainColor
         }
 
-        // 三通道滑块 + 编辑配对（同 assistant 同 channel——拖动/编辑双向
-        // 联动；与 picker 经 ca 全链闭合）
-        ColorChannelControl {
-            colorAssistant: ca
-            channel: ColorNameHQ.HSVHue
-        }
-
-        ColorChannelControl {
-            colorAssistant: ca
-            channel: ColorNameHQ.HSVSaturation
-        }
-
-        ColorChannelControl {
-            colorAssistant: ca
-            channel: ColorNameHQ.HSVValue
-        }
+        RectResizer {}
     }
 }
