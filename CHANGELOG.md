@@ -2,6 +2,11 @@
  
  版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
  
+### 变更（verification-tier-top，验证分级模型提升为顶层规则）
+
+- **AGENTS 第二行新增验证分级表**（`[MUSTMUSTMUST]` 注释规则之下）：注释/文档/无逻辑重命名 → 代码走读；纯 QML 行为改动 → 用户运行验证或单测试；构建结构改动 → build；完整落地一套修改 → build + 全量 ctest——顶部常驻，防过度验证（build/ctest 非默认动作）
+- **后部「验证策略」章节去重**：分级模型表移除，仅保留行为规则并指向顶部
+
 ### 变更（colorchannel-comment-cleanup，ColorChannel 两 Slider 家族注释清理）
 
 - **全删废话注释**（新 AGENTS 首行规则执行）：ColorChannelSlider / ColorChannelVerticalSlider 及全部关联元素（Track 双件、Colors 双 JS、旧竖直族 ChannelSlider/ChannelBar/9 变体）注释大幅精简——删除定位叙述/历史沿革/ADR 引用/自解释重复，仅保留「看不懂会误改」的必要点（链模型双处同步、sat-bump、越界守卫、彩虹反排陷阱、字面量勿改、标题缩写勿改、测试定位 objectName 等）
