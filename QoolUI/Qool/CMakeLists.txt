@@ -92,6 +92,7 @@ qt_add_qml_module(
             TimerLatch.qml
             ItemAnimatedResizer.qml
             GeoLocker.qml
+            CenterPlacer.qml
   SOURCES shapecontrol/gadgets/qool_shape_macros.hpp
   SOURCES shapecontrol/gadgets/qool_shapegadget_circle.h
           shapecontrol/gadgets/qool_shapegadget_circle.cpp

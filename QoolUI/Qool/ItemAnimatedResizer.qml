@@ -20,6 +20,11 @@ import Qool.Controls
 //
 // 锁机制：动画完成/跳变后锁定对应方向（Binding 将尺寸钉在目标值）——
 // 锁定期内目标绑定变化实时跟随；动画运行时解锁（动画接管尺寸）。
+//
+// 初始就位：构造后按 resized 当前值跳变就位（first_time_ensure——不经
+// 动画）。onResizedChanged 只在 resized 变化时触发，初始绑定求值
+// resized=true 不触发，需显式就位；否则初始 resized=true 的消费方停在
+// 收缩态，违反「resized 是方向开关」契约。
 
 SmartObject {
     id: root
@@ -179,11 +184,23 @@ SmartObject {
                 jump_backward();
         }
 
+        // 状态变化过渡：resized 变化时按当前值前进/后退（动画路径——
+        // 兼容中途打断：go_* 先检查 reached，动画运行时 dive_* 先 stop
+        // 反向动画再 restart 本向）。
         function ensure() {
             if (root.resized)
                 go_foreward();
             else
                 go_backward();
+        }
+
+        // 初始就位：直接跳变到 resized 对应状态（不经动画——初始化无
+        // 过渡；动画仅用于状态变化后的过渡，见 go_* / ensure）。
+        function first_time_ensure() {
+            if (root.resized)
+                jump_foreward();
+            else
+                jump_backward();
         }
 
         Connections {
@@ -194,6 +211,27 @@ SmartObject {
             }
         }
     }//pCtrl
+
+    // 初始就位：构造后按 resized 当前值跳变就位。enabled=false 时与
+    // 响应门控一致（冻结，不就位）。
+    Component.onCompleted: {
+        if (root.enabled)
+            pCtrl.first_time_ensure();
+    }
+
+    // enabled 恢复（开放接口——宿主可随时切换）：false→true 时 resized
+    // 若已处于目标值（禁用期间的变化被 Connections 忽略、尺寸冻结），
+    // 恢复后不再有变化信号 → 不会自举。恢复即按当前 resized 就位一次
+    // （动画路径——与正常状态变化一致；resized 未变时 go_* 的 reached
+    // 检查使之为 no-op）。用 Connections 独立监听（非 onEnabledChanged
+    // 直接 handler——后者可被外部实例覆盖）。
+    Connections {
+        target: root
+        function onEnabledChanged() {
+            if (root.enabled)
+                pCtrl.ensure();
+        }
+    }
 
     // 锁定 Binding：方向锁定时把 pCtrl 尺寸钉在对应目标组——目标属性
     // （fromWidth 等）后续变化实时跟随（目标跟随契约）；动画运行时解锁

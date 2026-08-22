@@ -23,12 +23,17 @@ gradient sampled at the current value position, rendered opaque
   (`x = y = shrinkSize / 2`; resting size = container − `shrinkSize` in
   width and height — the shrunk handle stays aligned with the track). It
   does not participate in interaction feedback.
-- **Handle** — the default `handle` hosts the crystal diamond (the visual
-  focus), which expands to the handle's full size while hovered, pressed, or
-  while a recent value change holds (via `ItemAnimatedResizer` + a
-  `TimerLatch`), and contracts to `size − shrinkSize` when none holds. The
-  handle carries a hover cursor (`Qt.SizeHorCursor` horizontal /
-  `Qt.SizeVerCursor` vertical, gated by `enabled`).
+- **Handle** — the default `handle` is a `CrystalCursor` inline wiring —
+  the shared delayed-scale base component (`Qool.Controls.Components`,
+  ADR-0016): a `Crystal` diamond whose resting color samples the track
+  gradient at the current value position, expanded by the three-state
+  feedback (hover / pressed / value-change latch via a `TimerLatch`) under
+  the `animationEnabled` gate, and contracted to `side − shrinkSize` when
+  none holds (the resting size hugs the shrunk track; expansion fills the
+  track's normal size — the diamond pops out of the track but never exceeds
+  the control). The handle carries a hover cursor
+  (`Qt.SizeHorCursor` horizontal / `Qt.SizeVerCursor` vertical, gated by
+  `enabled`).
   Replacing `handle` with any `Item` is behavior plugging (template handle
   contract) — the positioning binding is the host's responsibility (the
   template never moves handles).

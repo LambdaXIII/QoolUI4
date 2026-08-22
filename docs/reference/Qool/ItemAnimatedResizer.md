@@ -11,13 +11,12 @@ and `Slider` switches its handle between the rest and expanded sizes — both
 via this type. Because it is non-visual, the size (`width`/`height`) is
 usually bound to a visual's geometry.
 
-`resized` is a direction switch, not a one-shot command: setting it `true`
-moves the size to the `to` target, `false` back to the `from` target.
-Repeated toggles are safe; the last direction wins. While a direction is
-reached (after the animation finishes or after a jump), the size is pinned
-to that target by an internal binding, so later changes to
-`fromWidth`/`toWidth` etc. follow live — the targets are bindings, not
-snapshots.
+
+On construction the component settles to the current `resized` value
+**immediately** (a jump, no animation): a host that binds `resized: true`
+from the start is expanded at birth, `resized: false` stays contracted.
+The initial settle follows the `enabled` gate — when `enabled` is `false`
+at construction the size freezes instead.
 
 `enabled` gates the response to `resized` changes: when `false`, `resized`
 changes are ignored and the size freezes at its current value. Hosts
@@ -36,20 +35,24 @@ templates for the two directions; hosts can customize `easing` and
 
 ## Properties
 
-- `enabled : bool` (default `true`)
-  Gates the response to `resized` changes. When `false`, `resized` changes
-  are ignored and the size freezes at its current value; restoring `true`
-  resumes response (a `resized` change after re-enabling is required to
-  act).
+
+  `enabled` is an open interface — it may be toggled at any time. On
+  re-enable the component settles to the current `resized` value
+  immediately (same transition path as a normal `resized` change): if
+  `resized` was changed while disabled (and therefore ignored, size
+  frozen), the restore performs the pending transition; if `resized` is
+  unchanged the settle is a no-op.
 
 - `animationEnabled : bool`
   Animation gate — inherited up the parent chain, falling back to
   `Style.animationEnabled`. When on and the direction template's `duration`
   is positive, direction switches animate; otherwise they jump.
 
-- `resized : bool` (default `false`)
-  Direction switch: `true` advances the size to the `to` target (expand),
-  `false` retreats to the `from` target (contract).
+
+  At construction the component settles to the initial value immediately
+  (a jump, no animation) — binding `resized: true` from the start yields
+  the expanded size at birth. The initial settle is skipped when
+  `enabled` is `false` at construction (the size freezes).
 
 - `fromWidth : real` (default `100`)
   The retreat target width (used while `resized` is `false`).

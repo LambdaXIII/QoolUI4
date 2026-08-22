@@ -8,6 +8,9 @@ import Qool
 // 被测契约（外部行为与公开契约——不测内部实现）：
 // - 默认态：width/height = from 尺寸（100×100，收缩态）、resized=false、
 //   running=false
+// - 初始就位：构造时 resized 已绑定为 true → 跳变就位到 to 尺寸、无动画
+//   （修复点：此前仅 onResizedChanged 触发 ensure，初始绑定求值不触发，
+//   初始 resized=true 停在收缩态）
 // - 方向切换：resized=true → 前进到 to 尺寸（120×120）；false → 后退回
 //   from——往返重复安全
 // - 目标跟随：from/to 是绑定而非快照——就位后目标属性变化实时跟随
@@ -48,6 +51,44 @@ TestCase {
         compare(r.running, false)
     }
 
+    function test_initialResizedTrue() {
+        // 初始 resized=true（构造即绑定）：跳变就位到 to 尺寸（修复点——
+        // 此前仅 onResizedChanged 触发 ensure，初始绑定求值不触发，初始
+        // resized=true 停在收缩态，违反「resized 是方向开关」契约）
+        const r = makeResizer({ resized: true })
+        compare(r.resized, true)
+        compare(r.width, 120, "初始 resized=true 就位到 to 宽")
+        compare(r.height, 120, "初始 resized=true 就位到 to 高")
+        compare(r.running, false)
+    }
+
+    function test_initialSettleNoAnimation() {
+        // 初始就位跳变、不经动画（修复点 2：ensure 的动画路径仅用于状态
+        // 变化过渡——初始化不该有动画，即使 animationEnabled=true 且
+        // duration>0）
+        const r = makeResizer({ animationEnabled: true, resized: true })
+        r.forewardAnimation.duration = 300
+        r.backwardAnimation.duration = 300
+        compare(r.width, 120, "初始就位直接到 to 宽（无动画）")
+        compare(r.height, 120, "初始就位直接到 to 高（无动画）")
+        compare(r.running, false, "初始就位无动画运行")
+        // 之后正常 resized 变化仍走动画路径
+        r.resized = false
+        tryVerify(function () { return r.running }, 1000, "后续变化走动画")
+        tryCompare(r, "width", 100, 2000, "动画回到 from")
+    }
+
+    function test_initialResizedFalseFreezesWhenDisabled() {
+        // 初始 enabled=false：冻结契约——构造不就位（与响应门控一致）
+        const r = makeResizer({ enabled: false, resized: true })
+        compare(r.width, 100, "禁用时构造不就位（冻结）")
+        // 恢复 enabled 后 resized 变化才响应
+        r.enabled = true
+        r.resized = false
+        r.resized = true
+        tryCompare(r, "width", 120, 1000, "恢复后 resized 变化响应")
+    }
+
     function test_advanceRetreat() {
         // 方向切换：true → to 尺寸、false → 回 from；往返重复安全
         const r = makeResizer({})
@@ -84,19 +125,29 @@ TestCase {
         tryCompare(r, "height", 60, 1000)
     }
 
-    function test_disabledFreezes() {
-        // enabled 门控：false 时 resized 变化被忽略、尺寸冻结；恢复后
-        // 再次 resized 变化才响应
+
+    function test_enabledRestoreResyncs() {
+        // enabled 恢复就位（开放接口修复点）：禁用期间 resized 变化被
+        // 忽略、尺寸冻结；恢复 enabled 时 resized 已处于目标值、不再有
+        // 变化信号 → 恢复即按当前 resized 就位（非等待下一次变化）
         const r = makeResizer({})
         r.enabled = false
-        r.resized = true
+        r.resized = true          // 被忽略（冻结在收缩态）
         compare(r.width, 100, "禁用时前进被忽略")
-        r.resized = false
-        compare(r.width, 100, "禁用时后退无操作（冻结）")
-        // 恢复 enabled：resized 变化重新响应（false → true 触发前进）
+        // 恢复 enabled：resized 已 true 且无变化信号 → 应就位到 to
         r.enabled = true
-        r.resized = true
-        tryCompare(r, "width", 120, 1000, "恢复后 resized 变化响应")
+        tryCompare(r, "width", 120, 1000, "恢复 enabled 即就位到 to")
+        compare(r.height, 120, "恢复即就位到 to 高")
+    }
+
+    function test_enabledRestoreSettlesNoChange() {
+        // 恢复 enabled 时 resized 未变（仍 false 收缩态）：就位 no-op
+        // （不闪动、尺寸不动）
+        const r = makeResizer({})
+        r.enabled = false
+        r.enabled = true
+        compare(r.width, 100, "恢复后收缩态保持（no-op）")
+        compare(r.running, false, "无动画")
     }
 
     function test_animationPath() {

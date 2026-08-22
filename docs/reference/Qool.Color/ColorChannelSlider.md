@@ -31,11 +31,13 @@ plug-points and can be replaced wholesale.
   hue write has a visible effect (legacy UX contract); there is no
   `defaultValue`, `reset`, or double-click reset; the initial `value` is 1
   (hue 1 ≡ 0 cyclically — no side effect before seeding).
-- **Interaction**: the `T.Slider` template supplies drag, keyboard stepping,
-  click-to-jump and RTL for free; the handle follows the drag instantly and
-  animates smoothly to externally-changed targets. Orientation and RTL are
-  template-borne; the gradient anchors to the value-increasing visual end
-  (ADR-0010 pattern).
+- **Handle**: the default handle is a `CrystalCursor` inline wiring — the
+  shared delayed-scale base component (`Qool.Controls.Components`, ADR-0016):
+  a `Crystal` diamond showing `colorAssistant.solidColor`, positioned by
+  `displayValue` (a smoothed intermediate layer: the drag follows instantly,
+  external changes animate), expanded by the three-state feedback
+  (hover / pressed / value-change latch) under the `animationEnabled` gate.
+  Replacing `handle` with any `Item` remains the template plug-point.
 
 ## Properties
 

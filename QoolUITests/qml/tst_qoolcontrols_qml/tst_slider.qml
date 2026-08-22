@@ -82,8 +82,9 @@ TestCase {
         return null
     }
 
-    // 手柄内部 Crystal（handleRoot.children 仅含可视子项：
-    // [0]=Crystal——ColorMapper 为非 Item 对象不在 children 内）
+    // 手柄内联 CrystalCursor（handle 根 = Item 定位壳，children[0] =
+    // CrystalCursor——ADR-0016 收束；断言其公开契约 size/color，不访问
+    // 更深内部对象）
     function handleCrystal(s) {
         return s.handle.children[0]
     }
@@ -152,15 +153,15 @@ TestCase {
         // 占满控件高；窗口落回常态（动画关闭——即时）
         const s = makeSlider({})
         const c = handleCrystal(s)
-        compare(c.width, 30, "菱形常态")
-        compare(c.height, 30, "常态收缩 = root 高 − 偏移")
+        compare(c.size, 30, "菱形常态")
+        compare(c.size, 30, "常态收缩 = root 高 − 偏移")
         s.value = 0.5
-        compare(c.height, 40, "锁存展开占满控件高")
-        compare(c.width, 40, "展开仍为菱形")
+        compare(c.size, 40, "锁存展开占满控件高")
+        compare(c.size, 40, "展开仍为菱形")
         // latch 窗口 = Style.movementDuration×2 = 800ms——等待释放
         wait(1000)
-        compare(c.height, 30, "窗口落后回常态")
-        compare(c.width, 30)
+        compare(c.size, 30, "窗口落后回常态")
+        compare(c.size, 30)
     }
 
     function test_handleSampleColor() {

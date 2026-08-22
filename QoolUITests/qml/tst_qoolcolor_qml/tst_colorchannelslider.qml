@@ -86,8 +86,10 @@ TestCase {
         return findChild(s.background, "track")
     }
 
+    // 光标 = handle 壳（Item）内联 CrystalCursor（ADR-0016 收束）——断言
+    // 其公开契约（color = 实色）
     function handleCrystal(s) {
-        return findChild(s.handle, "handleCrystal")
+        return s.handle.children[0]
     }
 
     function fuzzy(x, y) {

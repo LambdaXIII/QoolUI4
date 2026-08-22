@@ -34,6 +34,7 @@ qt_add_qml_module(QoolControlsComponents
     QML_FILES BasicText.qml
     QML_FILES BasicControlText.qml
     QML_FILES BasicTextArea.qml
+    QML_FILES CrystalCursor.qml
     # QML_FILES VerticalScroller.qml
 
 )

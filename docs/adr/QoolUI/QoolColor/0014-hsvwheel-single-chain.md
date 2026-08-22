@@ -13,13 +13,13 @@ Color 模块迁移适配中，旧 `_private/HSVWheel.qml` 是 v3 迁移的临时
 ## Key Decisions
 
 1. **公开一级组件 + 沿用名**：`HSVWheel` 进 `Qool.Color` 公开组件（`QML_FILES` 注册），独立可复用。旧 `_private/HSVWheel.qml` 仅作参考基线，落成验证后随旧族清理移除。
-2. **单向链架构**（核心）：`鼠标事件 → setValues() → hue/sat 数据 → position(hue,sat) → 光标定位`。输入层 InteractingArea（MouseArea 子类）响应鼠标，`setValues()` 把坐标经 `surface.check_point/hueAt/saturationAt` 转 hue/sat **两个同时写** assistant；呈现层光标（`_private/HSVWheelCursor`）与圆盘（`_private/HSVSurface`）独立从同一数据源（assistant）派生，互不直连。**绝无"光标↔值"双向绑定**。
+2. **单向链架构**（核心）：`鼠标事件 → setValues() → hue/sat 数据 → position(hue,sat) → 光标定位`。输入层 InteractingArea（MouseArea 子类）响应鼠标，`setValues()` 把坐标经 `surface.check_point/hueAt/saturationAt` 转 hue/sat **两个同时写** assistant；呈现层光标（共用 `_private/ColorCursor`，见决策 5）与圆盘（`_private/HSVSurface`）独立从同一数据源（assistant）派生，互不直连。**绝无"光标↔值"双向绑定**。
 3. **写入钳制两路**（值合法，非坐标 clamp）：
    - 交互路径：保留 `HSVSurface` 既有 `hueAt`（[0,1)）/`saturationAt`（clamp [0,1]）/`check_point`（圆外钳圆周）映射——旧 v3 手感逐点保留。
    - 接口路径：`hue`/`saturation`/`value` 三个公开属性写入时钳制——hue 越界（<0 无色相）不写/显示保持；sat/value clamp [0,1]；hue>1 圆周归一化（`% 1`，对齐 `QColor::setHsvF` 循环等价存储）。
    - `position` 无坐标硬钳制（纯函数）——值域由写入层保证。
 4. **三值双向接口**：`hue`/`saturation`/`value` 暴露为公开双向属性（外部写 → assistant；assistant 变 → 回读）。`value` 用户操控不写（交互只写 hue/sat）、仅驱动圆盘绘制（压暗层 alpha = 1 - value）——value 由外部通道行/联动驱动。
-5. **光标 = Qool.Crystal + 单向派生定位**：`_private/HSVWheelCursor` 用 `Qool.Crystal`（弃旧 `ColorCrystal`——避开弃用 Shape+Crystal4ContainmentMask）；外观反馈结构借鉴 `ColorChannelSliderHandle`（Crystal + 三态展开 hover/userInteracting/值变化锁存 + TimerLatch + HoverHandler + 菱形掩码）；定位仅中心定位（`centerx/centery = position(hue,sat)` 单向绑定，去 x/y↔centerx/centery 双同步环）。两光标（slider handle / wheel cursor）同族，维护心智负担小。
+5. **光标 = Qool.Crystal + 单向派生定位（HSV/HSL 共用 `_private/ColorCursor`）**：取色光标对 HSVWheel 与 HSLBox 是**同一回事**——落 `_private/ColorCursor`（沿用通用名，**共用不拆分**；更正见「决策状态」）。实现用 `Qool.Crystal`（弃旧 `ColorCrystal`）；外观反馈结构借鉴 `ColorChannelSliderHandle`（Crystal + 三态展开 hover/userInteracting/值变化锁存 + TimerLatch + HoverHandler + 菱形掩码）；定位仅中心定位（`centerx/centery = position(hue,sat)` 单向绑定，去 x/y↔centerx/centery 双同步环）。两光标（slider handle / surface cursor）同族，维护心智负担小。契约裁剪：无 defaultValue/reset；`expandDelta = Qore.bound(4, size×0.35, 15)`。
 6. **HSVSurface 保持 `_private` 不动**：圆盘绘制（色相环 ConicalGradient + 饱和径向 + 明度压暗三层叠加）、映射数学（hueAt/saturationAt/position/check_point + 圆几何）原样复用，仅新增 `darkAlpha` 只读派生契约点（压暗层 alpha 锚，Shape 内 ShapePath 不可经 children 遍历）。
 7. **交互契约裁剪**：无 `defaultValue`/`reset`、双击无定义行为。`animationEnabled` 父链继承（`parent?.animationEnabled ?? Style.animationEnabled`，声明序首位——AGENTS MUST）。
 
@@ -36,3 +36,7 @@ Color 模块迁移适配中，旧 `_private/HSVWheel.qml` 是 v3 迁移的临时
 
 - 决策已定案（2026-08-22，grill-with-docs 讨论定稿）；实现按本 ADR 执行。
 - 与 ADR-0013 不纠缠（0013 定一维通道滑块高定，本 ADR 定二维取色表面——不同形态、不同决策域）；与 ADR-0012（PropertyProxy）无冲突（HSVWheel 固定三通道，直接连 assistant F 属性，不经通用 PropertyProxy 动态寻址）。
+
+## 更正记录
+
+- **2026-08-23（grill-with-docs）**：第 5 条「光标」更正——原定 `_private/HSVWheelCursor` 为 HSVWheel 私有光标，**更正为共用 `_private/ColorCursor`**（HSVWheel 与 HSLBox 共用，取色光标本是一回事，不拆分）。连带：`_private/HSVWheelCursor.qml` 删除（逻辑并入 ColorCursor）；`HSVWheel.qml` 改引用 `ColorCursor`；旧 `_private/ColorCursor.qml`（双模式 + 旧 ColorCrystal + hoveredSize）删除，`ColorCrystal.qml` 连带删除（唯一消费方消失）。实现落地见后续提交。

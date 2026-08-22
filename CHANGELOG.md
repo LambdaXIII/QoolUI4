@@ -2,7 +2,26 @@
  
  版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
  
-+### 变更（hsvwheel，HSVWheel 二维取色表面公开组件 + 单向链架构）
++### 变更（open-interface-resync，CenterPlacer target 切换 / ItemAnimatedResizer enabled 恢复就位）
+
+- **CenterPlacer target 切换（开放接口）**：运行中换挂载对象 → 从新 target 现读同步 center（旧值不残留，单一事实源 = target）；Connections 自动转移；从 null 挂上同理
+- **CenterPlacer 封装收口**：同步函数收进内部 `pCtrl`（不再暴露公开 method）；自身信号监听一律 Connections 独立对象（非 onXxxChanged 直接 handler——后者可被外部实例覆盖）
+- **ItemAnimatedResizer enabled 恢复就位**：禁用期间 resized 变化被忽略、恢复 enabled 时 resized 已处目标值不再有变化信号 → 恢复即按当前 resized 就位一次（动画路径，未变时 no-op）；enabled 监听改 Connections（防外部覆盖）
+- **测试**：CenterPlacer 补 target 切换/从 null 挂上 2 用例；ItemAnimatedResizer 补 enabled 恢复就位/no-op 2 用例
+- **验证**：tst_qool_qml 132 / tst_qoolcontrols_qml 61 全绿
+
+### 变更（color-cursor-chain，取色光标骨架收束 + 两 Slider 手柄内联）
+
+- **新增 `CenterPlacer`**（Qool 几何挂件，ADR-0015）：`centerx`/`centery` ↔ `x`/`y` 双向同步（w/h 参与换算），任意带 x/y/w/h 的 QtObject 可挂载（SmartObject 无渲染）；同值守卫断环、target null 安全、初始现读同步
+- **新增 `CrystalCursor`**（Qool.Controls.Components 基准件，ADR-0016）：延迟缩放行为能力——`expanded` 唯一行为输入（置 true 立即展开、置 false 经 `delay` 防抖窗口回落收缩）；内部 `Qool.Crystal` 菱形（自带精确 contains 命中域，无独立掩码）；色外包（默认绑 Style）；根 footprint 恒定（缩放只作用内部 Crystal）；契约裁剪（无 defaultValue/reset/双击）
+- **两 Slider 手柄内联 CrystalCursor**（ADR-0016）：`Qool.Controls.Slider` handle（visualPosition 定位 + ColorMapper 采样色）与 `ColorChannelSlider` handle（displayValue 定位 + 实色）均改内联——视觉/交互反馈统一（hover/按下/值变化锁存展开）；删除 `_private/ColorChannelSliderHandle.qml`（逻辑并入内联）
+- **两层锁存职责正交**：消费方 TimerLatch（值变化脉冲 → 持续 expanded 电平，长保持）与 CrystalCursor 内部 delay（电平回落防抖，短窗口通用）分离——基准件不做长保持（ADR-0016 拒绝 latchTarget）
+- **`ItemAnimatedResizer` 初始就位修复**：初始绑定 `resized=true` 不再停在收缩态——新增 `first_time_ensure()` 构造后按 resized 当前值**跳变**就位（不经动画，与 `ensure()` 的动画过渡路径分离）；`enabled=false` 构造时冻结不就位（与响应门控一致）
+- **spec/ADR/文档同步**：spec.md 与 ADR-0016 的 delay 方向表述修正（「延迟展开」→「放大即时、收缩防抖」）；CrystalCursor/ItemAnimatedResizer reference 文档补充行为契约
+- **测试**：`tst_qool_qml` 新增 `tst_centerplacer.qml`（8 用例）+ ItemAnimatedResizer 初始就位 3 用例；`tst_qoolcontrols_qml` 新增 `tst_crystalcursor.qml`（11 用例）+ Slider handle 适配；`tst_qoolcolor_qml` ColorChannelSlider handle 适配
+- **验证**：build 通过；三批次 QML harness 全绿（tst_qool 129 / tst_qoolcontrols 61 / tst_qoolcolor 53）
+
+### 变更（hsvwheel，HSVWheel 二维取色表面公开组件 + 单向链架构）
 +
 +- **新增公开组件 HSVWheel**（Qool.Color——v4 正式一级组件，沿用 v3 名字；旧 `_private/HSVWheel.qml` 为 v3 迁移临时载体，仅作参考基线，本次落成后删除）：HSV 二维取色表面——色轮响应鼠标取色（`hue`/`saturation` 同时写）、`value` 驱动圆盘压暗层（alpha = 1 - value）、单向链驱动架构（鼠标事件 → 数据 → 光标/圆盘，无"光标↔值"双向绑定）
 +- **单向链架构**：交互 `setValues()` 经 `HSVSurface` 映射（`check_point`/`hueAt`/`saturationAt`——圆周钳制/域合法）**两个同时写** assistant 的 `hsvHueF`/`hsvSaturationF`（二维原子动作，非一维链投影）；光标（`_private/HSVWheelCursor`）与圆盘独立从同一数据源派生，互不直连

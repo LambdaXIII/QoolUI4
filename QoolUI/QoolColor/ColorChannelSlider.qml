@@ -32,6 +32,7 @@ import QtQuick
 import QtQuick.Templates as T
 import Qool
 import Qool.Color
+import Qool.Controls.Components
 import "_private"
 
 T.Slider {
@@ -113,24 +114,80 @@ T.Slider {
         }
     }
 
-    // —— 光标（handle delegate）：Crystal 菱形 + solidColor 实色 + 三态
-    // 展开 + 掩码 + displayValue 位置动画（拖动跟手、松手/外部改值平滑）。
-    // 宿主可整换 handle（模板插拔口）。
-    handle: ColorChannelSliderHandle {
-        animationEnabled: root.animationEnabled
-        positionAnimated: pCtrl.seedDone && root.animationEnabled
-        horizontal: root.horizontal
-        leftPadding: root.leftPadding
-        topPadding: root.topPadding
-        availableWidth: root.availableWidth
-        availableHeight: root.availableHeight
-        displayValue: root.visualPosition
-        side: pCtrl.side
-        shrinkSize: pCtrl.shrinkSize
-        color: root.colorAssistant.solidColor
-        pressed: root.pressed
-        latchTarget: root
-        enabled: root.enabled
+    // —— 光标（handle delegate）：CrystalCursor 内联接线（ADR-0016 收束
+    // 光标骨架）——Crystal 菱形 + solidColor 实色 + 三态展开 + displayValue
+    // 位置动画（拖动跟手、松手/外部改值平滑）。宿主可整换 handle（模板插拔口）。
+    // —— 光标（handle delegate）：Item 壳（定位 + displayValue 位置动画 +
+    // 三态归约 + 色源注入）+ 内联 CrystalCursor（ADR-0016 收束缩放骨架——
+    // Crystal 菱形 + 实色 + 延迟缩放展开）。宿主可整换 handle（模板插拔口）。
+    handle: Item {
+        id: handleRoot
+        // 边长 = 轨道法向（side）；delta = shrinkSize（常态贴轨道、展开
+        // 顶出轨道但不出控件）
+        width: pCtrl.side
+        height: pCtrl.side
+
+        // 定位（模板不注入——自写）：水平 x = leftPadding + displayValue ×
+        // (availableWidth − width)、y 居中；垂直对调。displayValue 走
+        // visualPosition（RTL 反转 + 垂直恒反转均随模板）。
+        property real displayValue: root.visualPosition
+        x: root.horizontal ? root.leftPadding + displayValue * (root.availableWidth - width)
+                           : root.leftPadding + (root.availableWidth - width) / 2
+        y: root.horizontal ? root.topPadding + (root.availableHeight - height) / 2
+                           : root.topPadding + displayValue * (root.availableHeight - height)
+
+        // 位置动画：displayValue 中间层 + Behavior 门控（pressed 关闭——
+        // 拖动中跟手无滞后；positionAnimated 由宿主门控——创建/播种期不动画、
+        // animationEnabled 关闭即跳变）
+        BasicNumberBehavior on displayValue {
+            enabled: pCtrl.seedDone && root.animationEnabled && !root.pressed
+            duration: Style.movementDuration
+        }
+
+        // 值变化锁存（TimerLatch，上游脉冲→电平）：valueChanged 是瞬时
+        // 事件——不经转换直接注入 expanded 只闪一帧。latch 把事件转成
+        // 持续 expanded=true 窗口（interval = movementDuration×2 滑动窗口）
+        // ——与 hover/pressed 共同驱动 expanded（hovered || pressed ||
+        // latch.active），改值瞬间避免收缩再展开闪动。长保持归消费方：
+        // CrystalCursor 内部另有下游防抖 latch（delay，短窗口通用），
+        // 两层职责正交（脉冲→电平 vs 电平→防抖），不重复。
+        TimerLatch {
+            id: latch
+            interval: Style.movementDuration * 2
+            Connections {
+                target: root
+                function onValueChanged() {
+                    latch.trigger()
+                }
+            }
+        }
+
+        // —— 光标基准件（CrystalCursor）：纯缩放（x/y 由 handleRoot 定位，
+        // 根 footprint 恒定）；delta = shrinkSize；expanded = 三态或；色 =
+        // 实色（solidColor）；动画门控透传。
+        CrystalCursor {
+            id: cursor
+            anchors.fill: parent
+            delta: pCtrl.shrinkSize
+            animationEnabled: root.animationEnabled
+            color: root.colorAssistant.solidColor
+            expanded: hoverer.hovered || root.pressed || latch.active
+            enabled: root.enabled
+
+            // 仅 hover/光标反馈：NoButton 不拦截按压（模板拖动在手柄上仍
+            // 有效）；disabled 时无反馈
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                enabled: root.enabled
+                cursorShape: root.horizontal ? Qt.SizeHorCursor : Qt.SizeVerCursor
+            }
+
+            HoverHandler {
+                id: hoverer
+                enabled: root.enabled
+            }
+        }
     }
 
     // 通道寻址桥（动态属性名——channelNameF 为运行时字符串，QML 属性

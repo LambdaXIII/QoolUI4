@@ -27,8 +27,7 @@
 | 0005 | QoolBoxSettings 双类型（C++ Base + QML 继承 Style 默认）+ cut 命名规范 |
 | 0006 | QoolBoxGadget 内部质量：中间量降权 + 全称命名 + QVector2D |
 | 0007 | QoolBox 组件职责划分：control 公开（可替换/共享）+ 变体注入 |
-| 0008 | QoolBoxHud：QoolBox 专用调试工具 |
-| 0012 | PropertyProxy：无状态属性代理（value 直通 target.property，双路径同步 + 净化可写性） |
+| 0015 | CenterPlacer：中心坐标双向同步挂件（centerx/centery ↔ x/y，任意带几何属性对象） |
 
 ### QoolUI/QoolControls/（Slider 家族）
 
@@ -36,13 +35,12 @@
 |---|---|
 | 0009 | RangeSlider 模板 handle 回归：窄条 handle + rangeBox 前景（三层重构最终形态，RangeHandle/surface 已撤；含 Slider 架构对齐与接口移除） |
 | 0010 | Slider orientation × RTL：默认件对齐 Qt 官方接口（正交统一，visualPosition 承载镜像） |
-| 0011 | RangeSlider orientation × RTL：默认件对齐 Qt 官方接口（同 Slider 决策模式；纯色轴对称故 RTL 零处理） |
+| 0016 | CrystalCursor：延迟缩放基准件 + ColorCursor 实现（收束三光标重复代码，Slider 手柄内联接线） |
 
 ### QoolUI/QoolColor/（Color 模块）
 
 | 编号 | 主题 |
 |---|---|
- | 0013 | ColorChannelSlider 高定设计：T.Slider 平级 + 通道视觉内化 + 交互契约裁剪（旧 ColorSlider 拆分收尾） |
- | 0014 | HSVWheel 二维取色表面设计：公开组件 + 单向链架构 + 写入钳制两路 + 参考基线=旧行为 |
+ | 0017 | HSVWheel + HSLBox：二维取色表面统一用共用 ColorCursor（HSLBox 公开化） |
 
 领域术语见根 `CONTEXT.md`「形状体系（QoolBox）」节。

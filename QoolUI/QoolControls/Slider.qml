@@ -13,6 +13,7 @@ import QtQuick
 import QtQuick.Shapes
 import QtQuick.Templates as T
 import Qool
+import Qool.Controls.Components
 
 T.Slider {
     id: root
@@ -122,18 +123,18 @@ T.Slider {
         height: pCtrl.side
         // handle delegate 须自写定位（模板不注入）——官方双分支完整公式（含
         // padding）：水平 x 由 visualPosition（RTL 镜像）驱动、y 居中；垂直
-        // y 由 visualPosition 驱动、x 居中。RTL 由模板免费承载（vertical +
-        // RTL 时 visualPosition 仍反转，跟随 Qt 模板语义——不特判）。Crystal
-        // 左上锚定，菱形中心 = 值位置（中心行程 [边/2, 行程−边/2]，顶点贴端）
+        // y 由 visualPosition 驱动、x 居中。
         x: root.horizontal ? root.leftPadding + root.visualPosition * (root.availableWidth - width) : root.leftPadding + (root.availableWidth - width) / 2
         y: root.horizontal ? root.topPadding + (root.availableHeight - height) / 2 : root.topPadding + root.visualPosition * (root.availableHeight - height)
 
-        // 值变化锁存（TimerLatch）：拖动/键盘/程序化改值后手柄保持展开
-        // interval（Style.movementDuration×2）——值变化即触发（滑动窗口内
-        // 持续保持），与 hover/按下共同驱动 resized（hovered || pressed ||
-        // latch.active），避免改值瞬间收缩再展开的闪动。锁存内化于 handle
-        // ——不暴露接口（宿主的"刚移动"感知经手柄展开反馈呈现，无需读锁存
-        // 状态）。
+        // 值变化锁存（TimerLatch，上游脉冲→电平）：valueChanged 是瞬时
+        // 事件——不经转换直接注入 expanded 只闪一帧。latch 把事件转成
+        // 持续 expanded=true 窗口（interval = movementDuration×2 滑动窗口），
+        // 与 hover/按下共同驱动 expanded（hovered || pressed || latch.active），
+        // 避免改值瞬间收缩再展开的闪动。长保持归消费方：CrystalCursor
+        // 内部另有下游防抖 latch（delay，短窗口通用），两层职责正交
+        // （脉冲→电平 vs 电平→防抖），不重复。锁存内化于 handle——不暴露
+        // 接口（宿主的"刚移动"感知经手柄展开反馈呈现，无需读锁存状态）。
         TimerLatch {
             id: latch
             interval: Style.movementDuration * 2
@@ -159,41 +160,36 @@ T.Slider {
             }
         }
 
-        // 手柄尺寸动画（Qool 非可视组件）：from = 法向 − 收缩量（常态）、
-        // to = 法向全尺寸（hover/按下/值变化锁存展开）；resized =
-        // hoverer.hovered || root.pressed || latch.active 驱动 from↔to 切换
-        // （动画门控 animationEnabled——关闭时跳变）；enabled 门控 resized
-        // 响应——禁用时手柄冻结（与 hover/光标同受 root.enabled 控制）。
-        ItemAnimatedResizer {
-            id: cResizer
-            enabled: root.enabled
+        // —— 手柄基准件（CrystalCursor——ADR-0016 收束三光标重复骨架）：
+        // 菱形 + 延迟缩放展开（常态 side−shrinkSize、展开 side）+ 色注入
+        // （采样色 colorAt）。x/y 由 handleRoot 定位（根 footprint 恒定——
+        // 定位锚不随缩放偏移）；expanded = hover‖按下‖值变化锁存三态或；
+        // delta = shrinkSize（常态收缩贴轨道、展开顶出轨道但不出控件）。
+        CrystalCursor {
+            id: cursor
+            width: pCtrl.side
+            height: pCtrl.side
+            delta: pCtrl.shrinkSize
             animationEnabled: root.animationEnabled
+            expanded: hoverer.hovered || root.pressed || latch.active
+            // color 不经绑定——手动更新（colorAt 为 C++ 方法、QML 绑定不追踪
+            // 方法体内 stops 访问，直接绑定会冻结在初始未就绪的采样）。源色
+            // 来自 Style（统一样式接口）：Connections 监听 Style.valueChanged
+            // （key = accent/buttonText）捕获附着传播变化触发重采样。
+            Connections {
+                target: root.Style
+                function onValueChanged(group, key) {
+                    if (key === "accent" || key === "buttonText")
+                        cursor.updateColor();
+                }
+            }
 
-            fromWidth: pCtrl.side - pCtrl.shrinkSize
-            fromHeight: pCtrl.side - pCtrl.shrinkSize
+            function updateColor() {
+                cursor.color = colorMapper.colorAt(root.position);
+            }
 
-            toWidth: pCtrl.side
-            toHeight: pCtrl.side
-
-            resized: hoverer.hovered || root.pressed || latch.active
-        }
-
-        // 手柄 Crystal（菱形——宽高相等）：尺寸随 cResizer（hover/按下/锁存
-        // 展开、常态收缩）、居中于 handle。色 = 轨道渐变在值位置的采样色
-        // （colorAt 精确——拖动实时变化）。
-        Crystal {
-            id: crystal
-            // 动画期间 CurveRenderer（原生 AA——展开缩放时小菱形边缘平滑且不重
-            // 三角化），静止回退默认 GeometryRenderer（零额外成本）。仅手柄需要
-            // （小尺寸亚像素毛躁；轨道为宽条像素充足——全局 CurveRenderer 帧数
-            // 降、layer MSAA 缩放性能降，按需切换折中）
-            preferredRendererType: root.animationEnabled ? Shape.CurveRenderer : Shape.UnknownRenderer
-            width: cResizer.width
-            height: cResizer.height
-            anchors.centerIn: parent
-            // 仅 hover/光标反馈：NoButton 不拦截按压（模板拖动在手柄上仍有效）；
-            // containmentMask 不设（Crystal 掩码已精确，手柄仍刻意不挂——
-            // NoButton 仅光标反馈、hover 域宽松）；disabled 时无反馈
+            // 仅 hover/光标反馈：NoButton 不拦截按压（模板拖动在手柄上仍
+            // 有效）；disabled 时无反馈
             MouseArea {
                 anchors.fill: parent
                 acceptedButtons: Qt.NoButton
@@ -205,31 +201,16 @@ T.Slider {
                 id: hoverer
                 enabled: root.enabled
             }
-            // color 不经绑定——手动更新（colorAt 为 C++ 方法、QML 绑定不追踪
-            // 方法体内 stops 访问，直接绑定会冻结在初始未就绪的采样）。源色
-            // 来自 Style（统一样式接口）：Connections 监听 Style.valueChanged
-            // （key = accent/buttonText）捕获附着传播变化触发重采样。
-            Connections {
-                target: root.Style
-                function onValueChanged(group, key) {
-                    if (key === "accent" || key === "buttonText")
-                        crystal.updateColor();
-                }
-            }
-
-            function updateColor() {
-                crystal.color = colorMapper.colorAt(root.position);
-            }
         }
 
         // —— 采样更新时机：handle 完成（stops 已就绪）刷新一次 + position
         // 变化（拖动/键盘/程序化）重采样；源色（Style.accent/buttonText）
-        // 变化经 crystal 内哨兵只读属性捕获（见上）。colorAt 为 C++ 方法、
+        // 变化经 cursor 内哨兵只读属性捕获（见上）。colorAt 为 C++ 方法、
         // QML 绑定不追踪方法体内 stops 访问——初始未就绪会冻结黑（真实缺陷
         // 场景），故全部手动驱动。
         Component.onCompleted: {
-            crystal.updateColor();
-            root.positionChanged.connect(crystal.updateColor);
+            cursor.updateColor();
+            root.positionChanged.connect(cursor.updateColor);
         }
     } //handle
 }
