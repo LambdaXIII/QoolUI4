@@ -38,6 +38,8 @@ import "_private"
 T.Slider {
     id: root
 
+    orientation: Qt.Horizontal  // 显式锚定默认（对称竖直族显式声明——T.Slider 默认 horizontal）
+
     // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
     // 声明序首位（AGENTS MUST——统一声明序）。
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled

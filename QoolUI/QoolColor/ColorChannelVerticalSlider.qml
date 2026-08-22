@@ -32,8 +32,9 @@
 // HSVWheel/HSLBox 背景，与水平族 TrackHue 固定彩虹有意不同）+ 采样色
 // 填充（对齐 Controls.Slider ColorMapper.colorAt 语义）。透明手柄
 // side×side（25×25）——无可见视觉、无 hover 反馈，交互全由模板承担。
-// orientation 默认 Qt.Vertical；填充条视觉为竖直定向（水平形态下填充
-// 自底部语义未定义，文档明示）。
+// orientation 默认 Qt.Vertical；双形态：填充锚定值 0 端沿值增大方向生长
+// （垂直自底向上 / 水平自值 0 端，RTL 镜像），α 渐变沿生长轴、彩虹沿值
+// 方向（ADR-0018 实现演进）。
 
 import QtQuick
 import QtQuick.Templates as T
@@ -98,14 +99,16 @@ T.Slider {
             pressed: root.pressed
             seedDone: pCtrl.seedDone
             animationEnabled: root.animationEnabled
+            horizontal: root.horizontal
+            mirrored: root.mirrored
         }
     }
 
     // —— 手柄（handle delegate）：透明 Item（side×side，无可见视觉、无
-    // hover 反馈、无 cursorShape——原 ChannelBar 亦无；交互全由模板
-    // 控制层承担，栏上其余位置点击跳转覆盖）。宿主可整换 handle（模板
-    // 插拔口）。定位走 visualPosition（RTL 反转 + 垂直恒反转均随模板）；
-    // 透明不可见，无 displayValue 平滑中间层需求。
+    // hover 反馈——原 ChannelBar 亦无；交互全由模板控制层承担，栏上其余
+    // 位置点击跳转覆盖）。宿主可整换 handle（模板插拔口）。定位走
+    // visualPosition（RTL 反转 + 垂直恒反转均随模板）；透明不可见，无
+    // displayValue 平滑中间层需求。
     handle: Item {
         width: pCtrl.side
         height: pCtrl.side
@@ -113,6 +116,17 @@ T.Slider {
                            : root.leftPadding + (root.availableWidth - width) / 2
         y: root.horizontal ? root.topPadding + (root.availableHeight - height) / 2
                            : root.topPadding + root.visualPosition * (root.availableHeight - height)
+
+        // 鼠标图标（仅 hover/光标反馈——NoButton 不拦截按压，模板拖动在
+        // 手柄上仍有效）；disabled 时无反馈；随方向换指针（水平左右 ↔
+        // 垂直上下，对齐 ColorChannelSlider 手柄）
+        MouseArea {
+            objectName: "handleCursorArea"  // 测试定位
+            anchors.fill: parent
+            acceptedButtons: Qt.NoButton
+            enabled: root.enabled
+            cursorShape: root.horizontal ? Qt.SizeHorCursor : Qt.SizeVerCursor
+        }
     }
 
     // 通道寻址桥（动态属性名——channelNameF 为运行时字符串，QML 属性

@@ -38,7 +38,44 @@ RGB/CMYK 面板的竖直通道滑块族（`ChannelBar`/`ChannelSlider`/9 变体�
 - 测试：`tst_qoolcolor_qml` 增补 `tst_colorchannelverticalslider.qml`（链/播种/填充几何/采样色/justMoved/通道分派/彩虹动态跟随与方向/契约裁剪显式断言，offscreen 惯例，实例 `animationEnabled: false`）；示例页 Playground 增补竖直滑块演示（含 hue）人工验收交互手感。
 - 文档：`docs/reference/Qool.Color/ColorChannelVerticalSlider.md`（5 节）+ index.md 登记（实现完备后更新）。
 
+## 实现演进（2026-08-23 水平形态定案——决策先行，实现待 spec）
+
+原 Key Decision 2「水平形态下填充自底部语义未定义，文档明示」修订——orientation
+双形态定案（grill-with-docs 讨论，用户定案）：
+
+- **填充锚定值 0 端、沿值增大方向生长**：垂直自底向上（不变）；水平自值 0 端（LTR
+  左 / RTL 右）向值 1 端生长——同一规则的旋转，与 ADR-0010「渐变锚定值增大视觉端」
+  同构。
+- **采样不变式保留**：生长前沿 = 轨道在 value 处的采样色（sampleColor 绑 smoothValue，
+  边界无缝）——载体从「顶边」变为「前沿」，position 派生与方向无关，零成本保留。
+- **α 渐变沿生长轴**：前沿 α0.9 强色 → 尾部 α0.1（忠实旋转）。水平用
+  `Gradient.orientation: Gradient.Horizontal`（Qt 5.12+ 原生支持，无需 Shapes）——
+  与彩虹共享该机制。
+- **hue 彩虹沿值方向**：hue 0 值 0 端 → hue 1 值 1 端（垂直 hue 0 底 → hue 1 顶的
+  旋转；「Gradient position 0 = 顶」陷阱在水平对应「position 0 = 起点端」，stops
+  反排同源）。
+- **RTL 跟随 mirrored**：填充锚值 0 端 → RTL 从右向左生长；彩虹 hue 0 随值 0 端右移；
+  垂直不受 RTL 影响（不变）。
+- **不改名**：`ColorChannelVerticalSlider` 的 Vertical = 默认 orientation + 填充条
+  身份，非唯一形态；reference 文档契约由「keep vertical」改「双形态、默认竖直」。
+- **水平族对称约定**：ColorChannelSlider 显式锚定 `orientation: Qt.Horizontal`
+  （竖直族显式声明的对称，模板默认值显式化）。
+- 私有竖直族（ChannelBar/ChannelSlider/9 变体）边界不变——本次不触碰。
+- **hue 填充改正常色（追加定案，2026-08-23）**：HSVHue/HSLHue 前景填充主色 =
+  色相正常值 `hsva(value,1,1,1)` / `hsla(value,1,1,1)`（固定 sat/lightness = 1，
+  仅随 position 变化色相，不受当前明暗影响）——与背景彩虹（原理式跟随当前
+  sat/value 或 sat/lightness）有意分叉：填充显示纯色相、明暗由背景/边框承载。
+  非 hue 通道填充不变（身份色恒等，无明暗问题）。Key Decision 4「填充 = 轨道
+  采样色」对 hue 通道修订（边框仍原理式采样——`sampleColor` 语义保留给边框）；
+  「采样不变式」对 hue 不再成立（填充前沿 = 正常色 vs 背景当前位置 = 原理式色，
+  非纯色 assistant 下有色差——刻意行为）。
+- **手柄鼠标图标（追加定案）**：透明手柄加 MouseArea（NoButton 不拦截模板拖动），
+  cursorShape 随方向切换（水平 SizeHorCursor / 垂直 SizeVerCursor，对齐
+  ColorChannelSlider 手柄）。
+
 ## 决策状态
 
 - 决策已定案（2026-08-23，grill-with-docs 讨论定稿；含 hue 彩虹原理式跟随的追加决策）；实施规格见 `.scratch/colorchannelverticalslider/spec.md`。
+- 2026-08-23 追加定案：orientation 双形态（水平形态语义见上「实现演进」）；实现待
+  spec 同步修订。
 - 与 ADR-0013（高定边界定义、链模式）同源复用；与 ADR-0012（PropertyProxy 无状态代理语义）无冲突；orientation/RTL 由模板承载（ADR-0010 模式）。

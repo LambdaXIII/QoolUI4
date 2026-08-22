@@ -338,4 +338,102 @@ TestCase {
         verify(colorEqual(stops[1].color, Qt.hsva(0.9, sat, val, 0.2)),
                "second stop = hue 0.9 (reversed, not forward)")
     }
+
+    // —— 水平填充几何：宽 = value × 内容区宽、值 0 端锚定 ——
+    function test_horizontalFillGeometry() {
+        const s = makeSlider({ orientation: Qt.Horizontal, width: 200, height: 40 })
+        const t = trackOf(s)
+        const fr = fillRectOf(s)
+        compare(fr.parent.height, t.height - 8, "content height = track - 2*padding")
+        s.value = 0.5
+        verify(fuzzy(fr.height, fr.parent.height), "horizontal fill height = full")
+        verify(fuzzy(fr.width, fr.parent.width * 0.5), "fill width = value * content width")
+        verify(fuzzy(fr.x, 0), "LTR fill anchored at value-0 end (left)")
+        verify(fuzzy(fr.y, 0), "horizontal fill y = 0")
+    }
+
+    // —— 水平填充渐变：沿生长轴，LTR 前沿 α0.9 ——
+    function test_horizontalFillGradient() {
+        const s = makeSlider({ orientation: Qt.Horizontal, width: 200, height: 40 })
+        const t = trackOf(s)
+        const fr = fillRectOf(s)
+        compare(fr.gradient.orientation, Gradient.Horizontal, "fill gradient horizontal")
+        verify(colorEqual(fr.gradient.stops[0].color, Qt.alpha(t.sampleColor, 0.1)),
+               "LTR stop0 = alpha 0.1 (value-0 end)")
+        verify(colorEqual(fr.gradient.stops[1].color, Qt.alpha(t.sampleColor, 0.9)),
+               "LTR stop1 = alpha 0.9 (value-1 leading)")
+    }
+
+    // —— 水平 RTL：值 0 端 = 右，填充锚右，渐变端反排 ——
+    function test_horizontalRtl() {
+        const s = makeSlider({ orientation: Qt.Horizontal, width: 200, height: 40 })
+        s.LayoutMirroring.enabled = true
+        tryCompare(s, "mirrored", true)
+        const t = trackOf(s)
+        const fr = fillRectOf(s)
+        s.value = 0.5
+        verify(fuzzy(fr.x, fr.parent.width - fr.width), "RTL fill anchored at right")
+        verify(colorEqual(fr.gradient.stops[0].color, Qt.alpha(t.sampleColor, 0.9)),
+               "RTL stop0 = alpha 0.9 (value-1 leading left)")
+        verify(colorEqual(fr.gradient.stops[1].color, Qt.alpha(t.sampleColor, 0.1)),
+               "RTL stop1 = alpha 0.1 (value-0 end right)")
+    }
+
+    // —— 水平彩虹：沿值方向（LTR hue 0 左 / RTL hue 0 右）——
+    function test_horizontalRainbow() {
+        const h = makeSlider({ orientation: Qt.Horizontal, width: 200, height: 40,
+                               channel: ColorNameHQ.HSVHue })
+        const g = bgRectOf(h).gradient
+        compare(g.orientation, Gradient.Horizontal, "rainbow gradient horizontal")
+        compare(g.stops.length, 11, "rainbow 11 stops")
+        verify(colorEqual(g.stops[0].color, Qt.hsva(0, 1, 1, 0.2)),
+               "LTR rainbow stop0 = hue 0")
+        verify(colorEqual(g.stops[10].color, Qt.hsva(1, 1, 1, 0.2)),
+               "LTR rainbow stop10 = hue 1")
+        const r = makeSlider({ orientation: Qt.Horizontal, width: 200, height: 40,
+                               channel: ColorNameHQ.HSVHue })
+        r.LayoutMirroring.enabled = true
+        tryCompare(r, "mirrored", true)
+        const rg = bgRectOf(r).gradient
+        verify(colorEqual(rg.stops[0].color, Qt.hsva(1, 1, 1, 0.2)),
+               "RTL rainbow stop0 = hue 1")
+    }
+    // —— 手柄鼠标图标：随方向换指针（水平左右 ↔ 垂直上下）——
+    function test_handleCursor() {
+        const v = makeSlider({})  // 默认竖直
+        const va = findChild(v.handle, "handleCursorArea")
+        verify(va !== null, "vertical handle has cursor area")
+        compare(va.cursorShape, Qt.SizeVerCursor, "vertical cursor = size ver")
+        const h = makeSlider({ orientation: Qt.Horizontal, width: 200, height: 40 })
+        const ha = findChild(h.handle, "handleCursorArea")
+        compare(ha.cursorShape, Qt.SizeHorCursor, "horizontal cursor = size hor")
+    }
+
+    // —— hue 填充 = 色相正常色（固定 sat/lightness 1），边框保持原理式 ——
+    // 非纯色 assistant（#404080：HSV sat=0.5/val≈0.502、HSL sat≈0.333 均非
+    // 1）——填充主色仍为正常色 hsva/hsla(hue,1,1,1)，sampleColor（边框基色）
+    // 保持原理式（随当前明暗），两者分叉；非 hue 填充不受影响（= 身份色）
+    function test_hueFillNormalColor() {
+        const h = makeSlider({ __assistantColor: "#404080", channel: ColorNameHQ.HSVHue })
+        h.value = 0.5
+        const t = trackOf(h)
+        const fr = fillRectOf(h)
+        verify(colorEqual(fr.gradient.stops[0].color, Qt.alpha(Qt.hsva(0.5, 1, 1, 1), 0.9)),
+               "HSV hue fill stop0 = normal color alpha 0.9")
+        verify(colorEqual(fr.gradient.stops[1].color, Qt.alpha(Qt.hsva(0.5, 1, 1, 1), 0.1)),
+               "HSV hue fill stop1 = normal color alpha 0.1")
+        verify(!colorEqual(t.sampleColor, Qt.hsva(0.5, 1, 1, 1)),
+               "sampleColor (border) stays principled, diverges from fill")
+        const hl = makeSlider({ __assistantColor: "#404080", channel: ColorNameHQ.HSLHue })
+        hl.value = 0.5
+        verify(colorEqual(fillRectOf(hl).gradient.stops[0].color,
+                          Qt.alpha(Qt.hsla(0.5, 1, 1, 1), 0.9)),
+               "HSL hue fill = normal color")
+        // 非 hue 填充 = 身份色（与 sampleColor 同值，不受影响）
+        const s = makeSlider({ __assistantColor: "#404080", channel: ColorNameHQ.HSLLightness })
+        s.value = 0.3
+        verify(colorEqual(fillRectOf(s).gradient.stops[0].color,
+                          Qt.alpha(trackOf(s).sampleColor, 0.9)),
+               "non-hue fill = identity (same as sampleColor)")
+    }
 }

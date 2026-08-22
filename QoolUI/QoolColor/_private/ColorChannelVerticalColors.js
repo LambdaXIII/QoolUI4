@@ -9,6 +9,9 @@
 //   - sampleHueColor(channel, assistant, value)：hue 通道采样色——原理式
 //     跟随（「轨道每位置 = 把 hue 改为 p 后的真实结果色」，当前 sat/value
 //     或 sat/lightness 钉死为当前值，对齐 HSVWheel/HSLBox 背景语义）。
+//   - hueNormalColor(channel, value)：hue 通道正常色（填充前景基色）——
+//     固定 sat/lightness = 1 的纯色相色，仅随 position 变化色相（与
+//     sampleHueColor 有意分叉，用户定案 2026-08-23）。
 //
 // 语义（数据决策，非术语——JS 注释承载，不升级）：
 //   - RGB（Red/Green/Blue）：纯通道色；Green 为 Qt 命名色 "green"
@@ -77,5 +80,17 @@ function sampleHueColor(channel, assistant, value) {
         return Qt.hsva(value, assistant.hsvSaturationF, assistant.hsvValueF, 1)
     if (channel === HSL_HUE)
         return Qt.hsla(value, assistant.hslSaturationF, assistant.hslLightnessF, 1)
+    return "white"
+}
+
+// hue 正常色（填充前景基色，随 value 变化）——固定 sat/value（或
+// sat/lightness）= 1 的纯色相色：仅随 position 变化色相，不受当前明暗
+// 影响（用户定案 2026-08-23——填充显示色相"正常值"，明暗由背景彩虹
+// 承载；与 sampleHueColor 有意分叉）。
+function hueNormalColor(channel, value) {
+    if (channel === HSV_HUE)
+        return Qt.hsva(value, 1, 1, 1)
+    if (channel === HSL_HUE)
+        return Qt.hsla(value, 1, 1, 1)
     return "white"
 }

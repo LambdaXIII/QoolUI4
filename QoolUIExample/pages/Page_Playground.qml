@@ -44,31 +44,47 @@ BasicPage {
             colorAssistant: mainColor
         }
 
-        RectResizer {    }
-
-    QoolControl {
-        x: 380
-        title: qsTr("竖直通道滑块")
-        contentItem: Row {
-            spacing: 8
-            ColorChannelVerticalSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.HSVHue
-                height: 150
-            }
-            ColorChannelVerticalSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.HSVSaturation
-                height: 150
-            }
-            ColorChannelVerticalSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.HSVValue
-                height: 150
-            }
-        }
-
         RectResizer {}
-    }
+
+        QoolControl {
+            x: 380
+            title: qsTr("竖直通道滑块")
+            contentItem: Row {
+                spacing: 8
+                ColorChannelVerticalSlider {
+                    colorAssistant: mainColor
+                    channel: ColorNameHQ.HSVHue
+                    width: 150
+                    orientation: Qt.Horizontal
+                }
+                ColorChannelVerticalSlider {
+                    colorAssistant: mainColor
+                    channel: ColorNameHQ.HSVSaturation
+                    height: 150
+                }
+                ColorChannelVerticalSlider {
+                    colorAssistant: mainColor
+                    channel: ColorNameHQ.HSVValue
+                    height: 150
+                }
+                ColorChannelVerticalSlider {
+                    colorAssistant: mainColor
+                    channel: ColorNameHQ.Red
+                    height: 150
+                }
+                ColorChannelVerticalSlider {
+                    colorAssistant: mainColor
+                    channel: ColorNameHQ.Green
+                    height: 150
+                }
+                ColorChannelVerticalSlider {
+                    colorAssistant: mainColor
+                    channel: ColorNameHQ.Blue
+                    height: 150
+                }
+            }
+
+            RectResizer {}
+        }
     }
 }

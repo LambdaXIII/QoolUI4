@@ -2,6 +2,24 @@
  
  版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
  
+### 变更（colorchannelverticalslider-fixes，VerticalSlider 手柄鼠标图标 + hue 填充正常色）
+
+- **手柄鼠标图标**：ColorChannelVerticalSlider handle 新增 MouseArea（objectName "handleCursorArea"，acceptedButtons NoButton 不拦截模板拖动）——cursorShape 随方向切换（水平 SizeHorCursor / 垂直 SizeVerCursor），对齐 ColorChannelSlider 手柄
+- **hue 填充正常色**（用户定案）：HSVHue/HSLHue 前景填充主色 = 色相正常值 `hsva(value,1,1,1)` / `hsla(value,1,1,1)`（固定 sat/lightness = 1，仅随 position 变化色相，不受当前明暗影响）；背景彩虹与边框保持原理式（随当前 sat/value 或 sat/lightness）——填充与背景有意分叉（填充纯色相、明暗由背景承载）；非 hue 填充不变
+- **实现**：`_private/ColorChannelVerticalColors.js` 新增 `hueNormalColor(channel, value)`；`ColorChannelVerticalTrack` 新增派生 `fillColor`（hue = 正常色 / 非 hue = sampleColor），fillRect 渐变基色改 `fillColor`（边框仍 `sampleColor` 原理式）
+- **文档**：reference Fill bullet 修订（hue 正常色 vs 边框原理式分叉）；ADR-0018 实现演进追加 hue 填充 + 手柄指针定案；CONTEXT.md 填充条术语修订（采样不变式对 hue 不再成立）
+- **测试**：新增 `test_handleCursor`（竖直/水平指针）与 `test_hueFillNormalColor`（非纯色 assistant 下填充 = 正常色 α、边框保持原理式、非 hue 填充不受影响）
+- **验证**：build 通过；tst_qoolcolor_qml 批次 ctest 全绿
+
+### 变更（colorchannelverticalslider-orientation，ColorChannelVerticalSlider 水平形态 + ColorChannelSlider 显式锚定——ADR-0018 实现演进）
+
+- **ColorChannelVerticalSlider 双形态**（orientation 默认仍 `Qt.Vertical`，不改名）：填充锚定值 0 端、沿值增大方向生长（垂直自底向上 / 水平自值 0 端、RTL 右锚）；α 渐变沿生长轴（前沿 α0.9 → 尾部 α0.1）；hue 彩虹沿值方向（hue 0 值 0 端 → hue 1 值 1 端——垂直与水平 RTL 反排、水平 LTR 升序）——`Gradient.orientation`（水平 = `Gradient.Horizontal`，Qt 5.12+ 原生）实现，采样不变式零成本保留（`sampleColor` 绑 `smoothValue`，方向无关）
+- **轨道输入扩展**：`_private/ColorChannelVerticalTrack.qml` 新增 `horizontal`/`mirrored` 注入（滑块透传模板派生值）+ `rainbowAscending` 派生（仅水平 LTR 升序）；fillRect 几何换轴（宽 = value × 内容区宽）+ 渐变端反排条件化 + `onWidthChanged` 触发 justMoved（垂直高变 / 水平宽变）
+- **ColorChannelSlider 显式锚定** `orientation: Qt.Horizontal`（对称竖直族显式声明——T.Slider 默认 horizontal，无行为变化）
+- **文档**：`docs/reference/Qool.Color/ColorChannelVerticalSlider.md` Orientation 契约改「双形态、默认竖直」（填充锚定/α 渐变/彩虹方向/RTL/隐式尺寸交换）；ADR-0018「实现演进」定案 + α 渐变机制表述修正（`Gradient.orientation` 替代 Shapes LinearGradient）
+- **测试**：tst_colorchannelverticalslider.qml 新增 4 用例（水平填充几何 / 水平填充渐变 / 水平 RTL / 水平彩虹）——单文件 19/19 PASS（竖直用例零回归）；tst_qoolcolor_qml 批次 ctest 全绿
+- **验证**：build 通过（QoolColor 重建 + qmlcache 编译 + harness 重链）；tst_qoolcolor_qml 批次 8.9s 全绿（含 tst_colorchannelslider 回归）
+
 ### 变更（colorchannelverticalslider，ColorChannelVerticalSlider 竖直通道滑块组件）
 
 - **新增公开组件 ColorChannelVerticalSlider**（Qool.Color）：竖直单通道滑块——T.Slider 独立实现（不继承 ColorChannelSlider），迁移 `_private/ChannelBar` 填充条视觉（圆角 5/4、从底部填充、身份色渐变、justMoved 1s 高亮、无 hover、无可见手柄）；`orientation` 默认 `Qt.Vertical`、implicit 25×150、透明手柄 side×side

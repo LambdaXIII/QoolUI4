@@ -32,16 +32,21 @@ no `defaultValue`, `reset`, or double-click reset.
   current color darkens the rainbow, a gray one grays it). This differs
   deliberately from the horizontal `ColorChannelSlider` track (fixed
   `hsva(p, 1, 1, 1)` rainbow).
-- **Fill = track sample color**: the fill color is the track's sample color
-  at the fill's top edge — the principled color a position would show
-  (semantics aligned with `Qool.Controls.Slider`'s `ColorMapper.colorAt`):
-  for hue channels `hsva(value, hsvSaturationF, hsvValueF)` /
-  `hsla(value, hslSaturationF, hslLightnessF)`; for non-hue channels it
-  degenerates to the identity color. The fill and the rainbow share the same
-  smoothed value source, so the fill edge and the background stay seamless
-  while animating. Fill color is a pure binding (zero animation); only the
-  fill height animates (`animationEnabled && !pressed` — drag follows
-  instantly, non-interactive changes smooth).
+- **Fill = hue-normal color (hue) / identity color (non-hue)**: the fill
+  color follows the track's leading-edge position — for hue channels the
+  **normal hue color** `hsva(value, 1, 1, 1)` / `hsla(value, 1, 1, 1)`
+  (fixed saturation/lightness 1: only the position changes the hue, the
+  current color's darkness does not darken the fill); for non-hue channels it
+  degenerates to the identity color. The **border** keeps the principled
+  sample color (`hsva(value, hsvSaturationF, hsvValueF)` /
+  `hsla(value, hslSaturationF, hslLightnessF)` — the result color a position
+  would show, `ColorMapper.colorAt` semantics), so the border and the rainbow
+  still reflect the current color state while the fill shows the pure hue.
+  The fill and the rainbow share the same smoothed value source, so the fill
+  edge and the background stay position-aligned while animating. Fill color is
+  a pure binding (zero animation); only the fill height animates
+  (`animationEnabled && !pressed` — drag follows instantly, non-interactive
+  changes smooth).
 - **Sync**: `value` is unconditionally two-way synchronized with the
   assistant's channel through a `PropertyProxy` bridge
   (`channelNameF(channel)` — the channel name is a runtime string, so the
@@ -58,10 +63,16 @@ no `defaultValue`, `reset`, or double-click reset.
   cursor shape; all interaction is carried by the template's control layer
   (dragging on the bar, click-to-jump elsewhere). Replacing `handle` with
   any `Item` remains the template plug-point.
-- **Orientation**: `orientation` defaults to `Qt.Vertical`. The fill-bar
-  visual is vertically oriented — the "fill from the bottom" semantics are
-  undefined in a horizontal form, so host applications should keep the
-  vertical orientation.
+- **Orientation**: `orientation` defaults to `Qt.Vertical`. Both orientations
+  are supported: the fill bar is anchored at the value-0 end and grows toward
+  the value-1 end — bottom-up when vertical, and from the value-0 end (left in
+  LTR, right in RTL) when horizontal. The alpha fade runs along the growth
+  axis (leading edge alpha 0.9 → trailing edge alpha 0.1), and the hue rainbow
+  runs along the value direction (hue 0 at the value-0 end → hue 1 at the
+  value-1 end). RTL mirrors the horizontal fill and rainbow (the value-0 end
+  becomes the right); the vertical orientation is unaffected by RTL.
+  `implicitWidth` / `implicitHeight` swap with orientation (25×150 vertical ↔
+  150×25 horizontal).
 
 ## Properties
 
