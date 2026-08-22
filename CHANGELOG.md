@@ -2,7 +2,17 @@
 
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
-## [4.0.0] — 2026-08-22
+### 变更（hsl-hsv-panel-colorchannel，HSL/HSV 面板通道行迁移到新版三件套 + 旧水平族废弃）
++
++- **HSL Panel 通道行替换**：顶部 SATURATION/LIGHTNESS 数字输入行（旧 `NumInput`+GridLayout）→ 两个 `ColorChannelEdit`（channel=HSLSaturation/HSLLightness）；底部 `ColorSlider_Hue`/`ColorSlider_Alpha` → 两个 `ColorChannelControl`（channel=HSVHue/Alpha）——色相沿用旧行为 `HSVHue`（驱动 hsvHueF，两域经 color 同步）
++- **HSV Panel 通道行替换**：顶部 HUE/SATURATION 数字输入行 → 两个 `ColorChannelEdit`（channel=HSVHue/HSVSaturation）；底部 `ColorSlider_Value`/`ColorSlider_Alpha` → 两个 `ColorChannelControl`（channel=HSVValue/Alpha）
++- **表面保留旧版**：`HSLBox`/`HSVWheel`/`HSLSurface`/`HSVSurface` 不动（取色表面，非通道行，不在替换范围）
++- **删除旧水平滑块族**（替换后无引用）：`_private/ColorSlider.qml`（基类）、`ColorSlider_Hue/Value/Alpha.qml`（变体）、`ColorSliderBackground.qml`（轨道）——5 文件删除，GLOB 失效重 configure
++- **保留（删除会连带 RGB/CMYK 竖直族与表面崩）**：`NumInput`、`NumTools.js`、`InteractingArea`、`ColorCursor`、`ChannelBar`、`ChannelSlider*` 竖直族——非水平族，不在废弃范围
++- **Panel 补 `import Qool.Color`**（新版三件套与 ColorNameHQ 枚举在 Qool.Color 模块）；顶部行换 Edit 后 `_private/NumTools.js` import 移除
++- **验证**：build 通过（HSLPanel/HSVPanel 与三件套 qmlcache 编译链接、无残留引用）；全量 ctest 23/23 PASS（三件套功能回归不破坏）
+
+### 变更（qml-test-run-channels，QML 测试运行通道摩擦记录）
 
 ### 变更（qml-test-run-channels，QML 测试运行通道摩擦记录）
 

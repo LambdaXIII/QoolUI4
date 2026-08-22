@@ -1,16 +1,17 @@
-// HSV 面板：数字输入行（GridLayout + NumInput）→ HSVWheel 表面 →
-// 明度（ColorSlider_Value）/ 透明度（ColorSlider_Alpha）滑块。
-// 交互：HSVWheel 拖动取色/双击重置（hue=0、sat=0）、滑块拖动/双击重置
-//   （Value/Alpha 默认 1）、showAlpha 控制透明度滑块显隐、animationEnabled 门控动画。
-// 刻意：标签为排版文字（画面元素），不翻译。
+// HSV 面板：色相/饱和度通道编辑行（ColorChannelEdit）→ HSVWheel 表面 →
+// 明度（ColorChannelControl）/ 透明度（ColorChannelControl）组合行。
+// 交互：HSVWheel 拖动取色/双击重置（hue=0、sat=0）、组合行编辑与拖动
+//   通道值（Value/Alpha 默认 1）、showAlpha 控制透明度组合行显隐、
+//   animationEnabled 门控动画。
+// 刻意：标签为排版文字（channelTag），不翻译。
 
 pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
 import Qool
+import Qool.Color
 import "_private"
-import "_private/NumTools.js" as Tools
 
 ColumnLayout {
     id: root
@@ -27,71 +28,21 @@ ColumnLayout {
 
     spacing: 5
 
-    GridLayout {
-        columns: 2
+    // 色相/饱和度通道编辑行（旧顶部 GridLayout + NumInput 数字输入行的
+    // 新版承接——自带标签 channelTag，编辑与会话行为内化）。
+    ColorChannelEdit {
         Layout.fillWidth: true
-        Text {
-            text: "HUE"
-            font: PixelFont.normal
-            color: Style.text
-            Layout.leftMargin: 2
-            Layout.fillWidth: true
-        } //HUE
+        animationEnabled: root.animationEnabled
+        channel: ColorNameHQ.HSVHue
+        colorAssistant: root.colorAssistant
+    } //hueEdit
 
-        NumInput {
-            id: hueText
-            showUnderline: false
-            font: PixelFont.normal
-            color: Style.text
-            horizontalAlignment: Text.AlignRight
-            Layout.alignment: Qt.AlignRight
-            Layout.rightMargin: 2
-            Layout.preferredWidth: 72
-            Binding {
-                when: !hueText.editing
-                hueText.text: Tools.simplifyChannelNumber(root.colorAssistant.hsvHueF)
-                restoreMode: Binding.RestoreNone
-            }
-            Connections {
-                enabled: hueText.editing
-                target: hueText
-                function onTextChanged() {
-                    root.colorAssistant.hsvHueF = hueText.parseChannelValue(hueText.text);
-                }
-            }
-        } //hueText
-
-        Text {
-            text: "SATURATION"
-            font: PixelFont.normal
-            color: Style.text
-            Layout.leftMargin: 2
-            Layout.fillWidth: true
-        } //SATURATION
-
-        NumInput {
-            id: satText
-            showUnderline: false
-            font: PixelFont.normal
-            color: Style.text
-            horizontalAlignment: Text.AlignRight
-            Layout.alignment: Qt.AlignRight
-            Layout.rightMargin: 2
-            Layout.preferredWidth: 72
-            Binding {
-                when: !satText.editing
-                satText.text: Tools.simplifyChannelNumber(root.colorAssistant.hsvSaturationF)
-                restoreMode: Binding.RestoreNone
-            }
-            Connections {
-                enabled: satText.editing
-                target: satText
-                function onTextChanged() {
-                    root.colorAssistant.hsvSaturationF = satText.parseChannelValue(satText.text);
-                }
-            }
-        } //satText
-    } //数字输入行
+    ColorChannelEdit {
+        Layout.fillWidth: true
+        animationEnabled: root.animationEnabled
+        channel: ColorNameHQ.HSVSaturation
+        colorAssistant: root.colorAssistant
+    } //saturationEdit
 
     // HSVWheel：拖动取色（hue/sat → hsvHueF/hsvSaturationF，圆外点击
     // 钳制到圆周）；双击重置为 hue=0、sat=0（无彩色）。
@@ -104,18 +55,20 @@ ColumnLayout {
         colorAssistant: root.colorAssistant
     } //hsvSurface
 
-    ColorSlider_Value {
-        id: valueSlider
+    ColorChannelControl {
+        id: valueControl
         Layout.fillWidth: true
-        colorAssistant: root.colorAssistant
         animationEnabled: root.animationEnabled
-    } //valueSlider
+        channel: ColorNameHQ.HSVValue
+        colorAssistant: root.colorAssistant
+    } //valueControl
 
-    ColorSlider_Alpha {
-        id: alphaSlider
+    ColorChannelControl {
+        id: alphaControl
         visible: root.showAlpha
         Layout.fillWidth: true
-        colorAssistant: root.colorAssistant
         animationEnabled: root.animationEnabled
-    } //alphaSlider
+        channel: ColorNameHQ.Alpha
+        colorAssistant: root.colorAssistant
+    } //alphaControl
 }

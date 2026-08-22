@@ -1,19 +1,20 @@
-// HSL 面板：数字输入行（GridLayout + NumInput）→ HSLBox 表面 →
-// 色相（ColorSlider_Hue）/ 透明度（ColorSlider_Alpha）滑块。
+// HSL 面板：饱和度/明度通道编辑行（ColorChannelEdit）→ HSLBox 表面 →
+// 色相（ColorChannelControl）/ 透明度（ColorChannelControl）组合行。
 // 交互：HSLBox 拖动取色/双击重置（hue<0→0，然后 sat=1、ltn=0.5）、
-//   ColorSlider_Hue 拖动/双击重置（0）、ColorSlider_Alpha 拖动/双击重置（1）、
-//   showAlpha 控制透明度滑块显隐、animationEnabled 门控动画。
-// 刻意：标签为排版文字（画面元素），不翻译。
+//   ColorChannelEdit/Control 编辑与拖动通道值、showAlpha 控制透明度
+//   组合行显隐、animationEnabled 门控动画。
+// 刻意：标签为排版文字（channelTag），不翻译。
 // NOTE: HSLBox 驱动 hslHueF/hslSaturationF/hslLightnessF，
-//   ColorSlider_Hue 驱动 hsvHueF（两域经 colorAssistant.color 同步）。
+//   色相组合行 channel=HSVHue（旧 ColorSlider_Hue 驱动 hsvHueF——
+//   两域经 colorAssistant.color 同步，此处沿用）。
 
 pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
 import Qool
+import Qool.Color
 import "_private"
-import "_private/NumTools.js" as Tools
 
 ColumnLayout {
     id: root
@@ -31,75 +32,21 @@ ColumnLayout {
 
     spacing: 5
 
-    GridLayout {
-        columns: 2
+    // 饱和度/明度通道编辑行（旧顶部 GridLayout + NumInput 数字输入行的
+    // 新版承接——自带标签 channelTag，编辑与会话行为内化）。
+    ColorChannelEdit {
         Layout.fillWidth: true
-        Text {
-            text: "SATURATION"
-            font: PixelFont.normal
-            color: Style.text
-            Layout.leftMargin: 2
-            Layout.fillWidth: true
-        } //SATURATION
+        animationEnabled: root.animationEnabled
+        channel: ColorNameHQ.HSLSaturation
+        colorAssistant: root.colorAssistant
+    } //saturationEdit
 
-        NumInput {
-            id: satText
-            showUnderline: false
-            font: PixelFont.normal
-            color: Style.text
-            horizontalAlignment: Text.AlignRight
-            Layout.alignment: Qt.AlignRight
-            Layout.rightMargin: 2
-            Layout.preferredWidth: 72
-            Binding {
-                when: !satText.editing
-                satText.text: Tools.simplifyChannelNumber(
-                                  root.colorAssistant.hslSaturationF)
-                restoreMode: Binding.RestoreNone
-            }
-            Connections {
-                enabled: satText.editing
-                target: satText
-                function onTextChanged() {
-                    root.colorAssistant.hslSaturationF = satText.parseChannelValue(
-                                                             satText.text)
-                }
-            }
-        } //satText
-
-        Text {
-            text: "LIGHTNESS"
-            font: PixelFont.normal
-            color: Style.text
-            Layout.leftMargin: 2
-            Layout.fillWidth: true
-        } //LIGHTNESS
-
-        NumInput {
-            id: lightnessText
-            showUnderline: false
-            font: PixelFont.normal
-            color: Style.text
-            horizontalAlignment: Text.AlignRight
-            Layout.alignment: Qt.AlignRight
-            Layout.rightMargin: 2
-            Layout.preferredWidth: 72
-            Binding {
-                when: !lightnessText.editing
-                lightnessText.text: Tools.simplifyChannelNumber(
-                                        root.colorAssistant.hslLightnessF)
-                restoreMode: Binding.RestoreNone
-            }
-            Connections {
-                enabled: lightnessText.editing
-                target: lightnessText
-                function onTextChanged() {
-                    root.colorAssistant.hslLightnessF = lightnessText.parseChannelValue(
-                                                            lightnessText.text)
-                }
-            }
-        } //lightnessText
-    } //数字输入行
+    ColorChannelEdit {
+        Layout.fillWidth: true
+        animationEnabled: root.animationEnabled
+        channel: ColorNameHQ.HSLLightness
+        colorAssistant: root.colorAssistant
+    } //lightnessEdit
 
     // HSLBox：拖动取色（sat/ltn → hslSaturationF/hslLightnessF）；
     // 双击重置为 sat=1、ltn=0.5（纯色中点——与 HSVWheel 重置到无彩色的
@@ -113,16 +60,20 @@ ColumnLayout {
         colorAssistant: root.colorAssistant
     } //hslBox
 
-    ColorSlider_Hue {
-        colorAssistant: root.colorAssistant
+    // 色相组合行（channel=HSVHue——旧 ColorSlider_Hue 驱动 hsvHueF，沿用）。
+    ColorChannelControl {
         Layout.fillWidth: true
-    } //hueSlider
+        animationEnabled: root.animationEnabled
+        channel: ColorNameHQ.HSVHue
+        colorAssistant: root.colorAssistant
+    } //hueControl
 
-    ColorSlider_Alpha {
-        id: alphaSlider
+    ColorChannelControl {
+        id: alphaControl
         visible: root.showAlpha
         Layout.fillWidth: true
-        colorAssistant: root.colorAssistant
         animationEnabled: root.animationEnabled
-    } //alphaSlider
+        channel: ColorNameHQ.Alpha
+        colorAssistant: root.colorAssistant
+    } //alphaControl
 }
