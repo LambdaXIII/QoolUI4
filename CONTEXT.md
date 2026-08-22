@@ -67,4 +67,4 @@
 
 | 术语 | 定义 |
 |---|---|
-| **高定组件** | 通道/取色类组件的设计定位（实例：ColorChannelSlider、HSVWheel）：通道视觉（渐变/光标/描边）完全**内化**为组件语义（不暴露变体式外观接口如 fillGradient/strokeColor）；插拔口=全部由模板级 delegate 或整体替换承接（`background`/`handle`，表面场景=件内 _private 视觉件）；交互契约裁剪（无 defaultValue/reset/双击重置）；通用单组件（非 per-channel 变体文件）。边界：**高定 ≠ 不可插拔**——关闭的是"变体式外观参数"，delegate 级整体替换仍开放。 |
+| **高定组件** | 通道/取色类组件的设计定位（实例：ColorChannelSlider、HSVWheel、ColorChannelVerticalSlider）：通道视觉（渐变/光标/描边）完全**内化**为组件语义（不暴露变体式外观接口如 fillGradient/strokeColor）；插拔口=全部由模板级 delegate 或整体替换承接（`background`/`handle`，表面场景=件内 _private 视觉件）；交互契约裁剪（无 defaultValue/reset/双击重置）；通用单组件（非 per-channel 变体文件）。边界：**高定 ≠ 不可插拔**——关闭的是"变体式外观参数"，delegate 级整体替换仍开放。 |

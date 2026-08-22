@@ -2,6 +2,18 @@
  
  版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
  
+### 变更（colorchannelverticalslider，ColorChannelVerticalSlider 竖直通道滑块组件）
+
+- **新增公开组件 ColorChannelVerticalSlider**（Qool.Color）：竖直单通道滑块——T.Slider 独立实现（不继承 ColorChannelSlider），迁移 `_private/ChannelBar` 填充条视觉（圆角 5/4、从底部填充、身份色渐变、justMoved 1s 高亮、无 hover、无可见手柄）；`orientation` 默认 `Qt.Vertical`、implicit 25×150、透明手柄 side×side
+- **链模型照搬 ColorChannelSlider**（PropertyProxy 无条件双向 + clamp [0,1] + sat-bump + hue<0 守卫 + onCompleted 播种 + 同值收敛）——链处注释「同源 ColorChannelSlider，改动须双处同步」（复制即双处维护，注释为 MUST）
+- **hue 彩虹原理式跟随**：bg 彩虹档 p = `hsva(p, hsvSaturationF, hsvValueF, 0.2)`（HSVHue）/ `hsla(p, hslSaturationF, hslLightnessF, 0.2)`（HSLHue）——随 assistant 当前色动态变化（类似 HSVWheel/HSLBox 背景），与水平族 TrackHue 固定 `hsva(p,1,1,1)` 有意不同；stops 反排（顶部 hue 1 → 底部 hue 0，QML Gradient position 0 = 顶）
+- **填充 = 轨道在填充顶边的采样色**（对齐 `Qool.Controls.Slider` 的 `ColorMapper.colorAt` 语义）：hue 原理式、非 hue 身份色恒等退化（9 通道字面量逐字保留：Red/Blue/Cyan/Magenta/Yellow 纯通道色、**Green = Qt 命名色 #008000**、Alpha `grey`、Black `darkgrey`、Value/Lightness `white`、Sat 两通道原理式动态色）；填充色零动画纯绑定、填充高度平滑动画（`animationEnabled && !pressed`）
+- **高定组件第三实例**（契约裁剪：无 defaultValue/reset/双击；通道视觉内化，插拔口 = 模板级 background/handle）；**私有竖直族不动**（ChannelBar/ChannelSlider/9 变体/RGBPanel/CMYKPanel 原样保留服务现有消费方，整体迁移为后续任务、本组件为其基座）
+- **新增** `_private/ColorChannelVerticalTrack.qml`（填充条视觉件）+ `_private/ColorChannelVerticalColors.js`（身份色/采样色映射）；CMake QML_FILES 注册公开件
+- **测试**：tst_qoolcolor_qml 新增 `tst_colorchannelverticalslider.qml`（13 用例：链双向同步/同值收敛/播种/sat-bump/裁剪/初始默认/通道分派/填充几何/采样色/justMoved/契约裁剪显式断言/彩虹原理式跟随/彩虹反排）——批次 84/84 + 全量 23/23 PASS
+- **文档**：`docs/reference/Qool.Color/ColorChannelVerticalSlider.md`（5 节）+ index.md 登记（组件参考 + 简介行）；Playground 增补「竖直通道滑块」演示（HSVHue/HSVSaturation/HSVValue 三通道共享 mainColor，人工验收交互手感）；ADR-0018 决策记录
+- **验证**：build 通过（注册面 + qmlcache 编译）；全量 ctest 23/23 PASS
+
 ### 变更（numtools-removal，NumTools.js 移除——功能并入 Qore.bound / ColorNameHQ.formatChannelNumberFloat）
 
 - **删除 `_private/NumTools.js`**（v3 迁移残留工具库）：三个函数均已有 v4 替代——`limitNumber` → `Qore.bound`（auto_bound：min/max 顺序无关 + NaN 透传，语义等价）；`simplifyChannelNumber` → `ColorNameHQ.formatChannelNumberFloat`（'0'/'1'/'.xxx'/'NaN' 四输出同款）；`mapNumber` 无消费方（v3 API 面保留），随文件删除

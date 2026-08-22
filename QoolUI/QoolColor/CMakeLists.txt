@@ -28,6 +28,7 @@ qt_add_qml_module(QoolColor
     SOURCES qool_colorliterals.h qool_colorliterals.cpp
     QML_FILES ColorChannelEdit.qml
     QML_FILES ColorChannelSlider.qml
+    QML_FILES ColorChannelVerticalSlider.qml
          QML_FILES ColorChannelControl.qml
      QML_FILES HSVWheel.qml
     QML_FILES HSLBox.qml

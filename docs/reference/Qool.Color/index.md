@@ -26,7 +26,12 @@ Qool.Color 提供完整的颜色操纵组件面：
 - [ColorBankPanel](ColorBankPanel.md)
 - [ColorChannelControl](ColorChannelControl.md)
 - [ColorChannelEdit](ColorChannelEdit.md)
-- [ColorChannelSlider](ColorChannelSlider.md)
+- [ColorChannelVerticalSlider](ColorChannelVerticalSlider.md)
+@@
+- 取色/编辑/预览：`ColorQuickPicker`、`ColorEdit`、`ColorChannelEdit`
+  （单通道值编辑）、`ColorChannelSlider`（单通道拖动调值）、
+  `ColorChannelVerticalSlider`（竖直单通道拖动调值，填充条样式）、
+  和 `ColorChannelControl`（单通道编辑+拖动组合行）、`ColorPreviewer`。
 - [ColorCursor](ColorCursor.md)
 - [ColorEdit](ColorEdit.md)
 - [ColorHueCycleModel](ColorHueCycleModel.md)

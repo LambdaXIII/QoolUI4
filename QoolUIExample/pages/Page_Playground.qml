@@ -1,15 +1,12 @@
 // Playground：测试场——Qool.Controls 控件的调试用例（仓库开发模式：
 // 可随意更改，不保留旧内容）。
 //
-// 当前含 ColorChannelSlider 调试用例（三通道滑块 + 编辑配对 + 取色器
-// 双向联动）：
-// - 反向绑定修复（缺陷根源——旧 `colorAssistant.color: picker.currentColor`
-//   单向绑定：编辑/拖动通道改色后被绑定回写覆盖、编辑效果回滚、picker
-//   永不回显新色）。改为无条件双向同步（picker 取色写 assistant、
-//   assistant 变色回写 picker）——同值收敛实证（assistant 相等守卫 +
-//   QML 值类型同值不触发），无环无抖动。
-// - 三通道 ColorChannelSlider 与既有 ColorChannelEdit 同 colorAssistant
-//   同 channel 配对——拖动/编辑/picker 取色三路联动演示。
+// 当前含 HSV/HSL 面板 + 竖直通道滑块调试用例：
+// - HSV 色轮面板（HSVPanel）与 HSL 面板（HSLPanel）共享 mainColor——
+//   双向联动（面板改色、picker 取色三路同步，同值收敛无环）。
+// - ColorChannelVerticalSlider 竖直通道滑块演示（HSVHue/HSVSaturation/
+//   HSVValue 三通道，绑定共享 mainColor）——拖动/点击跳转/键盘步进/
+//   justMoved 手感人工验收（hue 通道彩虹原理式跟随当前 sat/value）。
 import QtQuick
 import Qool
 import Qool.Controls
@@ -47,6 +44,31 @@ BasicPage {
             colorAssistant: mainColor
         }
 
+        RectResizer {    }
+
+    QoolControl {
+        x: 380
+        title: qsTr("竖直通道滑块")
+        contentItem: Row {
+            spacing: 8
+            ColorChannelVerticalSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.HSVHue
+                height: 150
+            }
+            ColorChannelVerticalSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.HSVSaturation
+                height: 150
+            }
+            ColorChannelVerticalSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.HSVValue
+                height: 150
+            }
+        }
+
         RectResizer {}
+    }
     }
 }
