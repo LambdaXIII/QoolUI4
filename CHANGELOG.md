@@ -2,6 +2,17 @@
  
  版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
  
+### 变更（colorcursor-hsvwheel，ColorCursor 组合件 + HSVWheel 接线 + 清理——票 04）
+
+- **重写 `_private/ColorCursor.qml` 为组合件**（ADR-0016/0017）：CrystalCursor（延迟缩放 + Crystal 自带菱形 contains 命中域）+ CenterPlacer（center ↔ x/y 双向）+ TimerLatch（值变化锁存归约）——HSV/HSL 两表面共用取色光标；公开契约对齐旧 HSVWheelCursor（animationEnabled 父链继承 / currentColor / userInteracting / centerx / centery / size / expandDelta）；裁剪 latchTarget / hoverEnabled / defaultValue/reset / centerPoint / 双模式死代码；消费方禁止绑定写 centerx/centery（CenterPlacer 回写破坏绑定——事件驱动赋值定案）
+- **HSVWheel 改引用 ColorCursor**（替换 HSVWheelCursor）：删除 latchTarget 与 centerx/centery 绑定，改事件驱动 `updateCursor()`（assistant 通道信号 Connections + onCompleted 初始定位）；值变化锁存内化进 ColorCursor；objectName "wheelCursor" 保留（既有测试定位）
+- **初始定位时序修复**：QML 完成时序下 ColorCursor 内 CenterPlacer 的初始 resync 晚于 HSVWheel onCompleted 执行——立即调用 updateCursor 时 centery 与初始值同值被守卫吞掉 → 光标 y 错位；初始定位改 `Qt.callLater`（事件循环下一轮、resync 后写入必然生效）
+- **旧 `_private/HSLBox.qml` 连带适配**（05 票公开化前的中间态）：删除 supposedPoint/cx/cy 与 centerx/centery 绑定，改事件驱动 updateCursor + Connections + onCompleted（Qt.callLater 同款时序修复）；reset/双击保留
+- **清理**：删除 `_private/HSVWheelCursor.qml`、`_private/ColorCrystal.qml`、`qool_crystal4containmentmask.{h,cpp}`（CMake SOURCES 行 + reference 文档 + index 登记同步移除）
+- **文档**：新增 `docs/reference/Qool.Color/ColorCursor.md`（5 节）+ index 登记（字母序）
+- **测试**：tst_qoolcolor_qml 新增 `tst_colorcursor.qml`（5 用例：center 双向定位/展开收缩与 fullSize 组合/值变化锁存/实色透传/无 reset）；tst_hsvwheel 光标回归原样通过
+- **验证**：build 通过（C++ 件删除 + qmlcache 编译）；tst_qoolcolor_qml 批次 ctest 全绿
+
 +### 变更（open-interface-resync，CenterPlacer target 切换 / ItemAnimatedResizer enabled 恢复就位）
 
 - **CenterPlacer target 切换（开放接口）**：运行中换挂载对象 → 从新 target 现读同步 center（旧值不残留，单一事实源 = target）；Connections 自动转移；从 null 挂上同理

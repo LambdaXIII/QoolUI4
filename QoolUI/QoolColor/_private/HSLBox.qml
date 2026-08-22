@@ -48,22 +48,6 @@ Item {
             currentColor: colorAssistant.solidColor
             userInteracting: root.userInteracting
             animationEnabled: root.animationEnabled
-            readonly property point supposedPoint: surface.position(
-                                                       root.colorAssistant.hslSaturationF,
-                                                       root.colorAssistant.hslLightnessF)
-            property real cx: supposedPoint.x
-            property real cy: supposedPoint.y
-
-            //            BasicNumberBehavior on cx {
-            //                enabled: root.animationEnabled && (!root.userInteracting)
-            //                duration: root.Style.movementDuration
-            //            }
-            //            BasicNumberBehavior on cy {
-            //                enabled: root.animationEnabled && (!root.userInteracting)
-            //                duration: root.Style.movementDuration
-            //            }
-            centerx: cx
-            centery: cy
         } //cursor
 
         function setValues() {
@@ -77,6 +61,13 @@ Item {
             root.colorAssistant.hslSaturationF = sat
             root.colorAssistant.hslLightnessF = ltn
         }
+        // 光标定位（事件驱动——CenterPlacer 回写破坏绑定，禁止绑定 centerx）
+        function updateCursor() {
+            const p = surface.position(root.colorAssistant.hslSaturationF,
+                                       root.colorAssistant.hslLightnessF)
+            cursor.centerx = p.x
+            cursor.centery = p.y
+        }
 
         onPressed: setValues()
         onPositionChanged: if (userInteracting) {
@@ -84,6 +75,18 @@ Item {
                            }
         onDoubleClicked: root.reset()
     } //mouseArea
+    // —— 光标定位驱动：assistant 通道变化 → 事件驱动更新光标位置。
+    // （绑定会被 CenterPlacer 回写破坏——事件驱动是定案，勿改回绑定。）
+    Connections {
+        target: root.colorAssistant
+        function onHslSaturationFChanged() { mouseArea.updateCursor() }
+        function onHslLightnessFChanged() { mouseArea.updateCursor() }
+    }
+
+    // 初始定位延迟到事件循环下一轮：ColorCursor 内 CenterPlacer 的初始
+    // resync 在本组件 onCompleted 之后才执行（QML 完成时序），立即调用时
+    // centery 与 position 目标同值 → 同值守卫吞掉首次写入 → 光标 y 错位。
+    Component.onCompleted: Qt.callLater(function () { mouseArea.updateCursor() })
 
     function reset() {
         if (root.colorAssistant.hslHueF < 0)

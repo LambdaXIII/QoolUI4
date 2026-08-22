@@ -1,161 +1,87 @@
-// 关键行为与易误解点（勿改）：
-//   - centerx/centery ↔ x/y 双向同步（两个 Connections）：onXChanged 带守卫
-//     （相同值不写回 centerx），onCenterxChanged 无条件写 x（含注释掉的
-//     `if (root.x - v == 0)` 守卫）——两处不对称是刻意设计，消费方要么绑定
-//     x/y（ColorSlider：x 由 displayValue 绑定驱动），要么绑定 centerx/centery
-//     （HSVWheel/HSLBox），两种用法都依赖这套同步。
-//   - hoveredSize = size + limitNumber(size * 0.25, 15, 45)；states 中
-//     悬停（hoverer.hovered）/ 交互（userInteracting）/ 刚移动（movementTimer
-//     justMoved，1000ms 内）任一成立即展开到 hoveredSize。
-//   - pControl.animationEnabled 额外要求 pControl.initialized（Component.onCompleted
-//     置位）：组件创建时对默认值不做动画，之后才启用——刻意延迟一帧。
-//   - crystal（ColorCrystal）以 parent 中心定位（菱形中心 = 组件中心，见
-//     ColorCrystal 头注释）；大小/填充/描边动画都经 pControl.animationEnabled 门控。
-//   - containmentMask 用 Crystal4ContainmentMask，centerPoint = root.centerPoint
-//     （组件中心），命中域为菱形（中心点随 x/y 同步自动更新）。
-//   - hoverEnabled 默认 false：HoverHandler 只有消费方开启后才工作。
+// ColorCursor：HSV/HSL 两表面共用的组合取色光标（Qool.Color/_private）。
+//
+// 定位：值位置 = 光标中心点（消费方经 surface.position(...) 映射派生，
+// 非被拖动对象）；组合 CrystalCursor（延迟缩放 + Crystal 自带菱形
+// contains 命中域）+ CenterPlacer（center ↔ x/y 双向）+ TimerLatch
+// （值变化锁存归约）。
+//
+// 易误解点（勿改）：
+// - **禁止用 QML 绑定写 centerx/centery**——CenterPlacer 的 onXChanged
+//   显式回写会替换绑定（QML 显式赋值破坏绑定），光标将冻结；消费方必须
+//   事件驱动赋值（assistant 通道信号触发 + 显式赋值）。
+// - 命中域：内部 Crystal 锚定根中心（缩放展开中心不动）——其自带 contains
+//   域与旧 Crystal4ContainmentMask 语义等价（菱形外按压贯通）。
+// - 锁存触发源从旧 latchTarget（assistant 全通道，含 value）改为 center
+//   变化（center 变化 = 位置变化 = 表面值变化）；value 通道不再触发——
+//   value 不移动光标，视觉差异可接受（ADR-0016 去 latchTarget 的必然结果）。
 
 pragma ComponentBehavior: Bound
 
 import QtQuick
 import Qool
-import "NumTools.js" as Tools
-import Qool.Color
+import Qool.Controls.Components
 
-// 滑块/表面控件取色光标：菱形色块 + 悬停展开 + 刚移动高亮。
-//
-// 用法二选一：绑定 `x/y`（滑块场景，配合 `displayValue`），或绑定
-// `centerx/centery`（表面控件场景，HSVWheel/HSLBox 用 surface 坐标映射）。
-//
-// 易误解点
-// - `centerx/centery` 是组件中心的坐标（x + width/2），不是左上角——滑块场景
-//   下 centerx/centery 只是同步副产品，滑块绑定的是 x/y；表面场景相反。
-// - 双向同步的写回不对称（onXChanged 有守卫、onCenterxChanged 无条件写）是
-//   刻意保留的行为，用来打破同步环；删掉无条件写会导致表面场景光标不跟随。
-// - `hoveredSize` 展开依赖三态之一（悬停/交互/刚移动），其中"刚移动"由
-//   movementTimer 在 x/y 变化后 1 秒内维持——这也是滑块拖停后光标短暂
-//   保持展开的原因（交互反馈，勿当 bug 修）。
 Item {
     id: root
 
-    property bool animationEnabled: root.Style.animationEnabled
-
-    property color currentColor: root.Style.highlight
-
-    property real size: 20
-    readonly property real hoveredSize: pControl.hoveredSize
-
+    // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
+    // 声明序首位（AGENTS MUST——统一声明序）。
+    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
+    // 光标实色（消费方注入，如表面 solidColor）。
+    property color currentColor: "white"
+    // 交互态（消费方转发 InteractingArea）——三态展开输入之一。
     property bool userInteracting: false
-    property bool hoverEnabled: false
+    // 组件边长（根 footprint = size × size）。
+    property real size: 20
+    // 展开增量（对齐旧 HSVWheelCursor：常态 = size、展开 = size + expandDelta）。
+    readonly property real expandDelta: Qore.bound(4, root.size * 0.35, 15)
 
     width: size
     height: size
 
-    property real centerx
-    property real centery
-    readonly property point centerPoint: Qt.point(centerx, centery)
+    // 中心坐标：alias 到 CenterPlacer（读 = x + width/2、写 = 代理设 x/y）。
+    // 消费方只许事件驱动赋值（见文件头易误解点）。
+    property alias centerx: placer.centerx
+    property alias centery: placer.centery
 
-    Connections {
+    CenterPlacer {
+        id: placer
         target: root
-        function onXChanged() {
-            const v = x + width / 2
-            if (root.centerx !== v)
-                root.centerx = v
-        }
-        function onYChanged() {
-            const v = y + height / 2
-            if (root.centery !== v)
-                root.centery = v
-        }
-        function onCenterxChanged() {
-            const v = root.centerx - width / 2
-            //            if (root.x - v == 0)
-            root.x = v
-        }
-        function onCenteryChanged() {
-            const v = centery - height / 2
-            //            if (root.y - v == 0)
-            root.y = v
+    }
+
+    // 值变化锁存：center 变化 = 位置变化 = 表面值变化 → 锁存展开
+    //（旧 latchTarget 归约内化——触发源从 assistant 信号换成 center 变化）。
+    TimerLatch {
+        id: latch
+        interval: Style.movementDuration * 2
+        Connections {
+            target: root
+            function onCenterxChanged() { latch.trigger() }
+            function onCenteryChanged() { latch.trigger() }
         }
     }
 
-    QtObject {
-        id: pControl
-        property bool initialized: false
-
-        readonly property bool animationEnabled: initialized
-                                                 && (!root.userInteracting)
-                                                 && root.animationEnabled
-        readonly property real hoveredSize: {
-            let delta = root.size * 0.25
-            delta = Tools.limitNumber(delta, 15, 45)
-            return root.size + delta
-        }
-    }
-
-    ColorCrystal {
-        id: crystal
-        size: root.size
+    // 组合基准件：根 = size + expandDelta（fullSize 角色）、delta = expandDelta
+    // → 常态 Crystal = size、展开 = size + expandDelta（旧 HSVWheelCursor 视觉
+    // 逐点等价）；anchors.centerIn 保证 Crystal 中心 = 根中心 = center 位置
+    //（命中域与旧掩码语义等价）。
+    CrystalCursor {
+        id: base
+        objectName: "baseCursor" // 测试定位（组件内部对象零暴露原则的测试例外）
+        enabled: root.enabled
+        width: root.size + root.expandDelta
+        height: root.size + root.expandDelta
+        anchors.centerIn: root
+        delta: root.expandDelta
+        animationEnabled: root.animationEnabled
         color: root.currentColor
-        strokeColor: ThemeHQ.recommendForeground(root.currentColor)
-        x: parent.width / 2
-        y: parent.height / 2
-
-        BasicNumberBehavior on size {
-            enabled: pControl.animationEnabled
-        }
-
-        BasicColorBehavior on color {
-            enabled: pControl.animationEnabled
-        }
-
-        BasicColorBehavior on strokeColor {
-            enabled: pControl.animationEnabled
-        }
+        expanded: hoverer.hovered || root.userInteracting || latch.active
     }
 
+    // hover 反馈：挂根（size 方形域——旧 hoverer 挂 Crystal 菱形域，方形
+    // 为外接超集，03 票 Slider handle 同款先例语义）。
     HoverHandler {
         id: hoverer
-        enabled: root.hoverEnabled
-    }
-
-    Timer {
-        id: movementTimer
-
-        property bool justMoved: false
-        interval: 1000
-        onTriggered: justMoved = false
-
-        function when_moved() {
-            justMoved = true
-            restart()
-        }
-    }
-    Connections {
-        target: root
-        function onXChanged() {
-            movementTimer.when_moved()
-        }
-        function onYChanged() {
-            movementTimer.when_moved()
-        }
-    }
-
-    states: [
-        State {
-            when: hoverer.hovered || root.userInteracting
-                  || movementTimer.justMoved
-            PropertyChanges {
-                crystal.size: pControl.hoveredSize
-            }
-        }
-    ]
-
-    Component.onCompleted: pControl.initialized = true
-
-    containmentMask: Crystal4ContainmentMask {
-        width: root.width
-        height: root.height
-        centerPoint: root.centerPoint
+        enabled: root.enabled
     }
 }

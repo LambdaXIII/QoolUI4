@@ -80,6 +80,14 @@ Item {
             root.colorAssistant.hsvSaturationF = s
         }
 
+        // 光标定位（事件驱动——CenterPlacer 回写破坏绑定，禁止绑定 centerx）
+        function updateCursor() {
+            const p = surface.position(root.colorAssistant.hsvHueF,
+                                       root.colorAssistant.hsvSaturationF)
+            cursor.centerx = p.x
+            cursor.centery = p.y
+        }
+
         onPressed: {
             // 补置 userInteracting（覆写 onPressed 覆盖了 InteractingArea
             // 内部 onPressed 的置位——不补则 userInteracting 恒 false、
@@ -96,19 +104,17 @@ Item {
         // —— 光标（值的可视化，非拖动对象）：定位单向派生自**数据源**
         // （assistant 通道——真实源，独立于接口属性的外部写入）。接口写入
         // 越界（hue<0）被守卫拒绝 → assistant 不变 → 光标保持；光标不依赖
-        // root.hue 接口属性（显示保持由数据源承载）。centerx/centery 单向
-        // 绑定，无 x/y 双向环。
-        HSVWheelCursor {
+        // root.hue 接口属性（显示保持由数据源承载）。
+        // 事件驱动定位：ColorCursor 经 CenterPlacer 双向同步，其 onXChanged
+        // 显式回写会破坏 QML 绑定 → centerx/centery 禁止绑定，由 updateCursor()
+        // 显式赋值（assistant 通道信号触发，见 root 级 Connections）。
+        // 值变化锁存已内化进 ColorCursor（center 变化触发，不再传 latchTarget）。
+        ColorCursor {
+            id: cursor
             objectName: "wheelCursor"
             animationEnabled: root.animationEnabled
             currentColor: root.colorAssistant.solidColor
             userInteracting: root.userInteracting
-            latchTarget: root.colorAssistant
-
-            centerx: surface.position(root.colorAssistant.hsvHueF,
-                                      root.colorAssistant.hsvSaturationF).x
-            centery: surface.position(root.colorAssistant.hsvHueF,
-                                      root.colorAssistant.hsvSaturationF).y
         }
     }
 
@@ -128,6 +134,14 @@ Item {
         function onHsvValueFChanged() {
             root.value = root.colorAssistant.hsvValueF
         }
+    }
+
+    // —— 光标定位驱动：assistant 通道变化 → 事件驱动更新光标位置。
+    // （绑定会被 CenterPlacer 回写破坏——事件驱动是定案，勿改回绑定。）
+    Connections {
+        target: root.colorAssistant
+        function onHsvHueFChanged() { area.updateCursor() }
+        function onHsvSaturationFChanged() { area.updateCursor() }
     }
 
     // —— 写方向：接口属性 → assistant 通道（外部程序直写/联动）。
@@ -178,5 +192,10 @@ Item {
         const h = root.colorAssistant.hsvHueF
         if (h >= 0 && h <= 1)
             root.hue = h
+        // 初始定位延迟到事件循环下一轮：ColorCursor 内 CenterPlacer 的初始
+        // resync 在本组件 onCompleted 之后才执行（QML 完成时序），立即调用时
+        // centery 恰为 0 与 position 目标同值 → 同值守卫吞掉首次写入 → 光标
+        // y 错位；resync 后调用则写入必然生效（幂等，重复调用无害）。
+        Qt.callLater(function () { area.updateCursor() })
     }
 }
