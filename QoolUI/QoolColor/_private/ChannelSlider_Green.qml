@@ -5,10 +5,8 @@ import Qool
 import Qool.Color
 
 // 绿色通道滑块：竖直 ChannelBar + greenF 双向绑定。
-//
-// 易误解点
-// - 标题 "GRIN" 是刻意采用的 4 字母缩写（GREEN→GRIN），非拼写错误；
-//   整套 ChannelSlider 变体（BRIT/ALFA/MAGT/YELO/BLAK 等）均为此风格。
+// 标题 "GRIN" 是刻意 4 字母缩写（GREEN→GRIN），非拼写错误——整套变体
+// （BRIT/ALFA/MAGT/YELO/BLAK 等）均为此风格。
 ChannelSlider {
     id: root
 

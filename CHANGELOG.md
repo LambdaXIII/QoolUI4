@@ -2,6 +2,15 @@
  
  版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
  
+### 变更（colorchannel-comment-cleanup，ColorChannel 两 Slider 家族注释清理）
+
+- **全删废话注释**（新 AGENTS 首行规则执行）：ColorChannelSlider / ColorChannelVerticalSlider 及全部关联元素（Track 双件、Colors 双 JS、旧竖直族 ChannelSlider/ChannelBar/9 变体）注释大幅精简——删除定位叙述/历史沿革/ADR 引用/自解释重复，仅保留「看不懂会误改」的必要点（链模型双处同步、sat-bump、越界守卫、彩虹反排陷阱、字面量勿改、标题缩写勿改、测试定位 objectName 等）
+- **验证**：git diff 走读确认非注释代码行零改动；按 AGENTS 验证分级（注释/文档 → 代码走读）不跑 build
+
+### 变更（agent-comment-rule，AGENTS 首行注释硬规则）
+
+- **新增规则**（AGENTS.md 第一行，`[MUSTMUSTMUST]`）：代码注释不允许写废话，每个代码文件中的注释内容不能超过该文件的 5%
+
 ### 变更（colorchannelverticalslider-fixes，VerticalSlider 手柄鼠标图标 + hue 填充正常色）
 
 - **手柄鼠标图标**：ColorChannelVerticalSlider handle 新增 MouseArea（objectName "handleCursorArea"，acceptedButtons NoButton 不拦截模板拖动）——cursorShape 随方向切换（水平 SizeHorCursor / 垂直 SizeVerCursor），对齐 ColorChannelSlider 手柄

@@ -5,9 +5,7 @@ import Qool
 import Qool.Color
 
 // 品红通道滑块：竖直 ChannelBar + magentaF 双向绑定。
-//
-// 易误解点
-// - 标题 "MAGT" 是刻意 4 字母缩写，勿"修正"。
+// 标题 "MAGT" 是刻意 4 字母缩写，勿"修正"。
 ChannelSlider {
     id: root
 
