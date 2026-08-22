@@ -11,7 +11,8 @@ Qool.Color 提供完整的颜色操纵组件面：
   数字输入 + 表面控件 + 滑块组合，可注入共享 ColorAssistant。
 - 取色/编辑/预览：`ColorQuickPicker`、`ColorEdit`、`ColorChannelEdit`
   （单通道值编辑）、`ColorChannelSlider`（单通道拖动调值）、
-  `ColorChannelControl`（单通道编辑+拖动组合行）、`ColorPreviewer`。
+     和 `ColorChannelControl`（单通道编辑+拖动组合行）、`ColorPreviewer`。
+ - 取色表面：`HSVWheel`（HSV 二维色轮取色——hue/sat 双写 + value 压暗层，单向链架构，公开一级组件）。
 - 列表与银行：`ColorNameList`（分类色名选择）、`ColorBankPanel`
   （槽位存取）。
 
@@ -31,8 +32,9 @@ Qool.Color 提供完整的颜色操纵组件面：
 - [ColorPreviewer](ColorPreviewer.md)
 - [ColorQuickPicker](ColorQuickPicker.md)
 - [Crystal4ContainmentMask](Crystal4ContainmentMask.md)
-- [HSLPanel](HSLPanel.md)
-- [HSVPanel](HSVPanel.md)
+ - [HSLPanel](HSLPanel.md)
+ - [HSVPanel](HSVPanel.md)
+ - [HSVWheel](HSVWheel.md)
 - [RGBPanel](RGBPanel.md)
 - [RandomHSVColorGenerator](RandomHSVColorGenerator.md)
 

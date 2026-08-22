@@ -61,4 +61,10 @@
 |---|---|
 | **无状态代理** | PropertyProxy 的 value 是 target.property 的透明窗口：getter 现读、setter 直写（可写时），无内部存储，数据源唯一。QML 绑定无法用字符串指定属性名，故用 C++ 无状态代理桥接任意对象属性（读 + 可选写）。 |
 | **判变快照** | 轮询功能私有缓存（上次采样值），仅用于比较"值是否变化"以决定是否发 valueChanged；不参与读写行为（value 无状态，不经过它）。 |
-| **净化可写性** | isWritable 属性 = 元对象可写（`QMetaProperty::isWritable`）且非常量（`!isConstant`）——写方向守卫的单一条件；isConstant 仍独立透传。 |
+ | **净化可写性** | isWritable 属性 = 元对象可写（`QMetaProperty::isWritable`）且非常量（`!isConstant`）——写方向守卫的单一条件；isConstant 仍独立透传。 |
+
+## 高定组件（Color 模块）
+
+| 术语 | 定义 |
+|---|---|
+| **高定组件** | 通道/取色类组件的设计定位（实例：ColorChannelSlider、HSVWheel）：通道视觉（渐变/光标/描边）完全**内化**为组件语义（不暴露变体式外观接口如 fillGradient/strokeColor）；插拔口=全部由模板级 delegate 或整体替换承接（`background`/`handle`，表面场景=件内 _private 视觉件）；交互契约裁剪（无 defaultValue/reset/双击重置）；通用单组件（非 per-channel 变体文件）。边界：**高定 ≠ 不可插拔**——关闭的是"变体式外观参数"，delegate 级整体替换仍开放。 |

@@ -1,8 +1,9 @@
 // HSV 面板：色相/饱和度通道编辑行（ColorChannelEdit）→ HSVWheel 表面 →
 // 明度（ColorChannelControl）/ 透明度（ColorChannelControl）组合行。
-// 交互：HSVWheel 拖动取色/双击重置（hue=0、sat=0）、组合行编辑与拖动
-//   通道值（Value/Alpha 默认 1）、showAlpha 控制透明度组合行显隐、
-//   animationEnabled 门控动画。
+// 交互：HSVWheel 拖动取色（hue/sat 同时写）、组合行编辑与拖动通道值
+//   （Value/Alpha 默认 1）、showAlpha 控制透明度组合行显隐、
+//   animationEnabled 门控动画。无双击重置（v4 交互契约裁剪——与
+//   ColorChannelSlider 一致，旧 v3 双击 reset 不保留）。
 // 刻意：标签为排版文字（channelTag），不翻译。
 
 pragma ComponentBehavior: Bound
@@ -11,7 +12,6 @@ import QtQuick
 import QtQuick.Layouts
 import Qool
 import Qool.Color
-import "_private"
 
 ColumnLayout {
     id: root
@@ -45,7 +45,8 @@ ColumnLayout {
     } //saturationEdit
 
     // HSVWheel：拖动取色（hue/sat → hsvHueF/hsvSaturationF，圆外点击
-    // 钳制到圆周）；双击重置为 hue=0、sat=0（无彩色）。
+    // 钳制到圆周）；无双击重置（新版交互契约裁剪——与 ColorChannelSlider
+    // 一致，旧 v3 双击 reset 不保留）。
     HSVWheel {
         id: hsvSurface
         Layout.fillWidth: true

@@ -8,8 +8,13 @@
 - spec 位于 `.scratch/<feature-slug>/spec.md`
 - 实现 issue 是逐个票文件：`.scratch/<feature-slug>/issues/<NN>-<slug>.md`，从 `01` 编号——绝不合并成单一 tickets 文件
 - `Status:` 行记录状态：`spec.md` 顶部记录 spec 级状态（`in-progress`/`done`/`abandoned`）；票文件顶部附近记录票级状态（开放字段，非闭集——实现态 `open`/`in-progress`/`done`/`rejected`、wayfinder 态 `claimed`/`resolved`、triage 角色 `needs-triage`/`needs-info`/`ready-for-agent`/`ready-for-human`/`wontfix`，角色字符串见 `triage-labels.md`）
-- `Type:` 行记录票类型：`research`/`prototype`/`grilling`/`task`（开放字段，非闭集）
-- 评论与对话历史以 `## Comments` 标题追加到文件末尾
+ - `Type:` 行记录票类型：`research`/`prototype`/`grilling`/`task`（开放字段，非闭集）
+ - 评论与对话历史以 `## Comments` 标题追加到文件末尾
+ - **spec 生命周期（MUST）**：spec 落地完成后**必须**更新其 `Status:` 行为 `done`——"实现完成"不等于"spec 关闭"。spec 的编写本身应内建这一步：
+   - 发布时 `Status: ready-for-agent`
+   - 实现落地（实现票全部 done）后更新为 `Status: done`
+   - 放弃时更新为 `Status: abandoned`
+   - 经验教训（2026-08-22）：一批已落地的 spec 长期遗留 `in-progress`/`ready-for-agent`，被当作"开放工作"误判工作量——根因是实现完成时无人同步 spec `Status:` 行。写 spec 时即应把"更新 Status → done"列为收尾步骤（纳入实现票清单或 spec 自身约定），而非依赖记忆。
 
 ## 当技能说"发布到 issue tracker"
 

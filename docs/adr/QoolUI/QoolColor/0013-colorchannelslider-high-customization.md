@@ -37,7 +37,7 @@ Color 模块迁移适配中，旧 `_private/ColorSlider.qml`（标题+数值输�
 - 渐变表语义（RGB 黑→纯色、CMYK 白→纯色、Sat 原理式）为数据决策，JS 注释承载，不升级为术语。
 - 测试：`tst_qoolcolor_qml` 增补（几何断言 + 链同步，offscreen 惯例）；示例页 Playground 人工验收（无合成鼠标的交互映射以人工运行验证，既有惯例）。
 - 文档：`docs/reference/Qool.Color/ColorChannelSlider.md`（5 节）+ index.md 登记（实现完备后更新）。
-- 术语：**高定组件** 暂不进 CONTEXT.md（单样本）；本 ADR 定义边界。后续第二个高定组件出现时升级为术语。
+- 术语：**高定组件** 已升级进 CONTEXT.md（ADR-0013 预留触发已命中——第二个高定组件 HSVWheel 出现，见 ADR-0014）；边界定义（通道视觉内化、不暴露外观接口、通用单组件）沿用本 ADR。
 
 ## 决策状态
 

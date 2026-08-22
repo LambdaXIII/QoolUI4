@@ -267,7 +267,8 @@ Qool 自定义强化版 `QtObject`（**非 `QObject`**，兼容 QtObject），�
 - issue tracker：`docs/agents/issue-tracker.md`（本地 `.scratch/` Markdown 票）
 - triage 标签：`docs/agents/triage-labels.md`
 - 领域文档：`docs/agents/domain.md`（CONTEXT.md + docs/adr 的消费方式）
-- **ADR 时效性（MUST）**：ADR 是决策锚定、优先级最高——任何讨论/修订/决策之后、动手实施之前，先检查相关 ADR 是否需要同步调整，保证 ADR 与当前决策一致、不滞后（索引见 `docs/adr/README.md`）
+ - **ADR 时效性（MUST）**：ADR 是决策锚定、优先级最高——任何讨论/修订/决策之后、动手实施之前，先检查相关 ADR 是否需要同步调整，保证 ADR 与当前决策一致、不滞后（索引见 `docs/adr/README.md`）
+ - **spec 生命周期（MUST）**：`.scratch/` 下 spec 落地完成后必须更新其 `Status:` 行为 `done`（放弃则 `abandoned`）——"实现完成"不等于"spec 关闭"。写 spec 时即应把"更新 Status → done"列为收尾步骤，杜绝实现完成却遗留开放状态的规格（详见 `docs/agents/issue-tracker.md`）
 
 ## 已知陷阱
 

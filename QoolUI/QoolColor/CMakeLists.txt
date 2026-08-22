@@ -29,8 +29,9 @@ qt_add_qml_module(QoolColor
     SOURCES qool_colorliterals.h qool_colorliterals.cpp
     QML_FILES ColorChannelEdit.qml
     QML_FILES ColorChannelSlider.qml
-    QML_FILES ColorChannelControl.qml
-)
+         QML_FILES ColorChannelControl.qml
+     QML_FILES HSVWheel.qml
+ )
 
 # _private 私有件：**不注册进模块 qmldir**（不进 QML_FILES）——仅作为普通
 # QML 文件打进 qrc（/qt/qml/Qool/Color/_private/ 路径），模块内文件经

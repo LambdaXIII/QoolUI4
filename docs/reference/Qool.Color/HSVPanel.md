@@ -14,9 +14,12 @@ gradient wheel, and value/alpha channel controls.
 ### Interaction
 
 - **Surface**: press-drag picks a color (hue/saturation written to
-  `colorAssistant.hsvHueF` / `hsvSaturationF`; clicks outside the circle
-  are clamped to the circumference); double-click resets to hue = 0,
-  sat = 0 (achromatic).
+  `colorAssistant.hsvHueF` / `hsvSaturationF` **together** (two-value
+  atomic write; clicks outside the circle are clamped to the
+  circumference). No double-click reset — the interaction contract is
+  trimmed (hue/saturation only, like `ColorChannelSlider`). `value` is
+  driven by the value control below, not by the surface drag; the wheel's
+  dim layer follows it.
 - **Channel editors/controls**: edit the numeric value or drag the slider
   to set the channel; the value is written to and read from the shared
   `colorAssistant`. On-channel synchronization and clamping live inside

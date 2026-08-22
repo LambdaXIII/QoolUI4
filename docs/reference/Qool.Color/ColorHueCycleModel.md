@@ -3,9 +3,16 @@
 A cyclic hue-ring model: `number` equally spaced slots, one color per
 slot, evenly distributed around the hue ring.
 
-`ColorHueCycleModel` is a `QAbstractListModel` intended as the model
-source for hue-ring views such as `HSVWheel`. Each row (slot) exposes five
-roles: `color`, `hue`, `saturation`, `value`, `position`.
+`ColorHueCycleModel` is a `QAbstractListModel` supplying cyclic hue-ring
+rows to views that consume a model. Each row (slot) exposes five roles:
+`color`, `hue`, `saturation`, `value`, `position`.
+
+> **Not the HSVWheel source**: `HSVWheel` does **not** consume this model —
+it draws its hue ring with a `ConicalGradient` baked into the `_private`
+`HSVSurface` (model-free, direct gradient). `ColorHueCycleModel` is an
+independent, reusable hue-slot model for hosts that want model-driven hue
+rings of their own; the earlier reference to it as "the model source for
+`HSVWheel`" was inaccurate.
 
 ### Roles
 

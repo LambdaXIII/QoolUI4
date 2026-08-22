@@ -49,7 +49,10 @@ Shape {
 
     readonly property real radius: pMath.radius
     property color strokeColor: root.Style.text
-    property real hsvValue: 1
+         property real hsvValue: 1
+     // 压暗层契约点（value → 压暗层 alpha 派生——公开视觉契约的测试例外，
+     // Shape 内 ShapePath 不可经 children 遍历，直接暴露只读派生作断言锚）。
+     readonly property real darkAlpha: 1 - root.hsvValue
 
     antialiasing: true
 
@@ -274,9 +277,9 @@ Shape {
         }
     }
 
-    ShapePath {
-        id: valueSurface
-        startX: pMath.center.x - pMath.radius
+              ShapePath {
+         id: valueSurface
+         startX: pMath.center.x - pMath.radius
         startY: pMath.center.y
         PathArc {
             radiusX: pMath.radius

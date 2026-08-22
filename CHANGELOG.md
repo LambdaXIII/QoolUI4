@@ -1,4 +1,22 @@
-# Changelog
+ # Changelog
+ 
+ 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
+ 
++### 变更（hsvwheel，HSVWheel 二维取色表面公开组件 + 单向链架构）
++
++- **新增公开组件 HSVWheel**（Qool.Color——v4 正式一级组件，沿用 v3 名字；旧 `_private/HSVWheel.qml` 为 v3 迁移临时载体，仅作参考基线，本次落成后删除）：HSV 二维取色表面——色轮响应鼠标取色（`hue`/`saturation` 同时写）、`value` 驱动圆盘压暗层（alpha = 1 - value）、单向链驱动架构（鼠标事件 → 数据 → 光标/圆盘，无"光标↔值"双向绑定）
++- **单向链架构**：交互 `setValues()` 经 `HSVSurface` 映射（`check_point`/`hueAt`/`saturationAt`——圆周钳制/域合法）**两个同时写** assistant 的 `hsvHueF`/`hsvSaturationF`（二维原子动作，非一维链投影）；光标（`_private/HSVWheelCursor`）与圆盘独立从同一数据源派生，互不直连
++- **三值双向属性**：`hue`/`saturation`/`value` 公开双向接口（外部写 → assistant；assistant 变 → 回读；onCompleted 播种）；`value` 用户操控不写（交互只写 hue/sat）、仅驱动圆盘绘制——value 由外部通道行/联动驱动
++- **写入钳制两路**（值合法，非坐标 clamp）：交互路径保留 `HSVSurface` 既有钳制；接口路径新增——hue 越界（<0 无色相）不写/显示保持（对齐 ColorChannelSlider 越界守卫）、sat/value clamp [0,1]、hue>1 圆周归一化（`% 1`）；`position` 无坐标硬钳制（值域由写入层保证）
++- **契约裁剪**：无 `defaultValue`/`reset`、双击无定义行为（对齐 ColorChannelSlider/ColorChannelControl）；`animationEnabled` 父链继承（声明序首位）
++- **新增 `_private/HSVWheelCursor`**：`Qool.Crystal` 菱形（弃旧 `ColorCrystal`）+ 三态展开（hover/userInteracting/值变化锁存 TimerLatch）+ HoverHandler + 菱形掩码；定位单向派生（`centerx/centery = position(hue,sat)`）、仅中心定位（去 x/y↔centerx/centery 双同步环）；与 `ColorChannelSliderHandle` 同族（维护心智负担小）
++- **HSVPanel 改用公开 HSVWheel**（import Qool.Color，colorAssistant 共享同一实例）；旧 `_private/HSVWheel.qml` 删除（无引用确认后）
++- **`_private/HSVSurface` 仅新增 `darkAlpha` 只读派生契约点**（压暗层 alpha 锚——Shape 内 ShapePath 不可经 children 遍历），映射数学与绘制不改
++- **ADR-0014 定案**（单向链架构 + 写入钳制两路 + 参考基线=旧行为）；**「高定组件」术语升级进 CONTEXT.md**（ADR-0013 预留触发已命中：第二个高定组件 = HSVWheel）+ ADR-0013 Consequences 术语条款改写
++- **`ColorHueCycleModel.md` 文档-代码矛盾澄清**：HSVWheel 未消费该 model（源来自绘 `ConicalGradient`），文档原称 model source 为误导——标为非 HSVWheel 数据源
++- **测试**：`tst_qoolcolor_qml` 批次新增 `tst_hsvwheel.qml`（9 用例：三值双向同步/同值收敛/播种/hue 越界不写/clamp/圆周归一化/darkAlpha 派生/光标圆内/无 reset）——批次全绿（含既有三件套回归不破坏）
++- **验证**：build 通过（HSVWheel/HSVWheelCursor 注册面 + qmlcache 编译）；tst_qoolcolor_qml 批次 PASS；全量 ctest 回归三件套不破坏
++
 
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
