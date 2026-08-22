@@ -2,6 +2,10 @@
  
  版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
  
+### 变更（very-important-block，AGENTS 顶部 VERY-IMPORTANT 强调块）
+
+- **AGENTS 顶部新增 `<VERY-IMPORTANT>` 块**（用户手动定案）：`[MUSTMUSTMUST]` 注释规则行 ×3、验证分级表 ×5、尾部防删注释「禁止删除，重复声明是因为你老忘记」——重复声明为刻意强调，非冗余
+
 ### 变更（verification-tier-top，验证分级模型提升为顶层规则）
 
 - **AGENTS 第二行新增验证分级表**（`[MUSTMUSTMUST]` 注释规则之下）：注释/文档/无逻辑重命名 → 代码走读；纯 QML 行为改动 → 用户运行验证或单测试；构建结构改动 → build；完整落地一套修改 → build + 全量 ctest——顶部常驻，防过度验证（build/ctest 非默认动作）
