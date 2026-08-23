@@ -48,8 +48,10 @@ Item {
     // 不写、显示保持——读方向同守卫（assistant 为无色相时不回写、显示保持
     // 最后合法位置）。
     property real hue: 0
-    property real saturation: 0
-    property real value: 1
+    property real saturation: .5
+    property real value: .5
+
+    property real cursorSize: 22
     // 交互态（转发 InteractingArea——宿主可读拖动态，光标展开/动画门控）。
     readonly property bool userInteracting: area.userInteracting
 
@@ -73,19 +75,18 @@ Item {
         // 交互层不经接口属性（hue/saturation）中转——直接写数据源，
         // 接口属性经读方向回读收敛（assistant 相等守卫断环）。
         function setValues() {
-            const p = surface.check_point(Qt.point(mouseX, mouseY))
-            const h = surface.hueAt(p)
-            const s = surface.saturationAt(p)
-            root.colorAssistant.hsvHueF = h
-            root.colorAssistant.hsvSaturationF = s
+            const p = surface.check_point(Qt.point(mouseX, mouseY));
+            const h = surface.hueAt(p);
+            const s = surface.saturationAt(p);
+            root.colorAssistant.hsvHueF = h;
+            root.colorAssistant.hsvSaturationF = s;
         }
 
         // 光标定位（事件驱动——CenterPlacer 回写破坏绑定，禁止绑定 centerx）
         function updateCursor() {
-            const p = surface.position(root.colorAssistant.hsvHueF,
-                                       root.colorAssistant.hsvSaturationF)
-            cursor.centerx = p.x
-            cursor.centery = p.y
+            const p = surface.position(root.colorAssistant.hsvHueF, root.colorAssistant.hsvSaturationF);
+            centerer.centerx = p.x;
+            centerer.centery = p.y;
         }
 
         onPressed: {
@@ -93,28 +94,53 @@ Item {
             // 内部 onPressed 的置位——不补则 userInteracting 恒 false、
             // onPositionChanged 拖动映射失效）。onReleased 基类未覆写、
             // 正常置 false。
-            area.userInteracting = true
-            setValues()
+            area.userInteracting = true;
+            setValues();
         }
         onPositionChanged: {
             if (area.userInteracting)
-                setValues()
+                setValues();
         }
 
-        // —— 光标（值的可视化，非拖动对象）：定位单向派生自**数据源**
-        // （assistant 通道——真实源，独立于接口属性的外部写入）。接口写入
-        // 越界（hue<0）被守卫拒绝 → assistant 不变 → 光标保持；光标不依赖
-        // root.hue 接口属性（显示保持由数据源承载）。
-        // 事件驱动定位：ColorCursor 经 CenterPlacer 双向同步，其 onXChanged
-        // 显式回写会破坏 QML 绑定 → centerx/centery 禁止绑定，由 updateCursor()
-        // 显式赋值（assistant 通道信号触发，见 root 级 Connections）。
-        // 值变化锁存已内化进 ColorCursor（center 变化触发，不再传 latchTarget）。
-        ColorCursor {
+        CrystalCursor {
             id: cursor
-            objectName: "wheelCursor"
-            animationEnabled: root.animationEnabled
-            currentColor: root.colorAssistant.solidColor
-            userInteracting: root.userInteracting
+            property bool seedDone: false
+            animationEnabled: seedDone && root.animationEnabled && !area.userInteracting
+            width: root.cursorSize
+            height: root.cursorSize
+
+            delta: Qore.bound(4, root.cursorSize * 0.35, 15)
+
+            color: root.colorAssistant.solidColor
+            expanded: area.userInteracting || valueLatch.active || hoverer.hovered
+            HoverHandler {
+                id: hoverer
+            }
+
+            CenterPlacer {
+                id: centerer
+            }
+
+            BasicNumberBehavior on x {
+                enabled: cursor.animationEnabled
+            }
+            BasicNumberBehavior on y {
+                enabled: cursor.animationEnabled
+            }
+        }
+    }
+
+    TimerLatch {
+        id: valueLatch
+        interval: root.Style.movementDuration * 2
+        Connections {
+            target: root
+            function onHueChanged() {
+                valueLatch.trigger();
+            }
+            function onSaturationChanged() {
+                valueLatch.trigger();
+            }
         }
     }
 
@@ -124,15 +150,15 @@ Item {
     Connections {
         target: root.colorAssistant
         function onHsvHueFChanged() {
-            const v = root.colorAssistant.hsvHueF
+            const v = root.colorAssistant.hsvHueF;
             if (v >= 0 && v <= 1)
-                root.hue = v
+                root.hue = v;
         }
         function onHsvSaturationFChanged() {
-            root.saturation = root.colorAssistant.hsvSaturationF
+            root.saturation = root.colorAssistant.hsvSaturationF;
         }
         function onHsvValueFChanged() {
-            root.value = root.colorAssistant.hsvValueF
+            root.value = root.colorAssistant.hsvValueF;
         }
     }
 
@@ -140,8 +166,12 @@ Item {
     // （绑定会被 CenterPlacer 回写破坏——事件驱动是定案，勿改回绑定。）
     Connections {
         target: root.colorAssistant
-        function onHsvHueFChanged() { area.updateCursor() }
-        function onHsvSaturationFChanged() { area.updateCursor() }
+        function onHsvHueFChanged() {
+            area.updateCursor();
+        }
+        function onHsvSaturationFChanged() {
+            area.updateCursor();
+        }
     }
 
     // —— 写方向：接口属性 → assistant 通道（外部程序直写/联动）。
@@ -152,34 +182,38 @@ Item {
         target: root
         function onHueChanged() {
             if (Number.isNaN(root.hue))
-                return
+                return;
             if (root.hue < 0)
-                return  // 无色相 marker：不写——显示保持最后合法位置
+                // 无色相 marker：不写——显示保持最后合法位置
+                return;
             // hue 是圆周量 [0,1)：越界 >1 归一化取模（1.5 → 0.5），
             // 对齐 QColor::setHsvF 的循环等价存储——1 ≡ 0、2 ≡ 0
-            const v = root.hue % 1
+            const v = root.hue % 1;
             if (v !== root.hue)
-                root.hue = v  // 归一化回写（再入收敛——同值守卫无环）
+                root.hue = v;
             else
-                root.colorAssistant.hsvHueF = v
+                // 归一化回写（再入收敛——同值守卫无环）
+                root.colorAssistant.hsvHueF = v;
         }
         function onSaturationChanged() {
-            const v = Math.max(0, Math.min(1, root.saturation))
+            const v = Math.max(0, Math.min(1, root.saturation));
             if (Number.isNaN(v))
-                return
+                return;
             if (v !== root.saturation)
-                root.saturation = v  // clamp 回写接口属性（再入收敛——同值守卫无环）
+                root.saturation = v;
             else
-                root.colorAssistant.hsvSaturationF = v
+                // clamp 回写接口属性（再入收敛——同值守卫无环）
+                root.colorAssistant.hsvSaturationF = v;
         }
         function onValueChanged() {
-            const v = Math.max(0, Math.min(1, root.value))
+            const v = Math.max(0, Math.min(1, root.value));
             if (Number.isNaN(v))
-                return
+                return;
             if (v !== root.value)
-                root.value = v  // clamp 回写接口属性（再入收敛——同值守卫无环）
+                root.value = v;
             else
-                root.colorAssistant.hsvValueF = v
+                // clamp 回写接口属性（再入收敛——同值守卫无环）
+                root.colorAssistant.hsvValueF = v;
         }
     }
 
@@ -187,15 +221,18 @@ Item {
     // completeCreate 后 target 绑定求值）。hue 越界（无色相）跳过——
     // 保持默认 0（hue 0≡0 循环等价）；写回同值 → assistant 相等守卫无环。
     Component.onCompleted: {
-        root.value = root.colorAssistant.hsvValueF
-        root.saturation = root.colorAssistant.hsvSaturationF
-        const h = root.colorAssistant.hsvHueF
+        root.value = root.colorAssistant.hsvValueF;
+        root.saturation = root.colorAssistant.hsvSaturationF;
+        const h = root.colorAssistant.hsvHueF;
         if (h >= 0 && h <= 1)
-            root.hue = h
+            root.hue = h;
         // 初始定位延迟到事件循环下一轮：ColorCursor 内 CenterPlacer 的初始
         // resync 在本组件 onCompleted 之后才执行（QML 完成时序），立即调用时
         // centery 恰为 0 与 position 目标同值 → 同值守卫吞掉首次写入 → 光标
         // y 错位；resync 后调用则写入必然生效（幂等，重复调用无害）。
-        Qt.callLater(function () { area.updateCursor() })
+        Qt.callLater(function () {
+            area.updateCursor();
+            cursor.seedDone = true;
+        });
     }
 }

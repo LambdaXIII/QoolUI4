@@ -16,7 +16,7 @@ editable value:
   session (select-all; typing replaces). Committing (Enter / focus loss)
   validates the input through a `RegularExpressionValidator` (no leading
   zero required; empty, invalid and scientific input rejected), parses it
-  with `parseChannelValue`, writes `value`, and normalizes the display. A
+  with `parseChannelNumberFloat`, writes `value`, and normalizes the display. A
   rejected input leaves the data untouched and the display falls back to
   the real channel value.
 - **Sync**: `value` is the component's source — the only write entry

@@ -24,9 +24,11 @@ older `_private` carrier, now promoted to a first-class component.
   cursor in the circle).
 - **No `defaultValue`/`reset`, double-click undefined** — the interaction
   contract is trimmed to match `ColorChannelSlider`/`ColorChannelControl`.
-- The `_private` wheel surface (`HSVSurface`) stays private; the cursor is
-  the shared `_private` `ColorCursor` composite (also used by `HSLBox`).
-  The public surface is the composition.
+- The `_private` wheel surface (`HSVSurface`) stays private; the cursor is an
+  **inline `CrystalCursor` + `CenterPlacer` wiring** inside the interacting
+  area (same inline wiring as `HSLBox` — each surface hosts its own copy;
+  there is no shared `_private` `ColorCursor` composite, ADR-0017). The
+  public surface is the composition.
 
 ## Properties
 

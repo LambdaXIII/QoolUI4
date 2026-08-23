@@ -30,11 +30,13 @@ architecture** aligned with the public `HSVWheel`.
   contract is trimmed to match `ColorChannelSlider`/`ColorChannelControl`
   (and `HSVWheel`). Unlike the wheel there is no ring clamp — the whole
   rectangle is a hit target, clipped linearly.
-- The `_private` surface (`HSLSurface`) stays private; the cursor is the
-  shared `_private` `ColorCursor` composite (also used by `HSVWheel`). The
+- The `_private` surface (`HSLSurface`) stays private; the cursor is an
+  **inline `CrystalCursor` + `CenterPlacer` wiring** inside the interacting
+  area (same inline wiring as `HSVWheel` — each surface hosts its own copy;
+  there is no shared `_private` `ColorCursor` composite, ADR-0017). The
   public surface is the composition. Cursor positioning is **event-driven**
   (`updateCursor()` on assistant channel changes) — binding `centerx`/
-  `centery` is forbidden (the composite's back-write breaks bindings).
+  `centery` is forbidden (the placer's explicit back-write breaks bindings).
 
 ## Properties
 
@@ -62,8 +64,8 @@ architecture** aligned with the public `HSVWheel`.
 
 - `lightness : real`
   The lightness channel (0..1). Two-way; interface writes clamp to
-  `[0,1]`. Defaults to `1` (white — aligned with `HSVWheel`'s `value: 1`;
-  the seeding pass overwrites it from the assistant on creation).
+  `[0,1]`. Defaults to `1` (white; the seeding pass overwrites it from the
+  assistant on creation).
 
 - `userInteracting : bool` (read-only)
   Reflects whether the surface is being dragged (from the interacting

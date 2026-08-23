@@ -24,9 +24,10 @@ sourcing stay with the consumer.
   **no value signals**; consumers fold their own hover / pressed /
   value-change conditions into a single boolean and feed `expanded`.
 - Scale: the inner `Crystal` animates from `fullSize − delta` (resting)
-  to `fullSize` (expanded) via `ItemAnimatedResizer`, under the
-  `animationEnabled` gate. When animation is off, the size jumps
-  instantly.
+  to `fullSize` (expanded) via `ItemAnimatedResizer`. The scale is
+  **always animated** — the resizer is hard-wired `animationEnabled:
+  true`; the `animationEnabled` gate covers only the color transitions
+  (internal `BasicColorBehavior on color/borderColor`).
 - The root keeps a constant footprint (the consumer sets its size):
   scaling applies only to the inner `Crystal`, so the root stays a
   stable positioning anchor. With a rectangular root the diamond
@@ -53,10 +54,10 @@ sourcing stay with the consumer.
   The debounce window for the contract direction only (a `TimerLatch`
   interval). Expansion is immediate — `delay` gates only how long the
   expanded state holds after `expanded` turns `false`, absorbing quick
-  state changes (no flicker). Default `150`. Long value-change hold
+  state changes (no flicker). Default `Style.transitionDuration` (200 in
+  the system theme). Long value-change hold
   windows are the consumer's latch (folded into `expanded`); this
   component does not hold long by default.
-
 - `color : color`
   The fill color, outsourced to the consumer. Default `Style.accent`
   (self-consistent for standalone use).

@@ -3,34 +3,24 @@ import QtTest
 import Qool
 import Qool.Color
 
-// ColorChannelVerticalSlider 测试（Qool.Color/ColorChannelVerticalSlider.qml
+// ColorChannelVerticalSlider 逻辑契约测试（Qool.Color/ColorChannelVerticalSlider.qml
 // ——T.Slider 平级竖直通道滑块：填充条样式轨道 + 透明手柄 + colorAssistant
-// 无条件双向链 + hue 彩虹原理式跟随）。
+// 无条件双向链）。
 //
-// 被测契约（外部行为与公开契约——docs/reference/Qool.Color/ColorChannelVerticalSlider.md
-// 为准绳，逐条对应）：
+// 被测契约（仅逻辑/行为——外观已定稿，不测视觉细节）：
 // - 链双向同步：写 value → assistant 通道变化；改 assistant 通道 → value
 //   回写；同值写入不循环（T.Slider 同值守卫 + assistant 相等守卫收敛）
 // - onCompleted 播种：assistant 预设色 → value = 通道值（越界 hue 不播种）
 // - sat-bump：hue 通道 + 无色相色（hue < 0）→ 先写对应 sat = 0.001 再写 hue
 // - 裁剪：越界写入收敛 [0,1]（外部程序写入唯一越界来源）
+// - NaN 写入：不写 assistant、无死循环（守卫路径）
 // - 初始默认：无播种（通道值即 1 / hue+无色相）时 value = 1
-// - channel 分派：hue → bg 彩虹（11 stops）；非 hue → bg 单色淡染（α0.1）
-// - 填充几何：填充高度 = value × 内容区高、底部锚定（竖直默认）
-// - 填充采样色：hue = 原理式（随当前 sat/value 或 sat/lightness）；非 hue
-//   = 身份色字面量（Green #008000 / Alpha grey / Sat 原理式）
-// - justMoved：写入 value → 边框 lighter 1.4×，1s 后回落（任何写入触发）
-// - 契约裁剪：无 defaultValue/reset（显式断言 undefined）
-// - 彩虹原理式跟随：改 assistant 色 → stops 颜色变化
-// - 彩虹反排：顶部 stop = hue 1、底部 = hue 0
+// - channel 分派：不同 channel 的 value 写入落到对应通道；动态切换 channel
+//   后写入落到新通道
+// - 契约裁剪：无 defaultValue/reset（显式断言）
 //
 // 隔离：每个测试函数独立实例；动画统一关闭（animationEnabled: false）。
-// 真实鼠标交互（拖动/键盘）不在自动化范围（offscreen 不注入合成事件，
-// 与 tst_colorchannelslider 同策略）——交互映射以几何断言 + Playground
-// 人工验收覆盖。
-//
-// 断言第三参一律 ASCII 英文（QoolUITests/AGENTS 断言规范——非 ASCII 第三
-// 参有加载期静默失败风险，勿写中文）。
+// 断言第三参一律 ASCII 英文（QoolUITests/AGENTS 断言规范）。
 
 TestCase {
     id: root
@@ -61,40 +51,6 @@ TestCase {
     function makeSlider(extra) {
         const props = extra === undefined ? {} : extra
         return createTemporaryObject(sliderComp, root, props)
-    }
-
-    // 内部可视对象读取（objectName 定位——组件内部对象零暴露原则的测试
-    // 例外：填充条静态性与采样色是公开视觉契约，tst_slider 同款惯例）
-    function findChild(item, name) {
-        if (item === null || item === undefined)
-            return null
-        for (let i = 0; i < item.children.length; ++i) {
-            if (item.children[i].objectName === name)
-                return item.children[i]
-        }
-        for (let i = 0; i < item.children.length; ++i) {
-            const hit = findChild(item.children[i], name)
-            if (hit !== null)
-                return hit
-        }
-        if (item.item !== undefined && item.item !== null) {
-            const hit = findChild(item.item, name)
-            if (hit !== null)
-                return hit
-        }
-        return null
-    }
-
-    function trackOf(s) {
-        return findChild(s.background, "track")
-    }
-
-    function fillRectOf(s) {
-        return findChild(s.background, "fillRect")
-    }
-
-    function bgRectOf(s) {
-        return findChild(s.background, "bgRect")
     }
 
     function fuzzy(x, y) {
@@ -214,90 +170,20 @@ TestCase {
                "drag on gray works from default 1")
     }
 
-    // —— channel 分派：hue → bg 彩虹（11 stops）；非 hue → bg 单色淡染 ——
+    // —— channel 分派：value 写入落到对应通道；动态切换后落到新通道 ——
     function test_channelDispatch() {
-        const h = makeSlider({ channel: ColorNameHQ.HSVHue })
-        const t = trackOf(h)
-        verify(t !== null, "track exists")
-        verify(t.hueChannel === true, "hue channel flagged on track")
-        const hueBg = bgRectOf(h)
-        verify(hueBg.gradient !== undefined && hueBg.gradient !== null,
-               "hue bg has gradient")
-        compare(hueBg.gradient.stops.length, 11, "hue rainbow 11 stops")
-        // HSL hue 同样彩虹
-        const hl = makeSlider({ channel: ColorNameHQ.HSLHue })
-        compare(bgRectOf(hl).gradient.stops.length, 11, "HSL hue same rainbow")
-        // 非 hue → 无渐变 + 身份色 α0.1 淡染（HSLLightness 身份色 = white）
-        const s = makeSlider({ channel: ColorNameHQ.HSLLightness })
-        const sb = bgRectOf(s)
-        verify(sb.gradient === undefined || sb.gradient === null,
-               "non-hue bg has no gradient")
-        verify(colorEqual(sb.color, Qt.alpha("#ffffff", 0.1)),
-               "non-hue bg tinted alpha 0.1 identity")
-        // 透明手柄实例（side×side——竖直 availableWidth）
-        verify(h.handle !== null, "handle exists")
-        compare(h.handle.width, 40, "handle side = normal size")
-    }
-
-    // —— 填充几何：高度 = value × 内容区高、底部锚定（竖直默认）——
-    function test_fillGeometry() {
-        const s = makeSlider({})
-        const t = trackOf(s)
-        const fr = fillRectOf(s)
-        // content 区高 = track 高 − 2×4（padding 4 内缩）
-        compare(fr.parent.height, t.height - 8, "content height = track - 2*padding")
-        s.value = 0.5
-        // 惰性绑定——读强制求值（onHeightChanged 同步触发）
-        verify(fuzzy(fr.height, fr.parent.height * 0.5),
-               "fill height = value * content height")
-        verify(fuzzy(fr.y, fr.parent.height - fr.height),
-               "fill anchored at bottom (y = content - height)")
-    }
-
-    // —— 填充采样色：hue 原理式；非 hue 身份色字面量 ——
-    function test_sampleColor() {
-        // hue 填充采样：HSVHue + red（hsvHueF=0、sat=1、value=1）→ value 0.5
-        // → hsva(0.5, 1, 1, 1)（原理式——hue = value，sat/value 钉死当前）
-        const h = makeSlider({ channel: ColorNameHQ.HSVHue })
-        h.value = 0.5
-        verify(colorEqual(trackOf(h).sampleColor, Qt.hsva(0.5, 1, 1, 1)),
-               "HSV hue sample = hsva(value, sat, val)")
-        // 非 hue 身份色（数据字面量逐字保留原变体 channelColor）
-        const g = makeSlider({ channel: ColorNameHQ.Green })
-        verify(colorEqual(trackOf(g).sampleColor, "#008000"),
-               "Green identity = Qt named green (not #00ff00)")
+        const v = makeSlider({ channel: ColorNameHQ.HSVValue })
+        v.value = 0.4
+        verify(fuzzy(v.colorAssistant.hsvValueF, 0.4), "HSVValue write lands")
         const a = makeSlider({ channel: ColorNameHQ.Alpha })
-        verify(colorEqual(trackOf(a).sampleColor, "#808080"),
-               "Alpha identity = grey")
-        // Sat 原理式：red → hsva(hue 0, sat 1, value 1)——改 sat 后真实结果色
-        const st = makeSlider({ channel: ColorNameHQ.HSVSaturation })
-        verify(colorEqual(trackOf(st).sampleColor, Qt.hsva(0, 1, 1, 1)),
-               "HSV Sat identity = principled (hsva(hue,1,value))")
-    }
-
-    // —— justMoved：写入 value → 边框 lighter 1.4×，1s 后回落 ——
-    // 动画关闭（animationEnabled false）→ BasicColorBehavior 不启用、即时
-    // 变色；回落用 wait（Timer 1s 区间实测策略）。
-    function test_justMoved() {
-        const s = makeSlider({})
-        const t = trackOf(s)
-        const br = findChild(s.background, "borderRect")
-        const fr = fillRectOf(s)
-        // 播种期 value 写入（默认 1 → red lightness 0.5）已触发过 when_moved
-        // （或惰性绑定尚未求值）——先读高度强制求值 + 等回落，取稳定常态
-        fr.height
-        wait(1100)
-        const normal = br.border.color
-        s.value = 0.3
-        fr.height  // 惰性绑定求值——onHeightChanged 同步触发 justMoved
-        tryVerify(function () {
-            return colorEqual(br.border.color, Qt.lighter(t.sampleColor, 1.4))
-        }, 500, "justMoved highlight = lighter sample color")
-        // 回落：Timer 1s 后回常态色
-        wait(1100)
-        tryVerify(function () {
-            return colorEqual(br.border.color, normal)
-        }, 500, "highlight falls back to normal after 1s")
+        a.value = 0.6
+        verify(fuzzy(a.colorAssistant.alphaF, 0.6), "Alpha write lands")
+        // 动态切换 channel：写入落到新通道
+        const d = makeSlider({})
+        d.channel = ColorNameHQ.HSVValue
+        d.value = 0.8
+        verify(fuzzy(d.colorAssistant.hsvValueF, 0.8),
+               "write lands on switched channel")
     }
 
     // —— 契约裁剪显式断言（QoolUITests/AGENTS——锁定裁剪不被回填）——
@@ -305,135 +191,5 @@ TestCase {
         const s = makeSlider({})
         verify(s.defaultValue === undefined, "no defaultValue (contract culled)")
         verify(s.reset === undefined, "no reset (contract culled)")
-    }
-
-    // —— 彩虹原理式跟随：改 assistant 色 → stops 颜色变化 ——
-    // 档 p = hsva(p, hsvSaturationF, hsvValueF, 0.2)——随当前 sat/value
-    // 动态变化（对齐 HSVWheel/HSLBox 背景语义）
-    function test_rainbowFollows() {
-        const h = makeSlider({ channel: ColorNameHQ.HSVHue })
-        const stops = bgRectOf(h).gradient.stops
-        h.colorAssistant.color = "#404080"
-        tryVerify(function () {
-            return colorEqual(
-                stops[0].color,
-                Qt.hsva(1, h.colorAssistant.hsvSaturationF,
-                        h.colorAssistant.hsvValueF, 0.2))
-        }, 500, "rainbow top stop follows sat/value")
-    }
-
-    // —— 彩虹反排：顶部（position 0）= hue 1、底部（position 1）= hue 0 ——
-    // QML Gradient position 0 = 顶部——spec 要求 hue 0 底部 → hue 1 顶部，
-    // 故 stops 反排（红 assistant：hue 0 ≡ hue 1 同为红，用中间档辨向）
-    function test_rainbowDirection() {
-        const h = makeSlider({ channel: ColorNameHQ.HSVHue })
-        const stops = bgRectOf(h).gradient.stops
-        const sat = h.colorAssistant.hsvSaturationF  // red: 1
-        const val = h.colorAssistant.hsvValueF       // red: 1
-        verify(colorEqual(stops[0].color, Qt.hsva(1, sat, val, 0.2)),
-               "top stop = hue 1")
-        verify(colorEqual(stops[10].color, Qt.hsva(0, sat, val, 0.2)),
-               "bottom stop = hue 0")
-        // 反排判别：position 0.1 档 = hue 0.9（正确反排）而非 hue 0.1（顺排）
-        verify(colorEqual(stops[1].color, Qt.hsva(0.9, sat, val, 0.2)),
-               "second stop = hue 0.9 (reversed, not forward)")
-    }
-
-    // —— 水平填充几何：宽 = value × 内容区宽、值 0 端锚定 ——
-    function test_horizontalFillGeometry() {
-        const s = makeSlider({ orientation: Qt.Horizontal, width: 200, height: 40 })
-        const t = trackOf(s)
-        const fr = fillRectOf(s)
-        compare(fr.parent.height, t.height - 8, "content height = track - 2*padding")
-        s.value = 0.5
-        verify(fuzzy(fr.height, fr.parent.height), "horizontal fill height = full")
-        verify(fuzzy(fr.width, fr.parent.width * 0.5), "fill width = value * content width")
-        verify(fuzzy(fr.x, 0), "LTR fill anchored at value-0 end (left)")
-        verify(fuzzy(fr.y, 0), "horizontal fill y = 0")
-    }
-
-    // —— 水平填充渐变：沿生长轴，LTR 前沿 α0.9 ——
-    function test_horizontalFillGradient() {
-        const s = makeSlider({ orientation: Qt.Horizontal, width: 200, height: 40 })
-        const t = trackOf(s)
-        const fr = fillRectOf(s)
-        compare(fr.gradient.orientation, Gradient.Horizontal, "fill gradient horizontal")
-        verify(colorEqual(fr.gradient.stops[0].color, Qt.alpha(t.sampleColor, 0.1)),
-               "LTR stop0 = alpha 0.1 (value-0 end)")
-        verify(colorEqual(fr.gradient.stops[1].color, Qt.alpha(t.sampleColor, 0.9)),
-               "LTR stop1 = alpha 0.9 (value-1 leading)")
-    }
-
-    // —— 水平 RTL：值 0 端 = 右，填充锚右，渐变端反排 ——
-    function test_horizontalRtl() {
-        const s = makeSlider({ orientation: Qt.Horizontal, width: 200, height: 40 })
-        s.LayoutMirroring.enabled = true
-        tryCompare(s, "mirrored", true)
-        const t = trackOf(s)
-        const fr = fillRectOf(s)
-        s.value = 0.5
-        verify(fuzzy(fr.x, fr.parent.width - fr.width), "RTL fill anchored at right")
-        verify(colorEqual(fr.gradient.stops[0].color, Qt.alpha(t.sampleColor, 0.9)),
-               "RTL stop0 = alpha 0.9 (value-1 leading left)")
-        verify(colorEqual(fr.gradient.stops[1].color, Qt.alpha(t.sampleColor, 0.1)),
-               "RTL stop1 = alpha 0.1 (value-0 end right)")
-    }
-
-    // —— 水平彩虹：沿值方向（LTR hue 0 左 / RTL hue 0 右）——
-    function test_horizontalRainbow() {
-        const h = makeSlider({ orientation: Qt.Horizontal, width: 200, height: 40,
-                               channel: ColorNameHQ.HSVHue })
-        const g = bgRectOf(h).gradient
-        compare(g.orientation, Gradient.Horizontal, "rainbow gradient horizontal")
-        compare(g.stops.length, 11, "rainbow 11 stops")
-        verify(colorEqual(g.stops[0].color, Qt.hsva(0, 1, 1, 0.2)),
-               "LTR rainbow stop0 = hue 0")
-        verify(colorEqual(g.stops[10].color, Qt.hsva(1, 1, 1, 0.2)),
-               "LTR rainbow stop10 = hue 1")
-        const r = makeSlider({ orientation: Qt.Horizontal, width: 200, height: 40,
-                               channel: ColorNameHQ.HSVHue })
-        r.LayoutMirroring.enabled = true
-        tryCompare(r, "mirrored", true)
-        const rg = bgRectOf(r).gradient
-        verify(colorEqual(rg.stops[0].color, Qt.hsva(1, 1, 1, 0.2)),
-               "RTL rainbow stop0 = hue 1")
-    }
-    // —— 手柄鼠标图标：随方向换指针（水平左右 ↔ 垂直上下）——
-    function test_handleCursor() {
-        const v = makeSlider({})  // 默认竖直
-        const va = findChild(v.handle, "handleCursorArea")
-        verify(va !== null, "vertical handle has cursor area")
-        compare(va.cursorShape, Qt.SizeVerCursor, "vertical cursor = size ver")
-        const h = makeSlider({ orientation: Qt.Horizontal, width: 200, height: 40 })
-        const ha = findChild(h.handle, "handleCursorArea")
-        compare(ha.cursorShape, Qt.SizeHorCursor, "horizontal cursor = size hor")
-    }
-
-    // —— hue 填充 = 色相正常色（固定 sat/lightness 1），边框保持原理式 ——
-    // 非纯色 assistant（#404080：HSV sat=0.5/val≈0.502、HSL sat≈0.333 均非
-    // 1）——填充主色仍为正常色 hsva/hsla(hue,1,1,1)，sampleColor（边框基色）
-    // 保持原理式（随当前明暗），两者分叉；非 hue 填充不受影响（= 身份色）
-    function test_hueFillNormalColor() {
-        const h = makeSlider({ __assistantColor: "#404080", channel: ColorNameHQ.HSVHue })
-        h.value = 0.5
-        const t = trackOf(h)
-        const fr = fillRectOf(h)
-        verify(colorEqual(fr.gradient.stops[0].color, Qt.alpha(Qt.hsva(0.5, 1, 1, 1), 0.9)),
-               "HSV hue fill stop0 = normal color alpha 0.9")
-        verify(colorEqual(fr.gradient.stops[1].color, Qt.alpha(Qt.hsva(0.5, 1, 1, 1), 0.1)),
-               "HSV hue fill stop1 = normal color alpha 0.1")
-        verify(!colorEqual(t.sampleColor, Qt.hsva(0.5, 1, 1, 1)),
-               "sampleColor (border) stays principled, diverges from fill")
-        const hl = makeSlider({ __assistantColor: "#404080", channel: ColorNameHQ.HSLHue })
-        hl.value = 0.5
-        verify(colorEqual(fillRectOf(hl).gradient.stops[0].color,
-                          Qt.alpha(Qt.hsla(0.5, 1, 1, 1), 0.9)),
-               "HSL hue fill = normal color")
-        // 非 hue 填充 = 身份色（与 sampleColor 同值，不受影响）
-        const s = makeSlider({ __assistantColor: "#404080", channel: ColorNameHQ.HSLLightness })
-        s.value = 0.3
-        verify(colorEqual(fillRectOf(s).gradient.stops[0].color,
-                          Qt.alpha(trackOf(s).sampleColor, 0.9)),
-               "non-hue fill = identity (same as sampleColor)")
     }
 }

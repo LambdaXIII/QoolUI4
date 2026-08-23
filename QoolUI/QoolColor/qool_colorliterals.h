@@ -1,7 +1,6 @@
 #ifndef QOOL_COLORLITERALS_H
 #define QOOL_COLORLITERALS_H
 
-#include "qoolcommon/qobject_property_macros.hpp"
 #include "qoolns.hpp"
 #include <QObject>
 #include <QQmlEngine>
@@ -36,20 +35,18 @@ public:
 
   explicit ColorLiterals(QObject* parent = nullptr);
 
-  Q_INVOKABLE QString channelName(int channel) const;  // 属性名
-  Q_INVOKABLE QString channelNameF(int channel) const; // F系列属性名
-  Q_INVOKABLE QString channelTag(int channel) const;   // 外观标签文本
+  Q_INVOKABLE static QString channelName(int channel);  // 属性名
+  Q_INVOKABLE static QString channelNameF(int channel); // F系列属性名
+  Q_INVOKABLE static QString channelTag(int channel);   // 外观标签文本
+  Q_INVOKABLE static QString channelTagShort(int channel);
+  Q_INVOKABLE static QColor channelColor(
+      int channel); // transparent for undefined
 
   Q_INVOKABLE static QString formatChannelNumberFloat(
       qreal num); // 格式化归一化通道数值——四种输出：'0'/'1'/'.xxx'/'NaN'
   Q_INVOKABLE static qreal parseChannelNumberFloat(
       const QString& input); // 归一化通道值解析——清洗+头部补点（format 反向）
-
-protected:
-  static QHash<int, QString> m_channelNames;
-  static QHash<int, QString> m_channelTags;
-  QOBJECT_CONSTANT_PROPERTY_DECLARE(QVariantMap, channelNames)
-  QOBJECT_CONSTANT_PROPERTY_DECLARE(QVariantMap, channelTags)
+  Q_INVOKABLE static qreal clampChannelRange(qreal x);
 };
 
 QOOL_NS_END

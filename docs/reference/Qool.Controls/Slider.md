@@ -81,9 +81,12 @@ tree).
 - The handle's resting color samples the gradient at the current value
   position, rendered opaque (not the track's 75% transparency).
 
-- `animationEnabled : bool`
-  Animation gate — inherited up the parent chain (the host can turn it off
-  uniformly on a parent), falling back to `Style.animationEnabled`. Gates
+  the focus-highlight border transition (`BasicColorBehavior on
+  borderColor`) and the handle color transition (the inner
+  `CrystalCursor`'s `BasicColorBehavior`); when off, both switch instantly
+  instead of animating. The handle **scale** expansion is not gated — the
+  `CrystalCursor` resizer is hard-wired `animationEnabled: true`, so the
+  expand/contract always animates.
   the handle expansion animation (`ItemAnimatedResizer`) and the
   focus-highlight border transition; when off, both switch instantly
   instead of animating.
@@ -155,8 +158,10 @@ Slider {
   default-implementation
   convention shared by the default handle and the default track; the track
   and handle share the same resting height, stay center-aligned, and the
-  handle's bevels hug the track's bevels), animated under the
-  `animationEnabled` gate via `ItemAnimatedResizer`. The hover cursor becomes
+  handle's bevels hug the track's bevels), animated via `ItemAnimatedResizer`
+  (the scale is always animated — the resizer is hard-wired
+  `animationEnabled: true`, independent of the `animationEnabled` gate).
+  The hover cursor becomes
   a horizontal double-arrow (vertical: a vertical double-arrow) only when
   `enabled`. When `enabled` is off the
   handle freezes (the resizer's `enabled` follows `root.enabled`) — no hover,

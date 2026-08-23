@@ -30,7 +30,7 @@ Item {
     // 光标实色（消费方注入，如表面 solidColor）。
     property color currentColor: "white"
     // 交互态（消费方转发 InteractingArea）——三态展开输入之一。
-    property bool userInteracting: false
+    property bool expanded: false
     // 组件边长（根 footprint = size × size）。
     property real size: 20
     // 展开增量（对齐旧 HSVWheelCursor：常态 = size、展开 = size + expandDelta）。
@@ -49,18 +49,6 @@ Item {
         target: root
     }
 
-    // 值变化锁存：center 变化 = 位置变化 = 表面值变化 → 锁存展开
-    //（旧 latchTarget 归约内化——触发源从 assistant 信号换成 center 变化）。
-    TimerLatch {
-        id: latch
-        interval: Style.movementDuration * 2
-        Connections {
-            target: root
-            function onCenterxChanged() { latch.trigger() }
-            function onCenteryChanged() { latch.trigger() }
-        }
-    }
-
     // 组合基准件：根 = size + expandDelta（fullSize 角色）、delta = expandDelta
     // → 常态 Crystal = size、展开 = size + expandDelta（旧 HSVWheelCursor 视觉
     // 逐点等价）；anchors.centerIn 保证 Crystal 中心 = 根中心 = center 位置
@@ -75,13 +63,6 @@ Item {
         delta: root.expandDelta
         animationEnabled: root.animationEnabled
         color: root.currentColor
-        expanded: hoverer.hovered || root.userInteracting || latch.active
-    }
-
-    // hover 反馈：挂根（size 方形域——旧 hoverer 挂 Crystal 菱形域，方形
-    // 为外接超集，03 票 Slider handle 同款先例语义）。
-    HoverHandler {
-        id: hoverer
-        enabled: root.enabled
+        expanded: root.expanded
     }
 }

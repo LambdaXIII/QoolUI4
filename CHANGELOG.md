@@ -2,6 +2,14 @@
  
  版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
  
+### 变更（color-refactor-continue，Color 模块重构继续完善）
+
+- **handle 结构简化**：Qool.Controls.Slider 与 ColorChannelSlider 的 handle 去掉 Item 定位壳包装，直接为 CrystalCursor 本体（ADR-0016 基准件根即 handle——定位/锁存/光标形状内联实例，与基准件「定位/锁存归消费方」契约一致）；tst_slider 手柄引用改 `s.handle`（原 children[0]）
+- **纵向写方向 clamp 同步**：`ColorChannelVerticalSlider` 手写 `Math.max/min` → `ColorNameHQ.clampChannelRange()`（横向已改，双处同源）；**NaN 守卫删除**（原理上不可达：QML 属性写入 NaN 被归一化为 0，实测 `value=NaN` 后读回 0——不存在的路径不留守卫）
+- **清理**：删 `isHsv` 死属性（零引用）、修 `//tainbow` typo（两处）、删 4 个无引用死文件（`_private/ColorChannelSliderTrack.qml` / `TrackHue.qml` / `ColorChannelSliderColors.js` / `ColorChannelVerticalColors.js`——GLOB 注册，无需动 CMake）
+- **测试重写**（外观已定稿，只测逻辑契约）：tst_colorchannelslider / tst_colorchannelverticalslider 重写为绑定联动/边界值契约（链双向同步、同值收敛、播种、sat-bump、裁剪、初始默认、channel 分派），删全部外观/结构探针（渐变锚定坐标、轨道几何、stops 颜色、handle 定位）；删 `_private` ColorCursor 测试（如无必要不测 _private）；HSLBox/HSVWheel 删光标几何探针；tst_slider 锁存测试改 expanded 状态机断言（cResizer 动画硬开，几何断言失效）
+- **验证**：reconfigure（删文件 GLOB）+ build 通过；全量 ctest 23/23 全绿
+
 ### 变更（very-important-block，AGENTS 顶部 VERY-IMPORTANT 强调块）
 
 - **AGENTS 顶部新增 `<VERY-IMPORTANT>` 块**（用户手动定案）：`[MUSTMUSTMUST]` 注释规则行 ×3、验证分级表 ×5、尾部防删注释「禁止删除，重复声明是因为你老忘记」——重复声明为刻意强调，非冗余

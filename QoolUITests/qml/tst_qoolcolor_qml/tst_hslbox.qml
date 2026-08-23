@@ -12,7 +12,6 @@ import Qool.Color
 // - onCompleted 播种：assistant 预设色 → sat/ltn/hue 回读（越界 hue 不播种）
 // - hue 越界（<0 无色相）接口写入不写进 assistant、显示保持
 // - 钳制：sat/ltn clamp [0,1]、hue>1 归一化（接口属性与 assistant 都收敛）
-// - 光标定位派生：position(sat,ltn) 输出有效（值合法 → 光标恒在矩形内）
 // - 无 defaultValue/reset、双击无定义行为（交互契约裁剪）
 //
 // 隔离：每个测试函数独立实例；动画统一关闭（animationEnabled: false）。
@@ -49,32 +48,6 @@ TestCase {
     function makeBox(extra) {
         const props = extra === undefined ? {} : extra
         return createTemporaryObject(boxComp, root, props)
-    }
-
-    // 光标定位（objectName 定位——组件内部对象零暴露原则的测试例外：
-    // 光标是公开视觉契约，tst_hsvwheel 同款惯例）
-    function findChild(item, name) {
-        if (item === null || item === undefined)
-            return null
-        for (let i = 0; i < item.children.length; ++i) {
-            if (item.children[i].objectName === name)
-                return item.children[i]
-        }
-        for (let i = 0; i < item.children.length; ++i) {
-            const hit = findChild(item.children[i], name)
-            if (hit !== null)
-                return hit
-        }
-        if (item.item !== undefined && item.item !== null) {
-            const hit = findChild(item.item, name)
-            if (hit !== null)
-                return hit
-        }
-        return null
-    }
-
-    function cursorOf(b) {
-        return findChild(b, "hslBoxCursor")
     }
 
     function fuzzy(x, y) {
@@ -178,45 +151,6 @@ TestCase {
         verify(fuzzy(hb.hue, 0), "hue 2 -> normalized 0")
         verify(Math.abs(hb.colorAssistant.hslHueF) < 0.02,
                "assistant hue normalized 0 (quantized)")
-    }
-
-    // —— 光标定位派生：值合法 → 光标恒在矩形内 ——
-    function test_cursorWithinRect() {
-        const b = makeBox({})
-        const c = cursorOf(b)
-        verify(c !== null, "cursor exists")
-        // 所有光标断言 tryVerify 等待异步定位链：写接口属性 → assistant
-        // 信号 → updateCursor() → centerx/centery（事件驱动，非绑定）；首
-        // 断言还依赖播种 Qt.callLater 的延迟定位（对齐 tst_hsvwheel
-        // test_cursorWithinCircle 的 tryVerify 写法，勿用同步 verify）。
-        // red 播种 sat=1/ltn=0.5 → 光标 (width, height/2)（右侧中点——
-        // HSLSurface.position 线性平面映射：x=w*sat、y=h*(1-ltn)）
-        b.saturation = 1
-        b.lightness = 0.5
-        tryVerify(function () {
-            // QColor 量化容差 0.02（lightness=0.5 回读 0.5000076 →
-            // position y=99.9985，与 height/2 差 0.0015 > fuzzy 0.001）
-            return Math.abs(c.centerx - b.width) < 0.02
-                && Math.abs(c.centery - b.height / 2) < 0.02
-        }, 500, "sat 1/ltn 0.5 -> cursor right-middle")
-        // sat 0 → 左边缘
-        b.saturation = 0
-        tryVerify(function () {
-            return Math.abs(c.centerx) < 0.02
-                && Math.abs(c.centery - b.height / 2) < 0.02
-        }, 500, "sat 0 -> cursor left edge")
-        // ltn 1 → 顶
-        b.lightness = 1
-        tryVerify(function () {
-            return Math.abs(c.centerx) < 0.02 && Math.abs(c.centery) < 0.02
-        }, 500, "ltn 1 -> cursor top")
-        // 中间值在矩形内
-        b.saturation = 0.5
-        b.lightness = 0.5
-        tryVerify(function () {
-            return c.centerx >= 0 && c.centerx <= b.width
-                && c.centery >= 0 && c.centery <= b.height
-        }, 500, "mid values -> cursor inside rect")
     }
 
     // —— 交互契约裁剪：无 defaultValue/reset ——

@@ -14,7 +14,7 @@ Color 模块光标/手柄重构中，三个光标/手柄存在**必然重复的�
 
 1. **基准件定位**：`Qool.Controls.Components.CrystalCursor`——能力组件「**延迟缩放行为**」，非三光标的统一替身。收束必然重复（缩放/延迟/色注入/Crystal 基底），保留可能性（定位/色源/掩码决策留消费方）。
 2. **结构 = Item 根 + 内部 Crystal**：根（消费方摆尺寸，稳定定位锚）内含 `Qool.Crystal` 菱形（自带 contains 命中判定，无独立掩码）。缩放只作用内部 Crystal，根 footprint 恒定——定位锚不随缩放偏移。
-3. **缩放**：内部 Crystal 尺寸 = `ItemAnimatedResizer` 当前值；from = `fullSize − delta`（常态收缩）、to = `fullSize`（展开占满根）；`resized` = 锁存后结果。
+3. **缩放**：内部 Crystal 尺寸 = `ItemAnimatedResizer` 当前值；from = `fullSize − delta`（常态收缩）、to = `fullSize`（展开占满根）；`resized` = 锁存后结果。**缩放恒动画**——resizer 硬编码 `animationEnabled: true`，不受 `animationEnabled` 属性门控（门控仅覆盖颜色过渡，见决策 9）。
 *4. **延迟锁存内化**：`expanded`（bool，默认 true）为唯一行为输入——置 true 立即经 resizer 展开（放大无延迟，跟手即时）；置 false 时 TimerLatch 锁存窗口（`delay` = TimerLatch interval 时长）内保持展开、窗口过后才回落收缩（收缩防抖，快速状态变化不闪缩）。**不监听任何值信号**。
 5. **色外包**：`color`/`borderColor` 两个公开属性，默认绑定 Style（color = `Style.accent`、borderColor = `ThemeHQ.recommendForeground(color)` 自动对比，对齐 Qool.Crystal 现成默认）。
 6. **接口面**：`expanded`（默认 true）/`delta`/`delay`/`color`/`borderColor` 输入；readonly `fullSize` = `min(root.width, root.height)`（根尺寸）、readonly `size` = `crystal.width`（当前动态边长）。**无 x/y 定位、无 center 坐标**（定位留消费方，中心坐标经 CenterPlacer 组合）。
@@ -23,13 +23,13 @@ Color 模块光标/手柄重构中，三个光标/手柄存在**必然重复的�
    - `Qool.Controls.Slider` handle：内联 CrystalCursor——x/y 由模板 visualPosition 驱动、color = 采样色（ColorMapper colorAt）、expanded = hover‖pressed‖值变化锁存「或」。
    - `ColorChannelSlider` handle：内联 CrystalCursor——x/y 由 displayValue 驱动、color = solidColor、expanded = 三态或。
    - `_private/ColorChannelSliderHandle.qml` 删除（唯一消费方 ColorChannelSlider 改内联，独立文件无存在必要）。
-9. **契约裁剪**：无 defaultValue/reset、双击无定义；`animationEnabled` 由消费方接线（CrystalCursor 不持有动画总开关，消费方按场景门控）。
+9. **契约裁剪**：无 defaultValue/reset、双击无定义；`animationEnabled` 持有于基准件（父链继承，回退 `Style.animationEnabled`），但**仅门控颜色过渡**（内部 `BasicColorBehavior on color/borderColor`）——尺寸缩放恒动画（见决策 3），消费方自行门控位置动画（如 `BasicNumberBehavior`）等自身行为。
 
 ## Consequences
 
 - 仓库光标/手柄收敛为：CrystalCursor（基准件）+ 两个内联接线（Slider/ChannelSlider）+ ColorCursor（表面组合件）——重复代码（缩放/延迟/色注入/掩码）单点维护。
 - 删除文件：`ColorChannelSliderHandle.qml`、旧 `ColorCursor.qml`、`ColorCrystal.qml`、`HSVWheelCursor.qml`；弃用 `Crystal4ContainmentMask`。
-- 消费方（HSVWheel/HSLBox，ADR-0017）改用共用 ColorCursor——取色光标对两表面是同一回事（ADR-0014 更正记录）。
+- 消费方（HSVWheel/HSLBox）光标接线见 ADR-0017——两表面各自内联 `CrystalCursor` + `CenterPlacer` + `TimerLatch`（不共用 `ColorCursor` 组合件；`ColorCursor.qml` 为孤儿件，无消费者）。
 - 测试：`tst_qoolcolor_qml` 新增 ColorCursor 用例（双向坐标经 CenterPlacer/缩放展开/契约无 reset）；`tst_qool_qml` 新增 CenterPlacer 用例（ADR-0015）。真实鼠标交互以人工运行验证覆盖。
 - 文档：`docs/reference/Qool.Controls.Components/CrystalCursor.md`（5 节）+ `docs/reference/Qool.Color/ColorCursor.md`（5 节）+ index.md 登记。
 - 依赖：本 ADR 依赖 ADR-0015（CenterPlacer）先行落地。

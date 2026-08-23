@@ -40,7 +40,7 @@ Item {
     // 防抖窗口：expanded 置 false 后保持展开的时长（放大无延迟——展开
     // 是主动反馈须跟手即时；收缩防抖防状态快速变化闪缩）。值变化长保持
     // 窗口由消费方归约提供（本件 delay 不做长保持）。
-    property int delay: 150
+    property int delay: Style.transitionDuration
 
     // 色外包（对齐 Qool.Crystal 现成默认）：填充色 + 自动对比描边
     property color color: Style.accent
@@ -66,7 +66,7 @@ Item {
         Connections {
             target: root
             function onExpandedChanged() {
-                latch.trigger()
+                latch.trigger();
             }
         }
     }
@@ -76,7 +76,7 @@ Item {
     ItemAnimatedResizer {
         id: cResizer
         enabled: root.enabled
-        animationEnabled: root.animationEnabled
+        animationEnabled: true
         fromWidth: root.fullSize - root.delta
         fromHeight: root.fullSize - root.delta
         toWidth: root.fullSize

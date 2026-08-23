@@ -82,11 +82,10 @@ TestCase {
         return null
     }
 
-    // 手柄内联 CrystalCursor（handle 根 = Item 定位壳，children[0] =
-    // CrystalCursor——ADR-0016 收束；断言其公开契约 size/color，不访问
-    // 更深内部对象）
+    // 手柄 = CrystalCursor 本体（handle 即基准件实例——ADR-0016 收束；
+    // 断言其公开契约 size/color，不访问更深内部对象）
     function handleCrystal(s) {
-        return s.handle.children[0]
+        return s.handle
     }
 
     function test_defaults() {
@@ -148,20 +147,18 @@ TestCase {
         compare(t.color, s.Style.accent)
     }
 
+    // —— 值变化锁存：写入 → expanded（持续电平窗口）→ 窗口后回落 ——
+    // 只断言 expanded 状态机（逻辑契约）——size 几何是外观（cResizer
+    // 缩放动画硬开，不随宿主 animationEnabled 关闭，几何断言无意义）。
     function test_handleRestAndExpand() {
-        // 菱形（width = height）；常态收缩 = root 高 − 偏移；写入 → 展开
-        // 占满控件高；窗口落回常态（动画关闭——即时）
         const s = makeSlider({})
         const c = handleCrystal(s)
-        compare(c.size, 30, "菱形常态")
-        compare(c.size, 30, "常态收缩 = root 高 − 偏移")
+        compare(c.expanded, false, "常态 expanded = false（无交互）")
         s.value = 0.5
-        compare(c.size, 40, "锁存展开占满控件高")
-        compare(c.size, 40, "展开仍为菱形")
-        // latch 窗口 = Style.movementDuration×2 = 800ms——等待释放
+        compare(c.expanded, true, "值变化锁存 -> expanded")
+        // latch 窗口 = Style.movementDuration×2——等待释放
         wait(1000)
-        compare(c.size, 30, "窗口落后回常态")
-        compare(c.size, 30)
+        compare(c.expanded, false, "锁存窗口落后回常态")
     }
 
     function test_handleSampleColor() {

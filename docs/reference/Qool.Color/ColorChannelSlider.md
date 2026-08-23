@@ -15,10 +15,13 @@ plug-points and can be replaced wholesale.
 
 - **Channel addressing**: one generic `channel: int` (any `ColorNameHQ`
   channel constant) — no per-channel variant files. The track gradient
-  follows the channel (Hue rainbow, RGB black → pure color, Value/Lightness
-  black → white, CMYK white → pure color, Alpha transparent → current solid,
-  Saturation gray → pure hue at current brightness), and the handle shows
-  `colorAssistant.solidColor`.
+  follows the channel: hue channels use a fixed-brightness `RainbowGradient`
+  (11 stops of `Qt.hsva(p, 1, 1, 0.25)`); non-hue channels use a static
+  `ChannelGradient` — `toColor = ColorNameHQ.channelColor(channel)` (the
+  shared C++ lookup: Red/Green/Blue/Cyan/Magenta/Yellow pure, Alpha gray,
+  Value/Lightness lightGray, Black darkGray), `fromColor` `transparent` for
+  RGB/Value/Lightness/Alpha, `black` for CMYK/Black, `white` otherwise. The
+  handle shows `colorAssistant.solidColor`.
 - **Sync**: `value` is unconditionally two-way synchronized with the
   assistant's channel through a `PropertyProxy` bridge
   (`channelNameF(channel)` — the channel name is a runtime string, so the
@@ -26,17 +29,26 @@ plug-points and can be replaced wholesale.
   color changes (linked controls, programmatic writes) move the handle back;
   `onCompleted` seeds `value` from the real channel. Convergence is guarded
   by same-value checks on both sides — no interaction gate is needed.
-- **Behavior**: `value` is clamped to `[0, 1]`; dragging hue on an
-  achromatic color first bumps the corresponding saturation to 0.001 so the
-  hue write has a visible effect (legacy UX contract); there is no
-  `defaultValue`, `reset`, or double-click reset; the initial `value` is 1
-  (hue 1 ≡ 0 cyclically — no side effect before seeding).
-- **Handle**: the default handle is a `CrystalCursor` inline wiring — the
-  shared delayed-scale base component (`Qool.Controls.Components`, ADR-0016):
+  Out-of-range assistant values (hue < 0, achromatic) are **not** read back —
+  the display keeps its last valid position.
+- **Behavior**: `value` is clamped to `[0, 1]`
+  (`ColorNameHQ.clampChannelRange` — out-of-range only arrives from external
+  programmatic writes); dragging hue on an achromatic color first bumps the
+  corresponding saturation to 0.001 so the hue write has a visible effect
+  (legacy UX contract); there is no `defaultValue`, `reset`, or double-click
+  reset; the initial `value` is 1 (hue 1 ≡ 0 cyclically — no side effect
+  before seeding).
+- **Handle**: the default `handle` **is** the `CrystalCursor` itself (the
+  root is the handle — same structure as `Qool.Controls.Slider`, ADR-0016):
   a `Crystal` diamond showing `colorAssistant.solidColor`, positioned by
-  `displayValue` (a smoothed intermediate layer: the drag follows instantly,
-  external changes animate), expanded by the three-state feedback
-  (hover / pressed / value-change latch) under the `animationEnabled` gate.
+  `displayValue` (a smoothed intermediate layer equal to `visualPosition`:
+  the drag follows instantly, external changes animate), expanded by the
+  three-state feedback (hover / pressed / value-change `TimerLatch`),
+  `delta = pCtrl.shrinkSize`. The scale animation is always on (the resizer
+  is hard-wired `animationEnabled: true`); the `animationEnabled` gate
+  covers the position smoothing (`BasicNumberBehavior on displayValue`) and
+  the color transitions. A `NoButton` `MouseArea` supplies the direction
+  cursor (`Qt.SizeHorCursor` / `Qt.SizeVerCursor`), gated by `enabled`.
   Replacing `handle` with any `Item` remains the template plug-point.
 
 ## Properties
@@ -58,8 +70,9 @@ plug-points and can be replaced wholesale.
 
 - `animationEnabled : bool`
   Animation switch (inherited up the parent chain — defaults to
-  `Style.animationEnabled`). When off, the handle position, handle color and
-  stroke changes jump instantly.
+  `Style.animationEnabled`). When off, the handle position smoothing, handle
+  color and stroke transitions jump instantly. The handle **scale**
+  expansion is not gated (the resizer is always animated).
 
 Inherited from `T.Slider`: `from`, `to`, `orientation`, `horizontal` /
 `vertical`, `pressed`, `position`, `visualPosition`, `stepSize`, `snapMode`,

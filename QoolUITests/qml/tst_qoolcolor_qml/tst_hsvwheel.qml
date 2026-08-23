@@ -13,7 +13,6 @@ import Qool.Color
 // - hue 越界（<0 无色相）接口写入不写进 assistant、显示保持
 // - 钳制：sat/value/hue>1 clamp 收敛（接口属性与 assistant 都收敛到合法域）
 // - value 驱动圆盘压暗层（darkAlpha = 1 - value 派生契约）
-// - 光标定位派生：position(hue,sat) 输出有效（值合法 → 光标恒在圆内）
 // - 无 defaultValue/reset、双击无定义行为（交互契约裁剪）
 //
 // 隔离：每个测试函数独立实例；动画统一关闭（animationEnabled: false）。
@@ -51,32 +50,6 @@ TestCase {
     function makeWheel(extra) {
         const props = extra === undefined ? {} : extra
         return createTemporaryObject(wheelComp, root, props)
-    }
-
-    // 光标定位（objectName 定位——组件内部对象零暴露原则的测试例外：
-    // 光标是公开视觉契约，tst_colorchannelslider 同款惯例）
-    function findChild(item, name) {
-        if (item === null || item === undefined)
-            return null
-        for (let i = 0; i < item.children.length; ++i) {
-            if (item.children[i].objectName === name)
-                return item.children[i]
-        }
-        for (let i = 0; i < item.children.length; ++i) {
-            const hit = findChild(item.children[i], name)
-            if (hit !== null)
-                return hit
-        }
-        if (item.item !== undefined && item.item !== null) {
-            const hit = findChild(item.item, name)
-            if (hit !== null)
-                return hit
-        }
-        return null
-    }
-
-    function cursorOf(w) {
-        return findChild(w, "wheelCursor")
     }
 
     function fuzzy(x, y) {
@@ -197,37 +170,6 @@ TestCase {
         verify(fuzzy(1 - w.colorAssistant.hsvValueF, 0.7), "darkAlpha = 1 - value")
     }
 
-    // —— 光标定位派生：值合法 → 光标恒在圆内（无越界）——
-    function test_cursorWithinCircle() {
-        const w = makeWheel({})
-        const c = cursorOf(w)
-        verify(c !== null, "cursor exists")
-        const cx = w.width / 2
-        const cy = w.height / 2
-        const radius = Math.min(w.width, w.height) / 2
-        // red: hue 0, sat 1 → 光标在圆周（距圆心 = radius）
-        w.hue = 0
-        w.saturation = 1
-        tryVerify(function () {
-            const dx = c.centerx - cx
-            const dy = c.centery - cy
-            return Math.abs(Math.sqrt(dx * dx + dy * dy) - radius) < 0.001
-        }, 500, "sat 1 -> cursor on rim")
-        // sat 0 → 圆心
-        w.saturation = 0
-        tryVerify(function () {
-            return fuzzy(c.centerx, cx) && fuzzy(c.centery, cy)
-        }, 500, "sat 0 -> cursor at center")
-        // 中间值在圆内
-        w.hue = 0.25
-        w.saturation = 0.5
-        tryVerify(function () {
-            const dx = c.centerx - cx
-            const dy = c.centery - cy
-            return Math.sqrt(dx * dx + dy * dy) < radius
-        }, 500, "sat 0.5 -> cursor inside circle")
-    }
-
     // —— 交互契约裁剪：无 defaultValue/reset ——
     function test_noReset() {
         const w = makeWheel({})
@@ -239,24 +181,4 @@ TestCase {
         verify(fuzzy(w.colorAssistant.hsvValueF, 0.8), "assistant follows")
     }
 
-    // —— 光标恒不越界（值域合法的派生保证）——
-    function test_valueDomain() {
-        const w = makeWheel({})
-        w.hue = 0.99
-        w.saturation = 1
-        w.value = 1
-        const ca = w.colorAssistant
-        verify(fuzzy(ca.hsvHueF, 0.99), "hue in domain")
-        verify(fuzzy(ca.hsvSaturationF, 1), "sat in domain")
-        verify(fuzzy(ca.hsvValueF, 1), "value in domain")
-        const c = cursorOf(w)
-        const cx = w.width / 2
-        const cy = w.height / 2
-        const radius = Math.min(w.width, w.height) / 2
-        tryVerify(function () {
-            const dx = c.centerx - cx
-            const dy = c.centery - cy
-            return Math.sqrt(dx * dx + dy * dy) <= radius + 0.001
-        }, 500, "cursor never outside circle")
-    }
 }

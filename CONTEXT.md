@@ -67,4 +67,5 @@
 
 | 术语 | 定义 |
 |---|---|
-| **填充条（fill bar）** | 竖直族轨道视觉（ColorChannelVerticalTrack 承载，同系组件 ColorChannelVerticalSlider 消费）的身份语义：通道贡献量 gauge——填充锚定**值 0 端**、沿值增大方向生长（垂直自底向上、水平自值 0 端 LTR 左 / RTL 右）；填充主色 = 色相正常值（hue 固定 sat/lightness 1、仅随 position 变 hue；非 hue 身份色），背景彩虹原理式跟随当前明暗（明暗由背景/边框承载）；hue 彩虹沿值方向（hue 0 值 0 端 → hue 1 值 1 端）。 |
+| **填充条（fill bar）** | 通道贡献量 gauge（承载于 ColorChannelVerticalSlider 自身 contentItem 的 fillBox/filler + background RectShape，无独立 _private 轨道件）：填充锚定**值 0 端**、沿值增大方向生长（垂直自底向上、水平自值 0 端 LTR 左 / RTL 右）；填充主色 = 色相正常值（hue 固定 sat、HSV value=1 / HSL lightness=0.5，仅随 position 变 hue；非 hue 身份色），背景彩虹 = RainbowGradient 固定全亮（sat=1/value=1/alpha=0.25，不跟随当前明暗）；hue 彩虹沿值方向（hue 0 值 0 端 → hue 1 值 1 端）。 |
+| **高定组件** | Color 模块公开组件族（ColorChannelSlider / ColorChannelVerticalSlider / HSVWheel / HSLBox）的统一定性：通道视觉（渐变/光标/填充条/表面）完全内化为组件语义，不暴露变体式外观接口；模板级 delegate（background/handle 等）是唯一插拔口；交互契约裁剪（无 defaultValue/reset/双击）。分见 ADR-0013/0014/0017/0018。 |

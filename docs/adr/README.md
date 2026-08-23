@@ -24,9 +24,10 @@
 | 0002 | `*Space` 布局量：溢出转换与钳 0（control C++ 计算，QoolBox 转发公开） |
 | 0003 | 渲染结构：单 Shape 双 ShapePath |
 | 0004 | 重写保留 QoolBoxShapeControl（内部 gadget 化，对外契约沿用 ext*/int*） |
-| 0005 | QoolBoxSettings 双类型（C++ Base + QML 继承 Style 默认）+ cut 命名规范 |
+| 0005 | QoolBoxSettings 单一类型（QML_ELEMENT 可实例化）+ cut 命名规范（双类型已修订删除） |
 | 0006 | QoolBoxGadget 内部质量：中间量降权 + 全称命名 + QVector2D |
-| 0007 | QoolBox 组件职责划分：control 公开（可替换/共享）+ 变体注入 |
+| 0008 | QoolBoxHud：QoolBox 专用调试工具（消费 control 公开面，白盒方案撤销） |
+| 0012 | PropertyProxy 无状态代理（透明窗口 + 判变快照 + 净化可写性） |
 | 0012 | PropertyProxy 无状态代理（透明窗口 + 判变快照 + 净化可写性） |
 | 0015 | CenterPlacer：中心坐标双向同步挂件（centerx/centery ↔ x/y，任意带几何属性对象） |
 
@@ -43,9 +44,9 @@
 
 | 编号 | 主题 |
 |---|---|
- | 0017 | HSVWheel + HSLBox：二维取色表面统一用共用 ColorCursor（HSLBox 公开化） |
 | 0013 | ColorChannelSlider 高定设计定案（T.Slider 平级 + 通道视觉内化 + 交互契约裁剪） |
 | 0014 | HSVWheel 单向链架构（鼠标事件 → 数据 → 光标/表面派生，写入钳制两路） |
-| 0018 | ColorChannelVerticalSlider 竖直通道滑块公开组件（T.Slider 独立实现 + 填充条样式 + 轨道采样色填充） |
+| 0017 | HSVWheel + HSLBox：二维取色表面各自内联光标组合（不共用独立 ColorCursor，HSLBox 公开化） |
+| 0018 | ColorChannelVerticalSlider 竖直通道滑块公开组件（T.Slider 独立实现 + 填充条样式 + hue=色相正常值/非 hue=身份色） |
 
 领域术语见根 `CONTEXT.md`「形状体系（QoolBox）」节。

@@ -37,7 +37,7 @@ SmartObject {
 
     // 任意带 x/y/width/height 四个属性的对象（Item/QtObject 自定义属性
     // 均可）。null 时安全（不崩、不写）。开放接口——可随时切换。
-    property QtObject target
+    property QtObject target: parent
 
     // 中心坐标（挂件自持属性——QML 无法给 target 动态加属性，center 由
     // 挂件持有，内部同步到 target）。读写即等价于读写 target 的 x/y。
@@ -49,15 +49,15 @@ SmartObject {
         id: pCtrl
 
         function sync_x() {
-            const v = root.target.x + root.target.width / 2
+            const v = root.target.x + root.target.width / 2;
             if (root.centerx !== v)
-                root.centerx = v
+                root.centerx = v;
         }
 
         function sync_y() {
-            const v = root.target.y + root.target.height / 2
+            const v = root.target.y + root.target.height / 2;
             if (root.centery !== v)
-                root.centery = v
+                root.centery = v;
         }
 
         // 从当前 target 现读同步（初始与 target 切换共用）——Connections
@@ -65,25 +65,25 @@ SmartObject {
         // 都不会自举，需显式现读一次，保证「挂上即双向等价」。
         function resync() {
             if (!root.target)
-                return
-            sync_x()
-            sync_y()
+                return;
+            sync_x();
+            sync_y();
         }
 
         function write_x() {
             if (!root.target)
-                return
-            const v = root.centerx - root.target.width / 2
+                return;
+            const v = root.centerx - root.target.width / 2;
             if (root.target.x !== v)
-                root.target.x = v
+                root.target.x = v;
         }
 
         function write_y() {
             if (!root.target)
-                return
-            const v = root.centery - root.target.height / 2
+                return;
+            const v = root.centery - root.target.height / 2;
             if (root.target.y !== v)
-                root.target.y = v
+                root.target.y = v;
         }
     }
 
@@ -91,16 +91,16 @@ SmartObject {
     Connections {
         target: root.target
         function onXChanged() {
-            pCtrl.sync_x()
+            pCtrl.sync_x();
         }
         function onYChanged() {
-            pCtrl.sync_y()
+            pCtrl.sync_y();
         }
         function onWidthChanged() {
-            pCtrl.sync_x()
+            pCtrl.sync_x();
         }
         function onHeightChanged() {
-            pCtrl.sync_y()
+            pCtrl.sync_y();
         }
     }
 
@@ -110,10 +110,10 @@ SmartObject {
     Connections {
         target: root
         function onCenterxChanged() {
-            pCtrl.write_x()
+            pCtrl.write_x();
         }
         function onCenteryChanged() {
-            pCtrl.write_y()
+            pCtrl.write_y();
         }
     }
 
@@ -125,7 +125,7 @@ SmartObject {
     Connections {
         target: root
         function onTargetChanged() {
-            pCtrl.resync()
+            pCtrl.resync();
         }
     }
 
@@ -133,6 +133,6 @@ SmartObject {
     // 0 无变化信号）则 center 不会自举——完成时从 target 现读一次，保证
     // 创建即双向等价（读写 center ≡ 读写 x/y 的完整契约）。
     Component.onCompleted: {
-        pCtrl.resync()
+        pCtrl.resync();
     }
 }

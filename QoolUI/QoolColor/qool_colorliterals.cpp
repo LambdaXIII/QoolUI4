@@ -1,12 +1,15 @@
 #include "qool_colorliterals.h"
 #include "qoolcommon/math.hpp"
+#include <QColor>
 #include <QMutex>
 #include <QtMath>
 #include <cmath>
+
 QOOLCOMMON_MATH_MARK
+
 QOOL_NS_BEGIN
 
-QHash<int, QString> ColorLiterals::m_channelNames{
+QHash<int, QString> __channelNames{
 
 #define NAME(AA, BB) {ColorLiterals::AA, QStringLiteral(#BB)}
 
@@ -27,40 +30,69 @@ QHash<int, QString> ColorLiterals::m_channelNames{
 
 };
 
-QHash<int, QString> ColorLiterals::m_channelTags{
+QHash<int, std::pair<QString, QString>> __channelTags{
 
-#define NAME(AA, BB) {ColorLiterals::AA, QStringLiteral(#BB)}
+#define TAG(NN, SS, LL)                                             \
+  {                                                                 \
+    ColorLiterals::NN, { QStringLiteral(#SS), QStringLiteral(#LL) } \
+  }
 
-  NAME(Alpha, ALPHA),
+  TAG(Alpha, ALFA, ALPHA),
 
-  NAME(Red, RED), NAME(Green, GREEN), NAME(Blue, BLUE),
+  TAG(Red, RED, RED), TAG(Green, GRIN, GREEN), TAG(Blue, BLUE, BLUE),
 
-  NAME(HSVHue, HUE), NAME(HSVSaturation, SATURATION), NAME(HSVValue, VALUE),
+  TAG(HSVHue, HUE, HUE), TAG(HSVSaturation, SAT, SATURATION),
+  TAG(HSVValue, VAL, VALUE),
 
-  NAME(HSLHue, HUE), NAME(HSLSaturation, SATURATION),
-  NAME(HSLLightness, LIGHTNESS),
+  TAG(HSLHue, HUE, HUE), TAG(HSLSaturation, SAT, SATURATION),
+  TAG(HSLLightness, LIT, LIGHTNESS),
 
-  NAME(Cyan, CYAN), NAME(Magenta, MAGT), NAME(Yellow, YELO), NAME(Black, BLAK)
+  TAG(Cyan, CYAN, CYAN), TAG(Magenta, MAGT, MAGENTA), TAG(Yellow, YELO, YELLOW),
+  TAG(Black, BLAK, BLAK)
 
-#undef NAME
+#undef TAG
 
 };
 
 ColorLiterals::ColorLiterals(QObject* parent)
   : QObject{parent} { }
 
-QString ColorLiterals::channelName(int channel) const {
-  return m_channelNames[channel];
+QString ColorLiterals::channelName(int channel) {
+  return __channelNames[channel];
 }
 
-QString ColorLiterals::channelNameF(int channel) const {
+QString ColorLiterals::channelNameF(int channel) {
   QString result{channelName(channel)};
   result.append('F');
   return result;
 }
 
-QString ColorLiterals::channelTag(int channel) const {
-  return m_channelTags.value(channel, "???");
+QString ColorLiterals::channelTag(int channel) {
+  return __channelTags.value(channel, {"???", "???"}).second;
+}
+
+QString ColorLiterals::channelTagShort(int channel) {
+  return __channelTags.value(channel, {"???", "???"}).first;
+}
+
+QColor ColorLiterals::channelColor(int channel) {
+
+  static QHash<int, QColor> colors{
+#define SC(NN, CC) {ColorLiterals::NN, Qt::CC}
+    SC(Alpha, gray),
+    SC(Red, red),
+    SC(Green, green),
+    SC(Blue, blue),
+    SC(HSVValue, lightGray),
+    SC(HSLLightness, lightGray),
+    SC(Cyan, cyan),
+    SC(Magenta, magenta),
+    SC(Yellow, yellow),
+    SC(Black, darkGray),
+#undef SC
+  };
+
+  return colors.value(channel, Qt::transparent);
 }
 
 // 格式化归一化通道数值：刻意仅四种输出——'0'、'1'、'.xxx'（三位小数无
@@ -99,36 +131,8 @@ qreal ColorLiterals::parseChannelNumberFloat(const QString& input) {
   return ok ? v : qQNaN();
 }
 
-void __variantify_string_hash(
-    QVariantMap& to, const QHash<int, QString>& from) {
-  for (const auto& [k, v] : from.asKeyValueRange())
-    to[QString::number(k)] = v;
-}
-
-QVariantMap ColorLiterals::channelNames() const {
-
-  static QMutex mutex;
-  static QVariantMap names;
-
-  if (names.isEmpty()) {
-    QMutexLocker locker(&mutex);
-    if (names.isEmpty()) __variantify_string_hash(names, m_channelNames);
-  }
-
-  return names;
-}
-
-QVariantMap ColorLiterals::channelTags() const {
-
-  static QMutex mutex;
-  static QVariantMap tags;
-
-  if (tags.isEmpty()) {
-    QMutexLocker locker(&mutex);
-    if (tags.isEmpty()) __variantify_string_hash(tags, m_channelTags);
-  }
-
-  return tags;
+qreal ColorLiterals::clampChannelRange(qreal x) {
+  return math::auto_bound(0.0, x, 1.0);
 }
 
 QOOL_NS_END

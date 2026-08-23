@@ -1,11 +1,11 @@
 # ColorCursor
 
-A private composite color-picking cursor shared by the HSV/HSL surfaces
-(`_private` — consumed inside `Qool.Color`, not exposed to hosts). The
-value position is the cursor's center point: the cursor is a pure
-derivation of `position(...)` mapping output, **not** a draggable object.
+A private composite color-picking cursor (`_private` — consumed inside
+`Qool.Color`, not exposed to hosts). The value position is the cursor's
+center point: the cursor is a pure derivation of `position(...)` mapping
+output, **not** a draggable object.
 
-`ColorCursor` composes three private pieces into one cursor contract:
+`ColorCursor` composes two private pieces into one cursor contract:
 
 - `CrystalCursor` (`Qool.Controls.Components`): the delayed-scale
   skeleton. Its inner `Crystal` carries its own precise diamond
@@ -15,14 +15,20 @@ derivation of `position(...)` mapping output, **not** a draggable object.
   diamond fall through to the surface).
 - `CenterPlacer` (`Qool`): `centerx`/`centery` ↔ `x`/`y` two-way
   placement on the root.
-- `TimerLatch` (`Qool`): the value-change hold — a center change (=
-  position change = surface value change) latches the expansion.
 
 **Event-driven placement is mandatory.** `CenterPlacer` writes `x`/`y`
 back explicitly on `onXChanged`, which **breaks any QML binding** that
 assigns `centerx`/`centery` (an explicit write replaces the binding and
 the cursor freezes). Consumers MUST assign `centerx`/`centery` from
 signal handlers (event-driven `updateCursor()`), never from bindings.
+
+> Current status: **orphan component** — no consumer instantiates
+> `ColorCursor` today. `HSVWheel` and `HSLBox` each wire an inline
+> `CrystalCursor` + `CenterPlacer` + `TimerLatch` + `updateCursor()` inside
+> their own interacting area (ADR-0017) instead of using this composite.
+> The file-header comment mentions a `TimerLatch` value-change latch, but
+> the implementation contains no `TimerLatch` instance — only
+> `CenterPlacer` + `CrystalCursor`.
 
 ## Properties
 
@@ -35,9 +41,11 @@ signal handlers (event-driven `updateCursor()`), never from bindings.
   The cursor fill color, sourced by the consumer (e.g. the surface's
   solid color). Forwarded to the inner `CrystalCursor`'s `color`.
 
-- `userInteracting : bool` (default `false`)
-  Interaction state forwarded by the consumer (from its interacting
-  area); one of the three expansion inputs.
+- `expanded : bool` (default `false`)
+  The expansion input, folded by the consumer from its interaction state
+  (hover / interacting / value-change latch — the consumer reduces its own
+  conditions to this single boolean, per ADR-0016). Forwarded to the inner
+  `CrystalCursor`'s `expanded`.
 
 - `centerx : real`
   The cursor center x — `property alias` to the internal
@@ -57,14 +65,12 @@ signal handlers (event-driven `updateCursor()`), never from bindings.
 ## Behavior
 
 - Visual semantics: the resting `Crystal` edge equals `size`; expanded
-  it equals `size + expandDelta` (the internal `CrystalCursor` root is
+  it equals `size + expandDelta` (the inner `CrystalCursor` root is
   sized `size + expandDelta` with `delta = expandDelta`, centered on the
   root center — pixel-equivalent to the old `HSVWheelCursor` visuals).
-- Three-way expansion: hover (square root domain, a superset of the old
-  diamond domain — the same convention as the `Slider` handle),
-  `userInteracting`, or the value-change latch (a center change
-  re-arms a `TimerLatch` window of `Style.movementDuration * 2`). Any
-  of the three holds `expanded = true`.
+- Expansion: the consumer folds hover / interacting / value-change latch
+  into the single `expanded` boolean (any of the three holds
+  `expanded = true`).
 - Contract trim: no `latchTarget`, no `hoverEnabled`, no
   `defaultValue`/`reset` (double-click undefined), no `centerPoint`.
 
@@ -83,7 +89,7 @@ This type defines no additional methods.
 
 ## Usage Example
 
-The `HSVWheel` internal wiring pattern — event-driven placement from
+The `HSVWheel`-style wiring pattern — event-driven placement from
 surface signals, never bindings:
 
 ```qml
@@ -92,7 +98,7 @@ ColorCursor {
     objectName: "wheelCursor"
     animationEnabled: root.animationEnabled
     currentColor: root.colorAssistant.solidColor
-    userInteracting: root.userInteracting
+    expanded: area.userInteracting || latch.active || hoverer.hovered
 }
 
 function updateCursor() {

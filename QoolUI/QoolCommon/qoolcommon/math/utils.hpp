@@ -31,9 +31,8 @@ constexpr bool is_zero(N a, float epsilon = M_EPSILON) {
 
 template<Arithmetic N>
 constexpr N auto_bound(N left, N x, N right) {
-  const auto min = std::min(left, right);
-  const auto max = std::max(left, right);
-  return std::min(std::max(x, min), max);
+  return left <= right ? std::clamp(x, left, right)
+                       : std::clamp(x, right, left);
 }
 
 template<Arithmetic N, Arithmetic P>

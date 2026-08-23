@@ -4,7 +4,7 @@
 // 当前含 HSV/HSL 面板 + 竖直通道滑块调试用例：
 // - HSV 色轮面板（HSVPanel）与 HSL 面板（HSLPanel）共享 mainColor——
 //   双向联动（面板改色、picker 取色三路同步，同值收敛无环）。
-// - ColorChannelVerticalSlider 竖直通道滑块演示（HSVHue/HSVSaturation/
+// - ColorChannelSlider 竖直通道滑块演示（HSVHue/HSVSaturation/
 //   HSVValue 三通道，绑定共享 mainColor）——拖动/点击跳转/键盘步进/
 //   justMoved 手感人工验收（hue 通道彩虹原理式跟随当前 sat/value）。
 import QtQuick
@@ -23,6 +23,7 @@ BasicPage {
     // 共享色源：与 picker 无条件双向同步（同值守卫收敛——见文件头）
     ColorAssistant {
         id: mainColor
+        color: Style.accent
     }
 
     QoolControl {
@@ -45,46 +46,113 @@ BasicPage {
         }
 
         RectResizer {}
+    }
 
-        QoolControl {
-            x: 380
-            title: qsTr("竖直通道滑块")
-            contentItem: Row {
-                spacing: 8
-                ColorChannelVerticalSlider {
-                    colorAssistant: mainColor
-                    channel: ColorNameHQ.HSVHue
-                    width: 150
-                    orientation: Qt.Horizontal
-                }
-                ColorChannelVerticalSlider {
-                    colorAssistant: mainColor
-                    channel: ColorNameHQ.HSVSaturation
-                    height: 150
-                }
-                ColorChannelVerticalSlider {
-                    colorAssistant: mainColor
-                    channel: ColorNameHQ.HSVValue
-                    height: 150
-                }
-                ColorChannelVerticalSlider {
-                    colorAssistant: mainColor
-                    channel: ColorNameHQ.Red
-                    height: 150
-                }
-                ColorChannelVerticalSlider {
-                    colorAssistant: mainColor
-                    channel: ColorNameHQ.Green
-                    height: 150
-                }
-                ColorChannelVerticalSlider {
-                    colorAssistant: mainColor
-                    channel: ColorNameHQ.Blue
-                    height: 150
-                }
+    QoolControl {
+        y: 100
+        title: qsTr("竖直通道滑块")
+        contentItem: Row {
+            spacing: 8
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.HSVHue
+                // orientation: Qt.Horizontal
+                orientation: Qt.Vertical
             }
-
-            RectResizer {}
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.HSVSaturation
+                orientation: Qt.Vertical
+            }
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.HSVValue
+                orientation: Qt.Vertical
+            }
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                // orientation: Qt.Horizontal
+                orientation: Qt.Vertical
+            }
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.HSLSaturation
+                orientation: Qt.Vertical
+            }
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.HSLLightness
+                orientation: Qt.Vertical
+            }
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.Red
+                orientation: Qt.Vertical
+            }
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.Green
+                orientation: Qt.Vertical
+            }
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.Blue
+                orientation: Qt.Vertical
+            }
         }
+        RectResizer {}
+    }
+
+    QoolControl {
+        x: 300
+        title: qsTr("水平通道滑块")
+        contentItem: Column {
+            spacing: 8
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.HSVHue
+                orientation: Qt.Horizontal
+            }
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.HSVSaturation
+                orientation: Qt.Horizontal
+            }
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.HSVValue
+                orientation: Qt.Horizontal
+            }
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                orientation: Qt.Horizontal
+            }
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.HSLSaturation
+                orientation: Qt.Horizontal
+            }
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.HSLLightness
+                orientation: Qt.Horizontal
+            }
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.Red
+                orientation: Qt.Horizontal
+            }
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.Green
+                orientation: Qt.Horizontal
+            }
+            ColorChannelSlider {
+                colorAssistant: mainColor
+                channel: ColorNameHQ.Blue
+                orientation: Qt.Horizontal
+            }
+        }
+        RectResizer {}
     }
 }

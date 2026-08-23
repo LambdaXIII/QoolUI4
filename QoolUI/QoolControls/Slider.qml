@@ -113,10 +113,14 @@ T.Slider {
         }
     } //background
 
-    // —— 手柄（Crystal 菱形）：边长跟随轨道法向（六边形对齐语义）；展开
-    // 反馈 = hover/按下/值变化锁存三态展开——
-    handle: Item {
-        id: handleRoot
+    // —— 手柄（CrystalCursor 本体——ADR-0016 基准件，根即 handle）：
+    // 菱形 + 延迟缩放展开（常态 side−shrinkSize、展开 side）+ 色注入
+    // （采样色 colorAt）。基准件契约裁剪——定位与长保持锁存归消费方，
+    // 消费方在实例上实现（footprint 恒定：缩放只作用内部 Crystal，定位
+    // 锚不随缩放偏移）；expanded = hover‖按下‖值变化锁存三态或；
+    // delta = shrinkSize（常态收缩贴轨道、展开顶出轨道但不出控件）。
+    handle: CrystalCursor {
+        id: cursor
         // 边长 = 轨道法向（side）：水平 = 可用高、垂直 = 可用宽——菱形恒等，
         // 横竖对称（法向居中不随镜像变化）
         width: pCtrl.side
@@ -126,6 +130,10 @@ T.Slider {
         // y 由 visualPosition 驱动、x 居中。
         x: root.horizontal ? root.leftPadding + root.visualPosition * (root.availableWidth - width) : root.leftPadding + (root.availableWidth - width) / 2
         y: root.horizontal ? root.topPadding + (root.availableHeight - height) / 2 : root.topPadding + root.visualPosition * (root.availableHeight - height)
+
+        delta: pCtrl.shrinkSize
+        animationEnabled: root.animationEnabled
+        expanded: hoverer.hovered || root.pressed || latch.active
 
         // 值变化锁存（TimerLatch，上游脉冲→电平）：valueChanged 是瞬时
         // 事件——不经转换直接注入 expanded 只闪一帧。latch 把事件转成
@@ -160,47 +168,34 @@ T.Slider {
             }
         }
 
-        // —— 手柄基准件（CrystalCursor——ADR-0016 收束三光标重复骨架）：
-        // 菱形 + 延迟缩放展开（常态 side−shrinkSize、展开 side）+ 色注入
-        // （采样色 colorAt）。x/y 由 handleRoot 定位（根 footprint 恒定——
-        // 定位锚不随缩放偏移）；expanded = hover‖按下‖值变化锁存三态或；
-        // delta = shrinkSize（常态收缩贴轨道、展开顶出轨道但不出控件）。
-        CrystalCursor {
-            id: cursor
-            width: pCtrl.side
-            height: pCtrl.side
-            delta: pCtrl.shrinkSize
-            animationEnabled: root.animationEnabled
-            expanded: hoverer.hovered || root.pressed || latch.active
-            // color 不经绑定——手动更新（colorAt 为 C++ 方法、QML 绑定不追踪
-            // 方法体内 stops 访问，直接绑定会冻结在初始未就绪的采样）。源色
-            // 来自 Style（统一样式接口）：Connections 监听 Style.valueChanged
-            // （key = accent/buttonText）捕获附着传播变化触发重采样。
-            Connections {
-                target: root.Style
-                function onValueChanged(group, key) {
-                    if (key === "accent" || key === "buttonText")
-                        cursor.updateColor();
-                }
+        // color 不经绑定——手动更新（colorAt 为 C++ 方法、QML 绑定不追踪
+        // 方法体内 stops 访问，直接绑定会冻结在初始未就绪的采样）。源色
+        // 来自 Style（统一样式接口）：Connections 监听 Style.valueChanged
+        // （key = accent/buttonText）捕获附着传播变化触发重采样。
+        Connections {
+            target: root.Style
+            function onValueChanged(group, key) {
+                if (key === "accent" || key === "buttonText")
+                    cursor.updateColor();
             }
+        }
 
-            function updateColor() {
-                cursor.color = colorMapper.colorAt(root.position);
-            }
+        function updateColor() {
+            cursor.color = colorMapper.colorAt(root.position);
+        }
 
-            // 仅 hover/光标反馈：NoButton 不拦截按压（模板拖动在手柄上仍
-            // 有效）；disabled 时无反馈
-            MouseArea {
-                anchors.fill: parent
-                acceptedButtons: Qt.NoButton
-                enabled: root.enabled
-                cursorShape: root.horizontal ? Qt.SizeHorCursor : Qt.SizeVerCursor
-            }
+        // 仅 hover/光标反馈：NoButton 不拦截按压（模板拖动在手柄上仍
+        // 有效）；disabled 时无反馈
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.NoButton
+            enabled: root.enabled
+            cursorShape: root.horizontal ? Qt.SizeHorCursor : Qt.SizeVerCursor
+        }
 
-            HoverHandler {
-                id: hoverer
-                enabled: root.enabled
-            }
+        HoverHandler {
+            id: hoverer
+            enabled: root.enabled
         }
 
         // —— 采样更新时机：handle 完成（stops 已就绪）刷新一次 + position
