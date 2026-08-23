@@ -23,6 +23,10 @@ editable value:
   (edit commit or host code). It is unconditionally two-way synchronized
   with the assistant's channel; the display follows the real channel
   directly, independent of the editor text.
+- **Layout**: horizontal (default) shows the long label (`channelTag`)
+  left-aligned with the value at the right; `orientation: Qt.Vertical`
+  shows the short label (`channelTagShort`) above the value, both
+  horizontally centered.
 
 ### Numeric convention
 
@@ -60,9 +64,26 @@ consequence of the leading-dot convention).
   color: Style.accent }`)
   The shared color object whose channel is edited.
 
-- `animationEnabled : bool`
-  Animation switch (inherited up the parent chain — defaults to
-  `Style.animationEnabled`).
+- `readOnly : bool` (default: `false`)
+  Forwards to the internal `EditableText.readOnly` — no edit session
+  starts (click / focus idle). `ColorChannelControl` forwards its shell
+  `readOnly` through this property; hosts may set it directly.
+
+- `orientation : int` (default: `Qt.Horizontal`)
+  Layout direction. `Qt.Horizontal` — the default — lays the label and
+  the value side by side (long label `channelTag` left, value right);
+  `Qt.Vertical` stacks the short label `channelTagShort` above the value,
+  both horizontally centered.
+
+- `horizontal : bool` (read-only)
+  `true` when `orientation === Qt.Horizontal` — the horizontal layout is
+  active.
+
+- `vertical : bool` (read-only)
+  `true` when `orientation === Qt.Vertical` — the vertical layout is
+  active.
+
+Inherited from `Control`: `font`, `padding`, `enabled`, `focus`,
 
 Inherited from `Control`: `font`, `padding`, `enabled`, `focus`,
 `implicitWidth` / `implicitHeight` and all other `Control` members. See
@@ -98,6 +119,11 @@ Column {
     ColorChannelEdit {
         colorAssistant: ca
         channel: ColorNameHQ.HSLSaturation
+    }
+    ColorChannelEdit {
+        colorAssistant: ca
+        channel: ColorNameHQ.HSLHue
+        orientation: Qt.Vertical
     }
 }
 ```

@@ -65,10 +65,10 @@ TestCase {
         return c.contentItem.children[1]
     }
 
-    // 编辑子组件 contentItem（RowLayout）内 EditableText（同
-    // tst_colorchanneledit.editorOf 惯例）
+    // 编辑子组件内 EditableText（objectName 定位——findChild 递归搜索，
+    // 不依赖 children 序；ColorChannelEdit contentItem 为双布局代理结构）
     function editorOf(e) {
-        return e.contentItem.children[1]
+        return findChild(e, "editor")
     }
 
     function fuzzy(x, y) {
