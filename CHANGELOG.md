@@ -1,8 +1,24 @@
- # Changelog
+# Changelog
  
- 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
+版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
+
+### 变更（qtquick-panel-fix，Qt Creator 面板 QML 测试识别修复）
+
+- **根因**：每批次 CMakeLists 把整批 QML target 定义在同一 CMake `directory`，Qt Creator `internalTargets(proFile)` 按 `projectPart->projectFile`（target `paths.source` 所在 CMakeLists）匹配 → 同 proFile 下多个 Executable target 全命中 → `buildTargets.size()>1` → 弹「选择 executable」。全部 20 个 QML 单元都命中此歧义（「恰好三个」是运行全部时逐个弹窗+跳过的假象）
+- **QML 修复**：20 个 QML 单元各建独立 `CMakeLists.txt`（`qoolui_add_qml_test(tst_xxx_qml tst_xxx <模块>)`），批次文件改 `add_subdirectory(<单元>)` 列表；CMake `directory` 完全唯一化；`qoolui_add_qml_test` 增强为兼容「当前目录即单元目录」/「相对子目录」两用法
+- **C++ 面板弹窗修复**：`tst_qool_box_hit`/`tst_qool_hover_e2e` 是真实 QQuickWindow + QTest::mouseMove 注入的端到端测试，依赖 offscreen；QtCreator 面板运行 QtTest 不读 `QOOLUI_TEST_ARGS_*`（仅服务 ctest）→ 裸跑弹真实窗口卡住 FAIL。测试 cpp 在 `QTEST_MAIN` 前加静态 `qputenv("QT_QPA_PLATFORM","offscreen")`
+- **验证**：CMake configure 成功；20 个 QML target `directory` 完全唯一（每目录一个）；Qt Creator build 成功（0 警告）；裸跑 box_hit/hover_e2e（无 env/无参数）PASS；全量 ctest 40/40 全绿；Qt Creator 面板全部 QML 测试正常解析 EXECUTABLE、不再弹窗
+
+### 变更（color-refactor-continue，Color 模块重构继续完善）
  
 ### 变更（color-refactor-continue，Color 模块重构继续完善）
+### 变更（test-facility-reform，测试设施改革）
+
+- **测试单元编写规范重写**（`QoolUITests/AGENTS.md`）：新增单元↔组件一一对应、以参考文档为准绳、不测内部实现/子元素/Qt 组件四原则；写法规则（行为化 snake_case 命名、fuzzy 容差注释论证、信号计数锁定精确期望、禁双分支弱断言、负向 wait 注释折衷、期望 FAIL 显式标记）；删除「公开属性/信号/方法/契约裁剪/新增接口」五条逐字重复段落（编辑事故）；README 散落约定上收；术语表「QML 测试批次」「harness」随新架构更新；根 AGENTS.md 测试节指针同步
+- **越界测试清理**（只删不改）：QML 侧 60 个越界测试函数删除（47 纯越界整删 + 13 含越界混合函数整体删，不留公开契约段；C++ 侧审计干净）——slider/rangeslider/dial/basiclabel/colorchannelcontrol 五单元整删；halfcrystal 留 2、crystal 留 5、qoolbox 留 11、colorchanneledit 留 4、qoolbgbx 留 1；仅供已删测试的死辅助函数连带清理
+- **架构改造：每 QML 测试单元独立 target**：共享 harness（`qml_test_main.cpp` + `QUICK_TEST_SOURCE_DIR` 编译宏注入）废除；20 个 QML 单元各自独立子目录（`tst_<组件>.qml` + `tst_<组件>.cpp`）+ 独立 target + `qoolui_add_qml_test()` 辅助函数（add_executable/链接/offscreen 参数登记/add_test/注册表/LINK_DEPENDS/DLL 部署/QuickShapes+QuickLayouts+QuickControls2Basic 插件 DLL）；批次目录提升顶层（`tst_qool_qml/`/`tst_qoolcolor_qml/`/`tst_qoolcontrols_qml/` 与 common/core 平级）；Qt Creator Tests 面板可逐测试发现/运行 QML 单元（一 cpp 一 target 一宏值——扫描器从 CMake project macros 读 `QUICK_TEST_SOURCE_DIR`，共享 cpp 多 target 的 projectPart 歧义根因消除）
+- **红色测试处置**：两个期望 FAIL 测试（NumberRanger `format_strings`、Style `test_equalAssignNoRefresh`）对应产品缺陷已修复（仓库 HEAD 中：format 字符串分支前置、Style set_value 相等短路）——测试直接转绿，未加 QEXPECT_FAIL/expectFail 标记；缺陷记录于 `.scratch/test-facility-reform/defects/`（状态 fixed）
+- **验证**：全量 ctest 40/40 全绿（20 C++ + 20 QML 独立 target）；run-tests 聚合 rc=0；Qt Creator 面板逐测试识别待人工验收
 
 - **handle 结构简化**：Qool.Controls.Slider 与 ColorChannelSlider 的 handle 去掉 Item 定位壳包装，直接为 CrystalCursor 本体（ADR-0016 基准件根即 handle——定位/锁存/光标形状内联实例，与基准件「定位/锁存归消费方」契约一致）；tst_slider 手柄引用改 `s.handle`（原 children[0]）
 - **纵向写方向 clamp 同步**：`ColorChannelVerticalSlider` 手写 `Math.max/min` → `ColorNameHQ.clampChannelRange()`（横向已改，双处同源）；**NaN 守卫删除**（原理上不可达：QML 属性写入 NaN 被归一化为 0，实测 `value=NaN` 后读回 0——不存在的路径不留守卫）

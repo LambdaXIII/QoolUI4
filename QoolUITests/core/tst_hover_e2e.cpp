@@ -152,6 +152,16 @@ Item {
   root->deleteLater();
 }
 
+// 强制 offscreen：真实窗口 + QTest::mouseMove 注入路径，任何运行通道必须
+// offscreen 平台（见头部注释——QML 层 offscreen 不注入，本层 QTest 通道
+// 能注入故依赖 offscreen）。静态对象在 main() 前构造，早于 QTEST_MAIN
+// 展开的 QGuiApplication 创建，QT_QPA_PLATFORM 即时生效。
+namespace {
+struct QoolTestForceOffscreen {
+  QoolTestForceOffscreen() { qputenv("QT_QPA_PLATFORM", "offscreen"); }
+} _qoolTestForceOffscreen;
+} // namespace
+
 QTEST_MAIN(TestHoverE2E)
 
 #include "tst_hover_e2e.moc"

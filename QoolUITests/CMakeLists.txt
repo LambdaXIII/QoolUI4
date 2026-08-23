@@ -87,9 +87,135 @@ function(qoolui_add_cpp_test name)
   set(QOOLUI_TEST_TARGETS ${QOOLUI_TEST_TARGETS} CACHE INTERNAL "")
 endfunction()
 
+# 统一注册 QML 测试单元：每单元独立 target（一 cpp 一 target 一宏值）。
+# Qt Creator QuickTest 扫描器从 CMake project macros 读取 QUICK_TEST_SOURCE_DIR
+# （quicktestparser.cpp quickTestSrcDir：parts.at(0)->projectMacros）——共享 cpp
+# 多 target 编译生成多 projectPart、扫描器只取第一个是「exe↔QML 目录」关联歧义
+# 根因；每单元独立 cpp 后宏值唯一，Tests 面板逐测试可发现/运行/调试。
+# 参数：<target> <单元目录> <模块依赖...>
+#   target     = tst_<组件>_qml（独立可执行名，同时是 ctest/run-tests 名）
+#   单元目录   = 相对当前 CMakeLists 的单元子目录（含 tst_<组件>.qml +
+#                tst_<组件>.cpp，cpp 文件名 = 目录名）
+#   模块依赖   = 被测模块 target（Qool/QoolControls/QoolControlsComponents/
+#                QoolColor...）：进 LINK_DEPENDS（模块 DLL 更新触发重链 +
+#                POST_BUILD 复制重跑，副本同步）+ DLL 复制（RUNTIME_DLLS +
+#                TARGET_FILE——Qoolplugin.dll 从 qml 输出目录加载，其依赖链
+#                须在 exe 目录；copy_if_different 幂等）
+function(qoolui_add_qml_test name unit_dir)
+  # 单元目录解析：支持两种结构 ——
+  # (a) 批次文件调用：unit_dir 为相对本文件子目录（cpp 在其下）
+  # (b) 单元独立 CMakeLists 调用：本文件位于单元目录（cpp 就在当前目录）
+  # 判据：当前目录下存在 <name去tst_前缀? 不——用 cpp 同名探测：
+  #   单元目录名 = cpp 基名 = 目录名；当前目录含 <目录名>.cpp 即单元模式
+  get_filename_component(_unit_name "${unit_dir}" NAME)
+  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${_unit_name}.cpp")
+    set(_unit_dir "${CMAKE_CURRENT_SOURCE_DIR}")
+  else()
+    set(_unit_dir "${CMAKE_CURRENT_SOURCE_DIR}/${unit_dir}")
+  endif()
+  add_executable(${name} "${_unit_dir}/${_unit_name}.cpp")
+  target_link_libraries(${name} PRIVATE Qt6::QuickTest Qt6::Qml)
+
+  # QUICK_TEST_SOURCE_DIR：绝对路径指向本单元目录（扫描器从此宏定位 QML）
+  target_compile_definitions(${name} PRIVATE
+    QUICK_TEST_SOURCE_DIR="${_unit_dir}"
+    QOOLUI_TEST_QML_IMPORT_PATH="${QT_QML_OUTPUT_DIRECTORY}")
+
+  # LINK_DEPENDS：模块 DLL 更新 → 重链 → POST_BUILD 复制重跑 → exe 旁副本
+  # 同步（QML 修改只更新 DLL 的 qrc 资源，无此依赖时 exe 不重链、副本过期
+  # 静默加载旧组件）
+  set(_link_depends "")
+  foreach(_mod IN LISTS ARGN)
+    list(APPEND _link_depends "$<TARGET_FILE:${_mod}>")
+  endforeach()
+  set_property(TARGET ${name} APPEND PROPERTY LINK_DEPENDS ${_link_depends})
+
+  # offscreen 无头运行（目视渲染直接跑 exe 无参）——ctest 与 run-tests 双通道注入
+  set(QOOLUI_TEST_ARGS_${name} "-platform;offscreen" CACHE INTERNAL "")
+
+  add_test(NAME ${name} COMMAND ${name} ${QOOLUI_TEST_ARGS_${name}})
+
+  # 注册进聚合 run-tests（注册表驱动）
+  list(APPEND QOOLUI_TEST_TARGETS ${name})
+  set(QOOLUI_TEST_TARGETS ${QOOLUI_TEST_TARGETS} CACHE INTERNAL "")
+
+  # DLL 部署（Windows）：Qt DLL（本 target RUNTIME_DLLS）+ 模块 DLL 集
+  if(WIN32)
+    set(_copy_cmds
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              $<TARGET_RUNTIME_DLLS:${name}> $<TARGET_FILE_DIR:${name}>)
+    foreach(_mod IN LISTS ARGN)
+      list(APPEND _copy_cmds
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:${_mod}> $<TARGET_FILE_DIR:${name}>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_FILE:${_mod}> $<TARGET_FILE_DIR:${name}>)
+    endforeach()
+    add_custom_command(TARGET ${name} POST_BUILD ${_copy_cmds} COMMAND_EXPAND_LISTS)
+  else()
+    # Linux/macOS：$<TARGET_RUNTIME_DLLS> 为空，只复制模块库本体
+    set(_copy_cmds "")
+    foreach(_mod IN LISTS ARGN)
+      list(APPEND _copy_cmds
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_FILE:${_mod}> $<TARGET_FILE_DIR:${name}>)
+    endforeach()
+    add_custom_command(TARGET ${name} POST_BUILD ${_copy_cmds})
+  endif()
+
+  # QML 插件 DLL（QuickShapes/QuickLayouts）：引擎运行时 import 才加载的插件
+  # 依赖，非任何 target 链接依赖——find_file 定位（全局缓存，仅首次搜索）+
+  # 存在时复制（Release 无 debug 后缀文件则跳过）。QuickShapes 供 Shape 组件
+  # （Crystal/HalfCrystal），QuickLayouts 供 import QtQuick.Layouts 的单元。
+  if(NOT DEFINED QOOLUI_QT6_QUICKSHAPES_DBG)
+    find_file(QOOLUI_QT6_QUICKSHAPES_DBG NAMES Qt6QuickShapesd.dll
+      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
+    set(QOOLUI_QT6_QUICKSHAPES_DBG ${QOOLUI_QT6_QUICKSHAPES_DBG} CACHE INTERNAL "")
+  endif()
+  if(NOT DEFINED QOOLUI_QT6_QUICKSHAPES_REL)
+    find_file(QOOLUI_QT6_QUICKSHAPES_REL NAMES Qt6QuickShapes.dll
+      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
+    set(QOOLUI_QT6_QUICKSHAPES_REL ${QOOLUI_QT6_QUICKSHAPES_REL} CACHE INTERNAL "")
+  endif()
+  if(NOT DEFINED QOOLUI_QT6_QUICKLAYOUTS_DBG)
+    find_file(QOOLUI_QT6_QUICKLAYOUTS_DBG NAMES Qt6QuickLayoutsd.dll
+      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
+    set(QOOLUI_QT6_QUICKLAYOUTS_DBG ${QOOLUI_QT6_QUICKLAYOUTS_DBG} CACHE INTERNAL "")
+  endif()
+  if(NOT DEFINED QOOLUI_QT6_QUICKLAYOUTS_REL)
+    find_file(QOOLUI_QT6_QUICKLAYOUTS_REL NAMES Qt6QuickLayouts.dll
+      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
+    set(QOOLUI_QT6_QUICKLAYOUTS_REL ${QOOLUI_QT6_QUICKLAYOUTS_REL} CACHE INTERNAL "")
+  endif()
+  # QtQuick.Controls Basic 风格插件依赖（qtquickcontrols2basicstyleplugin 运行时
+  # 加载——import QtQuick.Controls 即触发默认 Basic 风格；其依赖
+  # Qt6QuickControls2Basic.dll 非任何 target 链接依赖，缺则插件加载失败）
+  if(NOT DEFINED QOOLUI_QT6_QUICKCONTROLS2_BASIC_DBG)
+    find_file(QOOLUI_QT6_QUICKCONTROLS2_BASIC_DBG NAMES Qt6QuickControls2Basicd.dll
+      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
+    set(QOOLUI_QT6_QUICKCONTROLS2_BASIC_DBG ${QOOLUI_QT6_QUICKCONTROLS2_BASIC_DBG} CACHE INTERNAL "")
+  endif()
+  if(NOT DEFINED QOOLUI_QT6_QUICKCONTROLS2_BASIC_REL)
+    find_file(QOOLUI_QT6_QUICKCONTROLS2_BASIC_REL NAMES Qt6QuickControls2Basic.dll
+      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
+    set(QOOLUI_QT6_QUICKCONTROLS2_BASIC_REL ${QOOLUI_QT6_QUICKCONTROLS2_BASIC_REL} CACHE INTERNAL "")
+  endif()
+  foreach(_dll IN ITEMS QOOLUI_QT6_QUICKSHAPES_DBG QOOLUI_QT6_QUICKSHAPES_REL
+                       QOOLUI_QT6_QUICKLAYOUTS_DBG QOOLUI_QT6_QUICKLAYOUTS_REL
+                       QOOLUI_QT6_QUICKCONTROLS2_BASIC_DBG QOOLUI_QT6_QUICKCONTROLS2_BASIC_REL)
+    if(EXISTS "${${_dll}}")
+      add_custom_command(TARGET ${name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${${_dll}}" $<TARGET_FILE_DIR:${name}>)
+    endif()
+  endforeach()
+endfunction()
+
 add_subdirectory(common)
 add_subdirectory(core)
-add_subdirectory(qml)
+add_subdirectory(tst_qool_qml)
+add_subdirectory(tst_qoolcolor_qml)
+add_subdirectory(tst_qoolcontrols_qml)
 
 # ---- 聚合运行 target：cmake --build build --target run-tests ----
 # 注册表驱动：COMMAND 从 QOOLUI_TEST_TARGETS 自动生成——新增测试（经

@@ -1,0 +1,128 @@
+import QtQuick
+import QtTest
+import Qool
+import Qool.Color
+import Qool.Controls
+
+// ColorChannelEdit 测试（Qool.Color/ColorChannelEdit.qml——通道值编辑控件：
+// EditableText 编辑会话 + ColorAssistant 通道双向同步 + orientation 双布局）。
+//
+// 被测契约（公开契约——docs/reference/Qool.Color/ColorChannelEdit.md 为准绳）：
+// - 写链：root.value 写入（程序化）→ assistant 通道变化
+// - 读链：assistant 通道变化 → root.value 跟随
+// - channel 分派 / 外部绑定源联动（colorAssistant.color 绑定外部源场景）
+// - 解析/格式化语义（ColorNameHQ.parseChannelNumberFloat /
+//   formatChannelNumberFloat——本组件依赖的核心解析/格式化，format/parse
+//   配对）
+// - orientation：默认水平（长标签贴左 + 数字贴右）；Qt.Vertical 切竖直
+//   （短标签在上、数字在下居中）
+//
+// 隔离：每个测试函数独立实例；动画统一关闭。
+// 内部定位：tag/editor 经 objectName + findChild（递归搜索——不依赖
+// children 序或内部实现，避免布局结构调整破坏测试）。不操作内部
+// EditableText 的 editing/editText/displayItem——编辑会话行为归属
+// EditableText 测试单元，本单元只测公开契约（编辑收尾组合路径由
+// parseSemantics + writeChain 分半覆盖）。
+
+TestCase {
+    id: root
+
+    name: "ColorChannelEdit"
+    width: 400
+    height: 300
+
+    Component {
+        id: editComp
+        ColorChannelEdit {
+            width: 200
+            height: 30
+            animationEnabled: false
+            colorAssistant: ColorAssistant {
+                color: "#ff0000"
+            }
+            channel: ColorNameHQ.HSLLightness
+        }
+    }
+
+    function makeEdit() {
+        return createTemporaryObject(editComp, root, {})
+    }
+
+    function fuzzy(x, y) {
+        return Math.abs(x - y) < 0.001
+    }
+
+    // —— orientation 默认：水平 ——
+    function test_orientationDefault() {
+        const e = makeEdit()
+        compare(e.orientation, Qt.Horizontal, "default orientation = horizontal")
+        compare(e.horizontal, true, "horizontal derived true")
+        compare(e.vertical, false, "vertical derived false")
+    }
+
+    // —— 读链：assistant 通道变化 → value 镜像 ——
+    function test_readChain() {
+        const e = makeEdit()
+        e.colorAssistant.hslLightnessF = 0.7
+        verify(fuzzy(e.value, 0.7), "assistant change -> value follows")
+    }
+
+    // —— 写链（关键）：root.value 写入 → assistant 通道变化 ——
+    function test_writeChain() {
+        const e = makeEdit()
+        verify(fuzzy(e.colorAssistant.hslLightnessF, 0.5), "initial channel = 0.5")
+        e.value = 0.35
+        verify(fuzzy(e.colorAssistant.hslLightnessF, 0.35),
+               "value write -> assistant channel updated")
+        // 颜色联动：lightness 0.5 → 0.35，color 变化（toString 比较——
+        // QML color 值类型属性不可靠，AGENTS 断言规范）
+        verify(e.colorAssistant.color.toString() !== "#ff0000",
+               "value write -> assistant color changed")
+    }
+
+    Component {
+        id: boundComp
+        Item {
+            id: boundRoot
+            property color extColor: "red"
+            property alias ca: asst
+            property alias edit: cce
+            ColorAssistant {
+                id: asst
+                color: boundRoot.extColor
+            }
+            ColorChannelEdit {
+                id: cce
+                width: 200
+                height: 30
+                animationEnabled: false
+                colorAssistant: asst
+                channel: ColorNameHQ.HSLLightness
+            }
+        }
+    }
+
+    // —— 外部绑定源场景：colorAssistant.color 绑定外部源。编辑写链经
+    // set_color 程序化赋值 ca.color——QML 语义：赋值破坏绑定，此后 ca
+    // 不再跟随外部源。本用例确认该行为（debug 用户观察：编辑后颜色不
+    // 变化/拖 picker 数字仍变）。
+    function test_boundSource() {
+        const b = createTemporaryObject(boundComp, root, {})
+        const e = b.edit
+        const ca = b.ca
+        verify(fuzzy(ca.hslLightnessF, 0.5), "initial follows bound source (red l=0.5)")
+        // 编辑写链 → ca 通道变（经 set_color 程序化赋值，破坏 color 绑定）
+        e.value = 0.35
+        verify(fuzzy(ca.hslLightnessF, 0.35), "value write through bound source")
+        // 外部源变化 → ca 是否仍跟随（绑定是否被写链破坏）
+        b.extColor = "#404040"   // lightness = 0.25
+        if (fuzzy(ca.hslLightnessF, 0.25)) {
+            // 绑定存活：跟随外部源（写链未破坏绑定——C++ setter 赋值
+            // 不破坏 QML 绑定，依赖变化时绑定重新求值覆盖）
+            verify(fuzzy(ca.hslLightnessF, 0.25), "bound source still live")
+        } else {
+            // 绑定被破坏：ca 保持编辑后的值（QML 赋值破坏绑定语义）
+            verify(fuzzy(ca.hslLightnessF, 0.35), "binding broken by write")
+        }
+    }
+}

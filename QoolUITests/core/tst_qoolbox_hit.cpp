@@ -415,6 +415,16 @@ Item {
   root->deleteLater();
 }
 
+// 强制 offscreen：本测试为真实窗口 + QTest::mouseMove 注入路径，任何运行
+// 通道（QtCreator 测试面板/ctest/命令行）都必须 offscreen 平台，否则
+// QQuickWindow 弹真实窗口并卡住。静态对象在 main() 前构造，早于
+// QTEST_MAIN 展开的 QGuiApplication 创建——QT_QPA_PLATFORM 即时生效。
+namespace {
+struct QoolTestForceOffscreen {
+  QoolTestForceOffscreen() { qputenv("QT_QPA_PLATFORM", "offscreen"); }
+} _qoolTestForceOffscreen;
+} // namespace
+
 QTEST_MAIN(TestQoolBoxHit)
 
 #include "tst_qoolbox_hit.moc"

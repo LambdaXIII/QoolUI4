@@ -201,7 +201,20 @@ python Scripts/qoolui_build_linux.py deploy         # install + zip 归档
 
 **kit×type 矩阵**（CMakePresets.json）：`dev-<kit>-<type>` preset 对应用户目录 `build/build-<kit>-<Type>`（如 `dev-msvc-debug` → `build/build-msvc-Debug`）。kit = 编译方式（msvc/clang/gcc），type = debug/release（默认 debug）。编译器由脚本环境准备决定，preset 不指定——构建目录按 kit 隔离保证工具链不混。CMake 原生通道（无脚本环境准备时）亦可直接 `cmake --preset dev-msvc-debug`。
 
-平台概念约定：**以编译方式（kit）区分命名**（对齐 Qt 安装器布局 msvc2022_64/mingw_64，Linux 为 gcc_64），不以操作系统命名；脚本结构按操作系统拆分（分支逻辑聚簇处），macOS 入口待真平台落地时完善。
+
+**qtcreator MCP 工具可用时优先直接用（MUST）**：`qtc_*` 设备提供构建/运行/调试/CMake 重扫描/测试枚举，内部携带正确 MSVC/Qt kit 环境。可用时直接调用，勿经 `Scripts/qoolui_build_*.py` + bash + CMake 组合手工摆弄编译环境（MSYS/bash 下管道伪象、cl.exe 缺 vcvars、exe 路径解析等摩擦易致「环境问题 vs 测试问题」误诊）。
+- **MCP 通道不可用时才退回脚本通道**；面板运行结果/弹窗等 UI 状态 MCP 读不到（`get_test_status`/`get_last_test_results` 快照仅覆盖 MCP 自身触发的运行），只能靠用户人工报告。
+- **判读测试输出走 eval 内核 python `subprocess` + 文件重定向**，勿在 MSYS bash 直接跑 exe 判读（stdout 被吞、退出码不可信、Windows 盘符路径被解析成函数名）。
+- **改了 CMake（拆分/重组 target）后重启 Qt Creator**：`m_mainCppFiles`（cpp→proFile 缓存）仅在全量重解析（fullParse，启动触发）时重建；不重启则解析沿用旧缓存、面板复现旧症状——排查「改了 CMake 但面板没变」先重启。
+- 诊断 Qt Creator 与 QML/QuickTest/CMake 集成问题，源码依据在 `qt-creator` 的 `src/plugins/autotest/quick/`、`cmakeprojectmanager/fileapidataextractor.cpp`（用 `github file_read`，勿用 `curl`/raw）。
+
+**qtcreator MCP 工具可用时优先直接用（MUST）**：本项目配置了 Qt Creator MCP 工具链（`qtc_*` 设备），能直接驱动 Qt Creator 完成构建（`build`）、运行（`run_tests`/`run_project`）、调试（`debug`）、CMake 重扫描（`call_action` `CMakeProject.RescanProject`）、测试枚举（`list_tests`/`list_*`）等。**当这些能用时直接调用它们**——它们内部携带正确的 MSVC/Qt kit 环境，避免反复用 `Scripts/qoolui_build_*.py` + bash + CMake 组合手工摆弄编译环境（那套通道在 MSYS/bash 下有管道伪象、cl.exe 缺 vcvars、exe 路径解析等大量摩擦，且会反复走进「环境问题 vs 测试问题」的误诊循环）。经验：排查测试/构建问题时先试 `qtc_*` 通道，它失败或不可用时再退回脚本通道；面板的运行结果/弹窗状态 MCP 读不到（`get_test_status`/`get_last_test_results` 快照仅覆盖 MCP 自身触发的运行，`run_tests` 稳定返回 0 total）——这类面板 UI 状态只能靠用户人工报告。
+
+**工具通道经验**（构建/测试验证的选通道原则）：
+- **判读测试输出走 eval 内核 python `subprocess` + 文件重定向**，勿在 MSYS bash 里直接跑 exe 判读（stdout 被吞、退出码不可信、Windows 盘符路径被解析成函数名）——这是元问题，别把观测通道问题误诊成测试缺陷。
+- Qt Creator 产物的 File API reply（`build/<kit>-<Type>/.cmake/api/v1/reply/`）是 CMake 结构的权威来源：codemodel 主文件（`codemodel-v2-*.json`）的 `targets[]` 是**索引**，每个 target 的 `directory`/`paths.source`/compileGroups 等细节在各自 `target-<name>-<Type>-*.json` 里（`paths` 字段）+ `directories[]` 按 `directoryIndex` 索引——排查 target 归属（如「哪些 target 共享目录」）读这两处。
+- **Qt Creator 源码是诊断 QML/QuickTest/CMake 集成问题的最终依据**（`qt-creator/.../src/plugins/autotest/quick/`、`cmakeprojectmanager/fileapidataextractor.cpp` 等）；用 `github file_read` 官方通道，勿用 `curl`/`raw.githubusercontent`（超时/401）。
+- **改了 CMake（拆分/重组 target）后重启 Qt Creator**：`m_mainCppFiles`（cpp→proFile 缓存）只在全量重解析（fullParse，启动时触发）时重建；不重启则解析仍用旧 proFile 缓存，面板继续复现旧症状——排查「改了 CMake 但面板没变」先重启，别怀疑结构没用。
 
 ## 编码规范（C++）
 
@@ -291,7 +304,7 @@ Qool 自定义强化版 `QtObject`（**非 `QObject`**，兼容 QtObject），�
 
 ## 测试
 
-`QoolUITests` 为项目的测试设施（Qt Test + Qt Quick Test 双栈；术语、测试方法规范、测试策略与 CMake 组织定案见 `QoolUITests/AGENTS.md`，使用手册见 `QoolUITests/README.md`）。
+`QoolUITests` 为项目的测试设施（Qt Test + Qt Quick Test 双栈；术语、测试单元编写规范、测试策略与 CMake 组织定案见 `QoolUITests/AGENTS.md`，使用手册见 `QoolUITests/README.md`）。
 
 ## 验证策略
 
