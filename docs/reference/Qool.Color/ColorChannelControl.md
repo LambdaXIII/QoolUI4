@@ -1,9 +1,12 @@
 # ColorChannelControl
 
-A single color-channel row — a `ColorChannelEdit` (labeled numeric edit)
-stacked above a `ColorChannelSlider` (drag track) at equal width — restoring
-the legacy `_private` `ColorSlider` single-control form as a public
-composition.
+A single color-channel control — a labeled numeric edit plus a drag track
+stacked in one of two layouts selected by `orientation`: horizontal
+(default) is a `ColorChannelEdit` above a `ColorChannelSlider` at equal
+width, restoring the legacy `_private` `ColorSlider` single-control form;
+vertical is a `ColorChannelVerticalSlider` above a vertical mirrored
+`ColorChannelEdit` (the value box sits next to the slider, the short label
+at the bottom).
 
 `ColorChannelControl` bundles the properties the two children share
 (`channel`, `colorAssistant`, `animationEnabled`, `value`, `readOnly`) on
@@ -24,8 +27,7 @@ and a slider per channel.
   read back into it, so all three converge on the same value.
 - **Pure encapsulation**: no `edit` / `slider` child aliases are exposed.
   Pluggability lives in the children themselves (`ColorChannelEdit`'s
-  `displayItem`, `ColorChannelSlider`'s template `background` / `handle`);
-  the control is horizontal only (no `orientation`).
+  `displayItem`, the sliders' template `background` / `handle`).
 - **Read-only editing**: `readOnly` forwards through the edit child to the
   internal editor — no edit session starts on click/focus. The slider stays
   fully draggable, so a read-only row still adjusts the channel.
@@ -61,6 +63,16 @@ and a slider per channel.
 - `readOnly : bool` (default: `false`)
   Locks the numeric edit (forwarded to the internal editor — no edit
   session starts). The slider and the value chain remain fully live.
+
+- `orientation : int` (default: `Qt.Horizontal`)
+  Layout direction (`Qt.Horizontal` / `Qt.Vertical`). Horizontal: the edit
+  row above the slider, both rows at equal width. Vertical: the vertical
+  slider above a vertical, mirrored edit row (value box next to the slider,
+  short label at the bottom). Switching rebuilds the content layout; the
+  shared assistant and the value chain are unaffected.
+
+- `horizontal : bool` (read-only) / `vertical : bool` (read-only)
+  Derived from `orientation`.
 
 Inherited from `Control`: padding, insets, `enabled`, `focus`, `visible`,
 `z`, and all other `Control` members. See the Qt documentation for the
@@ -101,6 +113,13 @@ Column {
         channel: ColorNameHQ.HSVValue
         readOnly: true    // numeric read-only; drag still adjusts
     }
+}
+
+// Vertical form — a tall fill-bar slider with the mirrored edit below it:
+ColorChannelControl {
+    colorAssistant: ca
+    channel: ColorNameHQ.HSVHue
+    orientation: Qt.Vertical
 }
 ```
 

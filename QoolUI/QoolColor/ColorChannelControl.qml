@@ -6,6 +6,10 @@
 // （animationEnabled/channel/colorAssistant/value/readOnly）外壳统一声明、
 // 转发两子组件——宿主配置一个组件即得完整通道行，不必手动配对。
 //
+// orientation 双布局（Loader 分派，见 contentItem 处）：水平（默认）=
+// 编辑行上 + ColorChannelSlider 下；竖直 = ColorChannelVerticalSlider 上
+// + 竖直镜像编辑行下（数字框贴滑块、短标签垫底）。
+//
 // 集束不变量：colorAssistant 为**单一共享实例**（外壳声明、两子组件链向
 // 同一实例）——编辑与拖动始终作用于同一通道，value 经同一 assistant
 // 收敛；任子组件落回自带默认 assistant 即分叉、集束失效。
@@ -44,24 +48,76 @@ Control {
     // 不启动编辑会话——点击/聚焦空转；滑块拖动保留）。
     property bool readOnly: false
 
-    // 布局：编辑在上、滑块在下、两行等宽（fillWidth）、零间距——旧
+    // 布局方向(int 承载 Qt 枚举值)。派生只读 horizontal/vertical 驱动
+    // contentItem 双布局分派(见下)。水平(默认):编辑行上 + 滑块下(旧
+    // ColorSlider 单控件形态);竖直:竖直滑块上 + 竖直镜像编辑行下。
+    property int orientation: Qt.Horizontal
+    readonly property bool horizontal: orientation === Qt.Horizontal
+    readonly property bool vertical: orientation === Qt.Vertical
+
+    // contentItem 双布局（Loader 分派——两布局子件不同型且行序相反，
+    // ColumnLayout 无法重排行，切换即换布局组件；子组件经 assistant/链
+    // 持态，销毁重建无状态损失）。objectName 供测试定位（edit 恒名，
+    // 滑块按型命名 hslider/vslider）。
+    contentItem: Loader {
+        sourceComponent: root.horizontal ? horizontalLayout : verticalLayout
+    }
+
+    // 水平布局：编辑在上、滑块在下、两行等宽（fillWidth）、零间距——旧
     // ColorSlider 单控件形态。
-    contentItem: ColumnLayout {
-        spacing: 0
+    Component {
+        id: horizontalLayout
 
-        ColorChannelEdit {
-            Layout.fillWidth: true
-            animationEnabled: root.animationEnabled
-            channel: root.channel
-            colorAssistant: root.colorAssistant
-            readOnly: root.readOnly
+        ColumnLayout {
+            spacing: 0
+
+            ColorChannelEdit {
+                objectName: "edit"
+                Layout.fillWidth: true
+                animationEnabled: root.animationEnabled
+                channel: root.channel
+                colorAssistant: root.colorAssistant
+                readOnly: root.readOnly
+            }
+
+            ColorChannelSlider {
+                objectName: "hslider"
+                Layout.fillWidth: true
+                animationEnabled: root.animationEnabled
+                channel: root.channel
+                colorAssistant: root.colorAssistant
+            }
         }
+    }
 
-        ColorChannelSlider {
-            Layout.fillWidth: true
-            animationEnabled: root.animationEnabled
-            channel: root.channel
-            colorAssistant: root.colorAssistant
+    // 竖直布局：竖直滑块在上（fillWidth + fillHeight——吸收宿主额外高度，
+    // 编辑行保持自然高）、竖直镜像编辑行在下（orientation 竖直 +
+    // LayoutMirroring 驱动内置 mirrored——数字框贴近滑块、短标签垫底）。
+    Component {
+        id: verticalLayout
+
+        ColumnLayout {
+            spacing: 0
+
+            ColorChannelVerticalSlider {
+                objectName: "vslider"
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                animationEnabled: root.animationEnabled
+                channel: root.channel
+                colorAssistant: root.colorAssistant
+            }
+
+            ColorChannelEdit {
+                objectName: "edit"
+                Layout.fillWidth: true
+                orientation: Qt.Vertical
+                LayoutMirroring.enabled: true
+                animationEnabled: root.animationEnabled
+                channel: root.channel
+                colorAssistant: root.colorAssistant
+                readOnly: root.readOnly
+            }
         }
     }
 

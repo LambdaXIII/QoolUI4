@@ -1,5 +1,26 @@
 # Changelog
 
+### 变更（colorchannelcontrol-orientation，ColorChannelControl orientation 双布局）
+
+- **接口**：外壳新增 `orientation`（默认 `Qt.Horizontal`）+ 只读派生
+  `horizontal`/`vertical`（与 ColorChannelEdit 声明式样一致）。水平=原形态
+  （编辑行上 + ColorChannelSlider 下，等宽零间距）；竖直=ColorChannelVerticalSlider
+  上（fillWidth+fillHeight，吸收宿主额外高度）+ 竖直镜像编辑行下（orientation
+  竖直 + LayoutMirroring 驱动内置 mirrored——数字框贴滑块、短标签垫底）
+- **实现**：contentItem 换 Loader 双布局组件分派——两布局滑块不同型且行序相反，
+  ColumnLayout 无法重排行，切换即换组件；子组件经共享 assistant/链持态，
+  销毁重建无状态损失。子组件加 objectName（edit 恒名，滑块按型 hslider/vslider）
+  供测试定位。集束/链/播种部分不动
+- **测试**：新建 tst_colorchannelcontrol 单元（单元<->组件一一对应惯例，独立
+  target + 批次注册）——默认水平方位、竖直布局（滑块上/编辑下/编辑内部数字框
+  在上+内置 mirrored 激活）、orientation 切换后链经共享 assistant 保持收敛、
+  readOnly 转发，6/6 全绿
+- **文档**：ColorChannelControl.md 简介与 Pure encapsulation 节去「horizontal
+  only」，Properties 补 orientation/horizontal/vertical，用法示例补竖直形态
+- **验证**：build 0 错 0 警（新测试 target 首次配置+链接成功）；QoolColor 批次
+  六单元回归 rc=0（colorchanneledit/colorassistant/colorchannelslider/
+  colorchannelverticalslider/hslbox/hsvwheel）
+
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
 ### 变更（colorchanneledit-mirrored，ColorChannelEdit 响应内置 mirrored 镜像布局）
