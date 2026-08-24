@@ -16,6 +16,7 @@ if(WIN32)
 endif()
 
 add_subdirectory(tst_colorchanneledit)
+add_subdirectory(tst_colorassistant)
 add_subdirectory(tst_hsvwheel)
 add_subdirectory(tst_hslbox)
 add_subdirectory(tst_colorchannelslider)

@@ -1,5 +1,3 @@
-pragma ComponentBehavior: Bound
-
 import QtQuick
 import Qool
 
@@ -57,20 +55,20 @@ Item {
         horizontalAlignment: root.horizontalAlignment
         onEditingFinished: {
             // 失焦/回车结束即视为提交（无"取消"语义——内容已解析写回）。
-            editor.visible = false
-            root.editingFinished()
+            editor.visible = false;
+            root.editingFinished();
         }
         onTextChanged: {
             // 解析失败（含输入中间态，如刚输入 "re" 尚未成 "red"）时
             // currentColor 回退 defaultColor——瞬时回退非 bug。
-            root.currentColor = ColorNameHQ.color(text, root.defaultColor)
+            root.currentColor = ColorNameHQ.color(text, root.defaultColor);
         }
     } //editor
 
     function edit() {
-        editor.text = display.text
-        editor.selectAll()
-        editor.visible = true
-        editor.forceActiveFocus()
+        editor.text = display.text;
+        editor.selectAll();
+        editor.visible = true;
+        editor.forceActiveFocus();
     }
 }
