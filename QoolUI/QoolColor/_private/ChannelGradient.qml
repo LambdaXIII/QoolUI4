@@ -12,9 +12,7 @@ LinearGradient {
     property int channel: 0
     property bool mirrored: false
 
-    // 渐变向量：起点(y/x1)恒为 position 0（通道浓色=满值端），终点为
-    // position 1（0 值端）。水平随镜像换向；竖直自顶(满)向底(空)——
-    // 与值轴同向（勿改成 y1: height——那会把浓端放到 0 值侧，方向反）。
+    // 浓端锚满值侧（勿改 y1:height——那会把浓端放 0 值侧）。
     x1: root.horizontal && root.mirrored ? width : 0
     x2: root.horizontal && !root.mirrored ? width : 0
     y1: 0

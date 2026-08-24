@@ -13,19 +13,15 @@ class ColorLiterals : public QObject {
 public:
   enum Channels {
     Alpha = 0,
-    // RGB
     Red,
     Green,
     Blue,
-    // HSV
     HSVHue,
     HSVSaturation,
     HSVValue,
-    // HSL
     HSLHue,
     HSLSaturation,
     HSLLightness,
-    // CMYK
     Cyan,
     Magenta,
     Yellow,

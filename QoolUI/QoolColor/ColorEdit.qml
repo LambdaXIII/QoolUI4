@@ -37,9 +37,6 @@ Item {
         onClicked: root.edit()
     } //mArea
 
-    // 编辑态：BasicTextInput 内联为 TextInput。显示态内容（ColorNameHQ
-    // 色名渲染）与编辑内容（原始文本）不同，不走通道数值编辑的解析/
-    // 格式化约定——颜色名输入语义独立，见文件头文档。
     TextInput {
         id: editor
         visible: false
@@ -53,13 +50,12 @@ Item {
         selectionColor: root.currentColor
         horizontalAlignment: root.horizontalAlignment
         onEditingFinished: {
-            // 失焦/回车结束即视为提交（无"取消"语义——内容已解析写回）。
+            // 失焦/回车即提交（无取消语义——色值已由 onTextChanged 实时写回）。
             editor.visible = false;
             root.editingFinished();
         }
         onTextChanged: {
-            // 解析失败（含输入中间态，如刚输入 "re" 尚未成 "red"）时
-            // currentColor 回退 defaultColor——瞬时回退非 bug。
+            // 解析失败（含输入中间态）回退 defaultColor——瞬时回退非 bug。
             root.currentColor = ColorNameHQ.color(text, root.defaultColor);
         }
     } //editor

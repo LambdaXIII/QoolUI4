@@ -95,9 +95,7 @@ QColor ColorLiterals::channelColor(int channel) {
   return colors.value(channel, Qt::transparent);
 }
 
-// 格式化归一化通道数值：刻意仅四种输出——'0'、'1'、'.xxx'（三位小数无
-// 前导零）、'NaN'。round 到 1000（≥0.9995）归 '1'、round 到 0 归 '0'
-// （千分位边界：不进位到 1000 后取模归零）。
+// 仅四种输出：'0'、'1'、'.xxx'（三位小数无前导零）、'NaN'。
 QString ColorLiterals::formatChannelNumberFloat(qreal num) {
   if (std::isnan(num)) return QStringLiteral("NaN");
   if (math::is_zero(num)) return QStringLiteral("0");
@@ -108,12 +106,8 @@ QString ColorLiterals::formatChannelNumberFloat(qreal num) {
   return QString(".%1").arg(a);
 }
 
-// 解析归一化通道值（formatChannelNumberFloat 的反向——format 输出可解析
-// 回原值）：清洗输入（仅保留数字与第一个小数点，其余字符/后续小数点
-// 丢弃）→ 无小数点时头部补一个（整数输入按纯小数解释：350 → ".350" →
-// 0.35——对齐显示格式的无前导零约定）；**端点例外**："1"/"0" 对称还原
-// 为 1.0/0.0（format 将端点输出为 "1"/"0"，不特判则编辑显示 "1" 收尾
-// 会被补点误读为 ".1"，往返断裂）；失败（清洗后空/孤点）返回 NaN。
+// 清洗+补点（整数按纯小数解释：350→.350）；端点 "1"/"0" 对称还原（format
+// 端点折叠串，不特判则往返断裂）；清洗后空/孤点返回 NaN。
 qreal ColorLiterals::parseChannelNumberFloat(const QString& input) {
   QString cleaned;
   bool dotSeen = false;
