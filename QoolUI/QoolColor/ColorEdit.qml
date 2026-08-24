@@ -37,10 +37,9 @@ Item {
         onClicked: root.edit()
     } //mArea
 
-    // 编辑态：BasicTextInput 内联为 TextInput。
-    // 不复用 NumInput 的原因：显示态内容（ColorNameHQ 色名渲染）与编辑内容
-    // （原始文本）不同，NumInput 的滚动显示/数值约定（x>1 → /1000）与
-    // 本组件的颜色名输入无关——见文件头文档。
+    // 编辑态：BasicTextInput 内联为 TextInput。显示态内容（ColorNameHQ
+    // 色名渲染）与编辑内容（原始文本）不同，不走通道数值编辑的解析/
+    // 格式化约定——颜色名输入语义独立，见文件头文档。
     TextInput {
         id: editor
         visible: false

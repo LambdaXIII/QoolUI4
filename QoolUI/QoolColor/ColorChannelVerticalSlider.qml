@@ -25,12 +25,29 @@ T.Slider {
     background: Item {
         implicitWidth: root.horizontal ? 150 : 25
         implicitHeight: root.horizontal ? 25 : 150
+
+        // 值变化高亮锁存：任何 value 写入（拖动/数值编辑/外部联动）→
+        // 边框提亮一段窗口后回落（TimerLatch 上游脉冲→电平，家族惯用
+        // 模式——Slider/CrystalCursor 同款；无公开状态，绑定直消费电平）
+        TimerLatch {
+            id: justMovedLatch
+            interval: Style.movementDuration * 2
+            Connections {
+                target: root
+                function onValueChanged() {
+                    justMovedLatch.trigger()
+                }
+            }
+        }
+
         RectShape {
+            objectName: "track"  // 测试定位
             anchors.fill: parent
             radius: 4
             borderWidth: 1
             color: Qt.alpha(pCtrl.channelColor, 0.1)
-            borderColor: pCtrl.channelColor
+            borderColor: justMovedLatch.active ? Qt.lighter(pCtrl.channelColor, 1.4)
+                                               : pCtrl.channelColor
             BasicColorBehavior on borderColor {
                 enabled: pCtrl.animationReallyEnabled
             }

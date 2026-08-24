@@ -214,7 +214,7 @@ write through any entry recomputes a valid color as usual.
 - `static string channelTag(int channel)` — 外观标签长文本
   （"RED"、"SATURATION"、…）。
 - `static string channelTagShort(int channel)` — 外观标签短文本
-  （"RED"、"SAT"、"VAL"、"LIT"、"BLAK"、…）。
+  （"RED"、"SAT"、"BRIT"、"LIT"、"BLAK"、…）。
 - `static color channelColor(int channel)` — 通道代表色；未定义通道
   返回 `transparent`（Hue/Saturation 类通道无代表色）。
 - `static string formatChannelNumberFloat(real num)` — 归一化通道值

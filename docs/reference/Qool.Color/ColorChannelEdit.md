@@ -34,9 +34,9 @@ editable value:
 
 ### Numeric convention
 
-The numeric text is the pair
-`ColorNameHQ.formatChannelNumberFloat` / `ColorNameHQ.parseChannelNumberFloat`
-(shared with the `_private` `NumInput`), deliberately restricted:
+The numeric text is the `ColorNameHQ` static pair
+`formatChannelNumberFloat` / `parseChannelNumberFloat`, deliberately
+restricted:
 
 - **Format** produces exactly four outputs: `"0"`, `"1"`, `".xxx"` (three
   decimal digits without a leading zero, e.g. `.350`), `"NaN"`. Values

@@ -56,6 +56,17 @@ TestCase {
     function fuzzy(x, y) {
         return Math.abs(x - y) < 0.001
     }
+    function findItem(item, name) {
+        if (item.objectName === name)
+            return item
+        for (let i = 0; i < item.children.length; ++i) {
+            const r = findItem(item.children[i], name)
+            if (r)
+                return r
+        }
+        return null
+    }
+
 
     function colorEqual(a, b) {
         return a.toString() === b.toString()
@@ -191,5 +202,24 @@ TestCase {
         const s = makeSlider({})
         verify(s.defaultValue === undefined, "no defaultValue (contract culled)")
         verify(s.reset === undefined, "no reset (contract culled)")
+    }
+    // —— 边框高亮：值变化 → 提亮，latch 窗口后回落（TimerLatch 电平，
+    // 无公开状态——经轨道边框色可观察行为锁定）——
+    // 注：onCompleted 播种写 value 亦触发 latch，故先等窗口走完回到
+    // 基色再验证完整周期。HSLLightness 的通道标识色为静态灰（不随值
+    // 变），边框色差全部来自高亮本身。
+    function test_borderHighlight() {
+        const s = makeSlider({})
+        const track = findItem(s, "track")
+        verify(track, "track found by objectName")
+        const window = Style.movementDuration * 2
+        wait(window + 100)
+        const base = track.borderColor.toString()
+        s.value = 0.3
+        verify(track.borderColor.toString() !== base,
+               "value write -> border highlighted")
+        wait(window + 100)
+        verify(track.borderColor.toString() === base,
+               "latch window elapsed -> border back to base")
     }
 }

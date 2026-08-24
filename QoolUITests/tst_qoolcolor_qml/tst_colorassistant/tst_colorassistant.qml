@@ -564,6 +564,8 @@ TestCase {
                "channelTagShort SAT")
         compare(ca.channelTagShort(ColorAssistant.Channels.Black),
                "BLAK", "channelTagShort BLAK")
+        compare(ca.channelTagShort(ColorAssistant.Channels.HSVValue),
+               "BRIT", "channelTagShort HSVValue BRIT")
         compare(ca.channelColor(ColorAssistant.Channels.Red),
                "#ff0000", "channelColor red")
         compare(ca.channelColor(ColorAssistant.Channels.Alpha),

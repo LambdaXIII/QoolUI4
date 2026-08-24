@@ -1,7 +1,7 @@
 import QtQuick
 import Qool
 
-// 通道数值文本（拍平件，置于 _private——同 NumInput，暂不耦合 Controls）：
+// 通道数值文本（拍平件，置于 _private——暂不耦合 Controls）：
 // ColorChannelEdit 的通道标签（Tag）与数值显示（displayItem）的统一文本
 // 组件——字体来源统一为 PixelFont.normal（MozartNBP 24px），标签/显示/
 // 编辑层同一字体，避免漂移。颜色与对齐按用途覆盖（标签 Style.buttonText

@@ -1,8 +1,9 @@
-// 单行竖直通道滑块面板：GridLayout 一行四列——青/品红/黄/黑
-// （ChannelSlider_Cyan/Magenta/Yellow/Black）。
-// 交互：各滑块竖直拖动（自下而上 0→1）、双击重置（通道默认值 1）、
-//   滑块内嵌数值输入（x>1→/1000+限幅，滑块自身处理）。
-// 刻意，勿改：本面板不向滑块传 animationEnabled，滑块各自取 Style.animationEnabled。
+// 单行竖直通道控制面板：GridLayout 一行四列——青/品红/黄/黑
+// （ColorChannelControl 竖直形态）。
+// 交互：各列竖直滑块拖动（自下而上 0→1）+ 数值编辑 + 改值边框高亮
+//   （ColorChannelControl 内化，见各组件文档）。
+// 刻意，勿改：本面板不向子控件传 animationEnabled，子控件各自经
+//   parent 链取本面板属性回退 Style.animationEnabled。
 
 pragma ComponentBehavior: Bound
 
@@ -10,7 +11,6 @@ import QtQuick
 import QtQuick.Layouts
 import Qool
 import Qool.Color
-import "_private"
 
 GridLayout {
     id: root
@@ -26,35 +26,43 @@ GridLayout {
     columnSpacing: 5
     rowSpacing: 5
 
-    ChannelSlider_Cyan {
+    ColorChannelControl {
         colorAssistant: root.colorAssistant
+        channel: ColorNameHQ.Cyan
+        orientation: Qt.Vertical
         Layout.fillWidth: true
         Layout.fillHeight: true
         Layout.row: 0
         Layout.column: 0
-    } //cyanSlider
+    } //cyan
 
-    ChannelSlider_Magenta {
+    ColorChannelControl {
         colorAssistant: root.colorAssistant
+        channel: ColorNameHQ.Magenta
+        orientation: Qt.Vertical
         Layout.fillWidth: true
         Layout.fillHeight: true
         Layout.row: 0
         Layout.column: 1
-    } //magentaSlider
+    } //magenta
 
-    ChannelSlider_Yellow {
+    ColorChannelControl {
         colorAssistant: root.colorAssistant
+        channel: ColorNameHQ.Yellow
+        orientation: Qt.Vertical
         Layout.fillWidth: true
         Layout.fillHeight: true
         Layout.row: 0
         Layout.column: 2
-    } //yellowSlider
+    } //yellow
 
-    ChannelSlider_Black {
+    ColorChannelControl {
         colorAssistant: root.colorAssistant
+        channel: ColorNameHQ.Black
+        orientation: Qt.Vertical
         Layout.fillWidth: true
         Layout.fillHeight: true
         Layout.row: 0
         Layout.column: 3
-    } //blackSlider
+    } //black
 }

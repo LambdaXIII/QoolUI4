@@ -42,7 +42,7 @@ QHash<int, std::pair<QString, QString>> __channelTags{
   TAG(Red, RED, RED), TAG(Green, GRIN, GREEN), TAG(Blue, BLUE, BLUE),
 
   TAG(HSVHue, HUE, HUE), TAG(HSVSaturation, SAT, SATURATION),
-  TAG(HSVValue, VAL, VALUE),
+  TAG(HSVValue, BRIT, VALUE), // 短标签 BRIT 刻意 4 字母缩写（旧面板标题），勿"修正"
 
   TAG(HSLHue, HUE, HUE), TAG(HSLSaturation, SAT, SATURATION),
   TAG(HSLLightness, LIT, LIGHTNESS),

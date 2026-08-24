@@ -1,4 +1,4 @@
-// 契约（ColorSlider/ChannelSlider/HSVWheel/HSLBox/ColorQuickPicker 等消费方依赖）：
+// 契约（HSVWheel/HSLBox/ColorQuickPicker 等消费方依赖）：
 //   - userInteracting：按下置 true、释放置 false；消费方惯用法是在
 //     onPositionChanged 中先检查 userInteracting 再更新值。
 //   - preventStealing + propagateComposedEvents：与父级/兄弟手势协调。

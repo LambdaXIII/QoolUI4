@@ -1,15 +1,15 @@
 # ColorChannelVerticalSlider
 
 A vertical single color-channel slider bound to one `ColorAssistant` channel —
-a `QtQuick.Templates.Slider` peer whose track is a fill bar (the migrated
-legacy `_private` `ChannelBar` visual) and whose handle is transparent.
+a `QtQuick.Templates.Slider` peer whose track is a fill bar and whose handle
+is transparent.
 
-`ColorChannelVerticalSlider` brings the vertical channel family of
-`RGBPanel` / `CMYKPanel` (legacy `ChannelBar` + `ChannelSlider` + per-channel
-variants) to a public component form: the fill-bar track visual is preserved
-(rounded corners, fill from the bottom, identity-color gradient, no hover
-state, no visible handle) while the interaction moves to the `T.Slider`
-template (drag, click-to-jump, keyboard stepping, RTL). It is a
+`ColorChannelVerticalSlider` is the public form of the legacy vertical
+channel bars of `RGBPanel` / `CMYKPanel` (the panels are now composed from
+`ColorChannelControl` vertical columns): the fill-bar track visual is
+preserved (rounded corners, fill from the bottom, identity-color gradient,
+no hover state, no visible handle) while the interaction moves to the
+`T.Slider` template (drag, click-to-jump, keyboard stepping, RTL). It is a
 **high-customization component** (ADR-0018, the third instance after
 `ColorChannelSlider` and `HSVWheel`): the channel visuals (fill bar, rainbow,
 border) are internalized as component semantics and expose no variant-style
@@ -40,10 +40,12 @@ reset.
   binding (zero animation); only the fill size animates
   (`seedDone && animationEnabled && !pressed` — drag follows instantly,
   non-interactive changes smooth).
-- **Border**: the `RectShape` background border is constant
-  `pCtrl.channelColor` (fill `Qt.alpha(channelColor, 0.1)` tint) — there is
-  **no** just-moved highlight (no value-write latch, no border change on
-  writes).
+- **Border**: the `RectShape` background border is the identity
+  `pCtrl.channelColor` (fill `Qt.alpha(channelColor, 0.1)` tint) with a
+  just-moved highlight: any `value` write (drag, numeric edit, external
+  change) lights the border up to `Qt.lighter(channelColor, 1.4)` for a
+  `Style.movementDuration * 2` window (internal `TimerLatch` — no exposed
+  state), then it falls back.
 - **Sync**: `value` is unconditionally two-way synchronized with the
   assistant's channel through a `PropertyProxy` bridge
   (`channelNameF(channel)` — the channel name is a runtime string, so the

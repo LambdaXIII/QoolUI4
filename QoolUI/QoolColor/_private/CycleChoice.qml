@@ -57,7 +57,7 @@ import Qool.Color
 // 完整能力——能力不降级，默认外观修正。
 //
 // 为什么在 Color/_private 而非 Controls
-// 同 NumInput：暂不耦合 Controls，TODO 将来迁移（见文件头注释）。
+// 暂不耦合 Controls，TODO 将来迁移（见文件头注释）。
 //
 // 属性
 // `texts` / `colors` 为数据面；`currentIndex` / `defaultIndex` /

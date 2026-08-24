@@ -1,5 +1,33 @@
 # Changelog
 
+### 变更（channel-family-migration，竖直族收口：高亮补遗 + 面板迁移 + 私有件清理）
+
+- **接口**：HSVValue 短标签 VAL→BRIT（C++ 共享查表，还原旧面板标题——长标签
+  VALUE 与其余条目不动）；ColorChannelVerticalSlider 边框补 justMoved 高亮
+  （TimerLatch 挂 valueChanged，写入后 `Qt.lighter(channelColor, 1.4)` 保持
+  `Style.movementDuration * 2` 窗口后回落——ADR-0018 拒绝的是状态暴露与独立
+  Timer，视觉反馈本身为遗漏，经用户裁定补上；无公开状态，绑定直消费电平）
+- **迁移**：RGBPanel（5 列）/CMYKPanel（4 列）每列换用
+  `ColorChannelControl { orientation: Qt.Vertical }`（通道映射 Brightness→HSVValue、
+  其余同名常量；显隐/动画 parent 链回退语义不变）——旧列获得键盘步进/点击跳转/
+  RTL/边框高亮；行为差异（已确认接受）：双击重置退场（v4 契约裁剪先例）、填充
+  由纯色变主色渐变+背景淡染+边框、BRIT 保留为唯一文本回补
+- **清理**：删除私有件 ChannelSlider 基类 + 9 个 per-channel 变体 + ChannelBar +
+  NumInput（消费方清零；_private 为 GLOB 注册，构建脚本无需改动）；保留
+  InteractingArea（表面在用）/ChannelNumText（ColorChannelEdit）/渐变与形状件
+  （新族）；ColorEdit/HSVPanel/HSLPanel/ChannelNumText/CycleChoice 头注去
+  NumInput 引用
+- **测试**：tst_colorchannelverticalslider 补边框高亮契约（写 value→提亮、
+  窗口后回落，objectName 定位）；tst_colorassistant 补 channelTagShort(HSVValue)
+  ==="BRIT"；面板经一次性冒烟验证实例化/通道映射/组合链（不入批次，显隐留示例页
+  人工验收）
+- **文档**：ADR-0018 决策状态补 2026-08-24 迁移收口修订；RGBPanel.md/CMYKPanel.md
+  按新组合重写；ColorChannelVerticalSlider.md 导语去旧族表述、Border 节改高亮语义；
+  ColorAssistant.md 标签示例 VAL→BRIT；ColorChannelEdit.md/ColorEdit.md/index.md
+  去 NumInput 引用
+- **验证**：重新 configure（GLOB 吸收删除）+ build 0 错 0 警；QoolColor 批次七单元
+  回归全绿
+
 ### 变更（colorchannelcontrol-orientation，ColorChannelControl orientation 双布局）
 
 - **接口**：外壳新增 `orientation`（默认 `Qt.Horizontal`）+ 只读派生

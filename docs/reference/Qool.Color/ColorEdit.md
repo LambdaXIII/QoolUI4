@@ -22,7 +22,7 @@ intermediate input state (e.g. `"re"` before `"red"` is complete) —
 typing is inherited v3 behavior, not a bug.
 
 This component is a *color name* input and deliberately does not use the
-`NumInput` numeric convention (`x > 1` → `/1000`): typing `"350"` fails
+module's numeric channel convention (`x > 1` → `/1000`): typing `"350"` fails
 parsing and falls back to the default color instead of meaning 0.35.
 
 ### Edit round trip

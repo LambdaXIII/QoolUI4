@@ -58,7 +58,7 @@ Qool.Color 提供完整的颜色操纵组件面：
   注入前构造填充、监听 colorChanged 纪录、继承仿写）。
 - 数值输入约定：数字输入框允许 0..1000 整数，`x>1` 时按 `x/1000`
   解释（1000 表示 1.0）。
-- 私有拍平件（NumInput/CycleChoice 与视觉件族）经目录 import 使用、
+- 私有拍平件（CycleChoice 与视觉件族）经目录 import 使用、
   不注册进模块 qmldir（宿主不可见），将来扩展为完整版进入
   Qool.Controls。
 - 色名插件优先级统一由插件 json 的 `priority` 字段定义，接口不提供
@@ -67,6 +67,6 @@ Qool.Color 提供完整的颜色操纵组件面：
   （背景→黑/白推荐）与 `ColorAssistant.recommendedForegroundColor`
   （0.5 阈值黑白派生属性）——v4 样式系统无独立 foreground 语义，
   foreground 并入 text 系（QPalette 对位设计）。
-- 拍平临时件（NumInput/CycleChoice）动画策略：只保静态外观、布局与
+- 拍平临时件（CycleChoice）动画策略：只保静态外观、布局与
   状态绑定，动画特征移除；高频刷新/属性绑定（光标位置、填充高度等）
   不属于动画，保留。

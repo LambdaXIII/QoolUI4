@@ -31,8 +31,7 @@ ColumnLayout {
 
     spacing: 5
 
-    // 饱和度/明度通道编辑行（旧顶部 GridLayout + NumInput 数字输入行的
-    // 新版承接——自带标签 channelTag，编辑与会话行为内化）。
+    // 饱和度/明度通道编辑行（自带标签 channelTag，编辑与会话行为内化）。
     ColorChannelEdit {
         Layout.fillWidth: true
         animationEnabled: root.animationEnabled
