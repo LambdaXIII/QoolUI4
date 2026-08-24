@@ -2,6 +2,37 @@
  
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
 
+### 变更（colorassistant-zero-alpha-retention，ColorAssistant 零 alpha 保通道语义成文 + 测试锁定）
+
+用户问询驱动（alpha=0 是否丢 RGB 通道——QColor「transparent=全零」担忧）。探针实证：
+**不丢**。`QColor::setAlpha/setAlphaF` 只写 alpha 域，全零只是 `transparent` 具名常量的字面值。
+
+- **文档**：`ColorAssistant.md` 新增「Zero-alpha channel retention」节——任一写入口
+  （alphaF/alpha/rgbaF/rgba 第 4 位）写 0 仅透明不丢 RGB、恢复 alpha 即还原原色；
+  全透明态下 solidColor 可取不透明变体、name 保持 #AARRGGBB 报通道（#00334d80）；
+  与 CSS 式「transparent == rgba(0,0,0,0)」预期的差异显式说明；输入字面量
+  `"transparent"`/`#00000000` 的归零发生在解析侧（此后恢复 alpha 得黑），非对象行为
+- **测试**：`tst_colorassistant.qml` 新增 `test_alphaZeroChannelRetention`——F/int 双轨
+  往返、列表 a 位往返、全透明态 solidColor 恢复、name 精确串、transparent 输入侧语义锁定；
+  文件头契约注释同步
+- **验证**：tst_colorassistant 40/40 全绿（Creator 树）
+
+### 变更（colorassistant-test-hardening，ColorAssistant 测试补强：越界矩阵/信号守卫全通道/高负载确定性）
+
+- **文档先行**：`ColorAssistant.md`「Out-of-range」节按探针实证矩阵补齐缺口——RGB/alpha 分量双轨 clamp；int hue 分量 wrap（360→0、540→180）与 F hue → Invalid 区分；列表入口越界语义三分（`rgba` int 列表 Invalid / `rgbaF` 接受越界 float 为扩展 RGB 且分量视图收敛回 [0,1] / 其余六列表含 hue 位一律 Invalid 无 wrap）；Invalid 后任一入口合法写恢复有效；Properties 节 hue wrap 注释限定为分量写入口
+- **探针实证修正交接假设两处**：`rgbaF` 越界 float **非 Invalid**（extended 接受，isValid=true、redF 读 1.0，仅 `color` 本体短暂保留扩展值）；int 列表 hue 位越界**不 wrap** 直接 Invalid（与分量 setter 的 wrap 相反）
+- **测试**：`tst_colorassistant.qml` 新增 10 用例——越界 clamp（RGB/alpha 双轨 16 例）/ 越界 Invalid（HSV/HSL/CMYK 双轨非 hue + F hue + 全列表入口 29 例，每例 fresh 实例隔离）/ rgbaF 扩展值收敛 / Invalid 恢复 / 38 个可写属性同值重写各自静默 + 实质变化各恰好一次 / 单维变化不滥发矩阵（HSV value、HSL lightness、alpha、hue 四场景锁定静默集与无条件广播族）/ 高负载三态（120 轮 6 类入口交错写每轮四空间一致、绑定消费高频跟随、重入同值回写 guard 收敛每写恰一次）
+- **设施坑沉淀**：本单元上下文经 `createTemporaryQmlObject` 实例化时 `QtObject` 带 `color` 属性报空错误创建失败，改用 QtQuick `Item`
+- **验证**：tst_colorassistant 39/39 全绿（Creator 树 Desktop_Qt_6_11_2_MSVC2022_64bit_Debug，QML 即时生效通道）
+
+### 变更（colorassistant-list-alpha，ColorAssistant 列表 alpha 语义统一为保留）
+
+- **决策（A2）**：6 个无 a 位列表属性（cmyk/cmykF/hsv/hsvF/hsl/hslF）写入统一保留当前 alpha——v3 设计意图即「全保留」，原仅 `hsl`（int 轨）带 `res.setAlpha`，其余 5 个为 v3 修复中断遗留（用户翻 v3 记录确认）；rgba/rgbaF 含 a 位语义不变
+- **实现**：`qool_colorassistant.cpp` 五处 setter（set_cmykF/set_hsvF/set_hslF/set_cmyk/set_hsv）各补 `res.setAlpha*`，与 set_hsl 对齐
+- **文档**：`docs/reference/Qool.Color/ColorAssistant.md`「Alpha semantics」节改写——两写路径统一保 alpha 契约（分量 setter 与无 a 位列表一致，无例外）、rgba 4 项设置/短列表保留
+- **测试**：`tst_colorassistant.qml` `test_listAlphaSemantics` 五处断言反转（resets alpha → preserves alpha，期望 1 → 128/255）+ 文件头契约注释同步
+- **验证**：build 通过；tst_colorassistant 单测 29/29 全绿
+
 ### 变更（qtquick-panel-fix，Qt Creator 面板 QML 测试识别修复）
 
 - **根因**：每批次 CMakeLists 把整批 QML target 定义在同一 CMake `directory`，Qt Creator `internalTargets(proFile)` 按 `projectPart->projectFile`（target `paths.source` 所在 CMakeLists）匹配 → 同 proFile 下多个 Executable target 全命中 → `buildTargets.size()>1` → 弹「选择 executable」。全部 20 个 QML 单元都命中此歧义（「恰好三个」是运行全部时逐个弹窗+跳过的假象）

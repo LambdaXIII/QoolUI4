@@ -140,6 +140,7 @@ void ColorAssistant::set_cmykF(QList<qreal> xs) {
   auto y = xs.value(2, color.yellowF());
   auto k = xs.value(3, color.blackF());
   QColor res = QColor::fromCmykF(c, m, y, k);
+  res.setAlphaF(color.alphaF());
   set_color(res);
 }
 
@@ -155,6 +156,7 @@ void ColorAssistant::set_hsvF(QList<qreal> xs) {
   auto s = xs.value(1, color.hsvSaturationF());
   auto v = xs.value(2, color.valueF());
   QColor res = QColor::fromHsvF(h, s, v);
+  res.setAlphaF(color.alphaF());
   set_color(res);
 }
 
@@ -170,6 +172,7 @@ void ColorAssistant::set_hslF(QList<qreal> xs) {
   auto s = xs.value(1, color.hslSaturationF());
   auto l = xs.value(2, color.lightnessF());
   QColor res = QColor::fromHslF(h, s, l);
+  res.setAlphaF(color.alphaF());
   set_color(res);
 }
 
@@ -202,6 +205,7 @@ void ColorAssistant::set_cmyk(QList<int> xs) {
   auto y = xs.value(2, color.yellow());
   auto k = xs.value(3, color.black());
   QColor res = QColor::fromCmyk(c, m, y, k);
+  res.setAlpha(color.alpha());
   set_color(res);
 }
 
@@ -217,6 +221,7 @@ void ColorAssistant::set_hsv(QList<int> xs) {
   auto s = xs.value(1, color.hsvSaturation());
   auto v = xs.value(2, color.value());
   QColor res = QColor::fromHsv(h, s, v);
+  res.setAlpha(color.alpha());
   set_color(res);
 }
 

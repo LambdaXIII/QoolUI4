@@ -31,27 +31,66 @@ modules.
 
 ### Alpha semantics
 
-Component setters preserve the current alpha (they rebuild the color in
-the component's space with the existing alpha carried over). List writes
-differ by space:
+Both write paths preserve the current alpha unless the input carries an
+explicit alpha entry:
 
-- `rgbaF` / `rgba` carry an explicit alpha entry; writing a 4-entry list
-  sets it.
-- `cmykF` / `cmyk` / `hsvF` / `hsv` / `hslF` have no alpha slot — writing
-  them resets alpha to opaque (1 / 255).
-- `hsl` (integer track) is the exception: it preserves the current alpha.
+- **Component setters preserve the current alpha**: they rebuild the
+  color in the component's space with the existing alpha carried over —
+  editing a single channel never changes opacity.
+- **List writes without an alpha slot preserve it too**: `cmykF` /
+  `cmyk` / `hsvF` / `hsv` / `hslF` / `hsl` rebuild the color via the
+  `QColor` factory, then carry the current alpha over. All six lists
+  behave identically — writing color components never changes opacity.
+- `rgbaF` / `rgba` carry an explicit alpha entry (the 4th element);
+  writing a 4-entry list sets it directly; a shorter list leaves the
+  current alpha untouched.
 
 `solidColor` is the explicit way to obtain an opaque variant.
 
-Out-of-range writes behave differently per space:
+### Zero-alpha channel retention
 
-- RGB float components (`redF`/`greenF`/`blueF`) are clamped to [0, 1]:
-  the underlying `QColor` stores them as ExtendedRgb and the unified
-  `toRgb()` recomputation converges them.
-- HSV / HSL / CMYK components (both tracks) are passed straight to the
-  `QColor` setter; out-of-range values make the color invalid instead of
-  clamping. The `int` hue tracks keep their wrap semantics (360 → 0,
-  540 → 180) since `QColor` forces them into range.
+Setting the alpha to zero through any write path (`alphaF`/`alpha`, or
+the 4th element of `rgbaF`/`rgba`) makes the color fully transparent
+but does **not** discard the RGB channels — a deliberate difference
+from the CSS-style expectation where "transparent" equals
+`rgba(0, 0, 0, 0)`. Raising the alpha again restores exactly the
+previous color. The retention holds across every read surface while
+the color is fully transparent: `solidColor` yields the opaque variant
+of the retained channels, and `name()` keeps reporting them in
+`#AARRGGBB` form (e.g. `#00334d80` for `rgba(0.2, 0.3, 0.5)` at alpha
+0).
+
+Only writing the string literal `"transparent"` (or an explicit
+`#00000000`) actually zeroes the channels — that loss happens in input
+parsing before the value reaches the object, so raising the alpha
+afterwards yields black.
+
+Out-of-range writes behave differently per entry type:
+
+- **RGB and alpha components** (`redF`/`greenF`/`blueF`/`alphaF` and the
+  integer `red`/`green`/`blue`/`alpha`) are clamped into range ([0, 1]
+  float / [0, 255] integer): the underlying `QColor` channel setters clip
+  these values instead of rejecting them.
+- **HSV / HSL / CMYK components** (both tracks except the integer hues)
+  are passed straight to the `QColor` setters; an out-of-range value
+  invalidates the whole color instead of being clamped. The integer hue
+  tracks (`hsvHue`/`hslHue`) are the exception: `QColor` forces their
+  values into range (360 → 0, 540 → 180), keeping the color valid. The
+  float hue tracks do not wrap — an out-of-range `hsvHueF`/`hslHueF`
+  invalidates the color like any other HSV/HSL component.
+- **List writes** go through the `QColor::fromXxx` factories, whose
+  parameter domains differ from the component setters:
+
+  - `rgba` rejects any entry outside 0..255 and invalidates the color.
+  - `rgbaF` accepts floats outside [0, 1] as extended-RGB values (the
+    color stays valid); the component views report the values converged
+    back into [0, 1].
+  - `hsv` / `hsvF` / `hsl` / `hslF` / `cmyk` / `cmykF` invalidate the
+    color on any out-of-range entry — including hue entries, i.e. list
+    entries have no wrap semantics.
+
+An invalidated color does not brick the object: a subsequent in-range
+write through any entry recomputes a valid color as usual.
 
 ## Properties
 
@@ -98,9 +137,10 @@ Out-of-range writes behave differently per space:
   `hslSaturation`, `hslLightness` (0..255).
 
   Achromatic colors (grays) report hue as `-1` in both tracks
-  (`hsvHue`/`hsvHueF`/`hslHue`/`hslHueF`). Hue values written outside
-  0..359 are forced into range by the underlying `QColor` (360 → 0,
-  540 → 180).
+  (`hsvHue`/`hsvHueF`/`hslHue`/`hslHueF`). Hue values written through the
+  integer hue component setters outside 0..359 are forced into range by
+  the underlying `QColor` (360 → 0, 540 → 180); other entry types have no
+  wrap semantics (see Out-of-range above).
 
 ## Signals
 
