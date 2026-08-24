@@ -10,9 +10,8 @@ import "_private"
 // 竖直：短标签 channelTagShort 在上 + 数字在下、水平居中。
 // mirrored 镜像（Control 内置只读属性，LayoutMirroring.enabled 驱动，
 // 与 ColorChannelSlider 消费 T.Slider 的方式同构）——只换元素位置：
-// 水平左右对调（间隙不变）、竖直上下对调；文字方向与对齐不受影响。
-// 布局为手工绑定（内容固定——标签 + 数字框，布局引擎的动态排布价值用不上；
-// 直接绑定坐标/尺寸，同步、单层、无中间布局容器）。
+ // 坐标策略由 contentItem.states 四态分派（orientation × mirrored 全组合，
+ // PropertyChanges 无 target 写法）——勿回退嵌套三元手工绑定。
 Control {
     id: root
 
@@ -36,17 +35,25 @@ Control {
     readonly property bool horizontal: orientation === Qt.Horizontal
     readonly property bool vertical: orientation === Qt.Vertical
 
-    // 镜像响应 Control 内置只读 mirrored（LayoutMirroring 驱动，勿再自
-    // 声明——FINAL 属性覆写即编译错）。坐标绑定按下述取反：
-    // 水平——tag 贴右、editor 贴左（间隙 5px 不变）；
-    // 竖直——editor 在上、tag 在下（水平居中不变）。
+    // 竖直堆叠顺序（仅 orientation: Qt.Vertical 时有意义）：false（默认）
+    // = 标签上/数字下；true = 数字上/标签下（贴滑块侧——ColorChannelControl
+    // 竖直列用）。刻意用显式属性而**非 mirrored 驱动**：mirrored 是环境
+    // 响应信号（RTL/LayoutMirroring 可继承），竖直行序是纯布局意图，
+    // 不应随宿主环境翻动。
+    property bool tagOnTop: false
 
+    // 水平左右对调跟随 Control 内置只读 mirrored（LayoutMirroring 驱动，
+    // 勿自声明——FINAL 属性覆写即编译错）：这是环境语义，保留。
+
+    // 坐标策略 = 四态分派（orientation × mirrored 全组合，勿合并为三元
+    // 表达式——嵌套三元曾静默吞行且不可读）。states 挂 contentItem；
+    // PropertyChanges 无 target 写法，逐 id 寻址。
     contentItem: Item {
+        id: contentBox
+
         // 隐式尺寸 = 活动方向的内容尺寸（普通 Item 不从子项派生隐式尺寸，
-        // 显式算；tag/editor 的隐式尺寸同步可得，无布局 polish 依赖）。
-        // 宿主按内容排布（如 ColorChannelControl 的 ColumnLayout）时据此定
-        // 尺寸。数字框维度用锁宽（editor.width）——与原 RowLayout 的
-        // preferredWidth 行为一致。
+        // 显式算）。宿主按内容排布（如 ColorChannelControl 的 ColumnLayout）
+        // 时据此定尺寸。
         implicitWidth: root.horizontal ? tag.implicitWidth + editor.width + 5
                                        : Math.max(tag.implicitWidth, editor.width)
         implicitHeight: root.horizontal ? Math.max(tag.implicitHeight, editor.implicitHeight)
@@ -58,15 +65,7 @@ Control {
             text: root.vertical ? ColorNameHQ.channelTagShort(root.channel)
                                 : ColorNameHQ.channelTag(root.channel)
             color: Style.buttonText   // 标签语义（BasicControlText 原色）
-            // 水平：贴左（mirrored 贴右——x = parent.width - width，
-            // 因 width 撑满剩余，右缘即贴边）/ 竖直水平居中
-            // （ChannelNumText 默认右对齐——display 用途）
-            x: root.horizontal ? (root.mirrored ? parent.width - width : 0)
-                               : Math.max(0, (parent.width - width) / 2)
-            y: !root.horizontal && root.mirrored ? editor.height : 0
-            // 水平撑满剩余（留 5px 间隙贴数字框）/ 竖直自然宽
-            width: root.horizontal ? Math.max(0, parent.width - editor.width - 5) : implicitWidth
-            height: root.horizontal ? parent.height : implicitHeight
+            horizontalAlignment: Text.AlignHCenter   // 竖直基准；水平由 state 覆盖
         }
 
         EditableText {
@@ -75,37 +74,30 @@ Control {
             animationEnabled: false
             // 编辑只读（root.readOnly 转发——不启动编辑会话；动画关闭同理）
             readOnly: root.readOnly
-            // 编辑层字体与显示/标签统一（PixelFont.normal——覆盖 EditableText
-            // 默认 controlTextSize，编辑会话切换无字号跳动）
+            // 编辑层字体与显示/标签统一（PixelFont.normal——编辑会话切换
+            // 无字号跳动）
             font: PixelFont.normal
 
             // 输入格式校验（允许无前导零——显示格式 ".350" 可直接输入）：
             // 只验浮点格式、不设范围——范围/补点语义由
-            // parseChannelNumberFloat 承担（无点头部补点、NaN 透传）。
-            // validator 拒绝（空串/非法/科学计数法）→ 收尾 rejected：不写
-            // text、不调 textFromEditText → 显示保持真实源（自然回位）。
-            // 用正则而非 DoubleValidator——后者受 locale 影响（接受分组符/
-            // 阿拉伯数字，validate 依赖 locale 解析），本组件输入空间精确
-            // 可控。
+            // parseChannelNumberFloat 承担。validator 拒绝 → 收尾 rejected。
             validator: RegularExpressionValidator {
                 regularExpression: /^[+-]?(\d+(\.\d*)?|\.\d+)$/
             }
 
-            // 显示层覆写（EditableText displayItem 插拔设计——显示与 text
-            // 解耦）：显示真实源 format(proxy.value)，text 退化为纯保存形式
-            // （编辑基准 + 收尾提交目标）。文本手动同步（update_display——
-            // 声明式绑定初始求值早于 proxy 观察建立，本组件不声明 text 绑定）。
-            // 几何由 EditableText 内 GeoLocker 统一锁定，覆写者不声明几何。
+            // 显示层覆写（EditableText displayItem 插拔设计）：显示真实源
+            // format(proxy.value)。文字对齐随形态（水平贴数字框所贴的组件
+            // 缘一侧、竖直框内居中）——displayItem 是 alias 子对象，
+            // PropertyChanges 无法寻址，故此处保留唯一一处形态绑定。
             displayItem: ChannelNumText {
+                horizontalAlignment: root.horizontal
+                                     ? (root.mirrored ? Text.AlignLeft
+                                                      : Text.AlignRight)
+                                     : Text.AlignHCenter
             }
 
             // 收尾转换（编辑结束、内容有变且通过 validator 时被调用）：
-            // 解析 → 写 root.value（组件唯一写入口——链向下转发到
-            // assistant），返回规范化串 format(解析值)（下次会话基准）；
-            // 解析 NaN（防御——validator 已挡格式非法）→ 不写数据、返回
-            // 真实源当前值格式化（回位）。解析走统一实现
-            // ColorNameHQ.parseChannelNumberFloat（清洗+补点，与
-            // formatChannelNumberFloat 配对）。
+            // 解析 → 写 root.value，返回规范化串 format(解析值)。
             textFromEditText: function (s) {
                 let v = ColorNameHQ.parseChannelNumberFloat(s)
                 if (Number.isNaN(v))
@@ -115,15 +107,72 @@ Control {
                 return ColorNameHQ.formatChannelNumberFloat(v)
             }
 
-            // 数字框 4 字符锁宽（显示形态最长 '.xxx'；数值变化宽度稳定不跳
-            // 动）。水平贴右（mirrored 贴左）、竖直水平居中、堆在标签下方
-            // （mirrored 翻到标签上方）。
+            // 数字框 4 字符锁宽（显示形态最长 '.xxx'；数值变化宽度稳定）
             width: textMetrics.advanceWidth("0000")
-            height: root.horizontal ? parent.height : implicitHeight
-            x: root.horizontal ? (root.mirrored ? 0 : parent.width - width)
-                               : Math.max(0, (parent.width - width) / 2)
-            y: !root.horizontal && root.mirrored ? 0 : tag.height
         }
+
+        states: [
+            // 水平：标签贴左缘左对齐 + 数字贴右缘右对齐，同行等高
+            State {
+                name: "hPlain"
+                when: root.horizontal && !root.mirrored
+                PropertyChanges {
+                    tag.x: 0
+                    tag.y: 0
+                    tag.width: Math.max(0, contentBox.width - editor.width - 5)
+                    tag.height: contentBox.height
+                    tag.horizontalAlignment: Text.AlignLeft
+                    editor.x: contentBox.width - editor.width
+                    editor.y: 0
+                    editor.height: contentBox.height
+                }
+            },
+            // 水平镜像（RTL 页面全局镜像会波及水平布局——真实存在，勿删）
+            State {
+                name: "hMirrored"
+                when: root.horizontal && root.mirrored
+                PropertyChanges {
+                    tag.x: contentBox.width - tag.width
+                    tag.y: 0
+                    tag.width: Math.max(0, contentBox.width - editor.width - 5)
+                    tag.height: contentBox.height
+                    tag.horizontalAlignment: Text.AlignRight
+                    editor.x: 0
+                    editor.y: 0
+                    editor.height: contentBox.height
+                }
+            },
+            // 竖直：短标签在上 + 数字在下，均水平居中
+            State {
+                name: "vPlain"
+                when: root.vertical && !root.tagOnTop
+                PropertyChanges {
+                    tag.x: Math.max(0, (contentBox.width - tag.width) / 2)
+                    tag.y: 0
+                    tag.width: tag.implicitWidth
+                    tag.height: tag.implicitHeight
+                    editor.x: Math.max(0, (contentBox.width - editor.width) / 2)
+                    editor.y: tag.height
+                    editor.height: editor.displayItem.implicitHeight
+                }
+            },
+            // 竖直翻转：数字在上 + 短标签在下（ColorChannelControl 竖直列
+            // 的编辑行形态——数字贴近滑块侧）。由 tagOnTop 显式驱动，
+            // 与环境镜像（mirrored）正交。
+            State {
+                name: "vFlipped"
+                when: root.vertical && root.tagOnTop
+                PropertyChanges {
+                    tag.x: Math.max(0, (contentBox.width - tag.width) / 2)
+                    tag.y: editor.height
+                    tag.width: tag.implicitWidth
+                    tag.height: tag.implicitHeight
+                    editor.x: Math.max(0, (contentBox.width - editor.width) / 2)
+                    editor.y: 0
+                    editor.height: editor.displayItem.implicitHeight
+                }
+            }
+        ]
     }//contentItem
 
     // 编辑框宽度锁定的度量（4 字符宽——显示形态最长 '.xxx'；PixelFont

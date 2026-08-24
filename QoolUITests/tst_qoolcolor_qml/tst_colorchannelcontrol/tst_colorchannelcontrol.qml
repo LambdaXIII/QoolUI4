@@ -75,14 +75,13 @@ TestCase {
         verify(slider.y < edit.y, "slider above edit")
         verify(fuzzy(slider.width, c.contentItem.width),
                "slider fills width")
-        // 编辑行内部：竖直镜像——数字框在上（贴滑块侧）、短标签在下
+        // 编辑行内部：竖直翻转（tagOnTop）——数字框在上（贴滑块侧）、
+        // 短标签在下；行序由显式属性驱动，不借环境镜像
         const editor = findItem(edit.contentItem, "editor")
         const tag = findItem(edit.contentItem, "tag")
         verify(editor && tag, "edit internals found")
-        verify(editor.y < tag.y, "mirrored vertical edit: editor above tag")
-        verify(edit.LayoutMirroring.enabled,
-               "edit mirroring driven by control layout")
-        verify(edit.mirrored, "built-in mirrored active")
+        verify(edit.tagOnTop, "edit vertical flip driven by control layout")
+        verify(editor.y < tag.y, "flipped vertical edit: editor above tag")
     }
 
     // -- 切换往返：布局随 orientation 重建，链经共享 assistant 保持收敛 --

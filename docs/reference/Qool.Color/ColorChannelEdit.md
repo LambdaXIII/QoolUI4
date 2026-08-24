@@ -26,11 +26,13 @@ editable value:
 - **Layout**: horizontal (default) shows the long label (`channelTag`)
   left-aligned with the value at the right; `orientation: Qt.Vertical`
   shows the short label (`channelTagShort`) above the value, both
-  horizontally centered. When mirrored (the built-in read-only
-  `mirrored`, driven by `LayoutMirroring.enabled`), only element positions
-  swap — horizontally the value moves to the left edge and the label to
-  the right (the gap is kept); vertically the value stacks above the
-  label. Text content, direction and alignment are unaffected.
+  horizontally centered. Two independent signals drive the remaining
+  layout variants. `mirrored` (the built-in read-only Control property,
+  driven by `LayoutMirroring.enabled`) is the **environment** signal: it
+  swaps horizontal positions only — the value moves to the left edge and
+  the label to the right (the gap is kept). `tagOnTop` is an **explicit**
+  property with vertical meaning only: it stacks the value above the
+  short label. Text content, direction and alignment are unaffected.
 
 ### Numeric convention
 
@@ -87,12 +89,20 @@ consequence of the leading-dot convention).
   `true` when `orientation === Qt.Vertical` — the vertical layout is
   active.
 
+- `tagOnTop : bool` (default: `false`)
+  Vertical stack order, meaningful only when `orientation` is
+  `Qt.Vertical`. `false` — the short label sits above the value; `true` —
+  the value stacks above the label (the form used by
+  `ColorChannelControl`'s vertical column, where the value hugs the
+  slider). Deliberately an explicit property rather than driven by the
+  environment: vertical stacking is pure layout intent and must not flip
+  when the host enables layout mirroring.
+
 - `mirrored : bool` (read-only, inherited from `Control`)
-  Mirrors the layout by swapping element positions only: horizontal — the
-  label sits flush right, the value flush left (5px gap preserved);
-  vertical — the value stacks above the label. Text direction and
-  alignment are unchanged. Driven by `LayoutMirroring.enabled`; hosts do
-  not assign it directly.
+  The **environment** mirror signal — swaps horizontal positions only:
+  the label sits flush right, the value flush left (5px gap preserved).
+  Driven by `LayoutMirroring.enabled`; hosts do not assign it directly.
+  It does not affect the vertical stack order (see `tagOnTop`).
 
 Inherited from `Control`: `font`, `padding`, `enabled`, `focus`,
 `implicitWidth` / `implicitHeight` and all other `Control` members. See

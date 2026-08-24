@@ -41,32 +41,28 @@ T.Slider {
             BasicColorBehavior on borderColor {
                 enabled: pCtrl.animationReallyEnabled
             }
-            fillGradient: {
-                if (pCtrl.isHue)
-                    return rainbow.createObject();
-                return simpleGradient.createObject();
-            }
+            // 常驻实例切换（勿回退 createObject 动态创建——绑定表达式
+            // 返回的无 parent 渐变归 JS 引擎 GC 管辖，回收后 ShapePath/
+            // 渲染侧仍持指针 → use-after-free 不确定性崩溃）。
+            fillGradient: pCtrl.isHue ? rainbowInst : simpleInst
 
-            Component {
-                id: simpleGradient
-                ChannelGradient {
-                    horizontal: root.horizontal
-                    width: root.availableWidth
-                    height: root.availableHeight
-                    channel: root.channel
-                    mirrored: root.mirrored
-                }
+            ChannelGradient {
+                id: simpleInst
+                horizontal: root.horizontal
+                width: root.availableWidth
+                height: root.availableHeight
+                channel: root.channel
+                mirrored: root.mirrored
             }//simple
 
-            Component {
-                id: rainbow
-                RainbowGradient {
-                    width: root.availableWidth
-                    height: root.availableHeight
-                    horizontal: root.horizontal
-                    mirrored: root.mirrored
-                }
+            RainbowGradient {
+                id: rainbowInst
+                width: root.availableWidth
+                height: root.availableHeight
+                horizontal: root.horizontal
+                mirrored: root.mirrored
             }//rainbow
+
 
         }
     }//background

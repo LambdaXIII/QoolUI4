@@ -4,9 +4,9 @@ An RGB color space editing panel: a single row of vertical channel
 controls for brightness, red, green, blue and alpha.
 
 `RGBPanel` is a `GridLayout` that lays out five `ColorChannelControl`
-instances in vertical orientation (a fill-bar slider on top, a mirrored
-numeric edit row with the short channel tag below) in one row spanning
-the available width:
+instances in vertical orientation (a fill-bar slider on top, a numeric
+edit row with the short channel tag below, `tagOnTop` stacking) in one
+row spanning the available width:
 
 - brightness (`HSVValue`, short tag `BRIT`) — visibility controlled by
   `showBrightness`, hidden by default;

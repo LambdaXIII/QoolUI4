@@ -1,158 +1,102 @@
 // Playground：测试场——Qool.Controls 控件的调试用例（仓库开发模式：
 // 可随意更改，不保留旧内容）。
 //
-// 当前含 HSV/HSL 面板 + 竖直通道滑块调试用例：
-// - HSV 色轮面板（HSVPanel）与 HSL 面板（HSLPanel）共享 mainColor——
-//   双向联动（面板改色、picker 取色三路同步，同值收敛无环）。
-// - ColorChannelSlider 竖直通道滑块演示（HSVHue/HSVSaturation/
-//   HSVValue 三通道，绑定共享 mainColor）——拖动/点击跳转/键盘步进/
-//   justMoved 手感人工验收（hue 通道彩虹原理式跟随当前 sat/value）。
+// 当前用途：通道族子元素独立呈现检查——7 个控件全部绑定同一共享
+// ColorAssistant（mainColor），任意一处改值全体联动收敛：
+// - ColorChannelSlider ×2（横 / 竖）
+// - ColorChannelVerticalSlider ×2（横 / 竖——组件名只是历史名，
+//   实为 T.Slider 双形态）
+// - ColorChannelEdit ×3（横 / 竖 / 竖镜像）
+// 每个 QoolControl 包裹单个控件，便于观察占位范围。
 import QtQuick
 import Qool
 import Qool.Controls
 import Qool.Color
-import Qool.Debug
-import QtQuick.Layouts
 
 BasicPage {
     id: root
 
     title: qsTr("测试场")
-    note: qsTr("调试用例（ColorChannelSlider 通道滑块调试中）")
+    note: qsTr("子元素独立呈现：Slider×2 + VerticalSlider×2 + Edit×3 共享同一 Assistant")
 
-    // 共享色源：与 picker 无条件双向同步（同值守卫收敛——见文件头）
+    // 共享色源：本页唯一 Assistant，全部子控件绑定它
     ColorAssistant {
         id: mainColor
         color: Style.accent
     }
 
-    QoolControl {
-        x: 30
-        title: qsTr("HSV色轮面板")
-        contentItem: HSVPanel {
-            id: hsvPanel
-            colorAssistant: mainColor
+    Column {
+        spacing: 18
+
+        // ---- 滑块行：两族各一横一竖 ----
+        Row {
+            spacing: 14
+
+            QoolControl {
+                title: qsTr("Slider 横")
+                contentItem: ColorChannelSlider {
+                    colorAssistant: mainColor
+                    channel: ColorNameHQ.HSLHue
+                }
+            }
+            QoolControl {
+                title: qsTr("Slider 竖")
+                contentItem: ColorChannelSlider {
+                    colorAssistant: mainColor
+                    channel: ColorNameHQ.Red
+                    orientation: Qt.Vertical
+                    implicitHeight: 160
+                }
+            }
+            QoolControl {
+                title: qsTr("VSlider 横")
+                contentItem: ColorChannelVerticalSlider {
+                    colorAssistant: mainColor
+                    channel: ColorNameHQ.HSVValue
+                    orientation: Qt.Horizontal
+                }
+            }
+            QoolControl {
+                title: qsTr("VSlider 竖")
+                contentItem: ColorChannelVerticalSlider {
+                    colorAssistant: mainColor
+                    channel: ColorNameHQ.HSVHue
+                    implicitHeight: 160
+                }
+            }
         }
 
-        RectResizer {}
-    }
+        // ---- 编辑行：横 / 竖 / 竖镜像 三态 ----
+        Row {
+            spacing: 14
 
-    QoolControl {
-        x: 200
-        title: qsTr("HSL面板")
-        contentItem: HSLPanel {
-            id: hslPanel
-            colorAssistant: mainColor
-        }
-
-        RectResizer {}
-    }
-
-    QoolControl {
-        y: 100
-        title: qsTr("竖直通道滑块")
-        contentItem: Row {
-            spacing: 8
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.HSVHue
-                // orientation: Qt.Horizontal
-                orientation: Qt.Vertical
+            QoolControl {
+                title: qsTr("Edit 横")
+                contentItem: ColorChannelEdit {
+                    width: 220
+                    colorAssistant: mainColor
+                    channel: ColorNameHQ.Green
+                }
             }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.HSVSaturation
-                orientation: Qt.Vertical
+            QoolControl {
+                title: qsTr("Edit 竖")
+                contentItem: ColorChannelEdit {
+                    width: 220
+                    colorAssistant: mainColor
+                    channel: ColorNameHQ.Blue
+                    orientation: Qt.Vertical
+                }
             }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.HSVValue
-                orientation: Qt.Vertical
-            }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                // orientation: Qt.Horizontal
-                orientation: Qt.Vertical
-            }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.HSLSaturation
-                orientation: Qt.Vertical
-            }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.HSLLightness
-                orientation: Qt.Vertical
-            }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.Red
-                orientation: Qt.Vertical
-            }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.Green
-                orientation: Qt.Vertical
-            }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.Blue
-                orientation: Qt.Vertical
+            QoolControl {
+                title: qsTr("Edit 竖镜像")
+                contentItem: ColorChannelEdit {
+                    width: 220
+                    colorAssistant: mainColor
+                    channel: ColorNameHQ.HSVValue
+                    orientation: Qt.Vertical
+                    tagOnTop: true
+                }
             }
         }
-        RectResizer {}
-    }
-
-    QoolControl {
-        x: 300
-        title: qsTr("水平通道滑块")
-        contentItem: Column {
-            spacing: 8
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.HSVHue
-                orientation: Qt.Horizontal
-            }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.HSVSaturation
-                orientation: Qt.Horizontal
-            }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.HSVValue
-                orientation: Qt.Horizontal
-            }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                orientation: Qt.Horizontal
-            }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.HSLSaturation
-                orientation: Qt.Horizontal
-            }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.HSLLightness
-                orientation: Qt.Horizontal
-            }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.Red
-                orientation: Qt.Horizontal
-            }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.Green
-                orientation: Qt.Horizontal
-            }
-            ColorChannelSlider {
-                colorAssistant: mainColor
-                channel: ColorNameHQ.Blue
-                orientation: Qt.Horizontal
-            }
-        }
-        RectResizer {}
     }
 }

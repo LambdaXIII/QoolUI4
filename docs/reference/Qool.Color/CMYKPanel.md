@@ -4,9 +4,9 @@ A CMYK color space editing panel: a single row of four vertical channel
 controls for cyan, magenta, yellow and black.
 
 `CMYKPanel` is a `GridLayout` that lays out four `ColorChannelControl`
-instances in vertical orientation (a fill-bar slider on top, a mirrored
-numeric edit row with the short channel tag below) in one row spanning
-the available width — cyan, magenta, yellow, black in that order. Each
+instances in vertical orientation (a fill-bar slider on top, a numeric
+edit row with the short channel tag below, `tagOnTop` stacking) in one
+row spanning the available width — cyan, magenta, yellow, black in that order. Each
 column writes its channel to the bound `colorAssistant` (`cyanF`,
 `magentaF`, `yellowF`, `blackF`); dragging moves the value from 0
 (bottom) to 1 (top), clicking the track jumps, keyboard stepping works.

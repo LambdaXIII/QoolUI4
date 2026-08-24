@@ -4,9 +4,9 @@ A single color-channel control — a labeled numeric edit plus a drag track
 stacked in one of two layouts selected by `orientation`: horizontal
 (default) is a `ColorChannelEdit` above a `ColorChannelSlider` at equal
 width, restoring the legacy `_private` `ColorSlider` single-control form;
-vertical is a `ColorChannelVerticalSlider` above a vertical mirrored
-`ColorChannelEdit` (the value box sits next to the slider, the short label
-at the bottom).
+vertical is a `ColorChannelVerticalSlider` above a vertical
+`ColorChannelEdit` with `tagOnTop` (the value box sits next to the slider,
+the short label at the bottom).
 
 `ColorChannelControl` bundles the properties the two children share
 (`channel`, `colorAssistant`, `animationEnabled`, `value`, `readOnly`) on
@@ -67,9 +67,9 @@ and a slider per channel.
 - `orientation : int` (default: `Qt.Horizontal`)
   Layout direction (`Qt.Horizontal` / `Qt.Vertical`). Horizontal: the edit
   row above the slider, both rows at equal width. Vertical: the vertical
-  slider above a vertical, mirrored edit row (value box next to the slider,
-  short label at the bottom). Switching rebuilds the content layout; the
-  shared assistant and the value chain are unaffected.
+  slider above a vertical edit row with `tagOnTop` (value box next to the
+  slider, short label at the bottom). Switching rebuilds the content
+  layout; the shared assistant and the value chain are unaffected.
 
 - `horizontal : bool` (read-only) / `vertical : bool` (read-only)
   Derived from `orientation`.
@@ -115,7 +115,8 @@ Column {
     }
 }
 
-// Vertical form — a tall fill-bar slider with the mirrored edit below it:
+// Vertical form — a tall fill-bar slider with the flipped edit below it
+// (tagOnTop: value box next to the slider, short label at the bottom):
 ColorChannelControl {
     colorAssistant: ca
     channel: ColorNameHQ.HSVHue

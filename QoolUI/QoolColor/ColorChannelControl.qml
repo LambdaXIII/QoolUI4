@@ -90,9 +90,9 @@ Control {
         }
     }
 
-    // 竖直布局：竖直滑块在上（fillWidth + fillHeight——吸收宿主额外高度，
-    // 编辑行保持自然高）、竖直镜像编辑行在下（orientation 竖直 +
-    // LayoutMirroring 驱动内置 mirrored——数字框贴近滑块、短标签垫底）。
+    // 竖直布局：竖直滑块在上（fillWidth + fillHeight——吸收宿主额外高度），
+    // 竖直编辑行下（orientation 竖直 + tagOnTop——数字框贴滑块、短标签
+    // 垫底；行序为显式属性，不借环境镜像）。
     Component {
         id: verticalLayout
 
@@ -112,7 +112,7 @@ Control {
                 objectName: "edit"
                 Layout.fillWidth: true
                 orientation: Qt.Vertical
-                LayoutMirroring.enabled: true
+                tagOnTop: true   // 数字贴滑块侧、短标签垫底（显式行序，不借环境镜像）
                 animationEnabled: root.animationEnabled
                 channel: root.channel
                 colorAssistant: root.colorAssistant

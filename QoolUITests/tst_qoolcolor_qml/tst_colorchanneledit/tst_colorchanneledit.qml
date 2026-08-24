@@ -16,9 +16,10 @@ import Qool.Controls
 //   配对）
 // - orientation：默认水平（长标签贴左 + 数字贴右）；Qt.Vertical 切竖直
 //   （短标签在上、数字在下居中）
-// - mirrored：水平左右对调（tag 贴右/editor 贴左，间隙不变）、
-//   竖直上下对调（editor 在上/tag 在下）；文字方向与对齐不受影响。
-//   mirrored 是 Control 内置只读属性——用例经 LayoutMirroring.enabled 驱动。
+// - mirrored（环境信号）：水平左右对调（tag 贴右/editor 贴左，间隙不变）；
+//   用例经 LayoutMirroring.enabled 驱动。
+// - tagOnTop（显式行序，与环境正交）：仅竖直有意义——数字上/标签下；
+//   LayoutMirroring 不影响竖直堆叠顺序。
 //
 // 隔离：每个测试函数独立实例；动画统一关闭。
 // 内部定位：tag/editor 经 objectName + findChild（递归搜索——不依赖
@@ -171,21 +172,29 @@ TestCase {
         verify(fuzzy(tag.x, 0) && fuzzy(editor.x + editor.width, e.contentItem.width),
                "toggle back restores original positions")
     }
-
-    // —— 竖直镜像：上下对调（editor 在上、tag 在下），水平居中不变；
+    // —— 竖直翻转：tagOnTop 显式驱动（editor 在上/tag 在下，均水平居中；
     // 文字方向不变（短标签 channelTagShort）——
-    function test_mirroredVertical() {
+    // 正交性：LayoutMirroring（环境镜像）不改变竖直堆叠顺序 ——
+    function test_tagOnTopVertical() {
         const e = createTemporaryObject(editComp, root,
                                         { orientation: Qt.Vertical })
         const tag = findItem(e.contentItem, "tag")
         const editor = findItem(e.contentItem, "editor")
-        e.LayoutMirroring.enabled = true
-        verify(e.mirrored, "LayoutMirroring -> built-in mirrored true")
-        verify(fuzzy(editor.y, 0), "mirrored vertical: editor on top")
-        verify(fuzzy(tag.y, editor.height), "mirrored vertical: tag below")
+        // 默认：标签上/数字下
+        verify(fuzzy(tag.y, 0), "default vertical: tag on top")
+        verify(fuzzy(editor.y, tag.height), "default vertical: editor below")
+        // tagOnTop 翻转：数字在上/标签在下
+        e.tagOnTop = true
+        verify(fuzzy(editor.y, 0), "tagOnTop: editor on top")
+        verify(fuzzy(tag.y, editor.height), "tagOnTop: tag below")
         const cx = Math.max(0, (e.contentItem.width - editor.width) / 2)
-        verify(fuzzy(editor.x, cx), "mirrored vertical: editor centered")
+        verify(fuzzy(editor.x, cx), "tagOnTop: editor centered")
         verify(tag.text === ColorNameHQ.channelTagShort(e.channel),
                "vertical keeps short label text")
+        // 环境镜像与竖直行序正交
+        e.LayoutMirroring.enabled = true
+        verify(e.mirrored, "layout mirroring still drives horizontal mirror flag")
+        verify(fuzzy(editor.y, 0) && fuzzy(tag.y, editor.height),
+               "layout mirroring does not affect vertical stack order")
     }
 }
