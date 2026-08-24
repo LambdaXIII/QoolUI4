@@ -46,4 +46,5 @@ Color 模块迁移适配中，旧 `_private/ColorSlider.qml`（标题+数值输�
 ## 决策状态
 
 - 决策已定案（2026-08-21，grill-with-docs 讨论定稿）；2026-08-23 重构收尾按代码现状修订——渐变由 JS 双函数改静态 QML 组件（ChannelGradient/RainbowGradient）、handle 改 CrystalCursor 本体、删除独立轨道/手柄文件与 `isHsv`。
+- **2026-08-25 注记**：`fillGradient` 按 `isHue` 分派 `createObject(track)`（带 parent 动态创建，非常驻实例）——归因实验（2026-08-24，属性持有动态对象不随脚本 GC 回收）实证此写法无致崩性；当年「不确定性崩溃」主因是 `Rectangle` 圆角渐变节点尺寸骤缩缺陷（见 ADR-0018 修订）与元素错位交互，非动态创建本身。勿因「静态 QML 组件」措辞误改回常驻实例。
 - 与 ADR-0010/0011 同源（orientation/RTL 正交模式复用）；与 ADR-0012（PropertyProxy）无冲突。
