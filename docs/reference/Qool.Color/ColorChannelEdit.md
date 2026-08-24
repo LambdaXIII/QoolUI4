@@ -26,7 +26,11 @@ editable value:
 - **Layout**: horizontal (default) shows the long label (`channelTag`)
   left-aligned with the value at the right; `orientation: Qt.Vertical`
   shows the short label (`channelTagShort`) above the value, both
-  horizontally centered.
+  horizontally centered. When mirrored (the built-in read-only
+  `mirrored`, driven by `LayoutMirroring.enabled`), only element positions
+  swap — horizontally the value moves to the left edge and the label to
+  the right (the gap is kept); vertically the value stacks above the
+  label. Text content, direction and alignment are unaffected.
 
 ### Numeric convention
 
@@ -83,7 +87,12 @@ consequence of the leading-dot convention).
   `true` when `orientation === Qt.Vertical` — the vertical layout is
   active.
 
-Inherited from `Control`: `font`, `padding`, `enabled`, `focus`,
+- `mirrored : bool` (read-only, inherited from `Control`)
+  Mirrors the layout by swapping element positions only: horizontal — the
+  label sits flush right, the value flush left (5px gap preserved);
+  vertical — the value stacks above the label. Text direction and
+  alignment are unchanged. Driven by `LayoutMirroring.enabled`; hosts do
+  not assign it directly.
 
 Inherited from `Control`: `font`, `padding`, `enabled`, `focus`,
 `implicitWidth` / `implicitHeight` and all other `Control` members. See

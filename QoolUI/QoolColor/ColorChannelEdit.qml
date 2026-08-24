@@ -8,6 +8,9 @@ import "_private"
 // 单通道值编辑控件：通道标签 + 数字框（EditableText 编辑会话）。
 // orientation 双布局——水平（默认）：长标签 channelTag 贴左 + 数字贴右；
 // 竖直：短标签 channelTagShort 在上 + 数字在下、水平居中。
+// mirrored 镜像（Control 内置只读属性，LayoutMirroring.enabled 驱动，
+// 与 ColorChannelSlider 消费 T.Slider 的方式同构）——只换元素位置：
+// 水平左右对调（间隙不变）、竖直上下对调；文字方向与对齐不受影响。
 // 布局为手工绑定（内容固定——标签 + 数字框，布局引擎的动态排布价值用不上；
 // 直接绑定坐标/尺寸，同步、单层、无中间布局容器）。
 Control {
@@ -33,6 +36,11 @@ Control {
     readonly property bool horizontal: orientation === Qt.Horizontal
     readonly property bool vertical: orientation === Qt.Vertical
 
+    // 镜像响应 Control 内置只读 mirrored（LayoutMirroring 驱动，勿再自
+    // 声明——FINAL 属性覆写即编译错）。坐标绑定按下述取反：
+    // 水平——tag 贴右、editor 贴左（间隙 5px 不变）；
+    // 竖直——editor 在上、tag 在下（水平居中不变）。
+
     contentItem: Item {
         // 隐式尺寸 = 活动方向的内容尺寸（普通 Item 不从子项派生隐式尺寸，
         // 显式算；tag/editor 的隐式尺寸同步可得，无布局 polish 依赖）。
@@ -50,9 +58,12 @@ Control {
             text: root.vertical ? ColorNameHQ.channelTagShort(root.channel)
                                 : ColorNameHQ.channelTag(root.channel)
             color: Style.buttonText   // 标签语义（BasicControlText 原色）
-            // 水平贴左 / 竖直水平居中（ChannelNumText 默认右对齐——display 用途）
-            x: root.horizontal ? 0 : Math.max(0, (parent.width - width) / 2)
-            y: 0
+            // 水平：贴左（mirrored 贴右——x = parent.width - width，
+            // 因 width 撑满剩余，右缘即贴边）/ 竖直水平居中
+            // （ChannelNumText 默认右对齐——display 用途）
+            x: root.horizontal ? (root.mirrored ? parent.width - width : 0)
+                               : Math.max(0, (parent.width - width) / 2)
+            y: !root.horizontal && root.mirrored ? editor.height : 0
             // 水平撑满剩余（留 5px 间隙贴数字框）/ 竖直自然宽
             width: root.horizontal ? Math.max(0, parent.width - editor.width - 5) : implicitWidth
             height: root.horizontal ? parent.height : implicitHeight
@@ -105,11 +116,13 @@ Control {
             }
 
             // 数字框 4 字符锁宽（显示形态最长 '.xxx'；数值变化宽度稳定不跳
-            // 动）。水平贴右、竖直水平居中、堆在标签下方。
+            // 动）。水平贴右（mirrored 贴左）、竖直水平居中、堆在标签下方
+            // （mirrored 翻到标签上方）。
             width: textMetrics.advanceWidth("0000")
             height: root.horizontal ? parent.height : implicitHeight
-            x: root.horizontal ? parent.width - width : Math.max(0, (parent.width - width) / 2)
-            y: root.horizontal ? 0 : tag.height
+            x: root.horizontal ? (root.mirrored ? 0 : parent.width - width)
+                               : Math.max(0, (parent.width - width) / 2)
+            y: !root.horizontal && root.mirrored ? 0 : tag.height
         }
     }//contentItem
 

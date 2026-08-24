@@ -16,6 +16,9 @@ import Qool.Controls
 //   配对）
 // - orientation：默认水平（长标签贴左 + 数字贴右）；Qt.Vertical 切竖直
 //   （短标签在上、数字在下居中）
+// - mirrored：水平左右对调（tag 贴右/editor 贴左，间隙不变）、
+//   竖直上下对调（editor 在上/tag 在下）；文字方向与对齐不受影响。
+//   mirrored 是 Control 内置只读属性——用例经 LayoutMirroring.enabled 驱动。
 //
 // 隔离：每个测试函数独立实例；动画统一关闭。
 // 内部定位：tag/editor 经 objectName + findChild（递归搜索——不依赖
@@ -124,5 +127,65 @@ TestCase {
             // 绑定被破坏：ca 保持编辑后的值（QML 赋值破坏绑定语义）
             verify(fuzzy(ca.hslLightnessF, 0.35), "binding broken by write")
         }
+    }
+
+    // —— objectName 递归查找（头注释约定的定位方式）——
+    function findItem(item, name) {
+        if (item.objectName === name)
+            return item
+        for (let i = 0; i < item.children.length; ++i) {
+            const r = findItem(item.children[i], name)
+            if (r)
+                return r
+        }
+        return null
+    }
+
+    // —— mirrored 默认 false + 非镜像默认方位（tag 左 / editor 右）——
+    function test_mirroredDefault() {
+        const e = makeEdit()
+        compare(e.mirrored, false, "default mirrored = false")
+        const tag = findItem(e.contentItem, "tag")
+        const editor = findItem(e.contentItem, "editor")
+        verify(fuzzy(tag.x, 0), "unmirrored: tag at left")
+        verify(fuzzy(editor.x + editor.width, e.contentItem.width),
+               "unmirrored: editor flush right")
+    }
+
+    // —— 水平镜像：左右对调（editor 贴左、tag 贴右，间隙 5px 不变）；
+    // 文字方向不变（长标签 channelTag）；切回恢复原方位 ——
+    function test_mirroredHorizontal() {
+        const e = makeEdit()
+        const tag = findItem(e.contentItem, "tag")
+        const editor = findItem(e.contentItem, "editor")
+        e.LayoutMirroring.enabled = true
+        verify(e.mirrored, "LayoutMirroring -> built-in mirrored true")
+        verify(fuzzy(editor.x, 0), "mirrored horizontal: editor flush left")
+        verify(fuzzy(tag.x, editor.width + 5),
+               "mirrored horizontal: tag right of 5px gap")
+        verify(fuzzy(tag.x + tag.width, e.contentItem.width),
+               "mirrored horizontal: tag flush right")
+        verify(tag.text === ColorNameHQ.channelTag(e.channel),
+               "mirrored keeps long label text")
+        e.LayoutMirroring.enabled = false
+        verify(fuzzy(tag.x, 0) && fuzzy(editor.x + editor.width, e.contentItem.width),
+               "toggle back restores original positions")
+    }
+
+    // —— 竖直镜像：上下对调（editor 在上、tag 在下），水平居中不变；
+    // 文字方向不变（短标签 channelTagShort）——
+    function test_mirroredVertical() {
+        const e = createTemporaryObject(editComp, root,
+                                        { orientation: Qt.Vertical })
+        const tag = findItem(e.contentItem, "tag")
+        const editor = findItem(e.contentItem, "editor")
+        e.LayoutMirroring.enabled = true
+        verify(e.mirrored, "LayoutMirroring -> built-in mirrored true")
+        verify(fuzzy(editor.y, 0), "mirrored vertical: editor on top")
+        verify(fuzzy(tag.y, editor.height), "mirrored vertical: tag below")
+        const cx = Math.max(0, (e.contentItem.width - editor.width) / 2)
+        verify(fuzzy(editor.x, cx), "mirrored vertical: editor centered")
+        verify(tag.text === ColorNameHQ.channelTagShort(e.channel),
+               "vertical keeps short label text")
     }
 }

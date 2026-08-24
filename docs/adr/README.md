@@ -28,7 +28,6 @@
 | 0006 | QoolBoxGadget 内部质量：中间量降权 + 全称命名 + QVector2D |
 | 0008 | QoolBoxHud：QoolBox 专用调试工具（消费 control 公开面，白盒方案撤销） |
 | 0012 | PropertyProxy 无状态代理（透明窗口 + 判变快照 + 净化可写性） |
-| 0012 | PropertyProxy 无状态代理（透明窗口 + 判变快照 + 净化可写性） |
 | 0015 | CenterPlacer：中心坐标双向同步挂件（centerx/centery ↔ x/y，任意带几何属性对象） |
 
 ### QoolUI/QoolControls/（Slider 家族）
@@ -48,5 +47,6 @@
 | 0014 | HSVWheel 单向链架构（鼠标事件 → 数据 → 光标/表面派生，写入钳制两路） |
 | 0017 | HSVWheel + HSLBox：二维取色表面各自内联光标组合（不共用独立 ColorCursor，HSLBox 公开化） |
 | 0018 | ColorChannelVerticalSlider 竖直通道滑块公开组件（T.Slider 独立实现 + 填充条样式 + hue=色相正常值/非 hue=身份色） |
+| 0019 | ColorChannelEdit 镜像布局：响应 Control 内置只读 `mirrored`（LayoutMirroring 驱动），不自声明——Color 组件族镜像约定 |
 
 领域术语见根 `CONTEXT.md`「形状体系（QoolBox）」节。

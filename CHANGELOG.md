@@ -1,6 +1,26 @@
 # Changelog
- 
+
 版本号不随常规修改迭代（当前 4.0.0），仅在正式发布时递增；本文件记录每次修改的内容。
+
+### 变更（colorchanneledit-mirrored，ColorChannelEdit 响应内置 mirrored 镜像布局）
+
+- **决策**：不自声明 `mirrored` 属性——Qt 6.11 `QQuickControl` 自带只读 FINAL
+  属性 `mirrored`（READ isMirrored，`LayoutMirroring.enabled` 驱动），QML 重声明即
+  「Cannot override FINAL property」且组件整体 unavailable（实测）。改为坐标绑定直接
+  消费内置值，与 ColorChannelSlider 消费 T.Slider 内置 `mirrored` 同构；宿主经
+  `LayoutMirroring.enabled: true`（自身或祖先）开启
+- **实现**：tag/editor 坐标绑定按 `root.mirrored` 取反——水平：editor 贴左、tag 贴右
+  （5px 间隙不变）；竖直：editor 在上、tag 堆其下（水平居中不变）。只换元素位置，
+  文字内容/方向/对齐不受影响（长短标签分派仍只看 orientation）；隐式尺寸对称不受镜像影响
+- **测试**：tst_colorchanneledit 新增 3 用例——默认非镜像方位、水平对调+切回恢复+
+  文字方向不变、竖直对调+居中不变+短标签；经 `LayoutMirroring.enabled` JS 赋值驱动并
+  断言内置 mirrored 跟随
+- **ADR**：`docs/adr/QoolUI/QoolColor/0019-colorchanneledit-mirrored.md`——
+  「响应内置只读 mirrored，不自声明」定案为 Color 组件族镜像约定
+- **文档**：ColorChannelEdit.md Layout 节与 Properties 表同步为只读内置语义；
+  删除重复的 "Inherited from Control" 行
+- **验证**：build 0 错 0 警；tst_colorchanneledit 9/9 全绿；colorassistant/
+  colorchannelslider/colorchannelverticalslider/hslbox/hsvwheel 五兄弟单元回归 rc=0
 
 ### 变更（colorassistant-zero-alpha-retention，ColorAssistant 零 alpha 保通道语义成文 + 测试锁定）
 
