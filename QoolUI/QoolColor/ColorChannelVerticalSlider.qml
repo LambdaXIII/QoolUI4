@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Templates as T
 import Qool
+import QtQuick.Shapes
 import Qool.Color
 import Qool.Controls.Components
 import "_private"
@@ -35,19 +36,19 @@ T.Slider {
             Connections {
                 target: root
                 function onValueChanged() {
-                    justMovedLatch.trigger()
+                    justMovedLatch.trigger();
                 }
             }
         }
 
         RectShape {
+            id: trackShape
             objectName: "track"  // 测试定位
             anchors.fill: parent
             radius: 4
             borderWidth: 1
             color: Qt.alpha(pCtrl.channelColor, 0.1)
-            borderColor: justMovedLatch.active ? Qt.lighter(pCtrl.channelColor, 1.4)
-                                               : pCtrl.channelColor
+            borderColor: justMovedLatch.active ? Qt.lighter(pCtrl.channelColor, 1.4) : pCtrl.channelColor
             BasicColorBehavior on borderColor {
                 enabled: pCtrl.animationReallyEnabled
             }
@@ -58,14 +59,20 @@ T.Slider {
             // 常驻实例切换（勿回退 createObject 动态创建——绑定表达式
             // 返回的无 parent 渐变归 JS 引擎 GC 管辖，回收后 ShapePath/
             // 渲染侧仍持指针 → use-after-free 不确定性崩溃）。
-            fillGradient: pCtrl.isHue ? rainbowInst : null
+            fillGradient: {
+                if (pCtrl.isHue)
+                    return rainbow.createObject();
+                return null;
+            }
 
-            RainbowGradient {
-                id: rainbowInst
-                width: root.availableWidth
-                height: root.availableHeight
-                horizontal: root.horizontal
-                mirrored: root.mirrored
+            Component {
+                id: rainbow
+                RainbowGradient {
+                    width: root.availableWidth
+                    height: root.availableHeight
+                    horizontal: root.horizontal
+                    mirrored: root.mirrored
+                }
             }//rainbow
         }//rectShape
     }//background
@@ -73,8 +80,8 @@ T.Slider {
     // 透明手柄（side×side）：无可见视觉、无 hover 反馈——交互全由模板
     // 控制层承担，栏上其余位置点击跳转。定位走 visualPosition。
     handle: Item {
-        width: pCtrl.side
-        height: pCtrl.side
+        width: root.horizontal ? pCtrl.fillMin : pCtrl.side
+        height: root.vertical ? pCtrl.fillMin / 2 : pCtrl.side
         x: {
             if (root.horizontal)
                 return root.leftPadding + root.visualPosition * (root.availableWidth - width);
@@ -99,11 +106,47 @@ T.Slider {
     contentItem: Item {
         id: fillBox
         readonly property real innerPadding: 4
-        Rectangle {
-            id: filler
-            radius: 2
-            x: root.horizontal && root.mirrored ? fillBox.width - fillBox.innerPadding - width : fillBox.innerPadding
-            border.width: 0
+
+        // 几何与配色宿主：三态分派（orientation × mirrored；竖直不受 RTL
+        // 影响）一律走 if-return 绑定块；尺寸/颜色动画也挂在宿主上。
+        // （勿把几何绑定直接挂回渲染件——RectShape 曾出现绑定求值异常。）
+        DummyItem {
+            id: fillHost
+
+            x: {
+                if (root.vertical)
+                    return fillBox.innerPadding;
+                if (root.mirrored)
+                    return fillBox.width - fillBox.innerPadding - width;
+                return fillBox.innerPadding;
+            }
+            y: {
+                if (root.horizontal)
+                    return fillBox.innerPadding;
+                return fillBox.height - fillBox.innerPadding - height;
+            }
+            width: {
+                const avail = fillBox.width - fillBox.innerPadding * 2;
+                if (root.vertical)
+                    return avail;
+                return avail * root.position;
+            }
+            height: {
+                const avail = fillBox.height - fillBox.innerPadding * 2;
+                if (root.horizontal)
+                    return avail;
+                // 最小高度：position=0 时保留一个轨道圆角直径的小条
+                return Math.max(avail * root.position, pCtrl.fillMin);
+            }
+
+            BasicNumberBehavior on width {
+                enabled: pCtrl.animationReallyEnabled
+            }
+            BasicNumberBehavior on height {
+                enabled: pCtrl.animationReallyEnabled
+            }
+
+            // 渐变端点配色：color1 淡端（hue 时即主色）、color2 主色
             property color color1: {
                 if (pCtrl.isHue)
                     return pCtrl.channelColor;
@@ -117,44 +160,66 @@ T.Slider {
             BasicColorBehavior on color2 {
                 enabled: pCtrl.animationReallyEnabled
             }
-            BasicNumberBehavior on width {
-                enabled: pCtrl.animationReallyEnabled
+
+            readonly property color startColor: {
+                if (root.vertical)
+                    return color2;
+                return color1;
             }
-            BasicNumberBehavior on height {
-                enabled: pCtrl.animationReallyEnabled
+            readonly property color endColor: {
+                if (root.vertical)
+                    return color1;
+                return color2;
             }
 
-            gradient: Gradient {
-                orientation: root.vertical ? Gradient.Vertical : Gradient.Horizontal
-                stops: [
-                    GradientStop {
-                        position: root.vertical ? 0.9 : 0.1
-                        color: filler.color1
-                    },
-                    GradientStop {
-                        position: root.vertical ? 0.1 : 0.9
-                        color: filler.color2
-                    }
-                ]
-            }//gradient
-            states: [
-                State {
-                    when: root.horizontal
-                    PropertyChanges {
-                        filler.y: fillBox.innerPadding
-                        filler.width: (fillBox.width - fillBox.innerPadding * 2) * root.position
-                        filler.height: fillBox.height - fillBox.innerPadding * 2
-                    }
-                },
-                State {
-                    when: root.vertical
-                    PropertyChanges {
-                        filler.width: fillBox.width - fillBox.innerPadding * 2
-                        filler.height: (fillBox.height - fillBox.innerPadding * 2) * root.position
-                        filler.y: fillBox.height - fillBox.innerPadding - filler.height
-                    }
+            // 渐变线锚点（像素坐标）：stop 0 位于 start、stop 0.9 位于
+            // 线段 90%（末端保留纯色平头）。竖直起点钉在 min/2——最小条
+            // 的视觉中部；水平随镜像换向（值零侧为起点）。
+            readonly property point gradStart: {
+                if (root.vertical)
+                    return Qt.point(0, pCtrl.fillMin / 2);
+                if (root.mirrored)
+                    return Qt.point(width, 0);
+                return Qt.point(0, 0);
+            }
+            readonly property point gradEnd: {
+                if (root.vertical)
+                    return Qt.point(0, height);
+                if (root.mirrored)
+                    return Qt.point(0, 0);
+                return Qt.point(width, 0);
+            }
+        }//fillHost
+
+        // 填充条 = RectShape 实现（勿改回 Rectangle：Rectangle 的圆角渐变
+        // 节点在主轴尺寸骤缩时触发 scene graph 缺陷——qsgbasicinternal-
+        // rectanglenode "index == vertexCount" assert；Shapes 路径已实验
+        // 验证免疫，且与轨道 RectShape 同族）。几何/配色全部跟随宿主。
+        RectShape {
+            id: filler
+            antialiasing: true
+            x: fillHost.x
+            y: fillHost.y
+            width: fillHost.width
+            height: fillHost.height
+            radius: 2
+            borderWidth: 0
+            color: fillHost.color2   // 渐变失效兜底（纯浓色）
+
+            fillGradient: LinearGradient {
+                x1: fillHost.gradStart.x
+                y1: fillHost.gradStart.y
+                x2: fillHost.gradEnd.x
+                y2: fillHost.gradEnd.y
+                GradientStop {
+                    position: 0
+                    color: fillHost.startColor
                 }
-            ]//states
+                GradientStop {
+                    position: 0.9
+                    color: fillHost.endColor
+                }
+            }//fillGradient
         }//filler
     }//contentItem
 
@@ -166,6 +231,11 @@ T.Slider {
         // 播种完成前填充动画关闭（初始定位无动画）
         property bool seedDone: false
         readonly property bool animationReallyEnabled: seedDone && root.animationEnabled && !root.pressed
+
+        // 填充条最小高度（仅竖直态生效）＝轨道圆角直径：position=0 时
+        // 填充条不消失，保留一个圆角直径高的极小渐变条（2026-08-24
+        // 外观设计定案，min 暂定 track radius × 2）
+        readonly property real fillMin: trackShape.radius * 2
 
         //通道标识色
         property color channelColor: {

@@ -41,28 +41,37 @@ T.Slider {
             BasicColorBehavior on borderColor {
                 enabled: pCtrl.animationReallyEnabled
             }
-            // 常驻实例切换（勿回退 createObject 动态创建——绑定表达式
-            // 返回的无 parent 渐变归 JS 引擎 GC 管辖，回收后 ShapePath/
-            // 渲染侧仍持指针 → use-after-free 不确定性崩溃）。
-            fillGradient: pCtrl.isHue ? rainbowInst : simpleInst
+            // 动态创建渐变（createObject(track)，带 parent）。2026-08-24
+            // 归因实验实证此写法无致崩性——当年「不确定性崩溃」的主因是
+            // Rectangle 圆角渐变节点的尺寸骤缩缺陷（见 vslider filler 改
+            // RectShape 的修复）与元素错位交互，而非动态创建本身。
+            fillGradient: {
+                if (pCtrl.isHue)
+                    return rainbowGradient.createObject(track);
+                return simpleGradient.createObject(track);
+            }
 
-            ChannelGradient {
-                id: simpleInst
-                horizontal: root.horizontal
-                width: root.availableWidth
-                height: root.availableHeight
-                channel: root.channel
-                mirrored: root.mirrored
+            Component {
+                id: simpleGradient
+                ChannelGradient {
+                    id: simpleInst
+                    horizontal: root.horizontal
+                    width: root.availableWidth
+                    height: root.availableHeight
+                    channel: root.channel
+                    mirrored: root.mirrored
+                }
             }//simple
-
-            RainbowGradient {
-                id: rainbowInst
-                width: root.availableWidth
-                height: root.availableHeight
-                horizontal: root.horizontal
-                mirrored: root.mirrored
+            Component {
+                id: rainbowGradient
+                RainbowGradient {
+                    id: rainbowInst
+                    width: root.availableWidth
+                    height: root.availableHeight
+                    horizontal: root.horizontal
+                    mirrored: root.mirrored
+                }
             }//rainbow
-
 
         }
     }//background
