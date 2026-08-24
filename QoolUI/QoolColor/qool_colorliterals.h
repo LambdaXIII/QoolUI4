@@ -45,7 +45,7 @@ public:
   Q_INVOKABLE static QString formatChannelNumberFloat(
       qreal num); // 格式化归一化通道数值——四种输出：'0'/'1'/'.xxx'/'NaN'
   Q_INVOKABLE static qreal parseChannelNumberFloat(
-      const QString& input); // 归一化通道值解析——清洗+头部补点（format 反向）
+      const QString& input); // 归一化通道值解析——清洗+头部补点（format 反向；端点 "0"/"1" 对称还原）
   Q_INVOKABLE static qreal clampChannelRange(qreal x);
 };
 

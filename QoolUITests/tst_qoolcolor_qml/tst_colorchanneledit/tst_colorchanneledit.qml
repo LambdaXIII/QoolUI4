@@ -56,6 +56,24 @@ TestCase {
         return Math.abs(x - y) < 0.001
     }
 
+    // —— 解析/格式化往返：端点对称还原 + 无点补点约定 ——
+    function test_parseFormatRoundtrip() {
+        // 端点：format 将 0/1 输出为 "0"/"1"，解析须对称还原（不特判则
+        // 显示 "1" 的编辑收尾被补点误读为 .1）
+        compare(ColorNameHQ.parseChannelNumberFloat("1"), 1, "endpoint 1 roundtrip")
+        compare(ColorNameHQ.parseChannelNumberFloat("0"), 0, "endpoint 0 roundtrip")
+        // 补点约定：无点整数按纯小数解释
+        verify(fuzzy(ColorNameHQ.parseChannelNumberFloat("350"), 0.35),
+               "no-dot integer -> pure decimal (350 -> .35)")
+        verify(fuzzy(ColorNameHQ.parseChannelNumberFloat(".35"), 0.35),
+               "leading dot direct")
+        verify(fuzzy(ColorNameHQ.parseChannelNumberFloat("0.35"), 0.35),
+               "full form direct")
+        // 清洗失败透传 NaN
+        verify(Number.isNaN(ColorNameHQ.parseChannelNumberFloat(".")),
+               "lone dot -> NaN")
+    }
+
     // —— orientation 默认：水平 ——
     function test_orientationDefault() {
         const e = makeEdit()

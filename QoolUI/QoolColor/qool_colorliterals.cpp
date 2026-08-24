@@ -110,9 +110,10 @@ QString ColorLiterals::formatChannelNumberFloat(qreal num) {
 
 // 解析归一化通道值（formatChannelNumberFloat 的反向——format 输出可解析
 // 回原值）：清洗输入（仅保留数字与第一个小数点，其余字符/后续小数点
-// 丢弃）→ 无小数点在头部补一个（整数输入按纯小数解释：350 → ".350" →
-// 0.35——对齐显示格式的无前导零约定）→ 解析数字；失败（清洗后空/孤点）
-// 返回 NaN。
+// 丢弃）→ 无小数点时头部补一个（整数输入按纯小数解释：350 → ".350" →
+// 0.35——对齐显示格式的无前导零约定）；**端点例外**："1"/"0" 对称还原
+// 为 1.0/0.0（format 将端点输出为 "1"/"0"，不特判则编辑显示 "1" 收尾
+// 会被补点误读为 ".1"，往返断裂）；失败（清洗后空/孤点）返回 NaN。
 qreal ColorLiterals::parseChannelNumberFloat(const QString& input) {
   QString cleaned;
   bool dotSeen = false;
@@ -124,8 +125,13 @@ qreal ColorLiterals::parseChannelNumberFloat(const QString& input) {
       dotSeen = true;
     }
   }
-  if (!dotSeen)
+  if (!dotSeen) {
+    if (cleaned == QLatin1String("1"))
+      return 1.0;
+    if (cleaned == QLatin1String("0"))
+      return 0.0;
     cleaned.prepend(QLatin1Char('.'));
+  }
   bool ok = false;
   qreal v = cleaned.toDouble(&ok);
   return ok ? v : qQNaN();
