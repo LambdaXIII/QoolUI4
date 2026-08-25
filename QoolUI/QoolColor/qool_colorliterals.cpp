@@ -135,4 +135,23 @@ qreal ColorLiterals::clampChannelRange(qreal x) {
   return math::auto_bound(0.0, x, 1.0);
 }
 
+qreal ColorLiterals::visualBrightness(const QColor& color) {
+  const auto c = color.toRgb();
+  return c.redF() * 0.299 + c.greenF() * 0.587 + c.blueF() * 0.114;
+}
+
+QColor ColorLiterals::keepItDark(const QColor& color) {
+  const auto original = color.toHsv();
+  const auto new_value = std::min<qreal>(0.65, color.valueF());
+  return QColor::fromHsvF(
+      original.hueF(), original.saturationF(), new_value, original.alphaF());
+}
+
+QColor ColorLiterals::keepItBright(const QColor& color) {
+  const auto original = color.toHsv();
+  const auto new_value = std::max<qreal>(0.25, color.valueF());
+  return QColor::fromHsvF(
+      original.hueF(), original.saturationF(), new_value, original.alphaF());
+}
+
 QOOL_NS_END

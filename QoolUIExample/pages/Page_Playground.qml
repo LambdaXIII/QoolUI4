@@ -24,39 +24,44 @@ BasicPage {
     }
 
     BasicControl {
-        x: 20
         RectResizer {}
-        contentItem: HSVPanel {
-            colorAssistant: mainColor
-        }
+        contentItem: ColorNameListView {}
     }
 
-    BasicControl {
-        x: 80
-        RectResizer {}
-        contentItem: RGBPanel {
-            colorAssistant: mainColor
-        }
-    }
+    // BasicControl {
+    //     x: 20
+    //     RectResizer {}
+    //     contentItem: HSVPanel {
+    //         colorAssistant: mainColor
+    //     }
+    // }
 
-    BasicControl {
-        y: 300
-        RectResizer {}
-        contentItem: ColorNameEdit {
-            id: cedit
-            Connections {
-                target: mainColor
-                function onColorChanged() {
-                    cedit.value = mainColor.color;
-                }
-            }
+    // BasicControl {
+    //     x: 80
+    //     RectResizer {}
+    //     contentItem: RGBPanel {
+    //         colorAssistant: mainColor
+    //     }
+    // }
 
-            Connections {
-                target: cedit
-                function onValueChanged() {
-                    mainColor.color = cedit.value;
-                }
-            }
-        }
-    }
+    // BasicControl {
+    //     y: 300
+    //     RectResizer {}
+    //     contentItem: ColorNameEdit {
+    //         id: cedit
+    //         Connections {
+    //             target: mainColor
+    //             function onColorChanged() {
+    //                 cedit.value = mainColor.color;
+    //             }
+    //         }
+
+    //         Connections {
+    //             target: cedit
+    //             function onValueChanged() {
+    //                 mainColor.color = cedit.value;
+    //             }
+    //         }
+    //     }
+    // }
 }//page

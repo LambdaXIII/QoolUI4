@@ -2,8 +2,10 @@
 #define QOOL_COLORLITERALS_H
 
 #include "qoolns.hpp"
+#include <QColor>
 #include <QObject>
 #include <QQmlEngine>
+
 QOOL_NS_BEGIN
 
 class ColorLiterals : public QObject {
@@ -43,6 +45,11 @@ public:
   Q_INVOKABLE static qreal parseChannelNumberFloat(
       const QString& input); // 归一化通道值解析——清洗+头部补点（format 反向；端点 "0"/"1" 对称还原）
   Q_INVOKABLE static qreal clampChannelRange(qreal x);
+
+  Q_INVOKABLE static qreal visualBrightness(const QColor&);
+
+  Q_INVOKABLE static QColor keepItDark(const QColor&);   // 保持颜色较暗
+  Q_INVOKABLE static QColor keepItBright(const QColor&); // 保持颜色较亮
 };
 
 QOOL_NS_END

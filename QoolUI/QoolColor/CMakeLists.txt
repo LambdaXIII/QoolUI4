@@ -23,7 +23,7 @@ qt_add_qml_module(QoolColor
     QML_FILES HSLPanel.qml
     QML_FILES RGBPanel.qml
     QML_FILES CMYKPanel.qml
-    QML_FILES ColorNameList.qml
+    QML_FILES
     QML_FILES ColorBankPanel.qml
     SOURCES qool_colorliterals.h qool_colorliterals.cpp
     QML_FILES ColorChannelEdit.qml
@@ -32,6 +32,9 @@ qt_add_qml_module(QoolColor
          QML_FILES ColorChannelControl.qml
      QML_FILES HSVWheel.qml
     QML_FILES HSLBox.qml
+    QML_FILES ColorNameListView.qml
+    QML_FILES ColorNameButton.qml
+    QML_FILES ColorNameButtonSurface.qml
  )
 
 # _private 私有件：**不注册进模块 qmldir**（不进 QML_FILES）——仅作为普通
