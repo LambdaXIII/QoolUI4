@@ -32,7 +32,6 @@ protected:                                       \
 class ColorAssistant : public QObject {
   Q_OBJECT
   QML_ELEMENT
-  QML_EXTENDED(ColorLiterals)
 
   // ---- 核心与列表属性 ----
   Q_PROPERTY(QColor color READ color WRITE set_color NOTIFY colorChanged)

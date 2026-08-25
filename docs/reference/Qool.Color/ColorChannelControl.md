@@ -41,8 +41,8 @@ and a slider per channel.
   content layout, not the control, so the parent-chain lookup alone cannot
   reach it.
 
-- `channel : int` (default: `ColorNameHQ.HSLHue`)
-  The channel to control on `colorAssistant` — one of the `ColorNameHQ`
+- `channel : int` (default: `ColorHQ.HSLHue`)
+  The channel to control on `colorAssistant` — one of the `ColorHQ`
   channel constants (e.g. `HSVHue`, `HSVSaturation`, `Red`, `Alpha`).
   Forwarded to both children.
 
@@ -102,15 +102,15 @@ Column {
     spacing: 4
     ColorChannelControl {
         colorAssistant: ca
-        channel: ColorNameHQ.HSVHue
+        channel: ColorHQ.HSVHue
     }
     ColorChannelControl {
         colorAssistant: ca
-        channel: ColorNameHQ.HSVSaturation
+        channel: ColorHQ.HSVSaturation
     }
     ColorChannelControl {
         colorAssistant: ca
-        channel: ColorNameHQ.HSVValue
+        channel: ColorHQ.HSVValue
         readOnly: true    // numeric read-only; drag still adjusts
     }
 }
@@ -119,7 +119,7 @@ Column {
 // (tagOnTop: value box next to the slider, short label at the bottom):
 ColorChannelControl {
     colorAssistant: ca
-    channel: ColorNameHQ.HSVHue
+    channel: ColorHQ.HSVHue
     orientation: Qt.Vertical
 }
 ```

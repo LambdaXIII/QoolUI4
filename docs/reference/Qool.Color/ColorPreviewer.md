@@ -1,16 +1,24 @@
 # ColorPreviewer
 
-A preview surface for the current color: solid left half, alpha-preserving
-right half.
+A preview surface for the current color: a divided (up to four) rounded
+swatch showing the color against light/dark underlays.
 
-`ColorPreviewer` is a rounded preview item showing the color in two halves:
+`ColorPreviewer` is a rounded preview item rendering the color with an
+optional two-part background backdrop and an optional two-part content
+split, all drawn as `ShapePath` rectangles on a `Shape`:
 
-- **Left half**: the solid color (`colorAssistant.solidColor`, alpha
-  stripped).
-- **Right half**: the original `color` including alpha — top on a
-  transparent underlay, bottom on a white underlay — demonstrating how a
-  semi-transparent color mixes with a light background (visible with the
-  default instance's alpha 0.5).
+- **Background backdrop** (top/bottom): the whole swatch is divided
+  horizontally at `verticalRatio` into a top band (`backgroundColor1`,
+  default black) and a bottom band (`backgroundColor2`, default white).
+- **Content split** (left/right): the color is drawn over the backdrop in
+  a left portion (`solidColor` — alpha stripped, so it reads as the pure
+  color) and a right portion (`color` — original, including alpha). The
+  split is at `horizontalRatio`.
+
+Diagonally this composes a 2×2 grid: the top-left quadrant is the solid
+color on the top backdrop, the bottom-right the alpha color on the bottom
+backdrop — so a single preview shows the color both as solid (against
+dark) and as its alpha-mixed form (against light).
 
 ### Positioning
 
@@ -24,11 +32,8 @@ combines it with other primitives.
 
 The default `colorAssistant` comes pre-configured with
 `Qt.alpha(Style.highlight, 0.5)`, so standalone use works without
-injection or external context. The component defines no default size —
-the host decides the width and height (e.g. `Layout.preferredHeight: 80`
-in the example page, `implicitHeight: 30` as a slot background;
-`ColorBankSlotButton` uses this component as its background with radius 5).
-Standalone use requires explicit sizing.
+injection or external context. The default size is `implicitWidth: 150` /
+`implicitHeight: 50`; the host may override it.
 
 ## Properties
 
@@ -39,6 +44,23 @@ Standalone use requires explicit sizing.
 
 - `radius : real` (default: `10`)
   The corner radius of the preview surface.
+
+- `backgroundColor1 : color` (default: `"black"`)
+  The top backdrop band color (the backdrop under the solid-color part).
+
+- `backgroundColor2 : color` (default: `"white"`)
+  The bottom backdrop band color (the backdrop under the alpha-color
+  part) — demonstrate how a semi-transparent color mixes with a light
+  background.
+
+- `horizontalRatio : real` (default: `0.5`)
+  The left/right split ratio of the content — the left (solid) portion
+  width is `bound(radius, width * horizontalRatio, width - radius)`
+  (clamped so it never collapses below the corner radius).
+
+- `verticalRatio : real` (default: `0.5`)
+  The top/bottom split ratio of the backdrop — the top band height is
+  `bound(radius, height * verticalRatio, height - radius)`.
 
 ## Signals
 
@@ -55,8 +77,8 @@ import QtQuick
 import Qool.Color
 
 ColorPreviewer {
-    Layout.preferredWidth: 120
-    Layout.preferredHeight: 80
+    width: 120
+    height: 80
     colorAssistant: assistant
     radius: 6
 }
@@ -80,7 +102,7 @@ Item {
 
     Text {
         anchors.centerIn: parent
-        text: ColorNameHQ.name(assistant.color)
+        text: ColorHQ.colorName(assistant.color)
         color: assistant.recommendedForegroundColor
     }
 }

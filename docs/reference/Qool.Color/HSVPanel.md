@@ -28,7 +28,7 @@ gradient wheel, and value/alpha channel controls.
 ### Channel input convention
 
 Channel values follow the module-wide normalized convention implemented
-by `ColorNameHQ.formatChannelNumberFloat` / `parseChannelNumberFloat`: a
+by `ColorHQ.formatChannelNumberFloat` / `parseChannelNumberFloat`: a
 number is displayed as one of `'0'`, `'1'`, `'.xxx'` (three decimals, no
 leading zero) or `'NaN'`. On input, the digits are cleaned and an integer
 without a decimal point is treated as a pure fraction (e.g. `350` →

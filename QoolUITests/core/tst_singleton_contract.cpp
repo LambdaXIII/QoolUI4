@@ -72,10 +72,10 @@ private:
                         "ThemeHQ.recommendForeground(\"#ff0000\") }")
       << QVariant(QColor("#ffffff"));
 
-    QTest::newRow("ColorNameHQ.color")
+    QTest::newRow("ColorHQ.color")
       << QStringLiteral("import QtQuick\nimport Qool.Color\n"
                         "Item { property color v: "
-                        "ColorNameHQ.color(\"qoolui_no_such_color\", "
+                        "ColorHQ.color(\"qoolui_no_such_color\", "
                         "\"#123456\") }")
       << QVariant(QColor("#123456"));
 

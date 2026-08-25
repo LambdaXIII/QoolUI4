@@ -23,7 +23,7 @@ The panel works standalone without injection because its default
 ### Channel input convention
 
 Channel inputs follow the module-wide numeric convention
-(`ColorNameHQ.parseChannelNumberFloat`, shared with `ColorChannelEdit`):
+(`ColorHQ.parseChannelNumberFloat`, shared with `ColorChannelEdit`):
 an entered value `x > 1` is treated as `x / 1000`, so integers from 0 to
 1000 can be typed directly to express a 0..1 ratio (e.g. `350` means
 0.35), and the result is clamped to `[0, 1]`. This is the inherited v3

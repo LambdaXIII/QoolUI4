@@ -8,7 +8,7 @@ saturation / lightness of a shared `ColorAssistant`) as a labeled,
 editable value:
 
 - **Display**: a label (`channelTag`) plus the channel value rendered by
-  `ColorNameHQ.formatChannelNumberFloat` — three decimal digits without a
+  `ColorHQ.formatChannelNumberFloat` — three decimal digits without a
   leading zero (e.g. `.350`). The text is read live from the real channel
   through a `PropertyProxy` bridge (`channelNameF(channel)` — the channel
   name is a runtime string, so the proxy performs the dynamic lookup).
@@ -36,7 +36,7 @@ editable value:
 
 ### Numeric convention
 
-The numeric text is the `ColorNameHQ` static pair
+The numeric text is the `ColorHQ` static pair
 `formatChannelNumberFloat` / `parseChannelNumberFloat`, deliberately
 restricted:
 
@@ -60,8 +60,8 @@ consequence of the leading-dot convention).
   commits and host assignments write here; the value is mirrored to the
   assistant's channel and back.
 
-- `channel : int` (default: `ColorNameHQ.HSLHue`)
-  The channel to edit on `colorAssistant` — one of the `ColorNameHQ`
+- `channel : int` (default: `ColorHQ.HSLHue`)
+  The channel to edit on `colorAssistant` — one of the `ColorHQ`
   channel constants (e.g. `HSLLightness`, `HSVSaturation`). The label
   follows it (`channelTag`); the display / edit address is derived
   dynamically (`channelNameF`).
@@ -115,7 +115,7 @@ This component defines no additional signals.
 ## Methods
 
 This component defines no additional methods. Parsing is provided by the
-shared implementation `ColorNameHQ.parseChannelNumberFloat()` (see
+shared implementation `ColorHQ.parseChannelNumberFloat()` (see
 "Numeric convention").
 
 ## Usage Example
@@ -133,15 +133,15 @@ ColorAssistant {
 Column {
     ColorChannelEdit {
         colorAssistant: ca
-        channel: ColorNameHQ.HSLLightness
+        channel: ColorHQ.HSLLightness
     }
     ColorChannelEdit {
         colorAssistant: ca
-        channel: ColorNameHQ.HSLSaturation
+        channel: ColorHQ.HSLSaturation
     }
     ColorChannelEdit {
         colorAssistant: ca
-        channel: ColorNameHQ.HSLHue
+        channel: ColorHQ.HSLHue
         orientation: Qt.Vertical
     }
 }

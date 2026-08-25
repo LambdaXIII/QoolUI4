@@ -13,11 +13,11 @@ interface (`fillGradient` / `strokeColor` aliases are deliberately absent);
 the template-level `background` / `handle` delegates remain the only
 plug-points and can be replaced wholesale.
 
-- **Channel addressing**: one generic `channel: int` (any `ColorNameHQ`
+- **Channel addressing**: one generic `channel: int` (any `ColorHQ`
   channel constant) — no per-channel variant files. The track gradient
   follows the channel: hue channels use a fixed-brightness `RainbowGradient`
   (11 stops of `Qt.hsva(p, 1, 1, 0.25)`); non-hue channels use a static
-  `ChannelGradient` — `toColor = ColorNameHQ.channelColor(channel)` (the
+  `ChannelGradient` — `toColor = ColorHQ.channelColor(channel)` (the
   shared C++ lookup: Red/Green/Blue/Cyan/Magenta/Yellow pure, Alpha gray,
   Value/Lightness lightGray, Black darkGray), `fromColor` `transparent` for
   RGB/Value/Lightness/Alpha, `black` for CMYK/Black, `white` otherwise. The
@@ -32,7 +32,7 @@ plug-points and can be replaced wholesale.
   Out-of-range assistant values (hue < 0, achromatic) are **not** read back —
   the display keeps its last valid position.
 - **Behavior**: `value` is clamped to `[0, 1]`
-  (`ColorNameHQ.clampChannelRange` — out-of-range only arrives from external
+  (`ColorHQ.clampChannelRange` — out-of-range only arrives from external
   programmatic writes); dragging hue on an achromatic color first bumps the
   corresponding saturation to 0.001 so the hue write has a visible effect
   (legacy UX contract); there is no `defaultValue`, `reset`, or double-click
@@ -59,8 +59,8 @@ plug-points and can be replaced wholesale.
   seeding and external color changes settle it to the channel's real stored
   value (a `~1e-5` quantization settle is expected and one-shot).
 
-- `channel : int` (default: `ColorNameHQ.HSLHue`)
-  The channel to control on `colorAssistant` — one of the `ColorNameHQ`
+- `channel : int` (default: `ColorHQ.HSLHue`)
+  The channel to control on `colorAssistant` — one of the `ColorHQ`
   channel constants (e.g. `HSVHue`, `HSVSaturation`, `Red`, `Alpha`). The
   track gradient and the sync address derive from it.
 
@@ -103,15 +103,15 @@ ColorAssistant {
 Column {
     ColorChannelSlider {
         colorAssistant: ca
-        channel: ColorNameHQ.HSVHue
+        channel: ColorHQ.HSVHue
     }
     ColorChannelSlider {
         colorAssistant: ca
-        channel: ColorNameHQ.HSVSaturation
+        channel: ColorHQ.HSVSaturation
     }
     ColorChannelSlider {
         colorAssistant: ca
-        channel: ColorNameHQ.HSVValue
+        channel: ColorHQ.HSVValue
     }
 }
 ```

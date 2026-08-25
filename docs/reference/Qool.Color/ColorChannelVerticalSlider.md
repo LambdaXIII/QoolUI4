@@ -18,10 +18,10 @@ remain the only plug-points and can be replaced wholesale. The interaction
 contract is trimmed: there is no `defaultValue`, `reset`, or double-click
 reset.
 
-- **Channel addressing**: one generic `channel: int` (any `ColorNameHQ`
+- **Channel addressing**: one generic `channel: int` (any `ColorHQ`
   channel constant) — no per-channel variant files. Non-hue channels use the
   identity color from the shared lookup
-  (`ColorNameHQ.channelColor` / C++ `ColorLiterals::channelColor`: Red/Blue/
+  (`ColorHQ.channelColor` / C++ `ColorLiterals::channelColor`: Red/Blue/
   Cyan/Magenta/Yellow pure, Green `green` (#00ff00), Alpha gray, Black
   darkGray, Value/Lightness lightGray; Saturation = the principled result
   color after changing the channel). Hue channels show an 11-stop
@@ -56,7 +56,7 @@ reset.
   Out-of-range assistant values (hue < 0, achromatic) are **not** read back —
   the display keeps its last valid position.
 - **Behavior**: `value` is clamped to `[0, 1]`
-  (`ColorNameHQ.clampChannelRange`); dragging hue on an achromatic color
+  (`ColorHQ.clampChannelRange`); dragging hue on an achromatic color
   first bumps the corresponding saturation to 0.001 so the hue write has a
   visible effect (legacy UX contract); the initial `value` is 1 (hue 1 ≡ 0
   cyclically — no side effect before seeding).
@@ -85,8 +85,8 @@ reset.
   seeding and external color changes settle it to the channel's real stored
   value (a `~1e-5` quantization settle is expected and one-shot).
 
-- `channel : int` (default: `ColorNameHQ.HSLHue`)
-  The channel to control on `colorAssistant` — one of the `ColorNameHQ`
+- `channel : int` (default: `ColorHQ.HSLHue`)
+  The channel to control on `colorAssistant` — one of the `ColorHQ`
   channel constants (e.g. `HSVHue`, `HSVSaturation`, `Red`, `Alpha`). The
   track fill and the sync address derive from it.
 
@@ -129,17 +129,17 @@ Row {
     spacing: 8
     ColorChannelVerticalSlider {
         colorAssistant: ca
-        channel: ColorNameHQ.HSVHue
+        channel: ColorHQ.HSVHue
         height: 150
     }
     ColorChannelVerticalSlider {
         colorAssistant: ca
-        channel: ColorNameHQ.HSVSaturation
+        channel: ColorHQ.HSVSaturation
         height: 150
     }
     ColorChannelVerticalSlider {
         colorAssistant: ca
-        channel: ColorNameHQ.HSVValue
+        channel: ColorHQ.HSVValue
         height: 150
     }
 }

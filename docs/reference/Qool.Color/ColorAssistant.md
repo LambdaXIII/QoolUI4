@@ -180,9 +180,8 @@ write through any entry recomputes a valid color as usual.
   `#RGB` / `#RRGGBB` / `#AARRGGBB` / `#RRRGGGBBB` / `#RRRRGGGGBBBB`.
 
   `static` methods are exposed on the type, but the type name carries no
-  method surface in QML — call them through an instance
-  (`assistant.hex(255)`, `assistant.isValidName("red")`). The same applies
-  to the `ColorLiterals` extension methods below.
+   method surface in QML — call them through an instance
+  (`assistant.hex(255)`, `assistant.isValidName("red")`).
 
 - `bool isValid()`
   Returns whether the current color is valid (false before a valid color
@@ -190,12 +189,13 @@ write through any entry recomputes a valid color as usual.
 
 ## QML 扩展：ColorLiterals
 
-`ColorAssistant` 通过 `QML_EXTENDED(ColorLiterals)` 暴露通道字面量与
-通道工具方法。枚举经类型名访问（`ColorAssistant.Channels`——
-`QML_EXTENDED` 把枚举附加到类型名）；方法（`channelName` 等）与
-`hex`/`isValidName` 一样经**实例**调用（类型名无方法面，探针实证）。
-同一扩展也挂在 `ColorNameHQ` 单例上——singleton 类型名即实例，
-`ColorNameHQ.channelNameF(...)` 等价可用（模块内组件实际用后者）。
+ `ColorAssistant` **不挂** `QML_EXTENDED(ColorLiterals)`——此前保留的
+共享通道字面量已整体让渡给 `ColorHQ` 单例。因此通道字面量
+（`Channels` 枚举、`channelNameF` 等通道工具方法）只能经 `ColorHQ`
+访问：`ColorHQ.Channels.Red`、`ColorHQ.channelNameF(...)`——singleton
+类型名即实例，模块内组件与宿主均用 `ColorHQ`。
+`ColorAssistant` 只保留自身 `Q_INVOKABLE`：`hex`/`isValidName`/`isValid`
+（经实例调用）。
 通道枚举值即 `ColorChannelSlider.channel` 等接口的取值域。
 
 ### 枚举 `Channels`
@@ -205,7 +205,10 @@ write through any entry recomputes a valid color as usual.
 `HSLLightness` (9)、`Cyan` (10)、`Magenta` (11)、`Yellow` (12)、
 `Black` (13)。
 
-### 静态方法
+ ### 静态方法
+
+> 以下方法经 `ColorHQ` 单例访问（`ColorHQ.channelName(...)` 等）；
+> `ColorAssistant` 自身不暴露这些方法。
 
 - `static string channelName(int channel)` — 通道属性名（"red"、
   "hsvHue"、…；hue 类返回无 `F` 后缀名）。

@@ -51,6 +51,10 @@ TestCase {
         return Math.abs(a - b) < 0.01
     }
 
+    function yIn(item, space) {
+        return item.mapToItem(space, 0, 0).y
+    }
+
     // -- 默认水平布局：编辑行上 + 滑块下，两行等宽 --
     function test_orientationDefault() {
         const c = createControl()
@@ -59,7 +63,10 @@ TestCase {
         const edit = findItem(c.contentItem, "edit")
         const slider = findItem(c.contentItem, "hslider")
         verify(edit && slider, "horizontal children exist")
-        verify(edit.y < slider.y, "edit above slider")
+        // hslider 在 Loader 内——y 相对其父 Loader 而非 contentItem，
+        // 断言前统一映射到 contentItem 坐标系
+        verify(yIn(edit, c.contentItem) < yIn(slider, c.contentItem),
+               "edit above slider")
         verify(fuzzy(edit.width, c.contentItem.width)
                && fuzzy(slider.width, c.contentItem.width),
                "rows equal width")
@@ -72,7 +79,8 @@ TestCase {
         const slider = findItem(c.contentItem, "vslider")
         const edit = findItem(c.contentItem, "edit")
         verify(slider && edit, "vertical children exist")
-        verify(slider.y < edit.y, "slider above edit")
+        verify(yIn(slider, c.contentItem) < yIn(edit, c.contentItem),
+               "slider above edit")
         verify(fuzzy(slider.width, c.contentItem.width),
                "slider fills width")
         // 编辑行内部：竖直翻转（tagOnTop）——数字框在上（贴滑块侧）、

@@ -1,5 +1,43 @@
 # Changelog
 
+### 变更（color-name-family，色名按钮族 + ColorHQ 单例面 + 预览迁移）
+
+- **组件族**：新增公开 `ColorNameButton`（色名+色块按钮，色名列表 delegate）、
+  `ColorNameButtonSurface`（按钮视觉表面件——色块 + 高亮展开 GeoLocker）、
+  `ColorNameEdit`（色名点击编辑——显示 `ColorHQ.colorName(value)`、
+  输入经 `ColorHQ.isValidColorName`/`color` 解析回写、非法输入撤回）、
+  `ColorNameListView`（分类色名列表——`ColorHQ.colorNames(category)` 模型 +
+  ColorNameButton delegate + ButtonGroup 单选）。
+  **删除** `ColorEdit`/`ColorNameList` 及其私有件
+  （`_private/ColorNameButton`/`_private/ColorNameView`/`_private/CycleChoice`）；
+  替代映射：ColorEdit→ColorNameEdit、ColorNameList→ColorNameListView
+  （替代件 API 完全重做，旧文档随组件删除）。
+- **ColorPreviewer 迁移**：重写为 Shapes 路径四分区预览——背景上下对分
+  （`backgroundColor1`/`backgroundColor2`，默认黑/白）+ 内容左右对分
+  （solidColor 实色 / 原色含 alpha），新增 `horizontalRatio`/`verticalRatio`
+  （默认 0.5，经 `Qore.bound` 钳防塌缩）；`implicitWidth/Height` 改 150×50。
+- **ColorHQ 单例面**：QML 注册名 `ColorNameHQ`→`ColorHQ`
+  （`QML_NAMED_ELEMENT(ColorHQ)`，C++ 类名不变）；方法面
+  `names`/`hasColor`/`name` → `colorNames`/`isProvidedColorName`/`colorName`，
+  新增 `isValidColorName`（`isProvidedColorName` ∨ `QColor::isValidColorName`）；
+  组件库内访问点统一 `ColorHQ`，`QML_EXTENDED(ColorLiterals)` 全量助手
+  （通道名/标签/颜色、format/parse/clamp、visualBrightness、keepItDark/Bright）
+  直接挂在单例。
+- **ColorAssistant**：移除 `QML_EXTENDED(ColorLiterals)`——通道字面量
+  （`Channels` 枚举 + 通道工具方法）整体让渡给 `ColorHQ` 单例；`ColorAssistant`
+  只保留自身 `Q_INVOKABLE`（`hex`/`isValidName`/`isValid`）。
+- **ColorChannelEdit**：新增显式 `tagOnTop`（竖直堆叠序，纯布局意图不随环境
+  镜像翻转）+ contentItem.states 四态分派；displayItem 水平对齐随 `mirrored`
+  分派；`ChannelNumText`→`ColorNumText` 改名。
+- **测试**：assistant 测试迁 ColorHQ 并适配 EXTEND 撤销（40/40）；ColorChannel
+  族测试 `ColorNameHQ`→`ColorHQ` + hslider 在 Loader 内 y 坐标映射修正；
+  契约测试 `ColorNameHQ.color` 参数化迁 `ColorHQ.color`。
+- **文档**：新增 4 个色名组件 reference；删除 ColorEdit/ColorNameList 文档；
+  重写 ColorNameHQ（方法面+注册名）与 ColorPreviewer；ColorAssistant 扩展语义
+  对齐；reference 其余 8 文档命名迁移至 `ColorHQ`。
+- **注释**：近期改动注释收敛到 5% 线内（仅留非显然机制说明）。
+
+
 ### 变更（channel-family-migration，竖直族收口：高亮补遗 + 面板迁移 + 私有件清理）
 
 - **接口**：HSVValue 短标签 VAL→BRIT（C++ 共享查表，还原旧面板标题——长标签

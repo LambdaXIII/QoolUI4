@@ -41,7 +41,7 @@ TestCase {
             colorAssistant: ColorAssistant {
                 color: slider.__assistantColor
             }
-            channel: ColorNameHQ.HSLLightness
+            channel: ColorHQ.HSLLightness
         }
     }
 
@@ -117,7 +117,7 @@ TestCase {
         // HSV hue + 灰色（hsvHueF = -1）
         const s = makeSlider({
                       __assistantColor: "#808080",
-                      channel: ColorNameHQ.HSVHue
+                      channel: ColorHQ.HSVHue
                   })
         verify(s.colorAssistant.hsvHueF < 0, "gray has invalid hue")
         s.value = 0.5
@@ -127,7 +127,7 @@ TestCase {
         // HSL hue + 灰色
         const h = makeSlider({
                       __assistantColor: "#404040",
-                      channel: ColorNameHQ.HSLHue
+                      channel: ColorHQ.HSLHue
                   })
         h.value = 0.3
         verify(Math.abs(h.colorAssistant.hslSaturationF - 0.001) < 0.0005,
@@ -138,7 +138,7 @@ TestCase {
 
     // —— hue 拖动在彩色上不 bump（sat 保持）——
     function test_noBumpOnChromatic() {
-        const s = makeSlider({ channel: ColorNameHQ.HSVHue })
+        const s = makeSlider({ channel: ColorHQ.HSVHue })
         // red → hsvHueF = 0
         verify(fuzzy(s.colorAssistant.hsvHueF, 0), "red hue = 0 (valid)")
         s.value = 0.2
@@ -168,7 +168,7 @@ TestCase {
         // 循环等价无副作用）
         const g = makeSlider({
                       __assistantColor: "#808080",
-                      channel: ColorNameHQ.HSVHue
+                      channel: ColorHQ.HSVHue
                   })
         verify(fuzzy(g.value, 1), "achromatic hue not seeded -> default 1")
         // 灰色上 hue 拖动仍可写（sat-bump 路径贯通——近灰量化容差）
@@ -179,15 +179,15 @@ TestCase {
 
     // —— channel 分派：value 写入落到对应通道；动态切换后落到新通道 ——
     function test_channelDispatch() {
-        const v = makeSlider({ channel: ColorNameHQ.HSVValue })
+        const v = makeSlider({ channel: ColorHQ.HSVValue })
         v.value = 0.4
         verify(fuzzy(v.colorAssistant.hsvValueF, 0.4), "HSVValue write lands")
-        const a = makeSlider({ channel: ColorNameHQ.Alpha })
+        const a = makeSlider({ channel: ColorHQ.Alpha })
         a.value = 0.6
         verify(fuzzy(a.colorAssistant.alphaF, 0.6), "Alpha write lands")
         // 动态切换 channel：写入落到新通道
         const d = makeSlider({})
-        d.channel = ColorNameHQ.HSVValue
+        d.channel = ColorHQ.HSVValue
         d.value = 0.8
         verify(fuzzy(d.colorAssistant.hsvValueF, 0.8),
                "write lands on switched channel")

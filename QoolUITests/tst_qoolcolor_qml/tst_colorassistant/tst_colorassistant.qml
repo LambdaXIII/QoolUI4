@@ -5,12 +5,11 @@ import Qool.Color
 
 // ColorAssistant 测试（Qool.Color/qool_colorassistant.h——多色彩空间颜色
 // 对象：写任一分量全空间重算 + 全 Changed 广播；int/F 双轨；列表与 name
-// 属性；派生只读；QML_EXTENDED ColorLiterals 通道字面量扩展）。
+// 属性；派生只读；共享 ColorLiterals 助手经 ColorHQ 单例访问）。
 //
-// 被测契约（reference 文档 ColorAssistant.md 为准绳，逐条对应）：
+// 被测契约（reference 文档 ColorAssistant.md 为准绳，逐条对应）:
 // - 初始状态：未设色 isValid()=false，分量默认 0
 // - color 写 → 四空间（RGB/HSV/HSL/CMYK）全同步；任一分量写 → 全空间重算
-// - int/F 双轨语义一致且互写同步（F 轨 0..1、int 轨 0..255，hue 0..359）
 // - 相等守卫：同值写入不广播（color/列表/分量三级守卫）
 // - 信号：colorChanged + 列表 Changed 随色变无条件广播；分量 Changed
 //   仅在分量实际变化时发射（选择性广播）
@@ -44,10 +43,11 @@ import Qool.Color
 // - 高负载确定性：120 轮 6 类入口交错写每轮四空间一致；绑定消费
 //   （color/visualBrightness）高频写入即时跟随；重入回写（同值写回
 //   模拟双向环）guard 拦截、每实质写恰好一次 colorChanged
-// - QML 扩展：Channels 枚举（类型名访问）+ channelName/channelNameF/
+ // - ColorLiterals 共享助手（Channels 枚举 + channelName/channelNameF/
 //   channelTag/channelTagShort/channelColor/formatChannelNumberFloat/
-//   parseChannelNumberFloat/clampChannelRange（经实例调用——类型名无
-//   方法面，探针实证）
+//   parseChannelNumberFloat/clampChannelRange/visualBrightness）：统一经
+//   ColorHQ 单例访问（其 QML_EXTENDED(ColorLiterals) 完整暴露；ColorAssistant
+//   不挂扩展，ColorAssistant.Channels 与实例方法调用均不适用）
 //
 // 隔离：每个测试函数独立实例（makeCA）。hue 依赖有彩色的场景（无彩色
 // 时 hue 写入无效——灰色 hue=-1）用 fresh 组件隔离，不掺灰场景。
@@ -537,82 +537,78 @@ TestCase {
         verify(fuzzy(ca.blueF, 1), "blueF 1.2 -> 1")
     }
 
-    // —— QML 扩展：Channels 枚举与通道元数据 ——
+    // —— ColorLiterals 共享助手：Channels 枚举与通道元数据（经 ColorHQ）——
     function test_channelLiterals() {
-        compare(ColorAssistant.Channels.Alpha, 0, "Alpha 0")
-        compare(ColorAssistant.Channels.Red, 1, "Red 1")
-        compare(ColorAssistant.Channels.Green, 2, "Green 2")
-        compare(ColorAssistant.Channels.Blue, 3, "Blue 3")
-        compare(ColorAssistant.Channels.HSVHue, 4, "HSVHue 4")
-        compare(ColorAssistant.Channels.HSLHue, 7, "HSLHue 7")
-        compare(ColorAssistant.Channels.Cyan, 10, "Cyan 10")
-        compare(ColorAssistant.Channels.Black, 13, "Black 13")
-        // QML_EXTENDED 的 static 方法经实例调用（类型名仅暴露枚举）
-        const ca = makeCA({})
-        compare(ca.channelName(ColorAssistant.Channels.Red), "red",
+        compare(ColorHQ.Channels.Alpha, 0, "Alpha 0")
+        compare(ColorHQ.Channels.Red, 1, "Red 1")
+        compare(ColorHQ.Channels.Green, 2, "Green 2")
+        compare(ColorHQ.Channels.Blue, 3, "Blue 3")
+        compare(ColorHQ.Channels.HSVHue, 4, "HSVHue 4")
+        compare(ColorHQ.Channels.HSLHue, 7, "HSLHue 7")
+        compare(ColorHQ.Channels.Cyan, 10, "Cyan 10")
+        compare(ColorHQ.Channels.Black, 13, "Black 13")
+        // ColorHQ 单例暴露（QML_EXTENDED）的方法直接调用
+        compare(ColorHQ.channelName(ColorHQ.Channels.Red), "red",
                "channelName red")
-        compare(ca.channelName(ColorAssistant.Channels.HSVHue),
+        compare(ColorHQ.channelName(ColorHQ.Channels.HSVHue),
                "hsvHue", "channelName hsvHue")
-        compare(ca.channelNameF(ColorAssistant.Channels.Red),
+        compare(ColorHQ.channelNameF(ColorHQ.Channels.Red),
                "redF", "channelNameF redF")
-        compare(ca.channelTag(ColorAssistant.Channels.Red), "RED",
+        compare(ColorHQ.channelTag(ColorHQ.Channels.Red), "RED",
                "channelTag RED")
-        compare(ca.channelTagShort(ColorAssistant.Channels.Red),
+        compare(ColorHQ.channelTagShort(ColorHQ.Channels.Red),
                "RED", "channelTagShort RED")
-        compare(ca.channelTagShort(
-                    ColorAssistant.Channels.HSLSaturation), "SAT",
+        compare(ColorHQ.channelTagShort(
+                    ColorHQ.Channels.HSLSaturation), "SAT",
                "channelTagShort SAT")
-        compare(ca.channelTagShort(ColorAssistant.Channels.Black),
+        compare(ColorHQ.channelTagShort(ColorHQ.Channels.Black),
                "BLAK", "channelTagShort BLAK")
-        compare(ca.channelTagShort(ColorAssistant.Channels.HSVValue),
+        compare(ColorHQ.channelTagShort(ColorHQ.Channels.HSVValue),
                "BRIT", "channelTagShort HSVValue BRIT")
-        compare(ca.channelColor(ColorAssistant.Channels.Red),
+        compare(ColorHQ.channelColor(ColorHQ.Channels.Red),
                "#ff0000", "channelColor red")
-        compare(ca.channelColor(ColorAssistant.Channels.Alpha),
+        compare(ColorHQ.channelColor(ColorHQ.Channels.Alpha),
                "#a0a0a4", "channelColor alpha grey")
-        compare(ca.channelColor(ColorAssistant.Channels.HSVHue),
+        compare(ColorHQ.channelColor(ColorHQ.Channels.HSVHue),
                "#00000000", "channelColor hue transparent")
     }
 
-    // —— QML 扩展：formatChannelNumberFloat 四种输出 ——
+    // —— ColorLiterals 共享助手：formatChannelNumberFloat 四种输出 ——
     function test_literalFormat() {
-        const ca = makeCA({})
-        compare(ca.formatChannelNumberFloat(0), "0", "0")
-        compare(ca.formatChannelNumberFloat(1), "1", "1")
-        compare(ca.formatChannelNumberFloat(0.5), ".500", ".500")
-        compare(ca.formatChannelNumberFloat(0.1234), ".123", ".123")
-        compare(ca.formatChannelNumberFloat(0.9996), "1",
+        compare(ColorHQ.formatChannelNumberFloat(0), "0", "0")
+        compare(ColorHQ.formatChannelNumberFloat(1), "1", "1")
+        compare(ColorHQ.formatChannelNumberFloat(0.5), ".500", ".500")
+        compare(ColorHQ.formatChannelNumberFloat(0.1234), ".123", ".123")
+        compare(ColorHQ.formatChannelNumberFloat(0.9996), "1",
                "round up to 1")
-        compare(ca.formatChannelNumberFloat(0.0004), "0",
+        compare(ColorHQ.formatChannelNumberFloat(0.0004), "0",
                "round down to 0")
-        compare(ca.formatChannelNumberFloat(NaN), "NaN", "NaN")
+        compare(ColorHQ.formatChannelNumberFloat(NaN), "NaN", "NaN")
     }
 
-    // —— QML 扩展：parseChannelNumberFloat（format 反向）——
+    // —— ColorLiterals 共享助手：parseChannelNumberFloat（format 反向）——
     function test_literalParse() {
-        const ca = makeCA({})
-        verify(fuzzy(ca.parseChannelNumberFloat("0.5"), 0.5),
+        verify(fuzzy(ColorHQ.parseChannelNumberFloat("0.5"), 0.5),
                "parse 0.5")
-        verify(fuzzy(ca.parseChannelNumberFloat("350"), 0.35),
+        verify(fuzzy(ColorHQ.parseChannelNumberFloat("350"), 0.35),
                "parse int -> leading dot")
-        verify(fuzzy(ca.parseChannelNumberFloat("1.2.3"), 1.23),
+        verify(fuzzy(ColorHQ.parseChannelNumberFloat("1.2.3"), 1.23),
                "parse second dot dropped")
-        verify(fuzzy(ca.parseChannelNumberFloat(".5"), 0.5),
+        verify(fuzzy(ColorHQ.parseChannelNumberFloat(".5"), 0.5),
                "parse leading dot")
-        verify(isNaN(ca.parseChannelNumberFloat("abc")),
+        verify(isNaN(ColorHQ.parseChannelNumberFloat("abc")),
                "parse garbage -> NaN")
         // 往返：format 输出可解析回原值
-        verify(fuzzy(ca.parseChannelNumberFloat(
-                         ca.formatChannelNumberFloat(0.5)), 0.5),
+        verify(fuzzy(ColorHQ.parseChannelNumberFloat(
+                         ColorHQ.formatChannelNumberFloat(0.5)), 0.5),
                "format -> parse roundtrip")
     }
 
-    // —— QML 扩展：clampChannelRange ——
+    // —— ColorLiterals 共享助手：clampChannelRange ——
     function test_literalClampRange() {
-        const ca = makeCA({})
-        compare(ca.clampChannelRange(-0.5), 0, "lower clamp")
-        compare(ca.clampChannelRange(1.5), 1, "upper clamp")
-        compare(ca.clampChannelRange(0.5), 0.5, "mid pass")
+        compare(ColorHQ.clampChannelRange(-0.5), 0, "lower clamp")
+        compare(ColorHQ.clampChannelRange(1.5), 1, "upper clamp")
+        compare(ColorHQ.clampChannelRange(0.5), 0.5, "mid pass")
     }
     // —— 越界：RGB/alpha 分量双轨 clamp（文档 Out-of-range 第 1 条）——
     // 期望值全部为端点（0/1/255）——量化精确，int 轨精确断言、F 轨端点

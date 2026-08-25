@@ -5,17 +5,21 @@
 Qool.Color 提供完整的颜色操纵组件面：
 
 - 核心对象：`ColorAssistant`（四空间分量全同步）、`ColorBank`（稀疏
-  槽位容器）、`ColorNameHQ`（插件化色名查询单例）、`ColorHueCycleModel`、
+  槽位容器）、`ColorHQ`（C++ `ColorNameHQ` 类的 QML 名，插件化色名查询
+  单例）、`ColorHueCycleModel`、
   `RandomHSVColorGenerator`。
 - 编辑面板：`HSVPanel`、`HSLPanel`、`RGBPanel`、`CMYKPanel`——
   数字输入 + 表面控件 + 滑块组合，可注入共享 ColorAssistant。
-- 取色/编辑/预览：`ColorQuickPicker`、`ColorEdit`、`ColorChannelEdit`
-  （单通道值编辑）、`ColorChannelSlider`（单通道拖动调值）、
-     和 `ColorChannelControl`（单通道编辑+拖动组合行）、`ColorPreviewer`。
+- 取色/编辑/预览：`ColorQuickPicker`、`ColorNameEdit`（色名点击编辑）、
+  `ColorChannelEdit`（单通道值编辑）、`ColorChannelSlider`（单通道拖动
+  调值）、`ColorChannelVerticalSlider`（竖直单通道拖动调值，填充条样式）、
+  和 `ColorChannelControl`（单通道编辑+拖动组合行）、`ColorPreviewer`。
+- 色名按钮：`ColorNameButton`（色名+色块按钮）、`ColorNameButtonSurface`
+  （按钮视觉表面件）、`ColorNameListView`（分类色名列表）。
 - 取色表面：`HSVWheel`（HSV 二维色轮取色——hue/sat 双写 + value 压暗层，
   单向链架构，公开一级组件）；`HSLBox`（HSL 二维取色框——sat/lightness
   双写 + hue 外部驱动，单向链架构，公开一级组件）。
-- 列表与银行：`ColorNameList`（分类色名选择）、`ColorBankPanel`
+- 列表与银行：`ColorNameListView`（分类色名选择）、`ColorBankPanel`
   （槽位存取）。
 
 ## 组件参考
@@ -27,16 +31,14 @@ Qool.Color 提供完整的颜色操纵组件面：
 - [ColorChannelControl](ColorChannelControl.md)
 - [ColorChannelEdit](ColorChannelEdit.md)
 - [ColorChannelVerticalSlider](ColorChannelVerticalSlider.md)
-@@
-- 取色/编辑/预览：`ColorQuickPicker`、`ColorEdit`、`ColorChannelEdit`
-  （单通道值编辑）、`ColorChannelSlider`（单通道拖动调值）、
-  `ColorChannelVerticalSlider`（竖直单通道拖动调值，填充条样式）、
-  和 `ColorChannelControl`（单通道编辑+拖动组合行）、`ColorPreviewer`。
+- [ColorChannelSlider](ColorChannelSlider.md)
 - [ColorCursor](ColorCursor.md)
-- [ColorEdit](ColorEdit.md)
 - [ColorHueCycleModel](ColorHueCycleModel.md)
-- [ColorNameHQ](ColorNameHQ.md)
-- [ColorNameList](ColorNameList.md)
+- [ColorHQ](ColorNameHQ.md)
+- [ColorNameButton](ColorNameButton.md)
+- [ColorNameButtonSurface](ColorNameButtonSurface.md)
+- [ColorNameEdit](ColorNameEdit.md)
+- [ColorNameListView](ColorNameListView.md)
 - [ColorPreviewer](ColorPreviewer.md)
 - [ColorQuickPicker](ColorQuickPicker.md)
 - [HSLBox](HSLBox.md)

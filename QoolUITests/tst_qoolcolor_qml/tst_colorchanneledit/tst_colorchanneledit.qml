@@ -11,7 +11,7 @@ import Qool.Controls
 // - 写链：root.value 写入（程序化）→ assistant 通道变化
 // - 读链：assistant 通道变化 → root.value 跟随
 // - channel 分派 / 外部绑定源联动（colorAssistant.color 绑定外部源场景）
-// - 解析/格式化语义（ColorNameHQ.parseChannelNumberFloat /
+// - 解析/格式化语义（ColorHQ.parseChannelNumberFloat /
 //   formatChannelNumberFloat——本组件依赖的核心解析/格式化，format/parse
 //   配对）
 // - orientation：默认水平（长标签贴左 + 数字贴右）；Qt.Vertical 切竖直
@@ -44,7 +44,7 @@ TestCase {
             colorAssistant: ColorAssistant {
                 color: "#ff0000"
             }
-            channel: ColorNameHQ.HSLLightness
+            channel: ColorHQ.HSLLightness
         }
     }
 
@@ -60,17 +60,17 @@ TestCase {
     function test_parseFormatRoundtrip() {
         // 端点：format 将 0/1 输出为 "0"/"1"，解析须对称还原（不特判则
         // 显示 "1" 的编辑收尾被补点误读为 .1）
-        compare(ColorNameHQ.parseChannelNumberFloat("1"), 1, "endpoint 1 roundtrip")
-        compare(ColorNameHQ.parseChannelNumberFloat("0"), 0, "endpoint 0 roundtrip")
+        compare(ColorHQ.parseChannelNumberFloat("1"), 1, "endpoint 1 roundtrip")
+        compare(ColorHQ.parseChannelNumberFloat("0"), 0, "endpoint 0 roundtrip")
         // 补点约定：无点整数按纯小数解释
-        verify(fuzzy(ColorNameHQ.parseChannelNumberFloat("350"), 0.35),
+        verify(fuzzy(ColorHQ.parseChannelNumberFloat("350"), 0.35),
                "no-dot integer -> pure decimal (350 -> .35)")
-        verify(fuzzy(ColorNameHQ.parseChannelNumberFloat(".35"), 0.35),
+        verify(fuzzy(ColorHQ.parseChannelNumberFloat(".35"), 0.35),
                "leading dot direct")
-        verify(fuzzy(ColorNameHQ.parseChannelNumberFloat("0.35"), 0.35),
+        verify(fuzzy(ColorHQ.parseChannelNumberFloat("0.35"), 0.35),
                "full form direct")
         // 清洗失败透传 NaN
-        verify(Number.isNaN(ColorNameHQ.parseChannelNumberFloat(".")),
+        verify(Number.isNaN(ColorHQ.parseChannelNumberFloat(".")),
                "lone dot -> NaN")
     }
 
@@ -119,7 +119,7 @@ TestCase {
                 height: 30
                 animationEnabled: false
                 colorAssistant: asst
-                channel: ColorNameHQ.HSLLightness
+                channel: ColorHQ.HSLLightness
             }
         }
     }
@@ -184,7 +184,7 @@ TestCase {
                "mirrored horizontal: tag right of 5px gap")
         verify(fuzzy(tag.x + tag.width, e.contentItem.width),
                "mirrored horizontal: tag flush right")
-        verify(tag.text === ColorNameHQ.channelTag(e.channel),
+        verify(tag.text === ColorHQ.channelTag(e.channel),
                "mirrored keeps long label text")
         e.LayoutMirroring.enabled = false
         verify(fuzzy(tag.x, 0) && fuzzy(editor.x + editor.width, e.contentItem.width),
@@ -207,7 +207,7 @@ TestCase {
         verify(fuzzy(tag.y, editor.height), "tagOnTop: tag below")
         const cx = Math.max(0, (e.contentItem.width - editor.width) / 2)
         verify(fuzzy(editor.x, cx), "tagOnTop: editor centered")
-        verify(tag.text === ColorNameHQ.channelTagShort(e.channel),
+        verify(tag.text === ColorHQ.channelTagShort(e.channel),
                "vertical keeps short label text")
         // 环境镜像与竖直行序正交
         e.LayoutMirroring.enabled = true
