@@ -4,16 +4,15 @@
 //   鼠标事件 → setValues() → sat/ltn 数据 → position(sat,ltn) → 光标定位
 // - 输入层：矩形平面响应鼠标，setValues() 把坐标裁剪后经映射转 sat/ltn
 //   写 assistant。交互只写 sat/ltn，不写 hue（hue 由外部/联动驱动，
-//   hslHueF<0 无色相时先置 0——HSL 平面需有效色相才能取色）。
+//   取现锚值——hue 恒合法，无色相由 sat/ltn 判定）。
 // - 呈现层：光标是值的可视化（position(sat,ltn) 纯函数派生），非被拖动对象。
 // - 平面与光标独立消费同一数据源（assistant），互不直连。
 //
 // 写入钳制两路（值合法，非坐标 clamp）：
 // - 交互路径：保留 HSLSurface 既有映射（Qore.bound 矩形裁剪 →
 //   saturationAt = x/w、lightnessAt = 1 - y/h）。
-// - 接口路径：hue 越界（<0 无色相）不写进 assistant、显示保持最后合法
-//   位置（对齐 HSVWheel/ColorChannelSlider 越界守卫）；hue>1 圆周归一化
-//   取模（% 1，对齐 QColor::setHslF 循环等价）；sat/ltn clamp [0,1]。
+// - 接口路径：hue 越界归一化正模到 [0,1)（-0.5 → 0.5、1.5 → 0.5；hue 恒
+//   合法，无色相由 sat/ltn 判定）；sat/ltn clamp [0,1]。
 //
 // 交互契约裁剪：无 defaultValue/reset、双击无定义行为（对齐 HSVWheel）。
 // 注意：与 HSVWheel 不同，本件命中域无圆环钳制——矩形内直接裁剪
@@ -39,10 +38,15 @@ Item {
     property real hue: 0
     property real saturation: 0
     property real lightness: 1
+
+    property real cursorSize: 22
     // 交互态（转发 InteractingArea——宿主可读拖动态，光标展开/动画门控）。
     readonly property bool userInteracting: area.userInteracting
 
-    property real cursorSize: 22
+    // 几何重定位：尺寸变化后光标中心不再对应旧坐标（症状 5）——事件驱动
+    // 重算（updateCursor 幂等，绑定回写破坏约束下不可用绑定）。
+    onWidthChanged: area.updateCursor()
+    onHeightChanged: area.updateCursor()
 
     // —— HSL 平面表面（HSLSurface _private——色相×饱和度 + 明度三层叠加，
     // 映射数学见其文件头）。hslHue 决定平面色相，经 assistant.hslHueF 驱动。
@@ -57,7 +61,8 @@ Item {
     InteractingArea {
         id: area
 
-        // 交互映射：坐标裁剪 → sat/ltn → 两个同时写 assistant（hue<0 先置 0）。
+        // 交互映射：坐标裁剪 → sat/ltn → 原子写 assistant（hue 取现锚值，
+        // 恒合法——无色相时也记住 hue，拉起 ltn/sat 后恢复）。
         // 交互层不经接口属性（saturation/lightness）中转——直接写数据源。
         function setValues() {
             let xx = Qore.bound(0.0, mouseX, area.width);
@@ -65,10 +70,7 @@ Item {
             let p = Qt.point(xx, yy);
             let sat = surface.saturationAt(p);
             let ltn = surface.lightnessAt(p);
-            if (root.colorAssistant.hslHueF < 0)
-                root.colorAssistant.hslHueF = 0;
-            root.colorAssistant.hslSaturationF = sat;
-            root.colorAssistant.hslLightnessF = ltn;
+            root.colorAssistant.hslF = [root.colorAssistant.hslHueF, sat, ltn];
         }
 
         // 光标定位（事件驱动——CenterPlacer 回写破坏绑定，禁止绑定 centerx）
@@ -101,6 +103,7 @@ Item {
             animationEnabled: seedDone && root.animationEnabled && !area.userInteracting
             width: root.cursorSize
             height: root.cursorSize
+            objectName: "hslBoxCursor"  // 测试定位锚（几何重定位断言）
 
             delta: Qore.bound(4, root.cursorSize * 0.35, 15)
 
@@ -136,13 +139,11 @@ Item {
     }
 
     // —— 读方向：assistant 通道 → 接口属性（外部改色/联动/程序写入）。
-    // hue 越界（<0 无色相）不回写——显示保持最后合法位置（对齐 HSVWheel）。
+    // 读数恒合法（锚恒 ∈[0,1)，无 -1）——直接回写。
     Connections {
         target: root.colorAssistant
         function onHslHueFChanged() {
-            const v = root.colorAssistant.hslHueF;
-            if (v >= 0 && v <= 1)
-                root.hue = v;
+            root.hue = root.colorAssistant.hslHueF;
         }
         function onHslSaturationFChanged() {
             root.saturation = root.colorAssistant.hslSaturationF;
@@ -173,10 +174,9 @@ Item {
         function onHueChanged() {
             if (Number.isNaN(root.hue))
                 return;
-            if (root.hue < 0)
-                // 无色相 marker：不写——显示保持最后合法位置
-                return;
-            const v = root.hue % 1;
+            // hue 是圆周量 [0,1)：越界归一化正模（1.5 → 0.5、-0.5 → 0.5），
+            // 对齐 assistant 锚归一化——hue 恒合法、无色相由 sat/ltn 判定
+            const v = ((root.hue % 1) + 1) % 1;
             if (v !== root.hue)
                 root.hue = v;
             else
@@ -211,9 +211,7 @@ Item {
     Component.onCompleted: {
         root.lightness = root.colorAssistant.hslLightnessF;
         root.saturation = root.colorAssistant.hslSaturationF;
-        const h = root.colorAssistant.hslHueF;
-        if (h >= 0 && h <= 1)
-            root.hue = h;
+        root.hue = root.colorAssistant.hslHueF;  // 恒合法（锚 ∈[0,1)）
         // 初始定位延迟到事件循环下一轮：本组件内 CenterPlacer 的初始 resync
         // 在本组件 onCompleted 之后才执行（QML 完成时序），立即调用时 centery
         // 与 position 目标同值 → 同值守卫吞掉首次写入 → 光标 y 错位；resync

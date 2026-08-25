@@ -157,7 +157,8 @@ T.Slider {
             property: ColorHQ.channelNameF(root.channel)
         }
 
-        // 越界 hue（<0 无色相）不写——显示保持最后位置，避免 sat-bump 回环。
+        // 读方向：assistant 通道 → 接口属性。读数恒合法（锚恒 ∈[0,1)，无
+        // -1）——守卫恒过，保留防御性；sat-bump 回环顾虑已随补丁退役。
         Connections {
             target: proxy
             function onValueChanged() {
@@ -167,7 +168,8 @@ T.Slider {
             }
         }
 
-        // 写方向：裁剪 [0,1]。
+        // 写方向：裁剪 [0,1] 后直写通道（hue 恒合法，无色相由 assistant
+        // 侧判定——显式写 hue 落锚，无需 sat-bump 补偿）。
         Connections {
             target: root
             function onValueChanged() {
@@ -176,17 +178,8 @@ T.Slider {
                     root.value = v;
                     return;
                 }
-                pCtrl.writeChannel(v);
+                proxy.value = v;
             }
-        }
-
-        // sat-bump：hue+无色相 → 先写 sat 0.001 再写 hue（sat=0 时 hue 无意义）。
-        function writeChannel(v) {
-            if (root.channel === ColorHQ.HSVHue && root.colorAssistant.hsvHueF < 0)
-                root.colorAssistant.hsvSaturationF = 0.001;
-            else if (root.channel === ColorHQ.HSLHue && root.colorAssistant.hslHueF < 0)
-                root.colorAssistant.hslSaturationF = 0.001;
-            proxy.value = v;
         }
     }
 
