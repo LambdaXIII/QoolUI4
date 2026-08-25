@@ -42,7 +42,7 @@ Item {
         ShapePath {
             // id: topBGPath
             PathRectangle {
-                width: mainShape.weight
+                width: mainShape.width
                 height: mainShape.h1
                 topLeftRadius: root.radius
                 topRightRadius: root.radius
