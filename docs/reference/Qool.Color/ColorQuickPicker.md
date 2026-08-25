@@ -47,7 +47,8 @@ This type defines no additional signals.
 
 ## Methods
 
-This type defines no additional methods (there is n  - `reset()` — 组件未定义此方法，双击不重置颜色).
+ This type defines no additional methods — the component exposes no `reset()`,
+and has no double-click reset behavior (the double-click handler was removed).
 
 ## Usage Example
 

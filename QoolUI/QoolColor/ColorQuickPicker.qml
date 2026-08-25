@@ -104,7 +104,6 @@ Item {
         }
         onPressAndHold: set_color()
         onPositionChanged: set_color()
-        onDoubleClicked: root.reset()
         onEntered: root.forceActiveFocus()
     } //mouseArea
 
