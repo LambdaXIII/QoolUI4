@@ -9,11 +9,12 @@ import Qool.Color
 // 被测契约（仅逻辑/行为——外观已定稿，不测视觉细节）：
 // - 链双向同步：写 value → assistant 通道变化；改 assistant 通道 → value
 //   回写；同值写入不循环（T.Slider 同值守卫 + assistant 相等守卫收敛）
-// - onCompleted 播种：assistant 预设色 → value = 通道值（越界 hue 不播种）
-// - sat-bump：hue 通道 + 无色相色（hue < 0）→ 先写对应 sat = 0.001 再写 hue
+// - onCompleted 播种：assistant 预设色 → value = 通道值（hue 恒合法一律
+//   播种——锚 ∈[0,1)，灰轴种子 0）
+// - hue 直写落锚：灰轴（sat=0）上 hue 写仍生效（锚语义，sat-bump 已退役）
 // - 裁剪：越界写入收敛 [0,1]（外部程序写入唯一越界来源）
 // - NaN 写入：不写 assistant、无死循环（守卫路径）
-// - 初始默认：无播种（通道值即 1 / hue+无色相）时 value = 1
+// - 初始默认：通道值即 1 或未播种时 value = 1
 // - channel 分派：不同 channel 的 value 写入落到对应通道；动态切换 channel
 //   后写入落到新通道
 //
@@ -108,34 +109,6 @@ TestCase {
         verify(fuzzy(w.value, 1), "white -> lightness 1 seeded")
     }
 
-    // —— sat-bump：hue + 无色相色 → 先写 sat 0.001 再写 hue ——
-    // 注：QColor 近灰（sat≈0.001）内部量化——sat 0.001 存为 ~0.001007、
-    // hue 存值偏差 ~2.5e-3（RGB 表示无法精确保住近灰 hue）——断言用宽
-    // 容差（sat 非零小量 + hue 近似），契约是"sat 抬离 0 使 hue 有定义"
-    // 的可见反馈，非精确值。
-    function test_satBump() {
-        // HSV hue + 灰色（hsvHueF = -1）
-        const s = makeSlider({
-                      __assistantColor: "#808080",
-                      channel: ColorHQ.HSVHue
-                  })
-        verify(s.colorAssistant.hsvHueF < 0, "gray has invalid hue")
-        s.value = 0.5
-        verify(Math.abs(s.colorAssistant.hsvSaturationF - 0.001) < 0.0005,
-               "sat-bump writes sat 0.001 (quantized)")
-        verify(fuzzy(s.colorAssistant.hsvHueF, 0.5), "hue written after bump")
-        // HSL hue + 灰色
-        const h = makeSlider({
-                      __assistantColor: "#404040",
-                      channel: ColorHQ.HSLHue
-                  })
-        h.value = 0.3
-        verify(Math.abs(h.colorAssistant.hslSaturationF - 0.001) < 0.0005,
-               "HSL sat-bump writes its sat")
-        verify(Math.abs(h.colorAssistant.hslHueF - 0.3) < 0.01,
-               "HSL hue written after bump (quantized)")
-    }
-
     // —— hue 拖动在彩色上不 bump（sat 保持）——
     function test_noBumpOnChromatic() {
         const s = makeSlider({ channel: ColorHQ.HSVHue })
@@ -164,17 +137,17 @@ TestCase {
         // white → lightness 1：播种值与默认一致（value 保持 1）
         const w = makeSlider({ __assistantColor: "white" })
         verify(fuzzy(w.value, 1), "channel already 1 -> keeps default 1")
-        // hue + 无色相色：hue = -1 越界不播种 → 保持默认 1（hue 1≡0
-        // 循环等价无副作用）
+        // hue + 灰色：锚 hue=0 恒合法 → 播种发生（value=0，非默认 1）
         const g = makeSlider({
                       __assistantColor: "#808080",
                       channel: ColorHQ.HSVHue
                   })
-        verify(fuzzy(g.value, 1), "achromatic hue not seeded -> default 1")
-        // 灰色上 hue 拖动仍可写（sat-bump 路径贯通——近灰量化容差）
+        verify(fuzzy(g.value, 0), "achromatic hue seeded -> 0")
+        // 灰上 hue 直写落锚（显式写恒生效，无需 sat-bump；锚冻结无量化）
         g.value = 0.25
-        verify(Math.abs(g.colorAssistant.hsvHueF - 0.25) < 0.01,
-               "drag on gray works from default 1")
+        verify(fuzzy(g.colorAssistant.hsvHueF, 0.25),
+               "hue write lands on gray (anchor)")
+        verify(fuzzy(g.value, 0.25), "value reads back written hue")
     }
 
     // —— channel 分派：value 写入落到对应通道；动态切换后落到新通道 ——

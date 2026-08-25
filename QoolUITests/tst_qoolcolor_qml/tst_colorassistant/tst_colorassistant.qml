@@ -31,12 +31,13 @@ import Qool.Color
 // - 派生只读：solidColor（alpha 强制 1）、visualBrightness（0.299/0.587/
 //   0.114 加权）、recommendedForegroundColor（0.5 阈值：≥0.5 黑否则白）
 // - 静态方法：hex/isValidName/isValid
-// - 边界：灰色 hue=-1（无彩色 marker，fresh 组件隔离）
+// - 边界：灰轴 hue 恒合法（锚冻结初值 0，非 -1；无彩判定 saturationF==0）
 // - 越界行为（文档 Out-of-range 节，探针实证矩阵）：RGB/alpha 分量
-//   双轨 clamp；int hue 分量 wrap（360→0、540→180）；HSV/HSL/CMYK 非
-//   hue 分量（双轨）与 F hue → Invalid；列表入口越界全部 → Invalid
-//   （含 hue 位——列表无 wrap）；rgbaF 例外：接受越界 float 为扩展
-//   RGB（颜色有效，分量视图收敛回 [0,1]）；Invalid 后合法写恢复
+//   双轨 clamp；int hue 分量 wrap（360→0、540→180）；HSV/HSL 双轨非
+//   hue 分量与 F hue 越界钳制/归一化（颜色有效，通道锚定语义）；
+//   CMYK 分量（双轨）与 rgba/cmyk 列表越界 → Invalid；rgbaF 例外：
+//   接受越界 float 为扩展 RGB（颜色有效，分量视图收敛回 [0,1]）；
+//   Invalid 后合法写恢复
 // - 信号守卫全通道：全部 38 个可写属性同值重写各自静默、实质变化各自
 //   恰好一次；单维变化矩阵（HSV value / HSL lightness / alpha / hue）——
 //   空间内未变分量静默，列表/name/color 无条件广播族照发
@@ -49,12 +50,14 @@ import Qool.Color
 //   ColorHQ 单例访问（其 QML_EXTENDED(ColorLiterals) 完整暴露；ColorAssistant
 //   不挂扩展，ColorAssistant.Channels 与实例方法调用均不适用）
 //
-// 隔离：每个测试函数独立实例（makeCA）。hue 依赖有彩色的场景（无彩色
-// 时 hue 写入无效——灰色 hue=-1）用 fresh 组件隔离，不掺灰场景。
+// 隔离：每个测试函数独立实例（makeCA）。灰轴场景在新锚语义下是目标
+// 场景（显式写落锚/冻结断言），无需回避；fresh 理由仅为越界 Invalid
+// 状态隔离与信号计数隔离。
 //
-// 容差：QColor 通道量化误差使 F 轨中间值回读必偏（0.5 → 0.5000076，
-// journal 2026-08-23 颜色通道测试陷阱），F 轨断言一律 ≥0.02 容差；
-// int 轨与端点值（0/1）量化精确，可精确断言。
+    // 容差：QColor 通道量化误差使 F 轨中间值回读必偏（0.5 → 0.5000076，
+    // journal 2026-08-23 颜色通道测试陷阱），F 轨断言一律 ≥0.02 容差；
+    // int 轨与端点值（0/1）量化精确，可精确断言。hue 经 toRgb 重算路径
+    // 回读为 float32 精度（0.3 → 0.3000000119），fuzzy 容差覆盖。
 //
 // 断言第三参一律 ASCII 英文（QoolUITests/AGENTS 断言规范）。
 
@@ -90,7 +93,8 @@ TestCase {
 
     // —— 跨空间一致性校验：color 与四空间独立重建线互比 ——
     // RGB/HSV/HSL 用 Qt 原生构造（独立于被测对象）；CMYK 用标准公式
-    // r=(1-c)(1-k)…（QML 无 Qt.cmyk）。灰 hue=-1 无意义，重建用 0。
+    // r=(1-c)(1-k)…（QML 无 Qt.cmyk）。hue 恒合法（≥0）直接使用——
+    // 灰轴冻结锚经 hsva(h,0,v) 重建仍为同灰。
     function sameColorF(a, b, label) {
         verify(fuzzy(a.r, b.r), label + " r")
         verify(fuzzy(a.g, b.g), label + " g")
@@ -106,12 +110,10 @@ TestCase {
         const c = ca.color
         sameColorF(c, Qt.rgba(ca.redF, ca.greenF, ca.blueF, ca.alphaF),
                    label + " rgb")
-        const hh = ca.hsvHueF < 0 ? 0 : ca.hsvHueF
-        sameColorF(c, Qt.hsva(hh, ca.hsvSaturationF, ca.hsvValueF, ca.alphaF),
-                   label + " hsv")
-        const hl = ca.hslHueF < 0 ? 0 : ca.hslHueF
-        sameColorF(c, Qt.hsla(hl, ca.hslSaturationF, ca.hslLightnessF, ca.alphaF),
-                   label + " hsl")
+        sameColorF(c, Qt.hsva(ca.hsvHueF, ca.hsvSaturationF, ca.hsvValueF,
+                              ca.alphaF), label + " hsv")
+        sameColorF(c, Qt.hsla(ca.hslHueF, ca.hslSaturationF, ca.hslLightnessF,
+                              ca.alphaF), label + " hsl")
         const cr = cmykToRgbF(ca.cyanF, ca.magentaF, ca.yellowF, ca.blackF)
         verify(fuzzy(cr.r, ca.redF), label + " cmyk->rgb r")
         verify(fuzzy(cr.g, ca.greenF), label + " cmyk->rgb g")
@@ -497,24 +499,102 @@ TestCase {
         verify(!ca.isValid(), "after bad name invalid again")
     }
 
-    // —— 边界：灰色 hue=-1（无彩色 marker），fresh 隔离 ——
+    // —— 锚语义：灰轴 hue 恒合法（初值锚冻结 0 非 -1）、显式写落锚 ——
+    // 函数名保留留痕（旧断言为 -1 契约，已按 ADR-0020 新语义重写）。
     function test_hueAchromatic() {
+        // 灰：初值锚冻结为 0，int/F 双轨一致且无 -1
         const grey = makeCA({ color: "#808080" })
-        compare(grey.hsvHue, -1, "grey hsvHue -1")
-        compare(grey.hslHue, -1, "grey hslHue -1")
-        verify(fuzzy(grey.hsvHueF, -1), "grey hsvHueF -1")
-        verify(fuzzy(grey.hslHueF, -1), "grey hslHueF -1")
-        // 有彩色 hue 正常（fresh 组件，不掺灰场景）
+        compare(grey.hsvHue, 0, "grey hsvHue 0")
+        compare(grey.hslHue, 0, "grey hslHue 0")
+        verify(fuzzy(grey.hsvHueF, 0), "grey hsvHueF 0")
+        verify(fuzzy(grey.hslHueF, 0), "grey hslHueF 0")
+        // 无彩判定：饱和度 0（hue 不再是无彩 marker）
+        verify(fuzzy(grey.hsvSaturationF, 0), "achromatic via saturation")
+        // int/F 双轨一致（qRound 口径，灰轴换算恒在 [0,359]）
+        compare(grey.hsvHue, Math.round(grey.hsvHueF * 360) % 360,
+                "grey int/F hue consistent")
+        // 显式写落锚：灰上写 hue 被记住（颜色仍灰），双 hue 锚共享同步
+        grey.hsvHueF = 0.3
+        verify(fuzzy(grey.hsvHueF, 0.3), "grey hue write lands")
+        verify(fuzzy(grey.hslHueF, 0.3), "hsl hue follows shared anchor")
+        compare(grey.hsvHue, 108, "grey hue int follows anchor")
+        compare(grey.hslHue, 108, "grey hslHue int follows anchor")
+        verify(fuzzy(grey.redF, 128 / 255), "grey color unchanged")
+        // 无表达期间外观不变；改 value 后 hsvF 读数携带记住的 hue
+        grey.hsvValueF = 0.5
+        verify(fuzzy(grey.hsvValueF, 128 / 255), "value write keeps grey")
+        verify(fuzzy(grey.hsvSaturationF, 0), "sat stays 0")
+        verify(fuzzy(grey.hsvHueF, 0.3), "hue remembered")
+        verify(fuzzy(grey.hsvF[0], 0.3) && fuzzy(grey.hsvF[2], 128 / 255),
+               "hsvF carries remembered hue")
+        // 有彩色 hue 正常（fresh 组件）
         const red = makeCA({ color: "#ff0000" })
         compare(red.hsvHue, 0, "red hue 0")
         compare(red.hslHue, 0, "red hslHue 0")
     }
 
+    // —— 锚语义核心场景：黑轴冻结 sat → value 拉起按记住的 hue 恢复 ——
+    // seed 红 → color 黑（sat 锚冻结在 1、hue 锚 0）→ value 写 0.5 →
+    // hsvF≈[0,1,0.5]（冻结恢复，非塌缩）。
+    function test_anchorFreezeAndRecover() {
+        const ca = makeCA({ color: "#ff0000" })
+        ca.color = "#000000"
+        verify(fuzzy(ca.hsvHueF, 0), "black hue anchor frozen 0")
+        verify(fuzzy(ca.hsvSaturationF, 1), "black sat anchor frozen 1")
+        compare(ca.hsvHue, 0, "black int hue 0")
+        compare(ca.hsvSaturation, 255, "black int sat follows anchor")
+        // value 拉起 → 冻结恢复出彩色（记住的 hue 生效）
+        ca.hsvValueF = 0.5
+        verify(fuzzy(ca.hsvHueF, 0), "recovered hue")
+        verify(fuzzy(ca.hsvSaturationF, 1), "recovered sat")
+        verify(fuzzy(ca.hsvValueF, 0.5), "recovered value")
+        verify(fuzzy(ca.redF, 0.5), "red channel recovered")
+        verify(fuzzy(ca.greenF, 0) && fuzzy(ca.blueF, 0), "other channels 0")
+        // RGB 逐通道拉起读数为真实换算（fresh 实例，与冻结恢复分别断言）
+        const cb = makeCA({ color: "#ff0000" })
+        cb.color = "#000000"
+        cb.redF = 0.5
+        verify(fuzzy(cb.hsvSaturationF, 1), "rgb pull sat true conversion")
+        verify(fuzzy(cb.hsvValueF, 0.5), "rgb pull value true conversion")
+        verify(fuzzy(cb.hsvHueF, 0), "rgb pull hue true conversion")
+        compare(cb.hsvSaturation, 255, "rgb pull int sat")
+        compare(cb.hsvValue, 128, "rgb pull int value")
+    }
+
+    // —— 信号：hsvF/hslF 列表写单轮广播（原子写，无中间态双发）——
+    function test_hsvFAtomicWriteSingleBroadcast() {
+        // 有彩色：hue 变、sat/value 不变 → 各自恰一次 / 静默
+        const ca = makeCA({ color: "#ff0000" })
+        const spyF = makeSpy(ca, "hsvFChanged")
+        const spyHue = makeSpy(ca, "hsvHueFChanged")
+        const spySat = makeSpy(ca, "hsvSaturationFChanged")
+        const spyVal = makeSpy(ca, "hsvValueFChanged")
+        ca.hsvF = [0.3, 1, 1]
+        compare(spyF.count, 1, "hsvF broadcast once")
+        compare(spyHue.count, 1, "hueF broadcast once")
+        compare(spySat.count, 0, "sat unchanged silent")
+        compare(spyVal.count, 0, "value unchanged silent")
+        // 灰轴：hsvF 写单轮广播（QColor 相等含色彩空间 spec——RGB 同值也
+        // 经 set_color 全重算，聚合照发一轮）；hue 落锚、sat/value 冻结
+        const cg = makeCA({ color: "#808080" })
+        const gF = makeSpy(cg, "hsvFChanged")
+        const gHue = makeSpy(cg, "hsvHueFChanged")
+        const gInt = makeSpy(cg, "hsvHueChanged")
+        cg.hsvF = [0.6, 0, 128 / 255]
+        compare(gF.count, 1, "grey hsvF single round")
+        compare(gHue.count, 1, "grey hueF broadcast once")
+        compare(gInt.count, 1, "grey hue int follows anchor once")
+        verify(fuzzy(cg.hsvHueF, 0.6), "grey hue landed")
+        verify(fuzzy(cg.hsvF[1], 0) && fuzzy(cg.hsvF[2], 128 / 255),
+               "grey sat/value frozen")
+        verify(fuzzy(cg.redF, 128 / 255), "grey rgb unchanged")
+    }
+
     // —— 边界：hue 越界强制进范围（int 轨 wrap，360→0、540→180）——
-    // 注：F 轨 hue 越界（如 hsvHueF=1.5）经 QColor 参数域检查产生 Invalid
-    // 色（非 wrap）——不在本测试固定，见文档「Invalid colors」节。
+    // 注：F 轨 hue 越界归一化正模（1.5 → 0.5、-0.5 → 0.5）——不再产生
+    // Invalid；见文档「Out-of-range」节与 test_outOfRangeClampNormalize。
     function test_hueWrap() {
-        // fresh 有彩色组件（灰色 hue 写入无效）
+        // fresh 有彩色组件（灰场景 hue 语义由锚测试覆盖）
         const ca = makeCA({ color: "#ff0000" })
         ca.hsvHue = 360
         compare(ca.hsvHue, 0, "hsvHue 360 -> 0")
@@ -640,31 +720,54 @@ TestCase {
         }
     }
 
-    // —— 越界：HSV/HSL/CMYK 双轨非 hue 分量与 F hue → Invalid；列表入口
-    // 全部 → Invalid（含 hue 位——列表无 wrap 语义；rgba int 列表同）——
-    // 文档 Out-of-range 第 2、3 条。Invalid 破坏分量状态，每例 fresh 实例。
+    // —— 越界：HSV/HSL 双轨钳制/归一化（通道锚定语义，颜色有效）；
+    // CMYK 双轨与 rgba/cmyk 列表越界仍 → Invalid（QColor 参数域，未动）——
+    // 文档 Out-of-range 第 2、3 条（锚语义修订版）。每例 fresh 实例。
     function test_outOfRangeInvalid() {
-        const cases = [
-            ["hsvHueF", 1.5], ["hsvHueF", -0.5],
-            ["hsvSaturationF", 1.2], ["hsvValueF", -0.5],
-            ["hslHueF", 1.5], ["hslHueF", -0.5],
-            ["hslSaturationF", -0.5], ["hslLightnessF", 1.2],
+        // HSV/HSL 分量与列表越界 → 钳制/归一化，颜色保持有效
+        const clamps = [
+            ["hsvHueF", 1.5, 0.5], ["hsvHueF", -0.5, 0.5],
+            ["hsvSaturationF", 1.2, 1], ["hsvValueF", -0.5, 0],
+            ["hslHueF", 1.5, 0.5], ["hslHueF", -0.5, 0.5],
+            ["hslSaturationF", -0.5, 0], ["hslLightnessF", 1.2, 1],
+            ["hsvSaturation", 300, 255], ["hsvValue", -10, 0],
+            ["hslSaturation", 300, 255], ["hslLightness", -10, 0]
+        ]
+        for (let i = 0; i < clamps.length; i++) {
+            const ca = makeCA({ color: "#ff0000" })
+            ca[clamps[i][0]] = clamps[i][1]
+            verify(ca.isValid(),
+                   clamps[i][0] + "=" + clamps[i][1] + " -> valid")
+            const v = clamps[i][2]
+            if (typeof v === "number")
+                verify(fuzzy(ca[clamps[i][0]], v),
+                       clamps[i][0] + " -> " + v)
+        }
+        // 列表入口：HSV/HSL 越界元素钳制/归一化，颜色有效
+        const listClamps = [
+            ["hsv", [400, 255, 255], 40], ["hsv", [0, 300, 0], 255],
+            ["hsl", [400, 0, 127], 40],
+            ["hsvF", [1.5, 1, 1], 0.5], ["hslF", [0.5, -0.5, 0.5], 0]
+        ]
+        for (let i = 0; i < listClamps.length; i++) {
+            const ca = makeCA({ color: "#ff0000" })
+            ca[listClamps[i][0]] = listClamps[i][1]
+            verify(ca.isValid(),
+                   listClamps[i][0] + " list clamps keeps valid")
+        }
+        // CMYK 双轨与 rgba/cmyk 列表越界仍 → Invalid（未受影响路径）
+        const invalid = [
             ["cyanF", 1.5], ["magentaF", 1.2], ["yellowF", -0.3],
             ["blackF", -0.5],
-            ["hsvSaturation", 300], ["hsvValue", -10],
-            ["hslSaturation", 300], ["hslLightness", -10],
             ["cyan", 300], ["magenta", -10], ["yellow", 300], ["black", 300],
             ["rgba", [-10, 0, 0, 255]], ["rgba", [300, 0, 0, 255]],
-            ["hsv", [400, 255, 255]], ["hsv", [0, 300, 0]],
-            ["hsl", [400, 0, 127]], ["cmyk", [0, 0, 0, 300]],
-            ["hsvF", [1.5, 1, 1]], ["hslF", [0.5, -0.5, 0.5]],
-            ["cmykF", [0.5, 0.5, 0.5, 1.5]]
+            ["cmyk", [0, 0, 0, 300]], ["cmykF", [0.5, 0.5, 0.5, 1.5]]
         ]
-        for (let i = 0; i < cases.length; i++) {
+        for (let i = 0; i < invalid.length; i++) {
             const ca = makeCA({ color: "#ff0000" })
-            ca[cases[i][0]] = cases[i][1]
+            ca[invalid[i][0]] = invalid[i][1]
             verify(!ca.isValid(),
-                   cases[i][0] + "=" + cases[i][1] + " -> invalid")
+                   invalid[i][0] + "=" + invalid[i][1] + " -> invalid")
         }
     }
 
@@ -684,10 +787,11 @@ TestCase {
     }
 
     // —— 恢复：Invalid 后任一入口合法写恢复有效（文档 Out-of-range 收尾句）——
+    // 无效源改用 CMYK 越界（HSV/HSL 越界现钳制/归一化不再产生 Invalid）。
     function test_recoverAfterInvalidWrite() {
         const ca = makeCA({ color: "#ff0000" })
-        ca.hsvSaturation = 300
-        verify(!ca.isValid(), "invalid after out-of-range")
+        ca.cyan = 300
+        verify(!ca.isValid(), "invalid after out-of-range cmyk")
         ca.green = 128
         verify(ca.isValid(), "valid again after in-range write")
         compare(ca.green, 128, "recovery value applied")

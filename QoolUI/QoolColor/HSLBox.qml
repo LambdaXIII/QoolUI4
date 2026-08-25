@@ -52,6 +52,7 @@ Item {
     // 映射数学见其文件头）。hslHue 决定平面色相，经 assistant.hslHueF 驱动。
     HSLSurface {
         id: surface
+        objectName: "hslSurface"  // 测试定位锚（几何断言）
         hslHue: root.colorAssistant.hslHueF
         anchors.fill: parent
     }

@@ -9,10 +9,15 @@ import Qool.Color
 // 被测契约（外部行为与公开契约——spec.md 为准绳，逐条对应）：
 // - 三值双向同步：写 hue/saturation/value → assistant 对应通道；assistant
 //   变 → 回读；同值写入不循环（assistant 相等守卫收敛）
-// - onCompleted 播种：assistant 预设色 → hue/sat/value 回读（越界 hue 不播种）
-// - hue 越界（<0 无色相）接口写入不写进 assistant、显示保持
-// - 钳制：sat/value/hue>1 clamp 收敛（接口属性与 assistant 都收敛到合法域）
+// - onCompleted 播种：assistant 预设色 → hue/sat/value 回读（hue 恒合法
+//   一律播种——锚 ∈[0,1)，灰轴种子 0）
+// - hue 越界接口写入正模归一化到 [0,1)（-0.5 → 0.5、1.5 → 0.5），恒合法；
+//   灰轴（sat=0）写 hue 落锚（锚语义，test_greyHueAnchor）
+// - 钳制：sat/value clamp 收敛（接口属性与 assistant 都收敛到合法域）
 // - value 驱动圆盘压暗层（darkAlpha = 1 - value 派生契约）
+// - 圆心 hueAt 为 NaN → setValues 有限性检查跳过（test_centerNaNGuarded）
+// - 几何重定位：尺寸变化后光标经 onWidth/HeightChanged 重算
+//   （test_geometryRelocation，症状 5）
 // - 无 defaultValue/reset、双击无定义行为（交互契约裁剪）
 //
 // 隔离：每个测试函数独立实例；动画统一关闭（animationEnabled: false）。
@@ -54,6 +59,17 @@ TestCase {
 
     function fuzzy(x, y) {
         return Math.abs(x - y) < 0.001
+    }
+
+    function findItem(item, name) {
+        if (item.objectName === name)
+            return item
+        for (let i = 0; i < item.children.length; ++i) {
+            const r = findItem(item.children[i], name)
+            if (r)
+                return r
+        }
+        return null
     }
 
     // —— 三值双向同步（接口契约）——
@@ -105,21 +121,23 @@ TestCase {
         verify(fuzzy(w.saturation, 1), "red -> sat 1 seeded")
         verify(fuzzy(w.value, 1), "red -> value 1 seeded")
         const g = makeWheel({ __assistantColor: "#404040" })
-        // #404040: hsvHue=-1 (grey), sat=0, value=0.25
+        // #404040: hue 锚 0（灰轴恒合法），sat=0, value=0.25
         verify(fuzzy(g.value, 0.25), "grey -> value 0.25 seeded")
         verify(fuzzy(g.saturation, 0), "grey -> sat 0 seeded")
-        verify(fuzzy(g.hue, 0), "grey hue not seeded -> keep default 0")
+        verify(fuzzy(g.hue, 0), "grey hue seeded 0 (anchor)")
     }
 
-    // —— hue 越界（<0 无色相）接口写入不写进 assistant ——
+    // —— hue 越界接口写入正模归一化（恒合法，<0 拒写路径已退役）——
     function test_hueOutOfRange() {
         const w = makeWheel({})
         const ca = w.colorAssistant
         verify(fuzzy(ca.hsvHueF, 0), "red hue valid")
         w.hue = -1
-        verify(fuzzy(ca.hsvHueF, 0), "hue<0 not written to assistant")
+        verify(fuzzy(w.hue, 0), "hue -1 -> normalized 0")
+        verify(fuzzy(ca.hsvHueF, 0), "assistant hue -1 -> 0")
         w.hue = -0.5
-        verify(fuzzy(ca.hsvHueF, 0), "hue<0 still not written")
+        verify(fuzzy(w.hue, 0.5), "hue -0.5 -> normalized 0.5")
+        verify(fuzzy(ca.hsvHueF, 0.5), "assistant hue -0.5 -> 0.5")
     }
 
     // —— 钳制：sat/value clamp [0,1]（接口属性与 assistant 都收敛）——
@@ -137,11 +155,8 @@ TestCase {
         w.value = -0.5
         verify(fuzzy(w.colorAssistant.hsvValueF, 0), "value lower clamp")
         verify(fuzzy(w.value, 0), "value itself reads 0")
-        // hue >1 圆周归一化（对齐 QColor::setHsvF 循环等价存储）。
-        // 注意：sat=0（无色相）时 QColor 存储灰色 → hsvHueF=-1，hue 写入
-        // 无彩色无效（ColorChannelSlider 用 sat-bump 解决的同类问题，本件
-        // 范围未含）——故 hue 归一化在**独立组件**上测（fresh hue 为红
-        // hue=0、sat=1 有彩色），不掺 sat=0 场景。
+        // hue 越界归一化正模（对齐 assistant 锚归一化——1.5 → 0.5、2 → 0）。
+        // 灰轴（sat=0）hue 落锚语义由 test_greyHueAnchor 单独覆盖。
         const hw = makeWheel({})
         hw.hue = 1.5
         verify(fuzzy(hw.hue, 0.5), "hue 1.5 -> normalized 0.5")
@@ -151,6 +166,68 @@ TestCase {
         verify(fuzzy(hw.hue, 0), "hue 2 -> normalized 0")
         verify(Math.abs(hw.colorAssistant.hsvHueF) < 0.02,
                "assistant hue normalized 0 (quantized)")
+    }
+
+    // —— 灰轴 hue 落锚：sat=0 下写 hue 仍被记住、颜色保持灰 ——
+    function test_greyHueAnchor() {
+        const w = makeWheel({ __assistantColor: "#808080" })
+        const ca = w.colorAssistant
+        verify(fuzzy(ca.hsvHueF, 0), "grey anchor initial 0")
+        w.hue = 0.3
+        verify(fuzzy(w.hue, 0.3), "hue write readback")
+        verify(fuzzy(ca.hsvHueF, 0.3), "grey hue landed (anchor)")
+        verify(fuzzy(ca.hsvSaturationF, 0), "sat stays 0 (achromatic)")
+        verify(fuzzy(ca.redF, 128 / 255), "color still grey")
+    }
+
+    // —— 圆心 NaN 防御：hueAt(圆心) 为 NaN；assistant NaN 写被拒绝 ——
+    function test_centerNaNGuarded() {
+        const w = makeWheel({})
+        const surface = findItem(w, "hsvSurface")
+        verify(surface, "surface found by objectName")
+        // 圆心 atan(0/0) → NaN（setValues 有限性检查的防御对象）
+        verify(isNaN(surface.hueAt(Qt.point(w.width / 2, w.height / 2))),
+               "center hueAt NaN")
+        // assistant 侧 NaN/Inf 写被拒（读数不变，锚不变式保护）
+        const before = w.colorAssistant.hsvHueF
+        w.colorAssistant.hsvHueF = NaN
+        verify(fuzzy(w.colorAssistant.hsvHueF, before),
+               "NaN hue write rejected")
+        w.colorAssistant.hsvHueF = Infinity
+        verify(fuzzy(w.colorAssistant.hsvHueF, before),
+               "Infinity hue write rejected")
+    }
+
+    // —— 几何重定位：尺寸变化后光标重新定位（症状 5）——
+    function test_geometryRelocation() {
+        const w = makeWheel({})
+        const ca = w.colorAssistant
+        const surface = findItem(w, "hsvSurface")
+        verify(surface, "surface found")
+        ca.hsvHueF = 0.5
+        ca.hsvSaturationF = 0.8
+        wait(0)  // 排空播种 callLater 与信号队列
+        const cursor = findItem(w, "hsvWheelCursor")
+        verify(cursor, "cursor found by objectName")
+        // 初始映射一致且在界内
+        let exp = surface.position(ca.hsvHueF, ca.hsvSaturationF)
+        let cx = cursor.x + cursor.width / 2
+        let cy = cursor.y + cursor.height / 2
+        verify(fuzzy(cx, exp.x) && fuzzy(cy, exp.y),
+               "cursor mapped to position initially")
+        verify(cx >= 0 && cx <= w.width && cy >= 0 && cy <= w.height,
+               "cursor in bounds initially")
+        // 尺寸变化 → onWidth/HeightChanged 重定位
+        w.width = 320
+        w.height = 260
+        wait(0)
+        exp = surface.position(ca.hsvHueF, ca.hsvSaturationF)
+        cx = cursor.x + cursor.width / 2
+        cy = cursor.y + cursor.height / 2
+        verify(fuzzy(cx, exp.x) && fuzzy(cy, exp.y),
+               "cursor repositioned after resize")
+        verify(cx >= 0 && cx <= w.width && cy >= 0 && cy <= w.height,
+               "cursor in bounds after resize")
     }
 
     // —— value 驱动圆盘压暗层（darkAlpha = 1 - value 派生契约）——

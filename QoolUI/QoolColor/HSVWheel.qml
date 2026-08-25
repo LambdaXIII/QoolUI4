@@ -65,6 +65,7 @@ Item {
     // ——值合法域 [0,1] 由写入层保证）。
     HSVSurface {
         id: surface
+        objectName: "hsvSurface"  // 测试定位锚（圆心 NaN/几何断言）
         hsvValue: root.value
         anchors.fill: parent
         strokeColor: root.colorAssistant.recommendedForegroundColor
