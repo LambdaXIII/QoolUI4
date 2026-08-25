@@ -71,26 +71,63 @@ Out-of-range writes behave differently per entry type:
   integer `red`/`green`/`blue`/`alpha`) are clamped into range ([0, 1]
   float / [0, 255] integer): the underlying `QColor` channel setters clip
   these values instead of rejecting them.
-- **HSV / HSL / CMYK components** (both tracks except the integer hues)
-  are passed straight to the `QColor` setters; an out-of-range value
-  invalidates the whole color instead of being clamped. The integer hue
-  tracks (`hsvHue`/`hslHue`) are the exception: `QColor` forces their
-  values into range (360 → 0, 540 → 180), keeping the color valid. The
-  float hue tracks do not wrap — an out-of-range `hsvHueF`/`hslHueF`
-  invalidates the color like any other HSV/HSL component.
+- **HSV / HSL components** (both tracks) are normalized/clamped into
+  range under the channel-anchoring model: hue wraps modulo into [0, 1)
+  (−0.5 → 0.5, 1.5 → 0.5, 360° → 0°), the other components clamp to
+  [0, 1]; the color always stays valid.
+- **CMYK components** (both tracks) are passed straight to the `QColor`
+  setters; an out-of-range value invalidates the whole color instead of
+  being clamped.
 - **List writes** go through the `QColor::fromXxx` factories, whose
-  parameter domains differ from the component setters:
+  parameter domains differ per space:
 
   - `rgba` rejects any entry outside 0..255 and invalidates the color.
   - `rgbaF` accepts floats outside [0, 1] as extended-RGB values (the
     color stays valid); the component views report the values converged
     back into [0, 1].
-  - `hsv` / `hsvF` / `hsl` / `hslF` / `cmyk` / `cmykF` invalidate the
-    color on any out-of-range entry — including hue entries, i.e. list
-    entries have no wrap semantics.
+  - `hsv` / `hsvF` / `hsl` / `hslF` normalize/clamp entries like the
+    component setters (hue wraps, others clamp; the color stays valid).
+  - `cmyk` / `cmykF` invalidate the color on any out-of-range entry.
 
 An invalidated color does not brick the object: a subsequent in-range
 write through any entry recomputes a valid color as usual.
+
+### Channel anchoring (ADR-0020)
+
+The authoritative representation is the RGB color; the HSV/HSL views are
+derived. Dimensions with no expression in the current color (the
+*achromatic axes*) are *anchored* instead of collapsed:
+
+- **Anchor update, three branches**: an explicit component/list write
+  always lands on the anchor — the written value is remembered even when
+  the resulting color has no expression for that dimension; a derived
+  value overwrites the anchor only when the dimension is expressed; an
+  unexpressed dimension freezes the anchor at its last value.
+- **Freeze table**: hue freezes when the derived hue is negative (gray
+  axis — hsv saturation 0 or value 0; hsl saturation 0 or lightness
+  ∈ {0, 1}); `hsvSaturation` freezes when value is 0 (black axis);
+  `hslSaturation` freezes when lightness ∈ {0, 1} (black/white axes).
+  `value` / `lightness` are always expressed and always follow the true
+  conversion.
+- **Anchors are the public readings**: `hsvHueF` / `hslHueF` and the
+  integer `hsvHue` / `hslHue` always report a value in [0, 1) / [0, 359] —
+  `-1` is retired. Achromatic colors are judged by
+  `valueF == 0 || saturationF == 0` (HSV) or
+  `lightnessF ∈ {0, 1} || saturationF == 0` (HSL), never by a negative
+  hue. The integer tracks derive from the anchored float members
+  (`qRound(x * 360) % 360` for hue, `qRound(x * 255)` otherwise), so both
+  tracks stay consistent on gray axes.
+- **Shared hue anchor**: HSV and HSL hue are the same mathematical
+  quantity (the RGB chroma angle) — they share a single anchor; writing
+  either keeps both in sync and emits both `Changed` signals.
+- **Rebuild from members**: component and list setters reconstruct the
+  candidate color from the member values
+  (`QColor::fromHsvF(m_hsvHueF, …)`), never by reading the current color
+  back through `toHsv()`/`toHsl()` (that readback was the collapse
+  source). On chromatic colors the float readings follow the true
+  conversion (8-bit quantization round-trip), so an explicit hue write
+  reports the color's actual hue rather than the request; on achromatic
+  colors the frozen anchor is reported as written.
 
 ## Properties
 
@@ -136,11 +173,12 @@ write through any entry recomputes a valid color as usual.
   (0..255); `hsvHue`, `hslHue` (0..359); `hsvSaturation`, `hsvValue`,
   `hslSaturation`, `hslLightness` (0..255).
 
-  Achromatic colors (grays) report hue as `-1` in both tracks
-  (`hsvHue`/`hsvHueF`/`hslHue`/`hslHueF`). Hue values written through the
-  integer hue component setters outside 0..359 are forced into range by
-  the underlying `QColor` (360 → 0, 540 → 180); other entry types have no
-  wrap semantics (see Out-of-range above).
+  Hue is always valid: on achromatic colors (gray axis) the hue anchors
+  freeze at their last value (initial `0`) instead of collapsing to `-1`
+  — the hue readings stay in [0, 1) / [0, 359] in both tracks, and
+  achromaticity is judged by `valueF == 0 || saturationF == 0` (see
+  Channel anchoring). Hue written outside the domain is normalized
+  modulo into range on every entry type (360° → 0°, −0.5 → 0.5).
 
 ## Signals
 

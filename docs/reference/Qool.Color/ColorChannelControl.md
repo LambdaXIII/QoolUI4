@@ -55,10 +55,9 @@ and a slider per channel.
   The channel value — the control's own third projection. Writing it
   updates the assistant's channel; changes from the assistant (linked
   controls, programmatic writes, either child) read back into it. Seeded
-  from the real channel value on completion; `NaN` is never written.
-  Achromatic hue (`-1`) is passed through as-is — the children's out-of-range
-  handling differences (the edit shows the real source, the slider guards it)
-  are existing child behavior the control does not reconcile.
+  from the real channel value on completion; `NaN` is never written. Hue
+  readings are always valid (anchors, ADR-0020) — the old `-1` pass-through
+  no longer occurs.
 
 - `readOnly : bool` (default: `false`)
   Locks the numeric edit (forwarded to the internal editor — no edit

@@ -1,4 +1,26 @@
-# Changelog
+### 变更（channel-anchor，ColorAssistant 通道锚定——灰轴塌缩根治，ADR-0020）
+
+- **通道锚定模型**（ColorAssistant）：RGBA 单权威 + 三锚定坐标
+  （hue / hsvSaturation / hslSaturation）。锚更新三分支——显式写总是落锚
+  （无表达也记住）、有表达跟随真实换算、无表达冻结；分量/QList setter 改从
+  成员重建候选色（禁止 `toHsv()/toHsl()` 回读——塌缩源）；hue=-1 从公开
+  契约退役（int/F 双轨恒在 [0,1)/[0,359]，无彩判定改 `valueF==0 ∨
+  saturationF==0`）；int 轨随锚换算（`qRound(x*360)%360` / `qRound(x*255)`）
+- **越界语义**：HSV/HSL 双轨越界改钳制/归一化（hue 正模 wrap、其余 clamp，
+  颜色保持有效）；CMYK 与 rgba/cmyk 列表越界仍 Invalid
+- **取色表面**（HSVWheel/HSLBox）：交互改 `hsvF`/`hslF` 原子写（单轮广播）；
+  删全部 hue<0 守卫（读方向/写方向/播种）；负 hue 正模归一化替代拒写；
+  HSVWheel 圆心 NaN 防御；补几何重定位钩子（onWidth/HeightChanged →
+  updateCursor，症状 5）；surface/cursor 加 objectName 供测试定位
+- **滑块清理**：ColorChannelSlider/ColorChannelVerticalSlider 删 sat-bump
+  私写补丁（灰上 hue 直写落锚，无需补偿）
+- **测试迁移**：灰轴 -1 断言重写为锚语义（test_hueAchromatic 留痕）、
+  新增冻结恢复/原子写单轮广播/圆心 NaN/几何重定位用例；删 test_satBump；
+  全量 ctest 42/42 绿
+- **文档**：CONTEXT.md 术语表（通道锚定/无表达维度/塌缩已退役）；六份
+  reference（ColorAssistant/HSVWheel/HSLBox/ColorChannelSlider/
+  ColorChannelVerticalSlider/ColorChannelControl）按新契约重写；
+  本 ADR 见 docs/adr/QoolUI/QoolColor/0020-colorassistant-channel-anchor.md
 
 ### 变更（colorbank-family，ColorBank API 重做收尾 + 面板重写 + 私有件清理）
 

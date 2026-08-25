@@ -12,20 +12,22 @@ architecture** aligned with the public `HSVWheel`.
   `position`), not a separately draggable object, and the box reads the same
   data source independently. There is **no** "cursor ↔ value" two-way
   binding.
-- **Atomic two-value writes**: one mouse event sets both `saturation` and
-  `lightness` together on the `colorAssistant` (a 2-D atomic action), rather
-  than projecting a 1-D chain — no intermediate timing states. Interaction
-  does **not** write `hue` — the hue is external / linked and visualized on
-  the plane (`hslHueF < 0`, achromatic, is forced to `0` first so the plane
-  has a valid hue to pick against).
+- **Atomic writes**: one mouse event writes `hue`/`saturation`/`lightness`
+  together through the `hslF` list setter (a single recompute round, one
+  broadcast — no intermediate timing states). Interaction does **not**
+  change `hue` — it takes the assistant's current anchored hue (always
+  valid, ADR-0020), so a gray-axis pick remembers the hue while the plane
+  keeps picking against the current hue.
 - **Clamping for value validity** (not coordinate clamping): interactive
   writes keep `HSLSurface`'s existing mapping (`Tools.limitNumber`
   rectangle clipping → `saturationAt = x/w`, `lightnessAt = 1 - y/h`);
-  the interface-level `hue`/`saturation`/`lightness` property writes add
-  their own clamps (`hue < 0` (achromatic) is not written — the display
-  keeps the last valid position; `hue > 1` wraps circularly (`% 1`);
-  `saturation`/`lightness` clamp to `[0,1]`). `position` stays a pure
-  function.
+  the interface-level `hue`/`saturation`/`lightness` property writes
+  normalize: `hue` wraps modulo into `[0,1)` (`-0.5 → 0.5`, `1.5 → 0.5` —
+  always valid), `saturation`/`lightness` clamp to `[0,1]`. `position`
+  stays a pure function.
+- **Geometry relocation**: resizing the surface repositions the cursor via
+  `onWidthChanged`/`onHeightChanged` handlers (the cursor is
+  event-positioned, so a size change alone would leave it stale).
 - **No `defaultValue`/`reset`, double-click undefined** — the interaction
   contract is trimmed to match `ColorChannelSlider`/`ColorChannelControl`
   (and `HSVWheel`). Unlike the wheel there is no ring clamp — the whole
@@ -52,11 +54,12 @@ architecture** aligned with the public `HSVWheel`.
 
 - `hue : real`
   The hue channel (0..1). Two-way: writing it updates the assistant's
-  `hslHueF`; a change from the assistant reads back. `hue < 0` (achromatic)
-  writes are *not* forwarded (the display keeps the last valid position),
-  matching `ColorChannelSlider`'s out-of-range guard; `hue > 1` wraps
-  circularly (`% 1`). Not written by surface interaction (external /
-  linked).
+  `hslHueF`; a change from the assistant reads back. Out-of-range writes
+  are normalized modulo into `[0,1)` (`-0.5 → 0.5`, `1.5 → 0.5`) — the
+  hue reading is always valid (anchors, ADR-0020); on the gray axis
+  (saturation 0) the written hue is remembered by the assistant anchor
+  even though the color stays achromatic. Not written by surface
+  interaction (external / linked).
 
 - `saturation : real`
   The saturation channel (0..1). Two-way; interface writes clamp to

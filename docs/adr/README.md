@@ -48,5 +48,6 @@
 | 0017 | HSVWheel + HSLBox：二维取色表面各自内联光标组合（不共用独立 ColorCursor，HSLBox 公开化） |
 | 0018 | ColorChannelVerticalSlider 竖直通道滑块公开组件（T.Slider 独立实现 + 填充条样式 + hue=色相正常值/非 hue=身份色） |
 | 0019 | ColorChannelEdit 镜像布局：响应 Control 内置只读 `mirrored`（LayoutMirroring 驱动），不自声明——Color 组件族镜像约定 |
+| 0020 | ColorAssistant 通道锚定模型（单权威 RGBA + 无表达维度记忆，hue=-1 语义退役） |
 
 领域术语见根 `CONTEXT.md`「形状体系（QoolBox）」节。

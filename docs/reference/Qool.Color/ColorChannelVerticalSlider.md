@@ -51,15 +51,15 @@ reset.
   (`channelNameF(channel)` — the channel name is a runtime string, so the
   proxy performs the dynamic lookup). Dragging writes the channel; external
   color changes (linked controls, programmatic writes) move the fill back;
-  `onCompleted` seeds `value` from the real channel. Convergence is guarded
-  by same-value checks on both sides — no interaction gate is needed.
-  Out-of-range assistant values (hue < 0, achromatic) are **not** read back —
-  the display keeps its last valid position.
+  `onCompleted` seeds `value` from the real channel (hue readings are
+  always valid — anchors, ADR-0020 — so a gray assistant seeds `0`, not
+  the old `1` default). Convergence is guarded by same-value checks on both
+  sides — no interaction gate is needed.
 - **Behavior**: `value` is clamped to `[0, 1]`
-  (`ColorHQ.clampChannelRange`); dragging hue on an achromatic color
-  first bumps the corresponding saturation to 0.001 so the hue write has a
-  visible effect (legacy UX contract); the initial `value` is 1 (hue 1 ≡ 0
-  cyclically — no side effect before seeding).
+  (`ColorHQ.clampChannelRange`); hue writes go straight to the assistant,
+  whose anchor model keeps them effective even on achromatic colors (the
+  saturation-bump compensation patch is retired, ADR-0020); the initial
+  `value` is 1 (hue 1 ≡ 0 cyclically — no side effect before seeding).
 - **Handle**: the default handle is a transparent `side × side` `Item` — no
   visible visual, no hover feedback; an inner `NoButton` `MouseArea` supplies
   the direction cursor (`Qt.SizeHorCursor` / `Qt.SizeVerCursor`, gated by
