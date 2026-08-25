@@ -1,4 +1,3 @@
-
 import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
@@ -20,60 +19,42 @@ Control {
     readonly property bool horizontal: orientation === Qt.Horizontal
     readonly property bool vertical: orientation === Qt.Vertical
 
-    contentItem: Loader {
-        sourceComponent: root.horizontal ? horizontalLayout : verticalLayout
-    }
-
-    Component {
-        id: horizontalLayout
-
-        ColumnLayout {
-            spacing: 0
-
-            ColorChannelEdit {
-                objectName: "edit"
-                Layout.fillWidth: true
-                animationEnabled: root.animationEnabled
-                channel: root.channel
-                colorAssistant: root.colorAssistant
-                readOnly: root.readOnly
-            }
-
-            ColorChannelSlider {
-                objectName: "hslider"
-                Layout.fillWidth: true
-                animationEnabled: root.animationEnabled
-                channel: root.channel
-                colorAssistant: root.colorAssistant
-            }
-        }
-    }
-
-    Component {
-        id: verticalLayout
-
-        ColumnLayout {
-            spacing: 0
-
-            ColorChannelVerticalSlider {
+    contentItem: ColumnLayout {
+        spacing: 2
+        Loader {
+            active: root.vertical
+            sourceComponent: ColorChannelVerticalSlider {
                 objectName: "vslider"
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                animationEnabled: root.animationEnabled
-                channel: root.channel
-                colorAssistant: root.colorAssistant
-            }
 
-            ColorChannelEdit {
-                objectName: "edit"
-                Layout.fillWidth: true
-                orientation: Qt.Vertical
-                tagOnTop: true
-                animationEnabled: root.animationEnabled
+                animationEnabled: proxy.animationReallyEnabled
                 channel: root.channel
                 colorAssistant: root.colorAssistant
-                readOnly: root.readOnly
             }
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+        }
+
+        ColorChannelEdit {
+            objectName: "edit"
+            Layout.fillWidth: true
+            orientation: root.orientation
+            tagOnTop: true
+            animationEnabled: proxy.animationReallyEnabled
+            channel: root.channel
+            colorAssistant: root.colorAssistant
+            readOnly: root.readOnly
+        }
+
+        Loader {
+            active: root.horizontal
+            sourceComponent: ColorChannelSlider {
+                objectName: "hslider"
+
+                animationEnabled: proxy.animationReallyEnabled
+                channel: root.channel
+                colorAssistant: root.colorAssistant
+            }
+            Layout.fillWidth: true
         }
     }
 
@@ -81,26 +62,29 @@ Control {
         id: proxy
         target: root.colorAssistant
         property: ColorHQ.channelNameF(root.channel)
+        property bool seedDone: false
+        readonly property bool animationReallyEnabled: proxy.seedDone && root.animationEnabled
     }
 
     Connections {
         target: proxy
         function onValueChanged() {
-            root.value = proxy.value
+            root.value = proxy.value;
         }
     }
 
     Connections {
         target: root
         function onValueChanged() {
-            proxy.value = root.value
+            proxy.value = root.value;
         }
     }
 
     // 播种：现读真实通道值（proxy 观察已建立）；NaN 不写防污染属性。
     Component.onCompleted: {
-        const v = proxy.value
+        const v = proxy.value;
         if (!Number.isNaN(v))
-            root.value = v
+            root.value = v;
+        proxy.seedDone = true;
     }
 }

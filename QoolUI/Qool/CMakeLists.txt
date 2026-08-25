@@ -108,6 +108,7 @@ qt_add_qml_module(
   SOURCES qool_propertyproxy.h qool_propertyproxy.cpp
   SOURCES
   SOURCES shapecontrol/qool_qoolboxcutsizeslocker.h shapecontrol/qool_qoolboxcutsizeslocker.cpp
+  QML_FILES PropertySync.qml
 )
 
 qoolui_collect_assets(QOOL_ASSETS)

@@ -15,6 +15,7 @@ EditableText {
         horizontalAlignment: Text.AlignRight
         font: root.font
         text: pCtrl.valueColorName
+        color: root.color
     }
     SmartObject {
         id: pCtrl

@@ -26,13 +26,16 @@ ListView {
         text: modelData
         checkable: true
         ButtonGroup.group: colorBtnGroup
+        width: ListView.view.width
+        onCheckedChanged: if (checked)
+            pCtrl.currentColor = color
     }
 
     SmartObject {
         id: pCtrl
-        property color currentColor: colorBtnGroup.buttons[root.currentIndex].color
+        property color currentColor
     }
 
-    implicitWidth: 200
-    implicitHeight: 600
+    implicitWidth: 250
+    implicitHeight: 400
 }
