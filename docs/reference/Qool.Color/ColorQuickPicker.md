@@ -1,65 +1,45 @@
 # ColorQuickPicker
 
-A quick HSV gradient color picker: a full-saturation HSV surface revealed
-on hover, with drag/press-and-hold picking and double-click reset.
+A compact quick color picker: a solid swatch that reveals a full-saturation
+hue × lightness gradient surface on hover, writing the picked color to a
+single `color` property.
 
-`ColorQuickPicker` shows a solid `currentColor` with a foreground-contrast
-border by default (not hovered). On hover, a full-saturation HSV gradient
-surface (horizontal hue × vertical lightness) fades in and the border
-becomes `currentColor`.
+`ColorQuickPicker` is a small (200×50 implicit) preview-and-pick item. In its
+rest state it shows a solid swatch of `color` with a foreground-contrast
+border. On hover (or while interacting) a full-saturation gradient surface
+fades in — horizontal hue, vertical lightness — overlaid by a vertical
+lightness gradient (white top → transparent middle → black bottom) that maps
+the lightness from 1 (top) to 0 (bottom).
 
 ### Interaction
 
-- **Hover**: the HSV gradient fades in; the border becomes the current
-  color.
-- **Picking**: press-drag (or press-and-hold) sets
-  `currentColor = Qt.hsla(hue, 1, lightness, 1)` — `hue` follows the
-  mouse X from 0 (left) to 1 (right), `lightness` follows the mouse Y
-  from 1 (top) to 0 (bottom). A plain click (no drag, no hold) does not
-  pick.
-- **Double-click**: resets `currentColor = defaultColor`.
-- **Keyboard**: the component grabs focus automatically when hover is
-  entered; the Alt behavior below then applies.
+- **Picking**: press-drag (or press-and-hold) writes
+  `color = Qt.hsla(hue, 1, lightness, 1)` — `hue` follows the mouse X from 0
+  (left) to 1 (right); `lightness` follows the mouse Y from 1 (top) to 0
+  (bottom). The pick is always on the full-saturation plane (s=1): a pick
+  cannot produce a low-saturation or gray color. A plain click (no drag, no
+  hold) does not pick.
+- **Alt key**: holding the Alt key (while the item has focus — hover
+  auto-grabs focus) hides the lightness gradient and fixes lightness at 0.5
+  for a pure-hue pick; releasing restores lightness mode.
+- **Focus**: the item grabs focus automatically on hover entry.
 
-### Alt key behavior
-
-While **Alt is held**:
-
-- the lightness gradient (`valueBox`) is hidden — only the pure hue
-  gradient remains;
-- picking fixes `lightness` at 0.5 (mid lightness) instead of following
-  the mouse Y — the result is a "pure hue" color.
-
-Alt is a temporary switch: it must stay held while picking; releasing it
-restores lightness mode. Key events are handled through the `Keys`
-attached property, which requires the component to own active focus
-(grabbed automatically on hover enter); if the host takes the focus, the
-Alt switch does not work.
-
-Picking always happens on the full-saturation (s = 1) surface — this
-component cannot pick low-saturation or gray colors.
-
-### Defaults
-
-`currentColor` defaults to `defaultColor` (`"white"`), so the component is
-self-consistent standalone. The double-click reset target is
-`defaultColor`.
+The gradient surface is drawn with the Shapes path
+(`RectShape` + `RainbowGradient`), consistent with the module's
+`RectShape`-based fix for the Qt `Rectangle` rounded-gradient shrink crash.
 
 ## Properties
 
-- `currentColor : color` (default: `defaultColor`)
-  The current pick result. Written as `Qt.hsla(hue, 1, lightness, 1)` on
-  drag/hold picking; double-click or `reset()` writes back
-  `defaultColor`. Bind it two-way to a `ColorAssistant` for
-  synchronization.
-
-- `defaultColor : color` (default: `"white"`)
-  The double-click reset target.
+- `color : color` (default: `"white"`)
+  The current pick result — written as `Qt.hsla(hue, 1, lightness, 1)` on
+  drag/hold picking. Bind it two-way to a `ColorAssistant` for
+  synchronization. This replaces the former `currentColor` / `defaultColor`
+  pair (removed in the `color`-property rewrite).
 
 - `animationEnabled : bool` (default: inherited from the parent, falling
   back to `Style.animationEnabled`)
-  The animation master switch. When false, the gradient show/hide and
-  border color change complete instantly.
+  The animation master switch for the hue surface fade and the transition
+  when not interacting.
 
 ## Signals
 
@@ -67,8 +47,7 @@ This type defines no additional signals.
 
 ## Methods
 
-- `void reset()`
-  Resets `currentColor` to `defaultColor` (equivalent to a double-click).
+This type defines no additional methods (there is n  - `reset()` — 组件未定义此方法，双击不重置颜色).
 
 ## Usage Example
 
@@ -77,11 +56,9 @@ import QtQuick
 import Qool.Color
 
 ColorQuickPicker {
-    id: picker
     width: 200
     height: 50
-    currentColor: assistant.color
-    defaultColor: "white"
-    onCurrentColorChanged: assistant.color = currentColor
+    color: assistant.color
+    onColorChanged: assistant.color = color
 }
 ```
