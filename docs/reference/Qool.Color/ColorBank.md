@@ -1,39 +1,34 @@
 # ColorBank
 
-An unbounded sparse color index container — the storage backend of
-`ColorBankPanel`.
+A sparse color index container — the storage backend of `ColorBankPanel`.
 
-`ColorBank` stores colors by integer index (slot number). The storage
-model is **unbounded and sparse**: only indexes explicitly written through
-`setColor()` are retained — writing slot 5 does not create slots 0..4
-(implemented as a `QHash<int, QColor>`). Indexes that were never set are
-returned by `color()` as default white (`Qt::white`).
+`ColorBank` stores colors by integer index in a `QMap<int, QColor>`. The
+storage model is **sparse**: only indexes explicitly written through
+`setCellColor()` are retained — writing slot 5 does not create slots 0..4.
+Indexes that were never written return `defaultColor` (default
+`Qt::transparent`).
 
 ### Sparse semantics (deliberate, do not switch to a contiguous list)
 
 Storage is "whatever was written is what exists": storing slot 5 does not
 create 1..4, storing slot 20 does not allocate 0..19. Indexes have no
-upper bound — there is no "maximum slot count"; any non-negative integer
-can be used directly.
+upper bound — any non-negative integer can be used directly.
 
 This model deliberately differs from a fixed-length contiguous list (e.g.
 `QList<QColor>` preallocated by length): a contiguous list would bind the
-"panel display range" to the "storage length" — showing 24 cells would
-mean storing at most 24, with placeholder values for every displayed cell.
-This type fully decouples display (the panel's `slots` property) from
-storage (the unbounded sparse map): the display range only decides how
-many cells the panel draws, not how many can be stored. Changing the
-storage to a contiguous list with a length cap would reintroduce both a
-display-range boundary and capacity waste — keep the `QHash` sparse map.
+"panel display range" to the "storage length". This type decouples display
+from storage: see `cells` below. Changing the storage to a contiguous
+list with a length cap would reintroduce both a display-range boundary and
+capacity waste — keep the `QMap` sparse map.
 
-### `slots` is a display range, not a storage bound
+### `cells` is derived from storage, not a storage bound
 
-`ColorBankPanel`'s `slots` property (default 24) only decides which cells
-are displayed (0..slots-1). Indexes beyond the display range can still be
-written, read and enumerated; writing slot 20 (inside the range at
-slots=24) and slot 40 (outside it) behave identically. Values outside the
-range are merely "not shown", not "lost" — shrinking `slots` and enlarging
-it again loses nothing.
+`cells` (read-only) equals `max(24, highest written index + 1)` — the
+minimum display range the current data requires. Writing slot 30 grows
+`cells` to 31; `clear()` shrinks it back to 24. `cells` is a *consequence*
+of what was written, not a cap: `ColorBankPanel.cells` (a separate,
+writable property) decides how many cells the panel *draws*, and the bank
+may hold indexes beyond that range without loss.
 
 ### Persistence is deliberately not built in
 
@@ -43,61 +38,99 @@ file locations or user-data lifetimes. The host picks one of three
 approaches:
 
 1. Pre-fill before injection (restore): construct a `ColorBank`, call
-   `setColor()` for each slot to restore, then inject it into a panel.
-2. Listen to `colorChanged` (save): connect `colorChanged(n)` and write
-   each change to host storage; combine with `filledIndexes()` and
-   `color()` for batch restore on startup (the read side).
+   `setCellColor()` for each index to restore, then inject it into a
+   panel.
+2. Listen to `cellColorUpdated(n)` (save): write each change to host
+   storage; combine with `validCellIndexes()` and `cellColor()` for batch
+   restore on startup (the read side).
 3. Subclass or re-implement: subclass this type (the protected `m_colors`
    is directly accessible) or re-implement the same interface on the host
    side with embedded persistence logic.
 
-### `filledIndexes` purpose
+### `validCellIndexes` purpose
 
-`filledIndexes()` is the host's persistence "read side": it returns all
-set indexes (ascending, no duplicates) so the host can export them in
-batch (iterating `color()` to write files) or reconcile against its own
-index bookkeeping. Without it the host would have to maintain a separate
-"which slots were written" list that can drift from the actual data —
-this method keeps enumeration and data in one source.
+`validCellIndexes()` is the host's persistence "read side": it returns all
+written indexes (ascending, no duplicates) so the host can export them in
+batch (iterating `cellColor()` to write files) or reconcile against its
+own index bookkeeping. Without it the host would have to maintain a
+separate "which slots were written" list that can drift from the actual
+data — this method keeps enumeration and data in one source.
 
-### Equality guard
+### Equality guards (do not remove)
 
-`setColor()` carries an equality guard: when the new value equals the
-current one (all `QColor` channels equal), nothing is written and
-`colorChanged` is not emitted — consistent with the v4 signal semantics
-(`Changed` only fires when the value actually changes). A consequence:
-explicitly writing default white into an unset slot does not trigger the
-signal (the value did not change).
+Every mutator carries an equality guard: when the effective color at an
+index does not actually change, no signal is emitted — consistent with the
+v4 signal semantics (`Changed` only fires when the value actually
+changes). Consequences:
+
+- Writing the current `defaultColor` into an unset slot (`setCellColor`)
+  passes the guard early, is not stored and emits nothing.
+- `setCellColors()` drops items equal to `defaultColor` on rebuild.
+- `eraseCellColor()` on an unoccupied index is a silent no-op.
+- `clear()` on an already-empty bank is a silent no-op.
+- `cells`/`validCellIndexes` notifications fire only when their value
+  actually changes.
 
 ## Properties
 
-This type defines no properties.
+- `defaultColor : color` (default: `Qt::transparent`, writable)
+  The color returned for indexes that were never written. Changing it
+  re-emits `cellColorUpdated` for every currently-empty index (their
+  effective color changed) and emits `defaultColorChanged`.
+
+- `cells : int` (read-only, default `24`)
+  `max(24, highest written index + 1)`. NOTIFY `cellsChanged` — fires only
+  when the value changes: writing a new highest index grows it, `clear()`
+  shrinks it, erasing a non-highest index does not change it.
+
+- `validCellIndexes : list<int>` (read-only)
+  All written indexes, ascending, without duplicates. NOTIFY
+  `validCellIndexesChanged` — fires only when the written key set changes.
 
 ## Signals
 
-- `colorChanged(int n)`
-  Emitted after the color at index `n` actually changed (i.e. passed the
-  `setColor()` equality guard). Writing the same value — including
-  writing white into an unset slot — does not emit.
+- `cellColorUpdated(int index)`
+  Emitted after the effective color at `index` actually changed: a
+  `setCellColor()` that passed the equality guard, an `eraseCellColor()`,
+  a `setCellColors()` rebuild that changed the effective color at that
+  index, or a `defaultColor` change that affects an empty index.
+
+- `defaultColorChanged()`, `cellsChanged()`, `validCellIndexesChanged()`
+  Value-changed notifications for the corresponding properties.
 
 ## Methods
 
-- `color color(int n)`
-  Returns the color stored at index `n`, or default white (`Qt::white`)
-  if never set. The default-white return is deliberate: unsaved panel
-  cells show white without host-provided placeholders. Note that "unset"
-  and "explicitly set to white" are indistinguishable by this return
-  value — use `filledIndexes()` when the distinction matters.
+- `color cellColor(int index)`
+  Returns the color stored at `index`, or `defaultColor` if never written.
 
-- `void setColor(int n, color)`
-  Sets the color at index `n`. Carries the equality guard above. `n` may
-  be any non-negative integer (no upper bound); writing an index beyond
-  the already-set range does not create intermediate indexes (sparse, see
-  the type overview).
+- `void setCellColor(int index, color)`
+  Sets the color at `index`. Equality guard: no-op (no signal, not
+  stored) when the new value equals the current effective color —
+  including writing the default color into an unset slot. `index` may be
+  any non-negative integer (no upper bound); writing a new highest index
+  grows `cells`.
 
-- `list<int> filledIndexes()`
-  Returns all set indexes, ascending, without duplicates. Returns an empty
-  list when nothing has been set.
+- `void eraseCellColor(int index)`
+  Removes the stored color at `index`; silent no-op when unoccupied.
+  Emits `cellColorUpdated(index)`; `cells` shrinks when the removed index
+  was the highest.
+
+- `list<color> cellColors()`
+  Returns the effective colors of cells `0..cells-1` (length equals
+  `cells`), with `defaultColor` for unwritten indexes.
+
+- `void setCellColors(list<color> colors)`
+  Replaces the whole storage: clears the map and writes `colors` by list
+  position; items equal to `defaultColor` are not stored. Emits
+  `cellColorUpdated` per index whose effective color changed (over the old
+  keys plus the new range), and `cells`/`validCellIndexes` notifications
+  as they change. There is no truncation — the list length decides how
+  many indexes are written.
+
+- `void clear()`
+  Empties the storage; silent no-op when already empty. Emits
+  `cellColorUpdated` for every previously-written index, shrinks `cells`
+  to 24.
 
 ## Usage Example
 
@@ -109,12 +142,34 @@ ColorBank {
     id: bank
 
     Component.onCompleted: {
-        bank.setColor(0, "#ff0000")
-        bank.setColor(5, "#00ff00")   // slots 1..4 are not created
-        bank.setColor(40, "#0000ff")  // outside any display range
+        bank.setCellColor(0, "#ff0000")
+        bank.setCellColor(5, "#00ff00")   // indexes 1..4 are not created
+        bank.setCellColor(40, "#0000ff")  // outside any panel display range
     }
 }
 
 // Enumerate for persistence export:
-// for (const n of bank.filledIndexes()) ... bank.color(n)
+// for (const n of bank.validCellIndexes()) ... bank.cellColor(n)
+```
+
+Host persistence (matching `QoolUIExample/pages/Page_Color.qml`):
+
+```qml
+Settings {
+    id: colorBankSettings
+}
+
+ColorBank {
+    id: colorBank
+    Component.onCompleted: {
+        for (let i = 0; i < 24; i++) {
+            let color = colorBankSettings.value(i);
+            if (color)
+                colorBank.setCellColor(i, color);
+        }
+    }
+    onCellColorUpdated: i => {
+        colorBankSettings.setValue(i, colorBank.cellColor(i));
+    }
+}
 ```

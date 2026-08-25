@@ -226,10 +226,10 @@ Item {
         const h = root.colorAssistant.hsvHueF;
         if (h >= 0 && h <= 1)
             root.hue = h;
-        // 初始定位延迟到事件循环下一轮：ColorCursor 内 CenterPlacer 的初始
-        // resync 在本组件 onCompleted 之后才执行（QML 完成时序），立即调用时
-        // centery 恰为 0 与 position 目标同值 → 同值守卫吞掉首次写入 → 光标
-        // y 错位；resync 后调用则写入必然生效（幂等，重复调用无害）。
+        // 初始定位延迟到事件循环下一轮：本组件内 CenterPlacer 的初始 resync
+        // 在本组件 onCompleted 之后才执行（QML 完成时序），立即调用时 centery
+        // 恰为 0 与 position 目标同值 → 同值守卫吞掉首次写入 → 光标 y 错位；
+        // resync 后调用则写入必然生效（幂等，重复调用无害）。
         Qt.callLater(function () {
             area.updateCursor();
             cursor.seedDone = true;

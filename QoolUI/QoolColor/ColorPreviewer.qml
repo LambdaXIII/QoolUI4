@@ -13,6 +13,7 @@ Item {
     property ColorAssistant colorAssistant: ColorAssistant {
         color: Qt.alpha(Style.highlight, 0.5)
     }
+    property alias color: root.colorAssistant.color
 
     property real radius: 10
 
@@ -73,7 +74,7 @@ Item {
                 bottomLeftRadius: root.radius
             }
             strokeWidth: 0
-            fillColor: root.colorAssistant.solidColor
+            fillColor: root.colorAssistant.alphaF === 0 ? "transparent" : root.colorAssistant.solidColor
         }//left
 
         ShapePath {

@@ -51,37 +51,44 @@ BasicPage {
     }
 
     BasicControl {
-        y: 400
+        x: 20
         RectResizer {}
-        contentItem: Row {
-            Repeater {
-                model: ColorHQ.channels
-                delegate: Loader {
-                    asynchronous: true
-                    sourceComponent: ColorChannelControl {
-                        channel: modelData
-                        colorAssistant: mainColor
-                        orientation: Qt.Vertical
-                    }
-                }
-            }
+        contentItem: ColorBankPanel {
         }
-    }//sliders
+    }
 
-    BasicControl {
-        x: 600
-        RectResizer {}
-        contentItem: Column {
-            Repeater {
-                model: ColorHQ.channels
-                delegate: Loader {
-                    asynchronous: true
-                    sourceComponent: ColorChannelControl {
-                        channel: modelData
-                        colorAssistant: mainColor
-                    }
-                }
-            }
-        }
-    }//sliders
+    // BasicControl {
+    //     y: 400
+    //     RectResizer {}
+    //     contentItem: Row {
+    //         Repeater {
+    //             model: ColorHQ.channels
+    //             delegate: Loader {
+    //                 asynchronous: true
+    //                 sourceComponent: ColorChannelControl {
+    //                     channel: modelData
+    //                     colorAssistant: mainColor
+    //                     orientation: Qt.Vertical
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }//sliders
+
+    // BasicControl {
+    //     x: 600
+    //     RectResizer {}
+    //     contentItem: Column {
+    //         Repeater {
+    //             model: ColorHQ.channels
+    //             delegate: Loader {
+    //                 asynchronous: true
+    //                 sourceComponent: ColorChannelControl {
+    //                     channel: modelData
+    //                     colorAssistant: mainColor
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }//sliders
 }//page

@@ -10,7 +10,6 @@ qt_add_qml_module(QoolColor
     IMPORTS Qool Qool.Controls.Components
 
     SOURCES qool_colorassistant.h qool_colorassistant.cpp
-    SOURCES qool_colorbank.h qool_colorbank.cpp
     SOURCES qool_colorhuecyclemodel.h qool_colorhuecyclemodel.cpp
     SOURCES qool_random_hsv_color_generator.h qool_random_hsv_color_generator.cpp
     SOURCES qool_colorname_db.h qool_colorname_db.cpp
@@ -35,6 +34,7 @@ qt_add_qml_module(QoolColor
     QML_FILES ColorNameListView.qml
     QML_FILES ColorNameButton.qml
     QML_FILES ColorNameButtonSurface.qml
+    SOURCES qool_colorbank.h qool_colorbank.cpp
  )
 
 # _private 私有件：**不注册进模块 qmldir**（不进 QML_FILES）——仅作为普通

@@ -1,6 +1,3 @@
-
-pragma ComponentBehavior: Bound
-
 import QtQuick
 import QtQuick.Layouts
 import Qool
@@ -9,10 +6,9 @@ import Qool.Color
 GridLayout {
     id: root
 
-    property bool animationEnabled: parent?.animationEnabled
-                                    ?? Style.animationEnabled
+    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
 
-    property bool showAlpha: true
+    property bool showAlpha: false
     property bool showBrightness: false
 
     property ColorAssistant colorAssistant: ColorAssistant {

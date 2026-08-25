@@ -1,5 +1,30 @@
 # Changelog
 
+### 变更（colorbank-family，ColorBank API 重做收尾 + 面板重写 + 私有件清理）
+
+- **ColorBank API 重做**：`setColor→setCellColor`、`colorChanged(n)→cellColorUpdated(n)`、
+  `filledIndexes()+color()→validCellIndexes()+cellColor()`；新增可写 `defaultColor`
+  （默认 transparent，未写索引返回之）、只读 `cells`（= max(24, 最大已写索引+1)）；
+  `clear`/`eraseCellColor` 幂等守卫；`setCellColors` 按列表长度整体重建
+  （等于 defaultColor 的项不入 map）
+- **信号缺口修复**（本批）：补 `defaultColorChanged` 发射；`cellsChanged` 统一为
+  「值变才发」（setCellColor/setCellColors/clear/eraseCellColor 前后比较）；
+  `validCellIndexesChanged` 在键集变化处发射（四处）；`setCellColors` 对
+  「旧键 ∪ 新范围」逐格比较有效色、变化才发 `cellColorUpdated`（此前新覆盖索引
+  静默——绑定读陈旧值，NOTIFY 契约违反）
+- **ColorBankPanel 重写**：删 `colorAssistant` 注入，改 `color` 属性（默认
+  transparent，S/L 槽位读写目标）；`slots→cells`；槽位改 ColorPreviewer 格 +
+  左右半区 AbstractButton（S 存/L 取，格色 ≠ 当前色才可点、悬停显 S/L 字样，
+  `ThemeHQ.recommendForeground` 配色）；格色经 cellColorUpdated Connections 刷新
+- **私有件删除**：`_private/ColorBankSlotButton.qml`（面板内联实现后零消费者）、
+  `_private/ColorCursor.qml`（孤儿件，用户裁定删除）；CenterPlacer/HSLBox/HSVWheel
+  注释去已删文件名引用（机制结论保留）
+- **文档**：ColorBank.md/ColorBankPanel.md 按新实现整体重写；index.md ColorBank
+  设计说明与组件列表更新；删除 ColorCursor.md
+- **测试**：QoolUITests 无既有用例触及本批组件（grep 零命中），按规则不新增；
+  ctest 基线 42/42 不变
+
+
 ### 变更（color-name-family，色名按钮族 + ColorHQ 单例面 + 预览迁移）
 
 - **组件族**：新增公开 `ColorNameButton`（色名+色块按钮，色名列表 delegate）、

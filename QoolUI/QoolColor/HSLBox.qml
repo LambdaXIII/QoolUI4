@@ -91,9 +91,9 @@ Item {
         }
 
         // —— 光标（值的可视化，非拖动对象）：定位单向派生自数据源。
-        // 事件驱动定位：ColorCursor 经 CenterPlacer 双向同步，其 onXChanged
-        // 显式回写会破坏 QML 绑定 → centerx/centery 禁止绑定，由 updateCursor()
-        // 显式赋值（assistant 通道信号触发，见 root 级 Connections）。
+        // 事件驱动定位：CenterPlacer 回写会破坏 QML 绑定 → centerx/centery
+        // 禁止绑定，由 updateCursor() 显式赋值（assistant 通道信号触发，见
+        // root 级 Connections）。
 
         CrystalCursor {
             id: cursor
@@ -214,10 +214,10 @@ Item {
         const h = root.colorAssistant.hslHueF;
         if (h >= 0 && h <= 1)
             root.hue = h;
-        // 初始定位延迟到事件循环下一轮：ColorCursor 内 CenterPlacer 的初始
-        // resync 在本组件 onCompleted 之后才执行（QML 完成时序），立即调用时
-        // centery 与 position 目标同值 → 同值守卫吞掉首次写入 → 光标 y 错位；
-        // resync 后调用则写入必然生效（幂等，重复调用无害）。
+        // 初始定位延迟到事件循环下一轮：本组件内 CenterPlacer 的初始 resync
+        // 在本组件 onCompleted 之后才执行（QML 完成时序），立即调用时 centery
+        // 与 position 目标同值 → 同值守卫吞掉首次写入 → 光标 y 错位；resync
+        // 后调用则写入必然生效（幂等，重复调用无害）。
         Qt.callLater(function () {
             area.updateCursor();
             cursor.seedDone = true;

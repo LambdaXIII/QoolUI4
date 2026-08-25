@@ -8,6 +8,11 @@
 int main(int argc, char* argv[]) {
   QGuiApplication app(argc, argv);
 
+  app.setOrganizationDomain("qoolui");
+  app.setApplicationName("exampleapp");
+  app.setOrganizationName("QoolUI");
+  app.setApplicationDisplayName("QoolUI Example Applilcation");
+
   // QTranslator translator;
   // if (translator.load(
   //       QLocale(), "qoolexample", ".", ":/qoolexample/i18n"))

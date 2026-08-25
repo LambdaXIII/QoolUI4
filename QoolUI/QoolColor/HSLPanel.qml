@@ -1,8 +1,3 @@
-// HSL 面板：饱和度/明度编辑行 → HSLBox 表面 → 色相/透明度组合行。
-// 色相组合行用 HSVHue 通道（HSLBox 驱动 hslHueF，两域经 color 同步）。
-
-pragma ComponentBehavior: Bound
-
 import QtQuick
 import QtQuick.Layouts
 import Qool
@@ -11,10 +6,9 @@ import Qool.Color
 ColumnLayout {
     id: root
 
-    property bool animationEnabled: parent?.animationEnabled
-                                    ?? Style.animationEnabled
+    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
 
-    property bool showAlpha: true
+    property bool showAlpha: false
 
     property ColorAssistant colorAssistant: ColorAssistant {
         color: Style.highlight

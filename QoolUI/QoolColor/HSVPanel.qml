@@ -1,6 +1,3 @@
-
-pragma ComponentBehavior: Bound
-
 import QtQuick
 import QtQuick.Layouts
 import Qool
@@ -11,7 +8,7 @@ ColumnLayout {
 
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
 
-    property bool showAlpha: true
+    property bool showAlpha: false
 
     property ColorAssistant colorAssistant: ColorAssistant {
         color: Style.highlight

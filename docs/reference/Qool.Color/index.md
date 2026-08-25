@@ -32,7 +32,6 @@ Qool.Color 提供完整的颜色操纵组件面：
 - [ColorChannelEdit](ColorChannelEdit.md)
 - [ColorChannelVerticalSlider](ColorChannelVerticalSlider.md)
 - [ColorChannelSlider](ColorChannelSlider.md)
-- [ColorCursor](ColorCursor.md)
 - [ColorHueCycleModel](ColorHueCycleModel.md)
 - [ColorHQ](ColorNameHQ.md)
 - [ColorNameButton](ColorNameButton.md)
@@ -55,9 +54,11 @@ Qool.Color 提供完整的颜色操纵组件面：
   ——量化粒度 1.41° 不是缺陷；hue 生成走
   `qRound(hue*360/255)` 整数满环路径，不得改浮点构造。
   int 轨是公开 API 能力面；任一分量 setter 都经统一入口全空间重算。
-- `ColorBank` 是无界稀疏容器（存 slot_5 不创建 1..4）；`slots`
-  是面板显示范围而非存储边界；组件库刻意不做持久化（宿主三接法：
-  注入前构造填充、监听 colorChanged 纪录、继承仿写）。
+- `ColorBank` 是稀疏索引容器（存 index_5 不创建 0..4；未写索引返回
+  `defaultColor`，默认透明）；`ColorBank.cells`（= max(24, 最大已写
+  索引+1)）由存储派生、`ColorBankPanel.cells` 是面板显示格数——显示
+  与存储解耦、无存储边界；组件库刻意不做持久化（宿主三接法：注入前
+  `setCellColor` 填充、监听 `cellColorUpdated` 纪录、继承仿写）。
 - 数值输入约定：数字输入框允许 0..1000 整数，`x>1` 时按 `x/1000`
   解释（1000 表示 1.0）。
 - 私有拍平件（CycleChoice 与视觉件族）经目录 import 使用、

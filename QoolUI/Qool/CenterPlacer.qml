@@ -15,8 +15,8 @@
 // - target 为 null 安全：读写方向均有守卫，不崩不写。
 // - target 切换（开放接口）：运行中换挂载对象 → 从新 target 现读同步
 //   （旧 center 不残留）；Connections 的 target 绑定自动转移。
-// 与旧 ColorCursor 双同步环的区别：本件纯 Connections 程序化、守卫统一
-// 覆盖双向、无绑定互指——环被同值守卫 + 单向写回方向彻底断开。
+// 与旧版「绑定互指」同步方案的区别：本件纯 Connections 程序化、守卫
+// 统一覆盖双向、无绑定互指——环被同值守卫 + 单向写回方向彻底断开。
 //
 // 封装（对齐 ItemAnimatedResizer 的 pCtrl 模式）：
 // - 同步函数收进内部 pCtrl（id 文件作用域——外部实例不可访问，不暴露
