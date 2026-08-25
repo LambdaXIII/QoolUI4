@@ -67,6 +67,7 @@ T.Slider {
                     height: root.availableHeight
                     horizontal: root.horizontal
                     mirrored: root.mirrored
+                    alpha: .25
                 }
             }//rainbow
         }//rectShape

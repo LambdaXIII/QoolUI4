@@ -7,7 +7,7 @@ LinearGradient {
 
     property real saturation: 1
     property real value: 1
-    property real alpha: 0.25
+    property real alpha: 1
     property bool horizontal: true
     property real width: 100
     property real height: 100

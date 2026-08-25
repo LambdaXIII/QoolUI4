@@ -41,15 +41,22 @@ T.Slider {
             }
             // 动态创建渐变（createObject(track) 带 parent，归因实验实证无害）。
             fillGradient: {
-                if (pCtrl.isHue)
+                switch (root.channel) {
+                case ColorHQ.HSLHue:
+                case ColorHQ.HSVHue:
                     return rainbowGradient.createObject(track);
+                case ColorHQ.HSLSaturation:
+                case ColorHQ.HSVSaturation:
+                case ColorHQ.HSLLightness:
+                case ColorHQ.HSVValue:
+                    return realGradient.createObject(track);
+                }
                 return simpleGradient.createObject(track);
             }
 
             Component {
                 id: simpleGradient
                 ChannelGradient {
-                    id: simpleInst
                     horizontal: root.horizontal
                     width: root.availableWidth
                     height: root.availableHeight
@@ -58,9 +65,19 @@ T.Slider {
                 }
             }//simple
             Component {
+                id: realGradient
+                ChannelGradient {
+                    horizontal: root.horizontal
+                    width: root.availableWidth
+                    height: root.availableHeight
+                    channel: root.channel
+                    mirrored: root.mirrored
+                    toColor: root.colorAssistant.color
+                }
+            }//simple
+            Component {
                 id: rainbowGradient
                 RainbowGradient {
-                    id: rainbowInst
                     width: root.availableWidth
                     height: root.availableHeight
                     horizontal: root.horizontal
@@ -129,7 +146,7 @@ T.Slider {
         readonly property real side: root.horizontal ? root.availableHeight : root.availableWidth
         readonly property real shrinkSize: Qore.bound(3, side * 0.25, 25)
         readonly property real halfShrinkSpace: shrinkSize / 2
-        readonly property bool isHue: root.channel === ColorHQ.HSVHue || root.channel === ColorHQ.HSLHue
+        // readonly property bool isHue: root.channel === ColorHQ.HSVHue || root.channel === ColorHQ.HSLHue
         property bool seedDone: false
 
         readonly property bool animationReallyEnabled: seedDone && root.animationEnabled && !root.pressed

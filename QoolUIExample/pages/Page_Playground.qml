@@ -7,6 +7,7 @@
 import QtQuick
 import Qool
 import Qool.Controls
+
 import Qool.Color
 import Qool.Debug
 
@@ -27,11 +28,18 @@ BasicPage {
         colorAssistant: mainColor
     }
 
+    ColorQuickPicker {
+        y: 100
+    }
+
     BasicControl {
         x: 400
         y: 600
         RectResizer {}
-        contentItem: ColorNameListView {}
+        contentItem: ColorNameListView {
+            clip: true
+            ScrollIndicator.vertical: ScrollIndicator {}
+        }
     }
 
     BasicControl {
@@ -43,10 +51,37 @@ BasicPage {
     }
 
     BasicControl {
-        x: 80
+        y: 400
         RectResizer {}
-        contentItem: RGBPanel {
-            colorAssistant: mainColor
+        contentItem: Row {
+            Repeater {
+                model: ColorHQ.channels
+                delegate: Loader {
+                    asynchronous: true
+                    sourceComponent: ColorChannelControl {
+                        channel: modelData
+                        colorAssistant: mainColor
+                        orientation: Qt.Vertical
+                    }
+                }
+            }
         }
-    }
+    }//sliders
+
+    BasicControl {
+        x: 600
+        RectResizer {}
+        contentItem: Column {
+            Repeater {
+                model: ColorHQ.channels
+                delegate: Loader {
+                    asynchronous: true
+                    sourceComponent: ColorChannelControl {
+                        channel: modelData
+                        colorAssistant: mainColor
+                    }
+                }
+            }
+        }
+    }//sliders
 }//page

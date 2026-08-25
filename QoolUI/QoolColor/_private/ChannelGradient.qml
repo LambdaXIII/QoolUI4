@@ -13,8 +13,8 @@ LinearGradient {
     property bool mirrored: false
 
     // 浓端锚满值侧（勿改 y1:height——那会把浓端放 0 值侧）。
-    x1: root.horizontal && root.mirrored ? width : 0
-    x2: root.horizontal && !root.mirrored ? width : 0
+    x1: root.horizontal && root.mirrored ? 0 : width
+    x2: root.horizontal && !root.mirrored ? 0 : width
     y1: 0
     y2: root.horizontal ? 0 : height
     function get_color(p) {

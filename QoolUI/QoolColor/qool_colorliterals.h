@@ -1,6 +1,7 @@
 #ifndef QOOL_COLORLITERALS_H
 #define QOOL_COLORLITERALS_H
 
+#include "qoolcommon/qobject_property_macros.hpp"
 #include "qoolns.hpp"
 #include <QColor>
 #include <QObject>
@@ -50,6 +51,8 @@ public:
 
   Q_INVOKABLE static QColor keepItDark(const QColor&);   // 保持颜色较暗
   Q_INVOKABLE static QColor keepItBright(const QColor&); // 保持颜色较亮
+
+  QOBJECT_CONSTANT_PROPERTY_DECLARE(QVariantList, channels)
 };
 
 QOOL_NS_END

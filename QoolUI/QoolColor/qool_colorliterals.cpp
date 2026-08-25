@@ -42,13 +42,14 @@ QHash<int, std::pair<QString, QString>> __channelTags{
   TAG(Red, RED, RED), TAG(Green, GRIN, GREEN), TAG(Blue, BLUE, BLUE),
 
   TAG(HSVHue, HUE, HUE), TAG(HSVSaturation, SAT, SATURATION),
-  TAG(HSVValue, BRIT, VALUE), // 短标签 BRIT 刻意 4 字母缩写（旧面板标题），勿"修正"
+  TAG(HSVValue, BRIT,
+      VALUE), // 短标签 BRIT 刻意 4 字母缩写（旧面板标题），勿"修正"
 
   TAG(HSLHue, HUE, HUE), TAG(HSLSaturation, SAT, SATURATION),
   TAG(HSLLightness, LIT, LIGHTNESS),
 
   TAG(Cyan, CYAN, CYAN), TAG(Magenta, MAGT, MAGENTA), TAG(Yellow, YELO, YELLOW),
-  TAG(Black, BLAK, BLAK)
+  TAG(Black, BLAK, BLAKE)
 
 #undef TAG
 
@@ -152,6 +153,11 @@ QColor ColorLiterals::keepItBright(const QColor& color) {
   const auto new_value = std::max<qreal>(0.25, color.valueF());
   return QColor::fromHsvF(
       original.hueF(), original.saturationF(), new_value, original.alphaF());
+}
+
+QVariantList ColorLiterals::channels() const {
+  return {Alpha, Red, Green, Blue, HSVHue, HSVSaturation, HSVValue, HSLHue,
+    HSLSaturation, HSLLightness, Cyan, Magenta, Yellow, Black};
 }
 
 QOOL_NS_END

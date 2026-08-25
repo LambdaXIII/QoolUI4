@@ -30,6 +30,9 @@ ListView {
 
     SmartObject {
         id: pCtrl
-        property color currentColor
+        property color currentColor: colorBtnGroup.buttons[root.currentIndex].color
     }
+
+    implicitWidth: 200
+    implicitHeight: 600
 }
