@@ -20,48 +20,33 @@ BasicPage {
     ColorAssistant {
         id: mainColor
         color: Style.accent
-        onColorChanged: console.log("current color", color)
+        // onColorChanged: console.log("current color", color)
+    }
+
+    ColorPreviewer {
+        colorAssistant: mainColor
     }
 
     BasicControl {
+        x: 400
+        y: 600
         RectResizer {}
         contentItem: ColorNameListView {}
     }
 
-    // BasicControl {
-    //     x: 20
-    //     RectResizer {}
-    //     contentItem: HSVPanel {
-    //         colorAssistant: mainColor
-    //     }
-    // }
+    BasicControl {
+        x: 20
+        RectResizer {}
+        contentItem: HSVPanel {
+            colorAssistant: mainColor
+        }
+    }
 
-    // BasicControl {
-    //     x: 80
-    //     RectResizer {}
-    //     contentItem: RGBPanel {
-    //         colorAssistant: mainColor
-    //     }
-    // }
-
-    // BasicControl {
-    //     y: 300
-    //     RectResizer {}
-    //     contentItem: ColorNameEdit {
-    //         id: cedit
-    //         Connections {
-    //             target: mainColor
-    //             function onColorChanged() {
-    //                 cedit.value = mainColor.color;
-    //             }
-    //         }
-
-    //         Connections {
-    //             target: cedit
-    //             function onValueChanged() {
-    //                 mainColor.color = cedit.value;
-    //             }
-    //         }
-    //     }
-    // }
+    BasicControl {
+        x: 80
+        RectResizer {}
+        contentItem: RGBPanel {
+            colorAssistant: mainColor
+        }
+    }
 }//page

@@ -1,8 +1,7 @@
-pragma ComponentBehavior: Bound
-
 import QtQuick
 import QtQuick.Shapes
 import Qool
+import Qool.Color
 
 Item {
     id: root
@@ -17,115 +16,78 @@ Item {
 
     property real radius: 10
 
+    property color backgroundColor1: "black"
+    property color backgroundColor2: "white"
+
+    property real horizontalRatio: 0.5
+    property real verticalRatio: 0.5
+
+    implicitWidth: 150
+    implicitHeight: 50
+
     Shape {
         id: mainShape
-        anchors.fill: parent
+        width: Math.max(parent.width, root.radius * 2)
+        height: Math.max(parent.height, root.radius * 2)
+        anchors.centerIn: parent
 
-        // 右下衬底：半透明色与白色背景的混合效果。
-        ShapePath {
-            id: whiteUnderlay
-            startX: root.width / 2
-            startY: root.height / 2
-            PathLine {
-                x: root.width
-                y: root.height / 2
-            }
-            PathLine {
-                x: root.width
-                y: root.height - root.radius
-            }
-            PathArc {
-                x: root.width - root.radius
-                y: root.height
-                radiusX: root.radius
-                radiusY: root.radius
-            }
-            PathLine {
-                x: root.width / 2
-                y: root.height
-            }
-            PathLine {
-                x: root.width / 2
-                y: root.height / 2
-            }
-            strokeColor: "transparent"
-            fillColor: "white"
-        } //whiteUnderlay
+        readonly property real maxW1: width - root.radius
+        readonly property real maxH1: height - root.radius
 
-        // 左半：实色（去 alpha）。
+        readonly property real w1: Qore.bound(root.radius, width * root.horizontalRatio, maxW1)
+        readonly property real w2: width * (1 - root.horizontalRatio)
+        readonly property real h1: Qore.bound(root.radius, height * root.verticalRatio, maxH1)
+        readonly property real h2: height * (1 - root.verticalRatio)
+
         ShapePath {
-            id: leftPath
-            startX: root.width / 2
-            startY: 0
-            PathLine {
-                x: root.width / 2
-                y: root.height
+            // id: topBGPath
+            PathRectangle {
+                width: mainShape.weight
+                height: mainShape.h1
+                topLeftRadius: root.radius
+                topRightRadius: root.radius
             }
-            PathLine {
-                x: root.radius
-                y: root.height
+            strokeWidth: 0
+            fillColor: root.backgroundColor1
+        }//top
+
+        ShapePath {
+            // id: bottomBGPath
+            PathRectangle {
+                width: mainShape.width
+                height: mainShape.h2
+                y: mainShape.h1
+                bottomLeftRadius: root.radius
+                bottomRightRadius: root.radius
             }
-            PathArc {
-                x: 0
-                y: root.height - root.radius
-                radiusX: root.radius
-                radiusY: root.radius
+            strokeWidth: 0
+            fillColor: root.backgroundColor2
+        }//bottom
+
+        ShapePath {
+            // id: leftArea
+            PathRectangle {
+                width: mainShape.w1
+                height: mainShape.height
+                topLeftRadius: root.radius
+                bottomLeftRadius: root.radius
             }
-            PathLine {
-                x: 0
-                y: root.radius
-            }
-            PathArc {
-                x: root.radius
-                y: 0
-                radiusX: root.radius
-                radiusY: root.radius
-            }
-            PathLine {
-                x: root.width / 2
-                y: 0
-            }
+            strokeWidth: 0
             fillColor: root.colorAssistant.solidColor
-            strokeWidth: 0
-            strokeColor: "transparent"
-        } //leftPath
+        }//left
 
-        // 右半：带 alpha 的原色（上半透明衬底、下半白衬底）。
         ShapePath {
-            id: rightPath
-            startX: root.width / 2
-            startY: root.height
-            PathLine {
-                x: root.width / 2
-                y: 0
+            // id: rightArea
+            PathRectangle {
+                width: mainShape.w2
+                height: mainShape.height
+                x: mainShape.w1
+                topRightRadius: root.radius
+                bottomRightRadius: root.radius
             }
-            PathLine {
-                x: root.width - root.radius
-                y: 0
-            }
-            PathArc {
-                x: root.width
-                y: root.radius
-                radiusX: root.radius
-                radiusY: root.radius
-            }
-            PathLine {
-                x: root.width
-                y: root.height - root.radius
-            }
-            PathArc {
-                x: root.width - root.radius
-                y: root.height
-                radiusX: root.radius
-                radiusY: root.radius
-            }
-            PathLine {
-                x: root.width / 2
-                y: root.height
-            }
-            fillColor: root.colorAssistant.color
             strokeWidth: 0
-            strokeColor: "transparent"
-        } //rightPath
+            fillColor: root.colorAssistant.color
+        }//right
+
     } //mainShape
 }
