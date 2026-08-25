@@ -9,7 +9,7 @@ Control {
     id: root
 
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-    property int channel: ColorNameHQ.HSLHue
+    property int channel: ColorHQ.HSLHue
 
     property ColorAssistant colorAssistant: ColorAssistant {
         color: Style.accent
@@ -36,8 +36,8 @@ Control {
         ColorNumText {
             id: tag
             objectName: "tag"
-            text: root.vertical ? ColorNameHQ.channelTagShort(root.channel)
-                                : ColorNameHQ.channelTag(root.channel)
+            text: root.vertical ? ColorHQ.channelTagShort(root.channel)
+                                : ColorHQ.channelTag(root.channel)
             color: Style.buttonText
             horizontalAlignment: Text.AlignHCenter
         }
@@ -63,12 +63,12 @@ Control {
             }
 
             textFromEditText: function (s) {
-                let v = ColorNameHQ.parseChannelNumberFloat(s)
+                let v = ColorHQ.parseChannelNumberFloat(s)
                 if (Number.isNaN(v))
                     v = proxy.value
                 else
                     root.value = v
-                return ColorNameHQ.formatChannelNumberFloat(v)
+                return ColorHQ.formatChannelNumberFloat(v)
             }
 
             // 4 字符锁宽（最长显示形态 '.xxx'）。
@@ -142,13 +142,13 @@ Control {
     PropertyProxy {
         id: proxy
         target: root.colorAssistant
-        property: ColorNameHQ.channelNameF(root.channel)
+        property: ColorHQ.channelNameF(root.channel)
     }
 
     // 手动同步（绑定求值早于 proxy 观察建立，不依赖引擎求值序）；编辑基准
     // 仅非编辑态写（用户输入优先）。播种于 onCompleted。
     function update_display() {
-        let s = ColorNameHQ.formatChannelNumberFloat(proxy.value)
+        let s = ColorHQ.formatChannelNumberFloat(proxy.value)
         editor.displayItem.text = s
         if (!editor.editing)
             editor.text = s

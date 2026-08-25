@@ -8,7 +8,7 @@ import Qool.Color
 // 色名行按钮：色名 + 色块 + 选中展开。
 //
 // 显示色名（`name`）与对应色块（`color`，经
-// ColorNameHQ.color(name) 解析）。选中时色块展开铺满整行、
+// ColorHQ.color(name) 解析）。选中时色块展开铺满整行、
 // 文字反色为前景对比色（ThemeHQ.recommendForeground），
 // 底部悬停指示条渐显。
 //
@@ -24,8 +24,8 @@ import Qool.Color
 //
 // 属性
 // - 属性 `name`（string）：色名，默认 "white"。`color` 由
-//   ColorNameHQ.color(name) 解析（未知名回退默认白）。
-// - 属性 `color`（color）：只读，`name` 对应的颜色（ColorNameHQ 解析结果）。
+//   ColorHQ.color(name) 解析（未知名回退默认白）。
+// - 属性 `color`（color）：只读，`name` 对应的颜色（ColorHQ 解析结果）。
 // - 属性 `group`（var）：互斥组引用。
 //   null 时点选为普通切换。
 // - 属性 `animationEnabled`（bool）：动画总开关，默认继承父级或
@@ -43,7 +43,7 @@ T.AbstractButton {
                                     ?? Style.animationEnabled
 
     property string name: "white"
-    readonly property color color: ColorNameHQ.color(root.name)
+    readonly property color color: ColorHQ.color(root.name)
 
     // 互斥组：由 ColorNameView 注入。
     // 类型用 var（而非 QtObject）：组的 checkedButton 是动态属性，

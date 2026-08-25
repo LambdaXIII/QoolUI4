@@ -10,7 +10,7 @@ T.Slider {
     id: root
 
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-    property int channel: ColorNameHQ.HSLHue
+    property int channel: ColorHQ.HSLHue
     property ColorAssistant colorAssistant: ColorAssistant {
         color: Style.accent
     }
@@ -56,7 +56,7 @@ T.Slider {
 
             fillGradient: {
                 if (pCtrl.isHue)
-                    return rainbow.createObject();
+                    return rainbow.createObject(trackShape);
                 return null;
             }
 
@@ -215,7 +215,7 @@ T.Slider {
     SmartObject {
         id: pCtrl
         readonly property real side: root.horizontal ? root.availableHeight : root.availableWidth
-        readonly property bool isHue: root.channel === ColorNameHQ.HSVHue || root.channel === ColorNameHQ.HSLHue
+        readonly property bool isHue: root.channel === ColorHQ.HSVHue || root.channel === ColorHQ.HSLHue
         property bool seedDone: false
         readonly property bool animationReallyEnabled: seedDone && root.animationEnabled && !root.pressed
 
@@ -224,23 +224,23 @@ T.Slider {
 
         property color channelColor: {
             switch (root.channel) {
-            case ColorNameHQ.HSVSaturation:
-                return Qt.hsva(ColorNameHQ.clampChannelRange(root.colorAssistant.hsvHueF), 1, root.colorAssistant.hsvValueF, 1);
-            case ColorNameHQ.HSLSaturation:
-                return Qt.hsla(ColorNameHQ.clampChannelRange(root.colorAssistant.hslHueF), 1, root.colorAssistant.hslLightnessF, 1);
-            case ColorNameHQ.HSVHue:
+            case ColorHQ.HSVSaturation:
+                return Qt.hsva(ColorHQ.clampChannelRange(root.colorAssistant.hsvHueF), 1, root.colorAssistant.hsvValueF, 1);
+            case ColorHQ.HSLSaturation:
+                return Qt.hsla(ColorHQ.clampChannelRange(root.colorAssistant.hslHueF), 1, root.colorAssistant.hslLightnessF, 1);
+            case ColorHQ.HSVHue:
                 return Qt.hsva(root.position, 1, 1, 1);
-            case ColorNameHQ.HSLHue:
+            case ColorHQ.HSLHue:
                 return Qt.hsla(root.position, 1, .5, 1);
             }
 
-            return ColorNameHQ.channelColor(root.channel);
+            return ColorHQ.channelColor(root.channel);
         }
 
         PropertyProxy {
             id: proxy
             target: root.colorAssistant
-            property: ColorNameHQ.channelNameF(root.channel)
+            property: ColorHQ.channelNameF(root.channel)
         }
 
         // 越界 hue（<0 无色相）不写——显示保持最后位置，且避免 sat-bump 回环。
@@ -256,7 +256,7 @@ T.Slider {
         Connections {
             target: root
             function onValueChanged() {
-                const v = ColorNameHQ.clampChannelRange(root.value);
+                const v = ColorHQ.clampChannelRange(root.value);
                 if (v !== root.value) {
                     root.value = v;
                     return;
@@ -267,9 +267,9 @@ T.Slider {
 
         // sat-bump：hue+无色相 → 先写 sat 0.001 再写 hue（sat=0 时 hue 无意义）。
         function writeChannel(v) {
-            if (root.channel === ColorNameHQ.HSVHue && root.colorAssistant.hsvHueF < 0)
+            if (root.channel === ColorHQ.HSVHue && root.colorAssistant.hsvHueF < 0)
                 root.colorAssistant.hsvSaturationF = 0.001;
-            else if (root.channel === ColorNameHQ.HSLHue && root.colorAssistant.hslHueF < 0)
+            else if (root.channel === ColorHQ.HSLHue && root.colorAssistant.hslHueF < 0)
                 root.colorAssistant.hslSaturationF = 0.001;
             proxy.value = v;
         }

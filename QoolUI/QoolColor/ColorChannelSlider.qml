@@ -12,7 +12,7 @@ T.Slider {
 
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
 
-    property int channel: ColorNameHQ.HSLHue
+    property int channel: ColorHQ.HSLHue
     property ColorAssistant colorAssistant: ColorAssistant {
         color: Style.accent
     }
@@ -129,7 +129,7 @@ T.Slider {
         readonly property real side: root.horizontal ? root.availableHeight : root.availableWidth
         readonly property real shrinkSize: Qore.bound(3, side * 0.25, 25)
         readonly property real halfShrinkSpace: shrinkSize / 2
-        readonly property bool isHue: root.channel === ColorNameHQ.HSVHue || root.channel === ColorNameHQ.HSLHue
+        readonly property bool isHue: root.channel === ColorHQ.HSVHue || root.channel === ColorHQ.HSLHue
         property bool seedDone: false
 
         readonly property bool animationReallyEnabled: seedDone && root.animationEnabled && !root.pressed
@@ -137,7 +137,7 @@ T.Slider {
         PropertyProxy {
             id: proxy
             target: root.colorAssistant
-            property: ColorNameHQ.channelNameF(root.channel)
+            property: ColorHQ.channelNameF(root.channel)
         }
 
         // 越界 hue（<0 无色相）不写——显示保持最后位置，避免 sat-bump 回环。
@@ -154,7 +154,7 @@ T.Slider {
         Connections {
             target: root
             function onValueChanged() {
-                const v = ColorNameHQ.clampChannelRange(root.value);
+                const v = ColorHQ.clampChannelRange(root.value);
                 if (v !== root.value) {
                     root.value = v;
                     return;
@@ -165,9 +165,9 @@ T.Slider {
 
         // sat-bump：hue+无色相 → 先写 sat 0.001 再写 hue（sat=0 时 hue 无意义）。
         function writeChannel(v) {
-            if (root.channel === ColorNameHQ.HSVHue && root.colorAssistant.hsvHueF < 0)
+            if (root.channel === ColorHQ.HSVHue && root.colorAssistant.hsvHueF < 0)
                 root.colorAssistant.hsvSaturationF = 0.001;
-            else if (root.channel === ColorNameHQ.HSLHue && root.colorAssistant.hslHueF < 0)
+            else if (root.channel === ColorHQ.HSLHue && root.colorAssistant.hslHueF < 0)
                 root.colorAssistant.hslSaturationF = 0.001;
             proxy.value = v;
         }

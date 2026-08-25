@@ -18,7 +18,7 @@ EditableText {
     }
     SmartObject {
         id: pCtrl
-        readonly property string valueColorName: ColorNameHQ.colorName(root.value)
+        readonly property string valueColorName: ColorHQ.colorName(root.value)
         onValueColorNameChanged: ensure_text()
 
         function ensure_text() {
@@ -30,8 +30,8 @@ EditableText {
                 let t = root.text;
                 if (t === pCtrl.valueColorName)
                     return;
-                if (ColorNameHQ.isValidColorName(t))
-                    root.value = ColorNameHQ.color(t);
+                if (ColorHQ.isValidColorName(t))
+                    root.value = ColorHQ.color(t);
                 else
                     pCtrl.ensure_text(); //撤回一次
             }//onTextChanged

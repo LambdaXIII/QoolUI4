@@ -13,7 +13,7 @@ QOOL_NS_BEGIN
 
 class ColorNameHQ: public QObject {
   Q_OBJECT
-  QML_NAMED_ELEMENT(ColorNameHQ)
+  QML_NAMED_ELEMENT(ColorHQ)
   QML_EXTENDED(ColorLiterals)
   QML_SINGLETON
 

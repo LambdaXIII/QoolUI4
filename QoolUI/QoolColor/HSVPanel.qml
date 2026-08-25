@@ -22,14 +22,14 @@ ColumnLayout {
     ColorChannelEdit {
         Layout.fillWidth: true
         animationEnabled: root.animationEnabled
-        channel: ColorNameHQ.HSVHue
+        channel: ColorHQ.HSVHue
         colorAssistant: root.colorAssistant
     } //hueEdit
 
     ColorChannelEdit {
         Layout.fillWidth: true
         animationEnabled: root.animationEnabled
-        channel: ColorNameHQ.HSVSaturation
+        channel: ColorHQ.HSVSaturation
         colorAssistant: root.colorAssistant
     } //saturationEdit
 
@@ -46,7 +46,7 @@ ColumnLayout {
         id: valueControl
         Layout.fillWidth: true
         animationEnabled: root.animationEnabled
-        channel: ColorNameHQ.HSVValue
+        channel: ColorHQ.HSVValue
         colorAssistant: root.colorAssistant
     } //valueControl
 
@@ -55,7 +55,7 @@ ColumnLayout {
         visible: root.showAlpha
         Layout.fillWidth: true
         animationEnabled: root.animationEnabled
-        channel: ColorNameHQ.Alpha
+        channel: ColorHQ.Alpha
         colorAssistant: root.colorAssistant
     } //alphaControl
 }

@@ -18,7 +18,7 @@ GridLayout {
 
     ColorChannelControl {
         colorAssistant: root.colorAssistant
-        channel: ColorNameHQ.Cyan
+        channel: ColorHQ.Cyan
         orientation: Qt.Vertical
         Layout.fillWidth: true
         Layout.fillHeight: true
@@ -28,7 +28,7 @@ GridLayout {
 
     ColorChannelControl {
         colorAssistant: root.colorAssistant
-        channel: ColorNameHQ.Magenta
+        channel: ColorHQ.Magenta
         orientation: Qt.Vertical
         Layout.fillWidth: true
         Layout.fillHeight: true
@@ -38,7 +38,7 @@ GridLayout {
 
     ColorChannelControl {
         colorAssistant: root.colorAssistant
-        channel: ColorNameHQ.Yellow
+        channel: ColorHQ.Yellow
         orientation: Qt.Vertical
         Layout.fillWidth: true
         Layout.fillHeight: true
@@ -48,7 +48,7 @@ GridLayout {
 
     ColorChannelControl {
         colorAssistant: root.colorAssistant
-        channel: ColorNameHQ.Black
+        channel: ColorHQ.Black
         orientation: Qt.Vertical
         Layout.fillWidth: true
         Layout.fillHeight: true

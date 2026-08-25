@@ -23,24 +23,24 @@ LinearGradient {
 
     function get_fromColor(channel) {
         switch (channel) {
-        case ColorNameHQ.Red:
-        case ColorNameHQ.Green:
-        case ColorNameHQ.Blue:
-        case ColorNameHQ.HSVValue:
-        case ColorNameHQ.HSLLightness:
-        case ColorNameHQ.Alpha:
+        case ColorHQ.Red:
+        case ColorHQ.Green:
+        case ColorHQ.Blue:
+        case ColorHQ.HSVValue:
+        case ColorHQ.HSLLightness:
+        case ColorHQ.Alpha:
             return "transparent";
-        case ColorNameHQ.Cyan:
-        case ColorNameHQ.Magenta:
-        case ColorNameHQ.Yellow:
-        case ColorNameHQ.Black:
+        case ColorHQ.Cyan:
+        case ColorHQ.Magenta:
+        case ColorHQ.Yellow:
+        case ColorHQ.Black:
             return "black";
         }
         return "white";
     }
 
     function get_toColor(channel) {
-        return ColorNameHQ.channelColor(channel);
+        return ColorHQ.channelColor(channel);
     }
 
     property color fromColor: get_fromColor(root.channel)

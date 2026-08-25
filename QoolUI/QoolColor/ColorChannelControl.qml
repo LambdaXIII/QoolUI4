@@ -9,7 +9,7 @@ Control {
     id: root
 
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-    property int channel: ColorNameHQ.HSLHue
+    property int channel: ColorHQ.HSLHue
     property ColorAssistant colorAssistant: ColorAssistant {
         color: Style.accent
     }
@@ -80,7 +80,7 @@ Control {
     PropertyProxy {
         id: proxy
         target: root.colorAssistant
-        property: ColorNameHQ.channelNameF(root.channel)
+        property: ColorHQ.channelNameF(root.channel)
     }
 
     Connections {

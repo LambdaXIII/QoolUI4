@@ -23,7 +23,7 @@ ColumnLayout {
     implicitWidth: 200
 
     // 分类切换（CycleChoice）。
-    // 分类数据来自 ColorNameHQ.categories()（插件声明分类的并集），
+    // 分类数据来自 ColorHQ.categories()（插件声明分类的并集），
     // 本组件不内置分类数据。
     CycleChoice {
         id: profiler
@@ -32,7 +32,7 @@ ColumnLayout {
         // 内部 font.pixelSize 默认绑定（controlTextSize）——QML 组属性赋值
         // 会移除子属性绑定，靠此把分类文字渲染为像素字体 24px。
         font: PixelFont.normal
-        texts: ColorNameHQ.categories()
+        texts: ColorHQ.categories()
         // cutSizes 便捷面删除为四角显式：四角值保持原统一值 2。
         backgroundSettings.cutSizeTL: 2
         backgroundSettings.cutSizeTR: 2

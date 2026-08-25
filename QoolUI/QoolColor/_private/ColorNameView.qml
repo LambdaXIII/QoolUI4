@@ -6,13 +6,13 @@ import Qool.Color
 
 // 色名列表视图：分类色名 + 互斥点选。
 //
-// 以 ColorNameHQ.names(category) 为模型展示色名列表，
+// 以 ColorHQ.names(category) 为模型展示色名列表，
 // 每行一个 ColorNameButton；点选互斥（同一时刻至多一项选中，
 // 独占组语义）。
 //
 // 属性
 // - 属性 `category`（string）：当前分类。
-//   模型为 ColorNameHQ.names(category)；改值即换列表内容。
+//   模型为 ColorHQ.names(category)；改值即换列表内容。
 //   默认 `"DEFAULT"`（与默认色名插件的分类一致）。
 // - 属性 `font`（font）：色名行字体，默认 PixelFont.normal。
 // - 属性 `currentColor`（color）：只读，当前选中行的颜色
@@ -42,7 +42,7 @@ ListView {
             pControl.checkedButton.checked = false
     }
 
-    model: ColorNameHQ.names(root.category)
+    model: ColorHQ.names(root.category)
 
     // 选中控制：checkedButton 互斥引用 + currentColor。
     QtObject {
