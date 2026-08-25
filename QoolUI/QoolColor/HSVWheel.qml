@@ -130,12 +130,12 @@ Item {
                 id: centerer
             }
 
-            BasicNumberBehavior on x {
-                enabled: cursor.animationEnabled
-            }
-            BasicNumberBehavior on y {
-                enabled: cursor.animationEnabled
-            }
+            // BasicNumberBehavior on x {
+            //     enabled: cursor.animationEnabled
+            // }
+            // BasicNumberBehavior on y {
+            //     enabled: cursor.animationEnabled
+            // }
         }
     }
 
