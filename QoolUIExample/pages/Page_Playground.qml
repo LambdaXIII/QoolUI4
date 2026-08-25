@@ -38,4 +38,25 @@ BasicPage {
             colorAssistant: mainColor
         }
     }
+
+    BasicControl {
+        y: 300
+        RectResizer {}
+        contentItem: ColorNameEdit {
+            id: cedit
+            Connections {
+                target: mainColor
+                function onColorChanged() {
+                    cedit.value = mainColor.color;
+                }
+            }
+
+            Connections {
+                target: cedit
+                function onValueChanged() {
+                    mainColor.color = cedit.value;
+                }
+            }
+        }
+    }
 }//page

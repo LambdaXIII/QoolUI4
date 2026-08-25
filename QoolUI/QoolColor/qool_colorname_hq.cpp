@@ -11,7 +11,7 @@ ColorNameHQ::ColorNameHQ(QObject* parent)
   : QObject(parent) {
 }
 
-QStringList ColorNameHQ::names(const QString& category) const {
+QStringList ColorNameHQ::colorNames(const QString& category) const {
   return ColorNameDB::instance()->names(category);
 }
 
@@ -24,11 +24,15 @@ QStringList ColorNameHQ::categories() const {
   return ColorNameDB::instance()->categories();
 }
 
-bool ColorNameHQ::hasColor(const QString& name) const {
+bool ColorNameHQ::isProvidedColorName(const QString& name) const {
   return ColorNameDB::instance()->hasColor(name);
 }
 
-QString ColorNameHQ::name(const QColor& c) const {
+bool ColorNameHQ::isValidColorName(const QString& name) const {
+  return isProvidedColorName(name) || QColor::isValidColorName(name);
+}
+
+QString ColorNameHQ::colorName(const QColor& c) const {
   return ColorNameDB::instance()->name(c);
 }
 

@@ -33,7 +33,7 @@ Control {
         implicitHeight: root.horizontal ? Math.max(tag.implicitHeight, editor.implicitHeight)
                                         : tag.implicitHeight + editor.implicitHeight
 
-        ChannelNumText {
+        ColorNumText {
             id: tag
             objectName: "tag"
             text: root.vertical ? ColorNameHQ.channelTagShort(root.channel)
@@ -55,7 +55,7 @@ Control {
             }
 
             // displayItem 是 alias 子对象，PropertyChanges 无法寻址——此处唯一形态绑定。
-            displayItem: ChannelNumText {
+            displayItem: ColorNumText {
                 horizontalAlignment: root.horizontal
                                      ? (root.mirrored ? Text.AlignLeft
                                                       : Text.AlignRight)

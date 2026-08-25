@@ -44,7 +44,7 @@ BasicPage {
         QoolControl {
             id: editorControl
             title: qsTr("色值/色彩名编辑器")
-            contentItem: ColorEdit {
+            contentItem: ColorNameEdit {
                 id: editor
                 Layout.fillWidth: true
                 onCurrentColorChanged: mainColor.color = currentColor

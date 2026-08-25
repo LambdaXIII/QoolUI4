@@ -17,7 +17,7 @@ qt_add_qml_module(QoolColor
     SOURCES qool_colorname_hq.h qool_colorname_hq.cpp
 
     QML_FILES ColorQuickPicker.qml
-    QML_FILES ColorEdit.qml
+    QML_FILES ColorNameEdit.qml
     QML_FILES ColorPreviewer.qml
     QML_FILES HSVPanel.qml
     QML_FILES HSLPanel.qml
