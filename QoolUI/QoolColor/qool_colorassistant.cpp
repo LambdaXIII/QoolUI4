@@ -2,7 +2,35 @@
 
 #include "qoolcommon/debug.hpp"
 
+#include <cmath>
+
 QOOL_NS_BEGIN
+
+// 锚 → int 轨换算（QColor 量程：hue 0-359、sat/value/lightness 0-255）；
+// normalizeHue 正模归一化 [0,1)、clamp01 钳制 [0,1]。锚恒 ∈[0,1)，
+// int 轨随锚换算——灰轴不再产生 -1。
+static inline int intFromUnit360(qreal x) { return qRound(x * 360.0) % 360; }
+static inline int intFromUnit255(qreal x) { return qRound(x * 255.0); }
+static inline qreal normalizeHue(qreal x) {
+  return std::fmod(std::fmod(x, 1.0) + 1.0, 1.0);
+}
+static inline qreal clamp01(qreal x) { return qBound<qreal>(0.0, x, 1.0); }
+
+// 落锚后重建：候选色与当前色相等时 set_color 早退（灰上写 hue、黑上写
+// sat 等无表达写——锚已更新而颜色不变），int 轨仍需按新锚刷新。
+#define XX_ANCHOR_REBUILD(_CANDIDATE_)                                        \
+  do {                                                                        \
+    if (m_color != (_CANDIDATE_)) {                                           \
+      set_color(_CANDIDATE_);                                                 \
+    } else {                                                                  \
+      update_hsvHue(intFromUnit360(m_hsvHueF));                               \
+      update_hsvSaturation(intFromUnit255(m_hsvSaturationF));                 \
+      update_hsvValue(intFromUnit255(m_hsvValueF));                           \
+      update_hslHue(intFromUnit360(m_hslHueF));                               \
+      update_hslSaturation(intFromUnit255(m_hslSaturationF));                 \
+      update_hslLightness(intFromUnit255(m_hslLightnessF));                   \
+    }                                                                         \
+  } while (0)
 
 ColorAssistant::ColorAssistant(QObject* parent)
   : QObject { parent } {
@@ -49,21 +77,28 @@ void ColorAssistant::set_color(QColor color) {
   update_alphaF(c.alphaF());
   update_alpha(c.alpha());
 
+  // 锚更新三分支（ADR-0020）：value/lightness 恒有表达无条件跟随；hue
+  // 派生 ≥0 才覆盖双 hue 锚（灰轴冻结）；hsvSat 仅 v>0、hslSat 仅
+  // 0<l<1 时有表达；int 轨一律从锚换算——灰轴不再产生 -1。
   c = c.toHsv();
-  update_hsvHueF(c.hsvHueF());
-  update_hsvSaturationF(c.hsvSaturationF());
   update_hsvValueF(c.valueF());
-  update_hsvHue(c.hsvHue());
-  update_hsvSaturation(c.hsvSaturation());
   update_hsvValue(c.value());
+  if (c.hsvHueF() >= 0) {
+    update_hsvHueF(c.hsvHueF());
+    update_hslHueF(c.hsvHueF());
+  }
+  if (c.valueF() > 0)
+    update_hsvSaturationF(c.hsvSaturationF());
+  update_hsvHue(intFromUnit360(m_hsvHueF));
+  update_hsvSaturation(intFromUnit255(m_hsvSaturationF));
 
   c = c.toHsl();
-  update_hslHueF(c.hslHueF());
-  update_hslSaturationF(c.hslSaturationF());
   update_hslLightnessF(c.lightnessF());
-  update_hslHue(c.hslHue());
-  update_hslSaturation(c.saturation());
   update_hslLightness(c.lightness());
+  if (c.lightnessF() > 0 && c.lightnessF() < 1)
+    update_hslSaturationF(c.hslSaturationF());
+  update_hslHue(intFromUnit360(m_hslHueF));
+  update_hslSaturation(intFromUnit255(m_hslSaturationF));
 
   c = c.toCmyk();
   update_cyanF(c.cyanF());
@@ -151,13 +186,23 @@ QList<qreal> ColorAssistant::hsvF() const {
 void ColorAssistant::set_hsvF(QList<qreal> xs) {
   if (xs == hsvF())
     return;
-  auto color = m_color.toHsv();
-  auto h = xs.value(0, color.hsvHueF());
-  auto s = xs.value(1, color.hsvSaturationF());
-  auto v = xs.value(2, color.valueF());
-  QColor res = QColor::fromHsvF(h, s, v);
-  res.setAlphaF(color.alphaF());
-  set_color(res);
+  const qreal h = normalizeHue(xs.value(0, m_hsvHueF));
+  const qreal s = clamp01(xs.value(1, m_hsvSaturationF));
+  const qreal v = clamp01(xs.value(2, m_hsvValueF));
+  if (!std::isfinite(h) || !std::isfinite(s) || !std::isfinite(v))
+    return;
+  // 预计算终值（与 set_color 派生同口径：有表达跟随真实换算、无表达落锚），
+  // 单次广播后重建为同值 no-op——避免「落锚 emit + 派生覆盖 emit」双发。
+  const QColor candidate = QColor::fromHsvF(h, s, v, m_alphaF);
+  const QColor ch = candidate.toRgb().toHsv();
+  const qreal finalHue = ch.hsvHueF() >= 0 ? ch.hsvHueF() : h;
+  const qreal finalSat = ch.valueF() > 0 ? ch.hsvSaturationF() : s;
+  const qreal finalValue = ch.valueF();
+  update_hsvHueF(finalHue);
+  update_hslHueF(finalHue);
+  update_hsvSaturationF(finalSat);
+  update_hsvValueF(finalValue);
+  XX_ANCHOR_REBUILD(candidate);
 }
 
 QList<qreal> ColorAssistant::hslF() const {
@@ -167,13 +212,23 @@ QList<qreal> ColorAssistant::hslF() const {
 void ColorAssistant::set_hslF(QList<qreal> xs) {
   if (xs == hslF())
     return;
-  auto color = m_color.toHsl();
-  auto h = xs.value(0, color.hslHueF());
-  auto s = xs.value(1, color.hslSaturationF());
-  auto l = xs.value(2, color.lightnessF());
-  QColor res = QColor::fromHslF(h, s, l);
-  res.setAlphaF(color.alphaF());
-  set_color(res);
+  const qreal h = normalizeHue(xs.value(0, m_hslHueF));
+  const qreal s = clamp01(xs.value(1, m_hslSaturationF));
+  const qreal l = clamp01(xs.value(2, m_hslLightnessF));
+  if (!std::isfinite(h) || !std::isfinite(s) || !std::isfinite(l))
+    return;
+  const QColor candidate = QColor::fromHslF(h, s, l, m_alphaF);
+  const QColor ch = candidate.toRgb().toHsl();
+  const qreal dh = candidate.toRgb().toHsv().hsvHueF();
+  const qreal finalHue = dh >= 0 ? dh : h;
+  const qreal finalSat =
+      (ch.lightnessF() > 0 && ch.lightnessF() < 1) ? ch.hslSaturationF() : s;
+  const qreal finalLight = ch.lightnessF();
+  update_hsvHueF(finalHue);
+  update_hslHueF(finalHue);
+  update_hslSaturationF(finalSat);
+  update_hslLightnessF(finalLight);
+  XX_ANCHOR_REBUILD(candidate);
 }
 
 QList<int> ColorAssistant::rgba() const {
@@ -216,13 +271,19 @@ QList<int> ColorAssistant::hsv() const {
 void ColorAssistant::set_hsv(QList<int> xs) {
   if (xs == hsv())
     return;
-  auto color = m_color.toHsv();
-  auto h = xs.value(0, color.hsvHue());
-  auto s = xs.value(1, color.hsvSaturation());
-  auto v = xs.value(2, color.value());
-  QColor res = QColor::fromHsv(h, s, v);
-  res.setAlpha(color.alpha());
-  set_color(res);
+  const qreal h = normalizeHue(xs.value(0, m_hsvHue) / 360.0);
+  const qreal s = clamp01(xs.value(1, m_hsvSaturation) / 255.0);
+  const qreal v = clamp01(xs.value(2, m_hsvValue) / 255.0);
+  const QColor candidate = QColor::fromHsvF(h, s, v, m_alphaF);
+  const QColor ch = candidate.toRgb().toHsv();
+  const qreal finalHue = ch.hsvHueF() >= 0 ? ch.hsvHueF() : h;
+  const qreal finalSat = ch.valueF() > 0 ? ch.hsvSaturationF() : s;
+  const qreal finalValue = ch.valueF();
+  update_hsvHueF(finalHue);
+  update_hslHueF(finalHue);
+  update_hsvSaturationF(finalSat);
+  update_hsvValueF(finalValue);
+  XX_ANCHOR_REBUILD(candidate);
 }
 
 QList<int> ColorAssistant::hsl() const {
@@ -232,13 +293,21 @@ QList<int> ColorAssistant::hsl() const {
 void ColorAssistant::set_hsl(QList<int> xs) {
   if (xs == hsl())
     return;
-  auto color = m_color.toHsl();
-  auto h = xs.value(0, color.hslHue());
-  auto s = xs.value(1, color.hslSaturation());
-  auto l = xs.value(2, color.lightness());
-  QColor res = QColor::fromHsl(h, s, l);
-  res.setAlpha(color.alpha());
-  set_color(res);
+  const qreal h = normalizeHue(xs.value(0, m_hslHue) / 360.0);
+  const qreal s = clamp01(xs.value(1, m_hslSaturation) / 255.0);
+  const qreal l = clamp01(xs.value(2, m_hslLightness) / 255.0);
+  const QColor candidate = QColor::fromHslF(h, s, l, m_alphaF);
+  const QColor ch = candidate.toRgb().toHsl();
+  const qreal dh = candidate.toRgb().toHsv().hsvHueF();
+  const qreal finalHue = dh >= 0 ? dh : h;
+  const qreal finalSat =
+      (ch.lightnessF() > 0 && ch.lightnessF() < 1) ? ch.hslSaturationF() : s;
+  const qreal finalLight = ch.lightnessF();
+  update_hsvHueF(finalHue);
+  update_hslHueF(finalHue);
+  update_hslSaturationF(finalSat);
+  update_hslLightnessF(finalLight);
+  XX_ANCHOR_REBUILD(candidate);
 }
 
 // ---- name（动态生成：不透明时 #AARRGGBB，否则 #RRGGBB）----
@@ -387,100 +456,164 @@ void ColorAssistant::set_black(int new_black) {
 }
 
 void ColorAssistant::set_hsvHueF(qreal new_hsvHueF) {
-  if (new_hsvHueF == hsvHueF())
+  if (!std::isfinite(new_hsvHueF))
     return;
-  QColor c = m_color.toHsv();
-  c.setHsvF(new_hsvHueF, c.hsvSaturationF(), c.valueF(), c.alphaF());
-  set_color(c);
+  const qreal v = normalizeHue(new_hsvHueF);
+  if (v == hsvHueF())
+    return;
+  const QColor candidate = QColor::fromHsvF(v, m_hsvSaturationF, m_hsvValueF,
+                                            m_alphaF);
+  const qreal derived = candidate.toRgb().toHsv().hsvHueF();
+  const qreal final = derived >= 0 ? derived : v;  // 有表达跟随 / 无表达落锚
+  update_hsvHueF(final);
+  update_hslHueF(final);
+  XX_ANCHOR_REBUILD(candidate);
 }
 
 void ColorAssistant::set_hsvSaturationF(qreal new_hsvSaturationF) {
-  if (new_hsvSaturationF == hsvSaturationF())
+  if (!std::isfinite(new_hsvSaturationF))
     return;
-  QColor c = m_color.toHsv();
-  c.setHsvF(c.hsvHueF(), new_hsvSaturationF, c.valueF(), c.alphaF());
-  set_color(c);
+  const qreal v = clamp01(new_hsvSaturationF);
+  if (v == hsvSaturationF())
+    return;
+  const QColor candidate = QColor::fromHsvF(m_hsvHueF, v, m_hsvValueF,
+                                            m_alphaF);
+  const QColor ch = candidate.toRgb().toHsv();
+  const qreal final = ch.valueF() > 0 ? ch.hsvSaturationF() : v;  // 黑轴冻结
+  update_hsvSaturationF(final);
+  XX_ANCHOR_REBUILD(candidate);
 }
 
 void ColorAssistant::set_hsvValueF(qreal new_hsvValueF) {
-  if (new_hsvValueF == hsvValueF())
+  if (!std::isfinite(new_hsvValueF))
     return;
-  QColor c = m_color.toHsv();
-  c.setHsvF(c.hsvHueF(), c.hsvSaturationF(), new_hsvValueF, c.alphaF());
-  set_color(c);
+  const qreal v = clamp01(new_hsvValueF);
+  if (v == hsvValueF())
+    return;
+  const QColor candidate = QColor::fromHsvF(m_hsvHueF, m_hsvSaturationF, v,
+                                            m_alphaF);
+  const qreal final = candidate.toRgb().toHsv().valueF();  // 恒有表达
+  update_hsvValueF(final);
+  XX_ANCHOR_REBUILD(candidate);
 }
 
 void ColorAssistant::set_hsvHue(int new_hsvHue) {
   if (new_hsvHue == hsvHue())
     return;
-  QColor c = m_color.toHsv();
-  c.setHsv(new_hsvHue, c.hsvSaturation(), c.value(), c.alpha());
-  set_color(c);
+  const qreal v = normalizeHue(new_hsvHue / 360.0);
+  const QColor candidate = QColor::fromHsvF(v, m_hsvSaturationF, m_hsvValueF,
+                                            m_alphaF);
+  const qreal derived = candidate.toRgb().toHsv().hsvHueF();
+  const qreal final = derived >= 0 ? derived : v;
+  update_hsvHueF(final);
+  update_hslHueF(final);
+  XX_ANCHOR_REBUILD(candidate);
 }
 
 void ColorAssistant::set_hsvSaturation(int new_hsvSaturation) {
   if (new_hsvSaturation == hsvSaturation())
     return;
-  QColor c = m_color.toHsv();
-  c.setHsv(c.hsvHue(), new_hsvSaturation, c.value(), c.alpha());
-  set_color(c);
+  const qreal v = clamp01(new_hsvSaturation / 255.0);
+  const QColor candidate = QColor::fromHsvF(m_hsvHueF, v, m_hsvValueF,
+                                            m_alphaF);
+  const QColor ch = candidate.toRgb().toHsv();
+  const qreal final = ch.valueF() > 0 ? ch.hsvSaturationF() : v;
+  update_hsvSaturationF(final);
+  XX_ANCHOR_REBUILD(candidate);
 }
 
 void ColorAssistant::set_hsvValue(int new_hsvValue) {
   if (new_hsvValue == hsvValue())
     return;
-  QColor c = m_color.toHsv();
-  c.setHsv(c.hsvHue(), c.hsvSaturation(), new_hsvValue, c.alpha());
-  set_color(c);
+  const qreal v = clamp01(new_hsvValue / 255.0);
+  const QColor candidate = QColor::fromHsvF(m_hsvHueF, m_hsvSaturationF, v,
+                                            m_alphaF);
+  const qreal final = candidate.toRgb().toHsv().valueF();
+  update_hsvValueF(final);
+  XX_ANCHOR_REBUILD(candidate);
 }
 
 void ColorAssistant::set_hslHueF(qreal new_hslHueF) {
-  if (new_hslHueF == hslHueF())
+  if (!std::isfinite(new_hslHueF))
     return;
-  QColor c = m_color.toHsl();
-  c.setHslF(new_hslHueF, c.hslSaturationF(), c.lightnessF(), c.alphaF());
-  set_color(c);
+  const qreal v = normalizeHue(new_hslHueF);
+  if (v == hsvHueF())
+    return;
+  const QColor candidate = QColor::fromHslF(v, m_hslSaturationF,
+                                            m_hslLightnessF, m_alphaF);
+  const qreal derived = candidate.toRgb().toHsv().hsvHueF();
+  const qreal final = derived >= 0 ? derived : v;
+  update_hsvHueF(final);
+  update_hslHueF(final);
+  XX_ANCHOR_REBUILD(candidate);
 }
 
 void ColorAssistant::set_hslSaturationF(qreal new_hslSaturationF) {
-  if (new_hslSaturationF == hslSaturationF())
+  if (!std::isfinite(new_hslSaturationF))
     return;
-  QColor c = m_color.toHsl();
-  c.setHslF(c.hslHueF(), new_hslSaturationF, c.lightnessF(), c.alphaF());
-  set_color(c);
+  const qreal v = clamp01(new_hslSaturationF);
+  if (v == hslSaturationF())
+    return;
+  const QColor candidate = QColor::fromHslF(m_hslHueF, v, m_hslLightnessF,
+                                            m_alphaF);
+  const QColor ch = candidate.toRgb().toHsl();
+  const qreal final = (ch.lightnessF() > 0 && ch.lightnessF() < 1)
+      ? ch.hslSaturationF() : v;  // 黑白轴冻结
+  update_hslSaturationF(final);
+  XX_ANCHOR_REBUILD(candidate);
 }
 
 void ColorAssistant::set_hslLightnessF(qreal new_hslLightnessF) {
-  if (new_hslLightnessF == hslLightnessF())
+  if (!std::isfinite(new_hslLightnessF))
     return;
-  QColor c = m_color.toHsl();
-  c.setHslF(c.hslHueF(), c.hslSaturationF(), new_hslLightnessF, c.alphaF());
-  set_color(c);
+  const qreal v = clamp01(new_hslLightnessF);
+  if (v == hslLightnessF())
+    return;
+  const QColor candidate = QColor::fromHslF(m_hslHueF, m_hslSaturationF, v,
+                                            m_alphaF);
+  const qreal final = candidate.toRgb().toHsl().lightnessF();  // 恒有表达
+  update_hslLightnessF(final);
+  XX_ANCHOR_REBUILD(candidate);
 }
 
 void ColorAssistant::set_hslHue(int new_hslHue) {
   if (new_hslHue == hslHue())
     return;
-  QColor c = m_color.toHsl();
-  c.setHsl(new_hslHue, c.hslSaturation(), c.lightness(), c.alpha());
-  set_color(c);
+  const qreal v = normalizeHue(new_hslHue / 360.0);
+  const QColor candidate = QColor::fromHslF(v, m_hslSaturationF,
+                                            m_hslLightnessF, m_alphaF);
+  const qreal derived = candidate.toRgb().toHsv().hsvHueF();
+  const qreal final = derived >= 0 ? derived : v;
+  update_hsvHueF(final);
+  update_hslHueF(final);
+  XX_ANCHOR_REBUILD(candidate);
 }
 
 void ColorAssistant::set_hslSaturation(int new_hslSaturation) {
   if (new_hslSaturation == hslSaturation())
     return;
-  QColor c = m_color.toHsl();
-  c.setHsl(c.hslHue(), new_hslSaturation, c.lightness(), c.alpha());
-  set_color(c);
+  const qreal v = clamp01(new_hslSaturation / 255.0);
+  const QColor candidate = QColor::fromHslF(m_hslHueF, v, m_hslLightnessF,
+                                            m_alphaF);
+  const QColor ch = candidate.toRgb().toHsl();
+  const qreal final = (ch.lightnessF() > 0 && ch.lightnessF() < 1)
+      ? ch.hslSaturationF() : v;
+  update_hslSaturationF(final);
+  XX_ANCHOR_REBUILD(candidate);
 }
 
 void ColorAssistant::set_hslLightness(int new_hslLightness) {
   if (new_hslLightness == hslLightness())
     return;
-  QColor c = m_color.toHsl();
-  c.setHsl(c.hslHue(), c.hslSaturation(), new_hslLightness, c.alpha());
-  set_color(c);
+  const qreal v = clamp01(new_hslLightness / 255.0);
+  const QColor candidate = QColor::fromHslF(m_hslHueF, m_hslSaturationF, v,
+                                            m_alphaF);
+  const qreal final = candidate.toRgb().toHsl().lightnessF();
+  update_hslLightnessF(final);
+  XX_ANCHOR_REBUILD(candidate);
 }
+
+#undef XX_ANCHOR_REBUILD
 
 // ---- 分量 update（相等守卫 + emit）与 getter ----
 
