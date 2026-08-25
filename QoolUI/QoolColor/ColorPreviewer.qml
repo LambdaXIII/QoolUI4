@@ -74,7 +74,12 @@ Item {
                 bottomLeftRadius: root.radius
             }
             strokeWidth: 0
-            fillColor: root.colorAssistant.alphaF === 0 ? "transparent" : root.colorAssistant.solidColor
+            fillColor: {
+                let s = root.colorAssistant.solidColor;
+                if (Qt.alpha(s, 0) === Qt.rgba(0, 0, 0, 0))
+                    return "transparent"; //Hide when really is no color
+                return s;
+            }
         }//left
 
         ShapePath {
