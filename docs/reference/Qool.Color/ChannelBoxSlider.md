@@ -1,17 +1,17 @@
-# ColorChannelVerticalSlider
+# ChannelBoxSlider
 
 A vertical single color-channel slider bound to one `ColorAssistant` channel —
 a `QtQuick.Templates.Slider` peer whose track is a fill bar and whose handle
 is transparent.
 
-`ColorChannelVerticalSlider` is the public form of the legacy vertical
+`ChannelBoxSlider` is the public form of the legacy vertical
 channel bars of `RGBPanel` / `CMYKPanel` (the panels are now composed from
-`ColorChannelControl` vertical columns): the fill-bar track visual is
+`ChannelControl` vertical columns): the fill-bar track visual is
 preserved (rounded corners, fill from the bottom, identity-color gradient,
 no hover state, no visible handle) while the interaction moves to the
 `T.Slider` template (drag, click-to-jump, keyboard stepping, RTL). It is a
 **high-customization component** (ADR-0018, the third instance after
-`ColorChannelSlider` and `HSVWheel`): the channel visuals (fill bar, rainbow,
+`ChannelCrystalSlider` and `HSVWheel`): the channel visuals (fill bar, rainbow,
 border) are internalized as component semantics and expose no variant-style
 appearance interface; the template-level `background` / `handle` delegates
 remain the only plug-points and can be replaced wholesale. The interaction
@@ -127,17 +127,17 @@ ColorAssistant {
 
 Row {
     spacing: 8
-    ColorChannelVerticalSlider {
+    ChannelBoxSlider {
         colorAssistant: ca
         channel: ColorHQ.HSVHue
         height: 150
     }
-    ColorChannelVerticalSlider {
+    ChannelBoxSlider {
         colorAssistant: ca
         channel: ColorHQ.HSVSaturation
         height: 150
     }
-    ColorChannelVerticalSlider {
+    ChannelBoxSlider {
         colorAssistant: ca
         channel: ColorHQ.HSVValue
         height: 150

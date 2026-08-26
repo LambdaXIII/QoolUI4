@@ -4,10 +4,10 @@ import Qool
 import Qool.Color
 import Qool.Controls
 
-// ColorChannelControl 测试（Qool.Color/ColorChannelControl.qml——单通道
+// ChannelControl 测试（Qool.Color/ChannelControl.qml——单通道
 // 组合件：外壳集束 + 自持 value 链 + orientation 双布局）。
 //
-// 被测契约（公开契约——docs/reference/Qool.Color/ColorChannelControl.md 为准绳）：
+// 被测契约（公开契约——docs/reference/Qool.Color/ChannelControl.md 为准绳）：
 // - 集束链：外壳 value 写入 → assistant 通道变化；assistant 变化 → value 跟随
 // - orientation：默认水平（编辑行上 + 滑块下，两行等宽）；Qt.Vertical 切竖直
 //   （竖直滑块上 + 竖直镜像编辑行下——编辑行内部数字框在上/短标签在下）
@@ -20,14 +20,14 @@ import Qool.Controls
 TestCase {
     id: root
 
-    name: "ColorChannelControl"
+    name: "ChannelControl"
     width: 300
     height: 300
 
     Component {
         id: ctrlComp
 
-        ColorChannelControl {
+        ChannelControl {
             animationEnabled: false
         }
     }

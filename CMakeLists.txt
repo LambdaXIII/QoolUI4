@@ -33,31 +33,40 @@ project(QoolUIBundle
         LANGUAGES CXX
 )
 
-# ---- 测试设施 ----
-# CTest 顶层启用：enable_testing() 必须顶层调用，ctest --preset dev 才在
-# build/build-<kit>-<Type>/ 找到 CTestTestfile.cmake 并递归发现 QoolUITests 的测试（落地实测：
-# include(CTest) 内聚到测试树时全新 configure 后 ctest 找不到测试——决策 6
-# 修正为顶层条件化）。include(CTest) 在 QOOL_BUILD_TESTS 内 → 关闭时宿主
-# 仍零 CTest 痕迹；BUILD_TESTING 为标准注册侧开关（-DBUILD_TESTING=OFF =
-# 测试仍构建但 ctest 不注册）。构建侧总闸见 load_qoolui_standard_options()。
-
-add_library(
-  QOOL_GENERAL
-  INTERFACE
-  EXCLUDE_FROM_ALL
-  .clang-format
-  README.md
-  qool_qml_project_setup.cmake
+add_library(QOOL_SETTINGS INTERFACE EXCLUDE_FROM_ALL
   .gitignore
+  qool_qml_project_setup.cmake
+  .clang-format
   .cmake-format.py
-  AGENTS.md
-  CHANGELOG.md
 )
 
+file(GLOB QOOL_AGENTS_CONTEXT_FILES
+    RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+    "**/AGENTS.md" "**/WATCHDOG.md" "**/RULES.md" "**/CONTEXT.md"
+    "AGENTS.md" "WATCHDOG.md" "RULES.md" "CONTEXT.md"
+)
+
+add_library(QOOL_AGENTS INTERFACE EXCLUDE_FROM_ALL
+  ${QOOL_AGENTS_CONTEXT_FILES}
+)
+
+file(GLOB_RECURSE QOOL_DOCUMENT_FILES
+    RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+    "docs/*.md" "docs/**/*.md" )
+
+add_library(QOOL_DOCS INTERFACE EXCLUDE_FROM_ALL
+  README.md
+  CHANGELOG.md
+  ${QOOL_DOCUMENT_FILES}
+)
+
+# workspaces
 add_subdirectory(QoolUI)
+
 if(QOOL_BUILD_EXAMPLEAPP)
   add_subdirectory(QoolUIExample)
 endif()
+
 if(QOOL_BUILD_TESTS)
   include(CTest)
   add_subdirectory(QoolUITests)

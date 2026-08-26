@@ -23,7 +23,7 @@ Control {
         spacing: 2
         Loader {
             active: root.vertical
-            sourceComponent: ColorChannelVerticalSlider {
+            sourceComponent: ChannelBoxSlider {
                 objectName: "vslider"
 
                 animationEnabled: proxy.animationReallyEnabled
@@ -34,7 +34,7 @@ Control {
             Layout.fillHeight: true
         }
 
-        ColorChannelEdit {
+        ChannelEdit {
             objectName: "edit"
             Layout.fillWidth: true
             orientation: root.orientation
@@ -47,7 +47,7 @@ Control {
 
         Loader {
             active: root.horizontal
-            sourceComponent: ColorChannelSlider {
+            sourceComponent: ChannelCrystalSlider {
                 objectName: "hslider"
 
                 animationEnabled: proxy.animationReallyEnabled

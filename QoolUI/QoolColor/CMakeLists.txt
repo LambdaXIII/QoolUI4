@@ -15,7 +15,7 @@ qt_add_qml_module(QoolColor
     SOURCES qool_colorname_db.h qool_colorname_db.cpp
     SOURCES qool_colorname_hq.h qool_colorname_hq.cpp
 
-    QML_FILES ColorQuickPicker.qml
+    QML_FILES ColorPicker.qml
     QML_FILES ColorNameEdit.qml
     QML_FILES ColorPreviewer.qml
     QML_FILES HSVPanel.qml
@@ -25,10 +25,10 @@ qt_add_qml_module(QoolColor
     QML_FILES
     QML_FILES ColorBankPanel.qml
     SOURCES qool_colorliterals.h qool_colorliterals.cpp
-    QML_FILES ColorChannelEdit.qml
-    QML_FILES ColorChannelSlider.qml
-    QML_FILES ColorChannelVerticalSlider.qml
-         QML_FILES ColorChannelControl.qml
+    QML_FILES ChannelEdit.qml
+    QML_FILES ChannelCrystalSlider.qml
+    QML_FILES ChannelBoxSlider.qml
+         QML_FILES ChannelControl.qml
      QML_FILES HSVWheel.qml
     QML_FILES HSLBox.qml
     QML_FILES ColorNameListView.qml

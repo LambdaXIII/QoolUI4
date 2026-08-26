@@ -33,13 +33,20 @@ qt_add_qml_module(appQoolUIExample
   IMPORTS Qool.Controls.Components
   IMPORTS Qool.Debug
   IMPORTS Qool.File
-  DEPENDENCIES TARGET Qool TARGET QoolChat TARGET QoolColor TARGET QoolControls TARGET QoolControlsComponents TARGET QoolDebug TARGET QoolFile
+
+  DEPENDENCIES TARGET Qool
+  TARGET QoolChat
+  TARGET QoolColor
+  TARGET QoolControls
+  TARGET QoolControlsComponents
+  TARGET QoolDebug
+  TARGET QoolFile
+
   QML_FILES Main.qml
   QML_FILES pages/Page_QoolBox.qml
   QML_FILES
   QML_FILES pages/components/QoolBoxShapeControlPanel.qml
 
-  RESOURCES
   QML_FILES PageListModel.qml
   QML_FILES PageListView.qml
   QML_FILES pages/Page_Playground.qml

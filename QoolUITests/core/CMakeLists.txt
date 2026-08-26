@@ -270,7 +270,7 @@ target_compile_definitions(tst_qool_style_theme_switch PRIVATE
 qoolui_add_cpp_test(
   tst_qool_propertyproxy
   tst_propertyproxy.cpp
-  "${QOOL_SRC}/qool_propertyproxy.cpp"
+  "${QOOL_SRC}/utils/qool_propertyproxy.cpp"
 )
 target_include_directories(tst_qool_propertyproxy PRIVATE ${QOOL_SRC_PRIVATE_INCLUDES})
 target_link_libraries(tst_qool_propertyproxy PRIVATE

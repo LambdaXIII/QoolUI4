@@ -17,8 +17,8 @@ Item {
 
     property real radius: 10
 
-    property color backgroundColor1: "black"
-    property color backgroundColor2: "white"
+    property color backgroundColor1: "white"
+    property color backgroundColor2: "darkGray"
 
     property real horizontalRatio: 0.5
     property real verticalRatio: 0.5
@@ -74,12 +74,7 @@ Item {
                 bottomLeftRadius: root.radius
             }
             strokeWidth: 0
-            fillColor: {
-                let s = root.colorAssistant.solidColor;
-                if (Qt.alpha(s, 0) === Qt.rgba(0, 0, 0, 0))
-                    return "transparent"; //Hide when really is no color
-                return s;
-            }
+            fillColor: root.colorAssistant.solidColor
         }//left
 
         ShapePath {

@@ -1,10 +1,10 @@
-# ColorQuickPicker
+# ColorPicker
 
 A compact quick color picker: a solid swatch that reveals a full-saturation
 hue × lightness gradient surface on hover, writing the picked color to a
 single `color` property.
 
-`ColorQuickPicker` is a small (200×50 implicit) preview-and-pick item. In its
+`ColorPicker` is a small (200×50 implicit) preview-and-pick item. In its
 rest state it shows a solid swatch of `color` with a foreground-contrast
 border. On hover (or while interacting) a full-saturation gradient surface
 fades in — horizontal hue, vertical lightness — overlaid by a vertical
@@ -56,7 +56,7 @@ and has no double-click reset behavior (the double-click handler was removed).
 import QtQuick
 import Qool.Color
 
-ColorQuickPicker {
+ColorPicker {
     width: 200
     height: 50
     color: assistant.color

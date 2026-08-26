@@ -135,7 +135,7 @@ ListView {
 }
 
 // Channel constants come off the same singleton.
-ColorChannelSlider {
+ChannelCrystalSlider {
     channel: ColorHQ.HSVHue
 }
 ```

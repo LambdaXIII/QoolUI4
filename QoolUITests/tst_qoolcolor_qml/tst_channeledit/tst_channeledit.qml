@@ -4,10 +4,10 @@ import Qool
 import Qool.Color
 import Qool.Controls
 
-// ColorChannelEdit 测试（Qool.Color/ColorChannelEdit.qml——通道值编辑控件：
+// ChannelEdit 测试（Qool.Color/ChannelEdit.qml——通道值编辑控件：
 // EditableText 编辑会话 + ColorAssistant 通道双向同步 + orientation 双布局）。
 //
-// 被测契约（公开契约——docs/reference/Qool.Color/ColorChannelEdit.md 为准绳）：
+// 被测契约（公开契约——docs/reference/Qool.Color/ChannelEdit.md 为准绳）：
 // - 写链：root.value 写入（程序化）→ assistant 通道变化
 // - 读链：assistant 通道变化 → root.value 跟随
 // - channel 分派 / 外部绑定源联动（colorAssistant.color 绑定外部源场景）
@@ -31,13 +31,13 @@ import Qool.Controls
 TestCase {
     id: root
 
-    name: "ColorChannelEdit"
+    name: "ChannelEdit"
     width: 400
     height: 300
 
     Component {
         id: editComp
-        ColorChannelEdit {
+        ChannelEdit {
             width: 200
             height: 30
             animationEnabled: false
@@ -113,7 +113,7 @@ TestCase {
                 id: asst
                 color: boundRoot.extColor
             }
-            ColorChannelEdit {
+            ChannelEdit {
                 id: cce
                 width: 200
                 height: 30

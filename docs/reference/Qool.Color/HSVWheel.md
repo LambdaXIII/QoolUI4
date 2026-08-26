@@ -27,9 +27,9 @@ older `_private` carrier, now promoted to a first-class component.
   `onWidthChanged`/`onHeightChanged` handlers (the cursor is
   event-positioned, so a size change alone would leave it stale).
 - **No `defaultValue`/`reset`, double-click undefined** — the interaction
-  contract is trimmed to match `ColorChannelSlider`/`ColorChannelControl`.
+  contract is trimmed to match `ChannelCrystalSlider`/`ChannelControl`.
 - **No `defaultValue`/`reset`, double-click undefined** — the interaction
-  contract is trimmed to match `ColorChannelSlider`/`ColorChannelControl`.
+  contract is trimmed to match `ChannelCrystalSlider`/`ChannelControl`.
 - The `_private` wheel surface (`HSVSurface`) stays private; the cursor is an
   **inline `CrystalCursor` + `CenterPlacer` wiring** inside the interacting
   area (same inline wiring as `HSLBox` — each surface hosts its own copy;

@@ -16,14 +16,14 @@ ColumnLayout {
 
     spacing: 5
 
-    ColorChannelEdit {
+    ChannelEdit {
         Layout.fillWidth: true
         animationEnabled: root.animationEnabled
         channel: ColorHQ.HSLSaturation
         colorAssistant: root.colorAssistant
     } //saturationEdit
 
-    ColorChannelEdit {
+    ChannelEdit {
         Layout.fillWidth: true
         animationEnabled: root.animationEnabled
         channel: ColorHQ.HSLLightness
@@ -39,14 +39,14 @@ ColumnLayout {
         colorAssistant: root.colorAssistant
     } //hslBox
 
-    ColorChannelControl {
+    ChannelControl {
         Layout.fillWidth: true
         animationEnabled: root.animationEnabled
         channel: ColorHQ.HSVHue
         colorAssistant: root.colorAssistant
     } //hueControl
 
-    ColorChannelControl {
+    ChannelControl {
         id: alphaControl
         visible: root.showAlpha
         Layout.fillWidth: true

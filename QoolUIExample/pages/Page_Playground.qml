@@ -1,8 +1,8 @@
 // Playground：测试场——Qool.Controls 控件的调试用例（仓库开发模式：
 // 可随意更改，不保留旧内容）。
 //
-// 当前用途：ColorChannelControl 双形态呈现检查——水平（编辑行上 +
-// ColorChannelSlider 下）与竖直（ColorChannelVerticalSlider 上 +
+// 当前用途：ChannelControl 双形态呈现检查——水平（编辑行上 +
+// ChannelCrystalSlider 下）与竖直（ChannelBoxSlider 上 +
 // tagOnTop 编辑行下），两实例绑定同一共享 ColorAssistant。
 import QtQuick
 import Qool
@@ -15,7 +15,7 @@ BasicPage {
     id: root
 
     title: qsTr("测试场")
-    note: qsTr("ColorChannelControl 双形态：水平 / 竖直，共享同一 Assistant")
+    note: qsTr("ChannelControl 双形态：水平 / 竖直，共享同一 Assistant")
 
     // 共享色源：本页唯一 Assistant
     ColorAssistant {
@@ -28,7 +28,7 @@ BasicPage {
         colorAssistant: mainColor
     }
 
-    ColorQuickPicker {
+    ColorPicker {
         y: 100
     }
 
@@ -65,7 +65,7 @@ BasicPage {
     //             model: ColorHQ.channels
     //             delegate: Loader {
     //                 asynchronous: true
-    //                 sourceComponent: ColorChannelControl {
+    //                 sourceComponent: ChannelControl {
     //                     channel: modelData
     //                     colorAssistant: mainColor
     //                     orientation: Qt.Vertical
@@ -83,7 +83,7 @@ BasicPage {
     //             model: ColorHQ.channels
     //             delegate: Loader {
     //                 asynchronous: true
-    //                 sourceComponent: ColorChannelControl {
+    //                 sourceComponent: ChannelControl {
     //                     channel: modelData
     //                     colorAssistant: mainColor
     //                 }

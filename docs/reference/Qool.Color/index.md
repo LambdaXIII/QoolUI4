@@ -10,10 +10,10 @@ Qool.Color 提供完整的颜色操纵组件面：
   `RandomHSVColorGenerator`。
 - 编辑面板：`HSVPanel`、`HSLPanel`、`RGBPanel`、`CMYKPanel`——
   数字输入 + 表面控件 + 滑块组合，可注入共享 ColorAssistant。
-- 取色/编辑/预览：`ColorQuickPicker`、`ColorNameEdit`（色名点击编辑）、
-  `ColorChannelEdit`（单通道值编辑）、`ColorChannelSlider`（单通道拖动
-  调值）、`ColorChannelVerticalSlider`（竖直单通道拖动调值，填充条样式）、
-  和 `ColorChannelControl`（单通道编辑+拖动组合行）、`ColorPreviewer`。
+- 取色/编辑/预览：`ColorPicker`、`ColorNameEdit`（色名点击编辑）、
+  `ChannelEdit`（单通道值编辑）、`ChannelCrystalSlider`（单通道拖动
+  调值）、`ChannelBoxSlider`（竖直单通道拖动调值，填充条样式）、
+  和 `ChannelControl`（单通道编辑+拖动组合行）、`ColorPreviewer`。
 - 色名按钮：`ColorNameButton`（色名+色块按钮）、`ColorNameButtonSurface`
   （按钮视觉表面件）、`ColorNameListView`（分类色名列表）。
 - 取色表面：`HSVWheel`（HSV 二维色轮取色——hue/sat 双写 + value 压暗层，
@@ -28,10 +28,10 @@ Qool.Color 提供完整的颜色操纵组件面：
 - [ColorAssistant](ColorAssistant.md)
 - [ColorBank](ColorBank.md)
 - [ColorBankPanel](ColorBankPanel.md)
-- [ColorChannelControl](ColorChannelControl.md)
-- [ColorChannelEdit](ColorChannelEdit.md)
-- [ColorChannelVerticalSlider](ColorChannelVerticalSlider.md)
-- [ColorChannelSlider](ColorChannelSlider.md)
+- [ChannelControl](ChannelControl.md)
+- [ChannelEdit](ChannelEdit.md)
+- [ChannelBoxSlider](ChannelBoxSlider.md)
+- [ChannelCrystalSlider](ChannelCrystalSlider.md)
 - [ColorHueCycleModel](ColorHueCycleModel.md)
 - [ColorHQ](ColorNameHQ.md)
 - [ColorNameButton](ColorNameButton.md)
@@ -39,7 +39,7 @@ Qool.Color 提供完整的颜色操纵组件面：
 - [ColorNameEdit](ColorNameEdit.md)
 - [ColorNameListView](ColorNameListView.md)
 - [ColorPreviewer](ColorPreviewer.md)
-- [ColorQuickPicker](ColorQuickPicker.md)
+- [ColorPicker](ColorPicker.md)
 - [HSLBox](HSLBox.md)
 - [HSLPanel](HSLPanel.md)
 - [HSVPanel](HSVPanel.md)

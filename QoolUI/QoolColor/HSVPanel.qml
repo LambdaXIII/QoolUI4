@@ -16,14 +16,14 @@ ColumnLayout {
 
     spacing: 5
 
-    ColorChannelEdit {
+    ChannelEdit {
         Layout.fillWidth: true
         animationEnabled: root.animationEnabled
         channel: ColorHQ.HSVHue
         colorAssistant: root.colorAssistant
     } //hueEdit
 
-    ColorChannelEdit {
+    ChannelEdit {
         Layout.fillWidth: true
         animationEnabled: root.animationEnabled
         channel: ColorHQ.HSVSaturation
@@ -39,7 +39,7 @@ ColumnLayout {
         colorAssistant: root.colorAssistant
     } //hsvSurface
 
-    ColorChannelControl {
+    ChannelControl {
         id: valueControl
         Layout.fillWidth: true
         animationEnabled: root.animationEnabled
@@ -47,7 +47,7 @@ ColumnLayout {
         colorAssistant: root.colorAssistant
     } //valueControl
 
-    ColorChannelControl {
+    ChannelControl {
         id: alphaControl
         visible: root.showAlpha
         Layout.fillWidth: true

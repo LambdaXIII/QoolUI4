@@ -13,7 +13,7 @@ GridLayout {
     columnSpacing: 5
     rowSpacing: 5
 
-    ColorChannelControl {
+    ChannelControl {
         colorAssistant: root.colorAssistant
         channel: ColorHQ.Cyan
         orientation: Qt.Vertical
@@ -23,7 +23,7 @@ GridLayout {
         Layout.column: 0
     }
 
-    ColorChannelControl {
+    ChannelControl {
         colorAssistant: root.colorAssistant
         channel: ColorHQ.Magenta
         orientation: Qt.Vertical
@@ -33,7 +33,7 @@ GridLayout {
         Layout.column: 1
     }
 
-    ColorChannelControl {
+    ChannelControl {
         colorAssistant: root.colorAssistant
         channel: ColorHQ.Yellow
         orientation: Qt.Vertical
@@ -43,7 +43,7 @@ GridLayout {
         Layout.column: 2
     }
 
-    ColorChannelControl {
+    ChannelControl {
         colorAssistant: root.colorAssistant
         channel: ColorHQ.Black
         orientation: Qt.Vertical

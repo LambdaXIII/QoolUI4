@@ -1,36 +1,3 @@
-// HSVWheel：HSV 二维取色表面公开组件（v4 新设计——单向链架构）。
-//
-// 定位：Qool.Color 模块公开一级组件（沿用 v3 名字，不改名），独立可复用的
-// HSV 取色表面：圆盘响应鼠标取色（hue/saturation），value 影响圆盘压暗层。
-// 旧 `_private/HSVWheel.qml` 为 v3 迁移临时载体，仅作参考基线（交互手感
-// 逐点保留）；本件为 v4 正式组件，接口/语义按 v4 设计哲学重新定义。
-//
-// 单向链架构（核心——无"光标↔值"双向绑定）：
-//   鼠标事件 → setValues() → hue/sat 数据 → position(hue,sat) → 光标定位
-//                                  ↓
-//                             → value 数据 → 圆盘压暗层
-// - 输入层：圆盘响应鼠标，setValues() 把坐标经映射转 hue/sat 写 assistant。
-//   交互写两个值**同时生效**（二维原子动作，不拆一维链投影——避免中间态
-//   时序问题）。交互只写 hue/sat，不写 value（value 由外部/联动驱动）。
-// - 呈现层：光标是值的可视化（position(hue,sat) 纯函数派生），非被拖动对象；
-//   圆盘压暗层同理从数据派生。
-// - 圆盘与光标独立消费同一数据源（assistant），互不直连。
-//
-// 写入钳制两路（值合法，非坐标 clamp）：
-// - 交互路径：保留 hueAt / saturationAt 既有钳制（hueAt 返回 [0,1)、
-//   saturationAt clamp [0,1]——圆外点击经 check_point 钳到圆周方向）；
-//   圆心 atan(0/0) 产生 NaN → setValues 有限性检查跳过本次写入（防御）。
-// - 接口路径：hue/saturation/value 三个公开属性写入时钳制——hue 越界
-//   归一化正模到 [0,1)（-0.5 → 0.5、1.5 → 0.5；hue 恒合法，无色相由
-//   assistant 侧饱和度/明度判定）；sat/value clamp [0,1]。
-// - position 无坐标硬钳制（纯函数）——值域由写入层保证（值合法 → 光标
-//   恒在圆内，外观保护靠值合法性而非坐标限制）。
-//
-// 交互契约裁剪：无 defaultValue/reset、双击无定义行为（对齐
-// ColorChannelSlider/ColorChannelControl——旧双击 reset 不保留）。
-
-pragma ComponentBehavior: Bound
-
 import QtQuick
 import Qool
 import Qool.Color

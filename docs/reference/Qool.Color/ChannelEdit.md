@@ -1,9 +1,9 @@
-# ColorChannelEdit
+# ChannelEdit
 
 A single color-channel value editor with a label — an `EditableText`
 edit session bound to one `ColorAssistant` channel.
 
-`ColorChannelEdit` presents one normalized channel (`channel`, e.g. hue /
+`ChannelEdit` presents one normalized channel (`channel`, e.g. hue /
 saturation / lightness of a shared `ColorAssistant`) as a labeled,
 editable value:
 
@@ -72,7 +72,7 @@ consequence of the leading-dot convention).
 
 - `readOnly : bool` (default: `false`)
   Forwards to the internal `EditableText.readOnly` — no edit session
-  starts (click / focus idle). `ColorChannelControl` forwards its shell
+  starts (click / focus idle). `ChannelControl` forwards its shell
   `readOnly` through this property; hosts may set it directly.
 
 - `orientation : int` (default: `Qt.Horizontal`)
@@ -93,7 +93,7 @@ consequence of the leading-dot convention).
   Vertical stack order, meaningful only when `orientation` is
   `Qt.Vertical`. `false` — the short label sits above the value; `true` —
   the value stacks above the label (the form used by
-  `ColorChannelControl`'s vertical column, where the value hugs the
+  `ChannelControl`'s vertical column, where the value hugs the
   slider). Deliberately an explicit property rather than driven by the
   environment: vertical stacking is pure layout intent and must not flip
   when the host enables layout mirroring.
@@ -131,15 +131,15 @@ ColorAssistant {
 }
 
 Column {
-    ColorChannelEdit {
+    ChannelEdit {
         colorAssistant: ca
         channel: ColorHQ.HSLLightness
     }
-    ColorChannelEdit {
+    ChannelEdit {
         colorAssistant: ca
         channel: ColorHQ.HSLSaturation
     }
-    ColorChannelEdit {
+    ChannelEdit {
         colorAssistant: ca
         channel: ColorHQ.HSLHue
         orientation: Qt.Vertical

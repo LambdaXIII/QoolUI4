@@ -234,7 +234,7 @@ derived. Dimensions with no expression in the current color (the
 类型名即实例，模块内组件与宿主均用 `ColorHQ`。
 `ColorAssistant` 只保留自身 `Q_INVOKABLE`：`hex`/`isValidName`/`isValid`
 （经实例调用）。
-通道枚举值即 `ColorChannelSlider.channel` 等接口的取值域。
+通道枚举值即 `ChannelCrystalSlider.channel` 等接口的取值域。
 
 ### 枚举 `Channels`
 

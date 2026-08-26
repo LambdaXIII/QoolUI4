@@ -3,7 +3,7 @@
 An RGB color space editing panel: a single row of vertical channel
 controls for brightness, red, green, blue and alpha.
 
-`RGBPanel` is a `GridLayout` that lays out five `ColorChannelControl`
+`RGBPanel` is a `GridLayout` that lays out five `ChannelControl`
 instances in vertical orientation (a fill-bar slider on top, a numeric
 edit row with the short channel tag below, `tagOnTop` stacking) in one
 row spanning the available width:
@@ -27,7 +27,7 @@ row spanning the available width:
 ### Channel input convention
 
 Channel inputs follow the module-wide numeric convention
-(`ColorHQ.parseChannelNumberFloat`, shared with `ColorChannelEdit`):
+(`ColorHQ.parseChannelNumberFloat`, shared with `ChannelEdit`):
 an entered value `x > 1` is treated as `x / 1000`, so integers from 0 to
 1000 can be typed directly to express a 0..1 ratio (e.g. `350` means
 0.35), and the result is clamped to `[0, 1]`. This is the inherited v3

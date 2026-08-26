@@ -1,5 +1,5 @@
-// QML 测试单元：tst_colorchannelcontrol（Qool.Color 模块）
-// 独立 target（tst_colorchannelcontrol_qml）——Qt Creator 扫描器从 CMake project macros 读
+// QML 测试单元：tst_channeledit（Qool.Color 模块）
+// 独立 target（tst_channeledit_qml）——Qt Creator 扫描器从 CMake project macros 读
 // QUICK_TEST_SOURCE_DIR（本单元目录）定位 QML 文件（一 cpp 一 target 一宏值）。
 #include <QtQuickTest>
 
@@ -17,6 +17,6 @@ public slots:
   }
 };
 
-QUICK_TEST_MAIN_WITH_SETUP(tst_colorchannelcontrol, QoolTestSetup)
+QUICK_TEST_MAIN_WITH_SETUP(tst_channeledit, QoolTestSetup)
 
-#include "tst_colorchannelcontrol.moc"
+#include "tst_channeledit.moc"

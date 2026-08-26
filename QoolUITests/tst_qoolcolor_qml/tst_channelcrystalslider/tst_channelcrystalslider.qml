@@ -3,7 +3,7 @@ import QtTest
 import Qool
 import Qool.Color
 
-// ColorChannelSlider 逻辑契约测试（Qool.Color/ColorChannelSlider.qml——
+// ChannelCrystalSlider 逻辑契约测试（Qool.Color/ChannelCrystalSlider.qml——
 // T.Slider 平级通道滑块：channel 通用寻址 + colorAssistant 无条件双向链）。
 //
 // 被测契约（仅逻辑/行为——外观已定稿，不测视觉细节）：
@@ -24,7 +24,7 @@ import Qool.Color
 TestCase {
     id: root
 
-    name: "ColorChannelSlider"
+    name: "ChannelCrystalSlider"
     width: 400
     height: 300
 
@@ -33,7 +33,7 @@ TestCase {
     // 应用，播种读到的就是注入色）
     Component {
         id: sliderComp
-        ColorChannelSlider {
+        ChannelCrystalSlider {
             id: slider
             width: 200
             height: 40

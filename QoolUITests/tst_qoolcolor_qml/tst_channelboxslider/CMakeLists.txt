@@ -1,5 +1,5 @@
-# QML 测试单元：tst_colorchannelverticalslider_qml
+# QML 测试单元：tst_channelboxslider_qml
 # 独立子目录 + 独立 CMakeLists（directory 唯一化）——
 # 一个 directory 一个 QML target，Qt Creator QuickTest 解析
 # internalTargets(proFile) 命中唯一 target，不再弹 EXECUTABLE 选择。
-qoolui_add_qml_test(tst_colorchannelverticalslider_qml tst_colorchannelverticalslider Qool QoolControls QoolControlsComponents QoolColor)
+qoolui_add_qml_test(tst_channelboxslider_qml tst_channelboxslider Qool QoolControls QoolControlsComponents QoolColor)

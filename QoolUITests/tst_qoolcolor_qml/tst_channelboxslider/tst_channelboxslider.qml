@@ -3,7 +3,7 @@ import QtTest
 import Qool
 import Qool.Color
 
-// ColorChannelVerticalSlider 逻辑契约测试（Qool.Color/ColorChannelVerticalSlider.qml
+// ChannelBoxSlider 逻辑契约测试（Qool.Color/ChannelBoxSlider.qml
 // ——T.Slider 平级竖直通道滑块：填充条样式轨道 + 透明手柄 + colorAssistant
 // 无条件双向链）。
 //
@@ -26,7 +26,7 @@ import Qool.Color
 TestCase {
     id: root
 
-    name: "ColorChannelVerticalSlider"
+    name: "ChannelBoxSlider"
     width: 400
     height: 300
 
@@ -36,7 +36,7 @@ TestCase {
     // 完成前应用，播种读到的就是注入色）
     Component {
         id: sliderComp
-        ColorChannelVerticalSlider {
+        ChannelBoxSlider {
             id: slider
             width: 40
             height: 200

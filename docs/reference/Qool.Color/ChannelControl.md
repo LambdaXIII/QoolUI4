@@ -1,14 +1,14 @@
-# ColorChannelControl
+# ChannelControl
 
 A single color-channel control — a labeled numeric edit plus a drag track
 stacked in one of two layouts selected by `orientation`: horizontal
-(default) is a `ColorChannelEdit` above a `ColorChannelSlider` at equal
+(default) is a `ChannelEdit` above a `ChannelCrystalSlider` at equal
 width, restoring the legacy `_private` `ColorSlider` single-control form;
-vertical is a `ColorChannelVerticalSlider` above a vertical
-`ColorChannelEdit` with `tagOnTop` (the value box sits next to the slider,
+vertical is a `ChannelBoxSlider` above a vertical
+`ChannelEdit` with `tagOnTop` (the value box sits next to the slider,
 the short label at the bottom).
 
-`ColorChannelControl` bundles the properties the two children share
+`ChannelControl` bundles the properties the two children share
 (`channel`, `colorAssistant`, `animationEnabled`, `value`, `readOnly`) on
 one `Control`, so a host configures one component instead of pairing an edit
 and a slider per channel.
@@ -26,7 +26,7 @@ and a slider per channel.
   writes flow into the shared assistant and changes made by either child
   read back into it, so all three converge on the same value.
 - **Pure encapsulation**: no `edit` / `slider` child aliases are exposed.
-  Pluggability lives in the children themselves (`ColorChannelEdit`'s
+  Pluggability lives in the children themselves (`ChannelEdit`'s
   `displayItem`, the sliders' template `background` / `handle`).
 - **Read-only editing**: `readOnly` forwards through the edit child to the
   internal editor — no edit session starts on click/focus. The slider stays
@@ -99,15 +99,15 @@ ColorAssistant {
 
 Column {
     spacing: 4
-    ColorChannelControl {
+    ChannelControl {
         colorAssistant: ca
         channel: ColorHQ.HSVHue
     }
-    ColorChannelControl {
+    ChannelControl {
         colorAssistant: ca
         channel: ColorHQ.HSVSaturation
     }
-    ColorChannelControl {
+    ChannelControl {
         colorAssistant: ca
         channel: ColorHQ.HSVValue
         readOnly: true    // numeric read-only; drag still adjusts
@@ -116,7 +116,7 @@ Column {
 
 // Vertical form — a tall fill-bar slider with the flipped edit below it
 // (tagOnTop: value box next to the slider, short label at the bottom):
-ColorChannelControl {
+ChannelControl {
     colorAssistant: ca
     channel: ColorHQ.HSVHue
     orientation: Qt.Vertical

@@ -10,7 +10,7 @@
 //   hover/pressed/值变化「或」成一个 bool 注入。
 // - 两层锁存职责正交（本件 = 下游电平防抖）：expanded 已是消费方归约后
 //   的持续电平（hover/pressed 天然持续；值变化等瞬时事件由消费方经
-//   TimerLatch 转成持续电平——上游脉冲→电平，见 Slider/ColorChannelSlider
+//   TimerLatch 转成持续电平——上游脉冲→电平，见 Slider/ChannelCrystalSlider
 //   的 latch）。本件 delay 只做电平回落的防抖（短、通用），不做长保持——
 //   长保持是消费方交互语义（各自归约，ADR-0016 拒绝 latchTarget 进基准件）。
 // - 缩放经 ItemAnimatedResizer（from = fullSize−delta → to = fullSize），

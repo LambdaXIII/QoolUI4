@@ -1,4 +1,4 @@
-// 链模型与 ColorChannelVerticalSlider 同源，改动须双处同步。
+// 链模型与 ChannelBoxSlider 同源，改动须双处同步。
 
 import QtQuick
 import QtQuick.Templates as T

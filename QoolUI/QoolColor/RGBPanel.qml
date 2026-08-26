@@ -18,7 +18,7 @@ GridLayout {
     columnSpacing: 5
     rowSpacing: 5
 
-    ColorChannelControl {
+    ChannelControl {
         visible: root.showBrightness
         colorAssistant: root.colorAssistant
         channel: ColorHQ.HSVValue
@@ -29,7 +29,7 @@ GridLayout {
         Layout.column: 0
     }
 
-    ColorChannelControl {
+    ChannelControl {
         colorAssistant: root.colorAssistant
         channel: ColorHQ.Red
         orientation: Qt.Vertical
@@ -39,7 +39,7 @@ GridLayout {
         Layout.column: 1
     }
 
-    ColorChannelControl {
+    ChannelControl {
         colorAssistant: root.colorAssistant
         channel: ColorHQ.Green
         orientation: Qt.Vertical
@@ -49,7 +49,7 @@ GridLayout {
         Layout.column: 2
     }
 
-    ColorChannelControl {
+    ChannelControl {
         colorAssistant: root.colorAssistant
         channel: ColorHQ.Blue
         orientation: Qt.Vertical
@@ -59,7 +59,7 @@ GridLayout {
         Layout.column: 3
     }
 
-    ColorChannelControl {
+    ChannelControl {
         visible: root.showAlpha
         colorAssistant: root.colorAssistant
         channel: ColorHQ.Alpha

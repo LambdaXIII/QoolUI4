@@ -1,11 +1,11 @@
-# ColorChannelSlider
+# ChannelCrystalSlider
 
 A single color-channel slider bound to one `ColorAssistant` channel — a
 `QtQuick.Templates.Slider` peer whose track shows the channel's gradient and
 whose handle shows the current solid color.
 
-`ColorChannelSlider` is the drag part of the legacy `_private` `ColorSlider`
-split: `ColorChannelEdit` owns the labeled numeric edit, this component owns
+`ChannelCrystalSlider` is the drag part of the legacy `_private` `ColorSlider`
+split: `ChannelEdit` owns the labeled numeric edit, this component owns
 the track + handle + drag interaction. It is a **high-customization
 component** (ADR-0013): the channel visuals (gradient, cursor, stroke) are
 internalized as component semantics and expose no variant-style appearance
@@ -101,15 +101,15 @@ ColorAssistant {
 }
 
 Column {
-    ColorChannelSlider {
+    ChannelCrystalSlider {
         colorAssistant: ca
         channel: ColorHQ.HSVHue
     }
-    ColorChannelSlider {
+    ChannelCrystalSlider {
         colorAssistant: ca
         channel: ColorHQ.HSVSaturation
     }
-    ColorChannelSlider {
+    ChannelCrystalSlider {
         colorAssistant: ca
         channel: ColorHQ.HSVValue
     }

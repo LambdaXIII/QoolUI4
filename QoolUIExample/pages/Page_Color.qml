@@ -77,7 +77,7 @@ BasicPage {
             columns: 2
             columnSpacing: 16
             rowSpacing: 8
-            ColorQuickPicker {
+            ColorPicker {
                 PropertySync {
                     target1: mainColor
                     property1: "color"
@@ -91,12 +91,12 @@ BasicPage {
             ColumnLayout {
                 Layout.fillWidth: true
                 Layout.columnSpan: 2
-                ColorChannelEdit {
+                ChannelEdit {
                     colorAssistant: mainColor
                     channel: ColorHQ.Alpha
                     Layout.fillWidth: true
                 }
-                ColorChannelVerticalSlider {
+                ChannelBoxSlider {
                     colorAssistant: mainColor
                     channel: ColorHQ.Alpha
                     orientation: Qt.Horizontal

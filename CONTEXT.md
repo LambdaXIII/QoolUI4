@@ -67,8 +67,8 @@
 
 | 术语 | 定义 |
 |---|---|
-| **填充条（fill bar）** | 通道贡献量 gauge（承载于 ColorChannelVerticalSlider 自身 contentItem 的 fillBox/filler + background RectShape，无独立 _private 轨道件）：填充锚定**值 0 端**、沿值增大方向生长（垂直自底向上、水平自值 0 端 LTR 左 / RTL 右）；填充主色 = 色相正常值（hue 固定 sat、HSV value=1 / HSL lightness=0.5，仅随 position 变 hue；非 hue 身份色），背景彩虹 = RainbowGradient 固定全亮（sat=1/value=1/alpha=0.25，不跟随当前明暗）；hue 彩虹沿值方向（hue 0 值 0 端 → hue 1 值 1 端）。 |
-| **高定组件** | Color 模块公开组件族（ColorChannelSlider / ColorChannelVerticalSlider / HSVWheel / HSLBox）的统一定性：通道视觉（渐变/光标/填充条/表面）完全内化为组件语义，不暴露变体式外观接口；模板级 delegate（background/handle 等）是唯一插拔口；交互契约裁剪（无 defaultValue/reset/双击）。分见 ADR-0013/0014/0017/0018。 |
+| **填充条（fill bar）** | 通道贡献量 gauge（承载于 ChannelBoxSlider 自身 contentItem 的 fillBox/filler + background RectShape，无独立 _private 轨道件）：填充锚定**值 0 端**、沿值增大方向生长（垂直自底向上、水平自值 0 端 LTR 左 / RTL 右）；填充主色 = 色相正常值（hue 固定 sat、HSV value=1 / HSL lightness=0.5，仅随 position 变 hue；非 hue 身份色），背景彩虹 = RainbowGradient 固定全亮（sat=1/value=1/alpha=0.25，不跟随当前明暗）；hue 彩虹沿值方向（hue 0 值 0 端 → hue 1 值 1 端）。 |
+| **高定组件** | Color 模块公开组件族（ChannelCrystalSlider / ChannelBoxSlider / HSVWheel / HSLBox）的统一定性：通道视觉（渐变/光标/填充条/表面）完全内化为组件语义，不暴露变体式外观接口；模板级 delegate（background/handle 等）是唯一插拔口；交互契约裁剪（无 defaultValue/reset/双击）。分见 ADR-0013/0014/0017/0018。 |
 | **通道锚定** | ColorAssistant 的通道保持机制：RGBA 单权威 + 无表达维度的锚定坐标（hue / hsvSaturation / hslSaturation 三锚）。更新三分支：显式写总是落锚（无表达也记住）；有表达跟随真实换算；无表达冻结最后值。**锚即公开读数**——通道 getter 恒返回 [0,1)（int/F 双轨一致），hue=-1 语义退役；「无彩色」由 valueF==0 ∨ saturationF==0 判定。见 ADR-0020。 |
 | **无表达维度** | 色彩空间换算中失去定义的维度：hue 在灰轴（hsv 的 sat=0 或 v=0；hsl 的 sat=0 或 l∈{0,1}）、hsvSaturation 在 v=0、hslSaturation 在 l=0 或 1。HSV 与 HSL 的 hue 是同一数学量（RGB 色度角），共享一个锚。 |
 | **塌缩（已退役）** | 旧实现的缺陷行为：每次写入后无条件经 RGB 重算全空间，把无表达维度固化成 -1/归 0 并永久丢失（症状：取色轮中心拖不出方向、黑色后通道全死）。已被通道锚定取代；依赖 -1 的守卫与补偿补丁（sat-bump 等）随之退场，不得回填。 |

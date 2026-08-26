@@ -5,12 +5,10 @@ qt_add_qml_module(QoolControlsComponents
 
     IMPORTS Qool
 
-    QML_FILES
     QML_FILES BasicControlTitleText.qml
     QML_FILES ParallelVerticalBars.qml
     QML_FILES ControlHighlightCover.qml
     QML_FILES ControlLockedCover.qml
-    QML_FILES
     QML_FILES BasicButtonText.qml
     QML_FILES PaPaWall.qml
     QML_FILES ControlPressedCover.qml
@@ -19,28 +17,17 @@ qt_add_qml_module(QoolControlsComponents
     QML_FILES BasicBigTitleText.qml
     QML_FILES BasicDecorativeText.qml
     QML_FILES ParallelVerticalBarsAnimation.qml
-    QML_FILES
-    QML_FILES
     QML_FILES QoolBGBox.qml
     QML_FILES BasicControl.qml
     QML_FILES BasicButton.qml
-    QML_FILES
     QML_FILES BasicItemDelegate.qml
     QML_FILES IndexIndicator.qml
     QML_FILES BasicTextField.qml
-    QML_FILES
-    QML_FILES
-    QML_FILES
     QML_FILES BasicText.qml
     QML_FILES BasicControlText.qml
     QML_FILES BasicTextArea.qml
     QML_FILES CrystalCursor.qml
-    # QML_FILES VerticalScroller.qml
-
 )
-
-
-
 
 set_target_properties(QoolControlsComponents PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER org.qoolui.controls.components

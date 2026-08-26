@@ -5,10 +5,10 @@ HSL gradient box, and hue/alpha channel controls.
 
 `HSLPanel` is a `ColumnLayout` composing, top to bottom:
 
-1. Two `ColorChannelEdit` rows: SATURATION / LIGHTNESS channel editors.
+1. Two `ChannelEdit` rows: SATURATION / LIGHTNESS channel editors.
 2. An `HSLBox` surface: a saturation × lightness gradient box.
-3. A `ColorChannelControl` hue control (`channel: HSVHue`).
-4. A `ColorChannelControl` alpha control (`channel: Alpha`, visibility
+3. A `ChannelControl` hue control (`channel: HSVHue`).
+4. A `ChannelControl` alpha control (`channel: Alpha`, visibility
    controlled by `showAlpha`).
 
 ### Interaction
@@ -20,7 +20,7 @@ HSL gradient box, and hue/alpha channel controls.
 - **Channel editors/controls**: edit the numeric value or drag the slider
   to set the channel; the value is written to and read from the shared
   `colorAssistant`. On-channel synchronization and clamping live inside
-  `ColorChannelEdit` / `ColorChannelControl`.
+  `ChannelEdit` / `ChannelControl`.
 
 ### Channel input convention
 
@@ -39,7 +39,7 @@ module-wide convention, inherited through the channel components.
   domains are synchronized through `colorAssistant.color`); `HSLBox`
   operates in the HSL domain. Both domains coexisting is v3 as-is.
 - The hue slider's handling of an invalid hue (`hsvHueF < 0`, preserving
-  saturation) lives inside `ColorChannelSlider` (the sat-bump path) and
+  saturation) lives inside `ChannelCrystalSlider` (the sat-bump path) and
   is not touched by this panel.
 
 ### Defaults

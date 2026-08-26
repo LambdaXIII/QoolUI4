@@ -29,7 +29,7 @@ architecture** aligned with the public `HSVWheel`.
   `onWidthChanged`/`onHeightChanged` handlers (the cursor is
   event-positioned, so a size change alone would leave it stale).
 - **No `defaultValue`/`reset`, double-click undefined** — the interaction
-  contract is trimmed to match `ColorChannelSlider`/`ColorChannelControl`
+  contract is trimmed to match `ChannelCrystalSlider`/`ChannelControl`
   (and `HSVWheel`). Unlike the wheel there is no ring clamp — the whole
   rectangle is a hit target, clipped linearly.
 - The `_private` surface (`HSLSurface`) stays private; the cursor is an

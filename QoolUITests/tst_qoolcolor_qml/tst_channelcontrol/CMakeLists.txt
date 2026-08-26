@@ -1,5 +1,5 @@
-# QML 测试单元：tst_colorchannelcontrol_qml
+# QML 测试单元：tst_channelcontrol_qml
 # 独立子目录 + 独立 CMakeLists（directory 唯一化）——
 # 一个 directory 一个 QML target，Qt Creator QuickTest 解析
 # internalTargets(proFile) 命中唯一 target，不再弹 EXECUTABLE 选择。
-qoolui_add_qml_test(tst_colorchannelcontrol_qml tst_colorchannelcontrol Qool QoolControls QoolControlsComponents QoolColor)
+qoolui_add_qml_test(tst_channelcontrol_qml tst_channelcontrol Qool QoolControls QoolControlsComponents QoolColor)

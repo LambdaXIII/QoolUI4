@@ -15,7 +15,8 @@ qt_add_qml_module(
   VERSION ${QOOLUI_VERSION_QML}
   NAMESPACE ${QOOL_NS}
   QML_FILES _private/QoolWindowBG.qml
-            _private/QoolWindowCloseButton.qml _private/QoolWindowTitleItem.qml
+            _private/QoolWindowCloseButton.qml
+            _private/QoolWindowTitleItem.qml
   QML_FILES Qore.qml
   QML_FILES PixelFont.qml
   SOURCES qore/qool_singleton.h
@@ -104,9 +105,8 @@ qt_add_qml_module(
           shapecontrol/gadgets/qool_shapegadget_qoolbox.cpp
   SOURCES utils/qool_numbermapper.h utils/qool_numbermapper.cpp
   SOURCES utils/qool_colormapper.h utils/qool_colormapper.cpp
-  SOURCES qool_numbernotifier.h qool_numbernotifier.cpp
-  SOURCES qool_propertyproxy.h qool_propertyproxy.cpp
-  SOURCES
+  SOURCES utils/qool_numbernotifier.h utils/qool_numbernotifier.cpp
+  SOURCES utils/qool_propertyproxy.h utils/qool_propertyproxy.cpp
   SOURCES shapecontrol/qool_qoolboxcutsizeslocker.h shapecontrol/qool_qoolboxcutsizeslocker.cpp
   QML_FILES PropertySync.qml
 )

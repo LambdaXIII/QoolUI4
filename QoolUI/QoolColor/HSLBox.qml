@@ -1,25 +1,3 @@
-// HSLBox：HSL 二维取色表面公开组件（v4 新设计——单向链架构，对齐 HSVWheel）。
-//
-// 单向链架构（核心——无"光标↔值"双向绑定）：
-//   鼠标事件 → setValues() → sat/ltn 数据 → position(sat,ltn) → 光标定位
-// - 输入层：矩形平面响应鼠标，setValues() 把坐标裁剪后经映射转 sat/ltn
-//   写 assistant。交互只写 sat/ltn，不写 hue（hue 由外部/联动驱动，
-//   取现锚值——hue 恒合法，无色相由 sat/ltn 判定）。
-// - 呈现层：光标是值的可视化（position(sat,ltn) 纯函数派生），非被拖动对象。
-// - 平面与光标独立消费同一数据源（assistant），互不直连。
-//
-// 写入钳制两路（值合法，非坐标 clamp）：
-// - 交互路径：保留 HSLSurface 既有映射（Qore.bound 矩形裁剪 →
-//   saturationAt = x/w、lightnessAt = 1 - y/h）。
-// - 接口路径：hue 越界归一化正模到 [0,1)（-0.5 → 0.5、1.5 → 0.5；hue 恒
-//   合法，无色相由 sat/ltn 判定）；sat/ltn clamp [0,1]。
-//
-// 交互契约裁剪：无 defaultValue/reset、双击无定义行为（对齐 HSVWheel）。
-// 注意：与 HSVWheel 不同，本件命中域无圆环钳制——矩形内直接裁剪
-// （clamp），映射是线性平面；reset 语义不保留。
-
-pragma ComponentBehavior: Bound
-
 import QtQuick
 import Qool
 import Qool.Color

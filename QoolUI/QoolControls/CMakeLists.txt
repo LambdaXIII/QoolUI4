@@ -8,14 +8,10 @@ qt_add_qml_module(QoolControls
     NAMESPACE ${QOOL_NS}
 
     IMPORTS Qool Qool.Controls.Components
-    QML_FILES
-    QML_FILES
-    QML_FILES
+
     QML_FILES ClickableText.qml
-    QML_FILES
     QML_FILES SplitView.qml
     QML_FILES ProgressBar.qml
-    QML_FILES
     QML_FILES Button.qml
     QML_FILES ToolButton.qml
     QML_FILES QoolControl.qml
