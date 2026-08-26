@@ -1,160 +1,46 @@
-<VERY-IMPORTANT>
-
-[MUSTMUSTMUST] 代码注释不允许写废话，每个代码文件中的注释内容不能超过该文件的5%
-[MUSTMUSTMUST] 代码注释不允许写废话，每个代码文件中的注释内容不能超过该文件的5%
-[MUSTMUSTMUST] 代码注释不允许写废话，每个代码文件中的注释内容不能超过该文件的5%
-
-验证强度随改动类型分级；**全量编译+测试不是默认动作**，是「完整落地一套修改」的收尾回归哨兵。验证不止测试——含编译、运行时复现、用户人工运行验证。
-
-| 改动类型 | 验证通道 | 全量 |
-|---|---|---|
-| 注释 / 文档 / 无逻辑重命名 | 代码走读 | 否 |
-| 纯 QML 内容 / 行为改动 | 用户运行验证（交付验证协议）或针对性单测试 | 否 |
-| 构建结构改动（CMake / 注册 / 资源） | 编译（build）——注册面改动编译是真验证 | build 即可 |
-| 完整落地一套修改 | build + 全量 ctest | 是 |
-
-验证强度随改动类型分级；**全量编译+测试不是默认动作**，是「完整落地一套修改」的收尾回归哨兵。验证不止测试——含编译、运行时复现、用户人工运行验证。
-
-| 改动类型 | 验证通道 | 全量 |
-|---|---|---|
-| 注释 / 文档 / 无逻辑重命名 | 代码走读 | 否 |
-| 纯 QML 内容 / 行为改动 | 用户运行验证（交付验证协议）或针对性单测试 | 否 |
-| 构建结构改动（CMake / 注册 / 资源） | 编译（build）——注册面改动编译是真验证 | build 即可 |
-| 完整落地一套修改 | build + 全量 ctest | 是 |
-
-验证强度随改动类型分级；**全量编译+测试不是默认动作**，是「完整落地一套修改」的收尾回归哨兵。验证不止测试——含编译、运行时复现、用户人工运行验证。
-
-| 改动类型 | 验证通道 | 全量 |
-|---|---|---|
-| 注释 / 文档 / 无逻辑重命名 | 代码走读 | 否 |
-| 纯 QML 内容 / 行为改动 | 用户运行验证（交付验证协议）或针对性单测试 | 否 |
-| 构建结构改动（CMake / 注册 / 资源） | 编译（build）——注册面改动编译是真验证 | build 即可 |
-| 完整落地一套修改 | build + 全量 ctest | 是 |
-
-验证强度随改动类型分级；**全量编译+测试不是默认动作**，是「完整落地一套修改」的收尾回归哨兵。验证不止测试——含编译、运行时复现、用户人工运行验证。
-
-| 改动类型 | 验证通道 | 全量 |
-|---|---|---|
-| 注释 / 文档 / 无逻辑重命名 | 代码走读 | 否 |
-| 纯 QML 内容 / 行为改动 | 用户运行验证（交付验证协议）或针对性单测试 | 否 |
-| 构建结构改动（CMake / 注册 / 资源） | 编译（build）——注册面改动编译是真验证 | build 即可 |
-| 完整落地一套修改 | build + 全量 ctest | 是 |
-
-验证强度随改动类型分级；**全量编译+测试不是默认动作**，是「完整落地一套修改」的收尾回归哨兵。验证不止测试——含编译、运行时复现、用户人工运行验证。
-
-| 改动类型 | 验证通道 | 全量 |
-|---|---|---|
-| 注释 / 文档 / 无逻辑重命名 | 代码走读 | 否 |
-| 纯 QML 内容 / 行为改动 | 用户运行验证（交付验证协议）或针对性单测试 | 否 |
-| 构建结构改动（CMake / 注册 / 资源） | 编译（build）——注册面改动编译是真验证 | build 即可 |
-| 完整落地一套修改 | build + 全量 ctest | 是 |
-<!-->禁止删除，重复声明是因为你老忘记<!-->
-</VERY-IMPORTANT>
-
 # QoolUI4
 
 基于 Qt6/QML 的现代化 UI 组件库（第 4 代）。
 
-## 文档地图
-
-- 根 `AGENTS.md`（本文件）：全仓库规范。
-- 子/模块 AGENTS（`QoolUITests/AGENTS.md`、`QoolUI/QoolFile/AGENTS.md`、`QoolUI/QoolDebug/AGENTS.md`、`QoolUIExample/AGENTS.md`）：各自板块的补充规范。
-- `docs/agents/`：工作流文档（issue tracker、triage 标签、领域文档）。
-- `docs/reference/` 与 `docs/articles/`：接口文档与独立文章（Markdown）。
-- `docs/adr/` 与 `CONTEXT.md`：决策记录与领域术语。
-- `WATCHDOG.md`：AGENTS 的极简提醒。
-
 ## 权威标记
 
-本文件规则分三级：**MUST**（硬约束，违反即缺陷）、**SHOULD**（推荐惯例，偏离需说明理由）、**MAY**（可选）。「应当」对应 SHOULD；未标等级的陈述为事实描述或设计哲学，非行为约束。
+本项目的规范除介绍性内容之外，规则类内容分三级：
+  - **MUST**: 必须、铁律（硬约束，违反即缺陷）
+  - **SHOULD**: 应当、应该、尽量、通常（推荐惯例，偏离需说明理由，表示在该情况下优选）
+  - **MAY**: 可以、允许、应该、推荐（建议性规则，可选但不应该无视，作用在于提示性推荐解决方案）
 
-## 定位
+未标等级的陈述为事实描述或设计哲学，非行为约束。
 
-QoolUI 是 Qt6/QML UI 组件库（第 4 代），供多重用户消费（生态开发者、库消费者）。多重用户意味着全仓库标准不止于「能跑」——小到命名、大到架构与文档都要有前瞻性，为各层用途负责。
+## 行动纪律
 
-**暴露形式**（MUST）：C++ 代码几乎全部私有、**绝不动态导出**；需要暴露的 API 一律通过 QML 引擎类型系统设计（直接注册的 C++ 类型或纯 QML 组件），不提供传统 C++ DLL 调用方式。仅有的 C++ 复用面是 `QoolCommon`（INTERFACE 头文件库）与 `interfaces/`（插件接口头）。
+- [MUST NOT] 禁止以现有文件中的错误做法当作“惯例”，**仅本文档中的权威规范才是合法惯例**
+- [MUST NOT] 禁止为Qt作调试或调试，如果产生这种情况，一定是测试单元的设计问题
+- [MUST NOT] 禁止扫描、阅读、拉取Qt源代码，除非确定Qt本身有bug
+- [SHOULD] 了解一个现有组件时，应当**先看它的文档**，而不是直接啃代码
 
-**私有原则**（MUST）：仓库内 QML 类型默认公开、原则上不设私有；特例走 `_private/` 目录，源文件不得与公开 QML 混淆。注意与「暴露形式」区分：那是 C++ 暴露面的层面（几乎全私有、经 QML 暴露），本原则是仓库文件组织的层面。
+---
 
-**接口承诺**：`interfaces/` 为插件契约——接口可能演进，改 `interfaces/` 须同步更新自带插件（同一变更），第三方插件 break 是预期代价。
+## 项目板块与结构
 
-**示例程序**：QoolUIExample 兼具功能验证 prototype（持续维护，非一次性）、功能展示与宿主使用范例三重角色。
+本项目分为3个**板块**:
+  - `QoolUI`: QoolUI 库本体
+  - `QoolUIExample`: 配套的演示程序
+  - `QoolUITests`: 配套的测试框架和单元测试代码
 
-## 模块架构
+三个板块以子项目的形式挂载根CMake树中，
+在总体了解项目情况时[SHOULD]应当从根`CMakeLists.txt`开始，
+**代码的组织情况（Url层级、编译单元、依赖关系等）以CMake声明为准**。
 
-```mermaid
-flowchart TB
-    QoolIncludes["QoolIncludes<br/>(命名空间/版本/插件接口头)"]
-    QoolCommon["QoolCommon<br/>(仅头文件 C++ 模板库, 脱离 Qool 可用)"]
+## 文档地图
 
-    subgraph Core["核心模块 (必备)"]
-        Qool["Qool<br/>URI: Qool"]
-    end
-
-    subgraph L1["一级子模块"]
-        QoolControls["Qool.Controls<br/>控件基础层"]
-        QoolControlsComponents["Qool.Controls.Components<br/>基础原件层"]
-        QoolDebug["Qool.Debug<br/>(宿主调试工具集)"]
-        QoolFile["Qool.File"]
-        QoolChat["Qool.Chat"]
-        QoolColor["Qool.Color<br/>(颜色组件集)"]
-    end
-
-    subgraph Plugins["外部插件 (可选, 接口契约)"]
-        themeloader["themeloader"]
-        fileiconprovider["fileiconprovider"]
-    end
-
-    QoolIncludes --> QoolCommon
-    QoolCommon --> Qool
-    Qool --> QoolDebug
-    Qool --> QoolFile
-    Qool --> QoolChat
-    Qool --> QoolColor
-    QoolControls --> QoolControlsComponents
-    QoolColor --> QoolControlsComponents
-```
-
-### 分层
-
-| 层 | 模块 | 定位 |
-|---|---|---|
-| 0 | `QoolIncludes` | 命名空间/版本头 + 插件接口（`interfaces/`），INTERFACE target |
-| 1 | `QoolCommon` | 仅头文件 C++ 模板库（属性宏体系/工具/math），脱离 Qool 可用 |
-| 2 | `Qool` | 核心模块：形状/样式/窗口/工具类型，QML 模块唯一必备件 |
-| 3 | 一级子模块 | `Qool.Controls`——控件基础层（仅次于 Qool，类比 QtQuick.Controls）；`Qool.Chat`、`Qool.File`、`Qool.Debug`、`Qool.Color`——功能合集模块，只依赖 Qool（合集模块可依赖 `Qool.Controls`） |
-| 3a | 一级子模块下层 | `Qool.Controls.Components`——基础原件层，被 `Qool.Controls` 依赖（上下级关系） |
-| 4 | 二级子模块（预留） | 可依赖上级模块（如 `Qool.Controls.Extra` 可依赖 `Qool.Controls`） |
-| 外 | 插件 | `themeloader`/`fileiconprovider`/色名提供器——实现接口、独立于库本体 |
-
-### 依赖约束
-
-- **R1 QoolUI 内部模块依赖约束**：`Qool.Controls` 是控件基础层（仅次于 Qool，类比 QtQuick 与 QtQuick.Controls），**功能合集模块（`Qool.Color`/`Qool.Chat`/`Qool.File`/`Qool.Debug` 等）可依赖 `Qool.Controls`（及 `Qool.Controls.Components`）**；同级功能合集模块互不依赖，仅上下级可依赖。对宿主而言除 Qool 外皆可选——保证目录级删减时依赖完整（对 Qt 框架模块的依赖不受此限，如 `Qool.Debug` 额外声明 `IMPORTS QtQuick.Dialogs`）
-- **R2 QoolCommon 与 Qool 可独立消费**：QoolCommon 不依赖 QtQuick、脱离 Qool 可用；调整须兼顾项目内调用与潜在外部用户
-- **R3 插件外部化**：接口用纯 Qt 类型（不引用库类型），自带插件仅是参考实现，逻辑与物理上皆可选
-- **R4 基础原件在下层**：`Qool.Controls` 的控件由 `Qool.Controls.Components` 的基础原件组合而成，方向不可逆
-
-### 插件约定
-
-- 插件优先级**统一在插件 json 的 `priority` 字段定义**（`PluginLoader` 从 json 元数据读取），接口不提供 priority 方法
-- **所有自带插件 json 必须包含 `priority` 字段**，即使接口不需要——这是 v4 约定性规范，非可选
-- **插件按接口分包**：同一接口的多个插件组织在同一包（目录）中，以不同 CMake target 形式共存（实例：`colornameprovider` 包内含 default/commonzh 两个插件）；例外——插件本身复杂或属非默认行为的特化功能时可独立成包
-
-### 依赖机制
-
-qmldir 由 Qt 自动生成，开发中不手写；依赖声明一律通过 `qt_add_qml_module` 的 `IMPORTS`/`DEPENDENCIES` 配置。
-
-## QML 模块 URI 映射
-
-| 模块 | URI | 导入示例 |
-|---|---|---|
-| Qool | `Qool` | `import Qool` |
-| QoolControls | `Qool.Controls` | `import Qool.Controls` |
-| QoolControlsComponents | `Qool.Controls.Components` | `import Qool.Controls.Components` |
-| QoolFile | `Qool.File` | `import Qool.File` |
-| QoolChat | `Qool.Chat` | `import Qool.Chat` |
-| QoolColor | `Qool.Color` | `import Qool.Color` |
-| QoolDebug | `Qool.Debug` | `import Qool.Debug` |
+- 根 `AGENTS.md`（本文件）：全仓库规范入口
+- 子项目/板块 AGENTS（`QoolUI/AGENTS.md`、`QoolUITests/AGENTS.md`、、`QoolUIExample/AGENTS.md`）: 
+  开展对应板块相关工作时，如果存在这些文件，[MUST]必须额外阅读
+- `docs/agents/`：额外规范与工作流文档（issue tracker、triage 标签、领域文档等）
+- `docs/reference/` 与 `docs/articles/`：接口文档与独立文章（Markdown）
+- `docs/adr/` 与 `CONTEXT.md`：决策记录与领域术语。
+  当决策变更、术语制定或修改时，[MUST]必须优先更新它们。
+- `WATCHDOG.md`：AGENTS 的极简提醒，发现自己的错误模式时，[MAY]随时更新它。
 
 ## 技术栈约束
 
@@ -165,174 +51,237 @@ qmldir 由 Qt 自动生成，开发中不手写；依赖声明一律通过 `qt_a
 | CMake | 3.30+ |
 | 第三方依赖 | 无——绝不引入（含 Qt 5 Compatibility Module（Qt5Compat）） |
 | 命名空间 | `qoolui` (宏: `QOOL_NS`) |
-| 版本 | 4.0.0 |
+| 版本 | 4.x.x |
 
-**硬约束：零第三方依赖**。除 Qt6 外绝不引入任何第三方库/模块（含 Qt 5 Compatibility Module（Qt5Compat）等 Qt 官方兼容模块）。
+**零第三方依赖**:除 Qt6 外绝不[MUST NOT]引入任何第三方库/模块，包括 Qt 5 Compatibility Module（Qt5Compat）等 Qt 官方兼容模块。
 
-**版本跟进**：只跟进 Qt 最新正式 Release，不提前迁移 prerelease/testing；绝不为了兼容旧版而妥协，充分使用新特性。
+**版本跟进**：
+- 只跟进 Qt 最新正式 Release，
+- [SHOULD NOT]不提前迁移 prerelease/testing；不为了兼容旧版而妥协，
+- [SHOULD]充分使用新特性(Qt6/C++20)。
 
-**容器与算法**：充分使用 STL 容器与算法；Qt 模块内按需选用 Qt 容器（QString/QVariant 等生态必需），但算法尽量用 STL 的——仅当算法为 Qt 容器独有或 STL 不兼容时才用 Qt 算法。
+**容器与算法**：
+- [SHOULD]充分使用 STL 容器与算法；
+- Qt 模块内按需[MAY]选用 Qt 容器（QString/QVariant 等生态必需），
+- 但算法尽量[SHOULD]用 STL 提供的——仅当算法为 Qt 容器独有或 STL 不兼容时才用 Qt 算法。
 
-**以官方文档为准**：使用 Qt 时以官方文档为真实依据，不额外探查 Qt 源码；文档不清不过分纠结；不为 Qt 本身做验证，专注本项目层面。
+**以官方文档为准**：
+- [MUST]使用 Qt 时以官方文档为真实依据，
+- 不[SHOULD NOT]额外探查 Qt 源码；
+- 不要[MUST NOT]为 Qt 本身做验证，专注本项目层面。
 
-## 构建命令
+## 项目定位
 
-**规范入口是 `Scripts/qoolui_build_*.py` 工具脚本**（Windows/Linux 当前可用；macOS 为骨架，落地时完善）。脚本职责：工具链环境准备（MSVC 经 vswhere→vcvars64 注入、Windows MinGW/Clang 经 PATH 前置 Qt 工具链、Linux GCC/Clang 经 CC/CXX 注入）+ 命令实现（configure/build/test/run/install/deploy/release）。约定内置（preset 映射、目录命名、deploy=install+zip 归档），个性化参数输入（--qt/--jobs/--prefix/--version/透传）。
+作为一个**QML图形组件库**，项目将会有多种身份的用户，
+如：宿主程序开发者（依赖本库）、相关生态开发者（扩展本库）、编程爱好者（阅读源码）等。
+多重用户意味着全仓库标准不止于「能跑」——小到命名、大到架构与文档都要有健壮性、前瞻性、模范性，
+[SHOULD]为各层用途负责。
 
-```bash
-# Windows/MSVC（默认 kit=msvc, type=debug——开发期默认，xDebug 输出可见）
-python Scripts/qoolui_build_windows.py configure --qt <Qt安装根>
-python Scripts/qoolui_build_windows.py build --jobs 8
-python Scripts/qoolui_build_windows.py test          # ctest 聚合，输出落盘 build/build-<kit>-<Type>/test.log
-python Scripts/qoolui_build_windows.py run           # 启动 QoolUIExample（需 --qt 或环境 QT_DIR——开发模式 Qt 运行时注入依赖它）
-python Scripts/qoolui_build_windows.py install       # 输出到 build/build-<kit>-<Type>/install（含 Qt 部署脚本收集的依赖）
-python Scripts/qoolui_build_windows.py deploy        # install + zip 归档
-# MinGW：--kit gcc；Clang：--kit clang（Qt 安装根自动按 kit 选工具链目录）
+**暴露形式**：以 Qt Quick Extension 为发布形式，而不是普通的动态链接库。
 
-# Linux/GCC（默认 kit=gcc, type=debug；--qt 可省略，自动探测 qmake6 或 /usr）
-python Scripts/qoolui_build_linux.py configure --qt /usr
-python Scripts/qoolui_build_linux.py build --jobs 8
-python Scripts/qoolui_build_linux.py test           # ctest 聚合，输出落盘 build/build-<kit>-<Type>/test.log
-QT_QPA_PLATFORM=offscreen python Scripts/qoolui_build_linux.py run
-python Scripts/qoolui_build_linux.py install        # 输出到 build/build-<kit>-<Type>/install
-python Scripts/qoolui_build_linux.py deploy         # install + zip 归档
-# Clang：--kit clang（构建目录按 kit 隔离为 build/build-clang-<Type>）
-```
+这意味着[MUST]：
+  - C++ 代码几乎全部私有、**绝不动态导出**
+  - 需要暴露的 API 一律通过 QML 引擎类型系统设计（直接注册的 C++ 类型或纯 QML 组件）
+  - 不提供传统 C++ DLL 调用方式
+  - 仅有的 C++ 复用面是 `QoolCommon`（INTERFACE 头文件库）与 `interfaces/`（插件接口头）
 
-**kit×type 矩阵**（CMakePresets.json）：`dev-<kit>-<type>` preset 对应用户目录 `build/build-<kit>-<Type>`（如 `dev-msvc-debug` → `build/build-msvc-Debug`）。kit = 编译方式（msvc/clang/gcc），type = debug/release（默认 debug）。编译器由脚本环境准备决定，preset 不指定——构建目录按 kit 隔离保证工具链不混。CMake 原生通道（无脚本环境准备时）亦可直接 `cmake --preset dev-msvc-debug`。
+**QML 私有原则**：仓库内 QML 类型默认公开(Qt 行为)。
 
+QML 私有组件的处理方式：
+  - 私有 QML 组件[MUST]存放于 `_private/` 目录中，源文件不得与公开 QML 混淆
+  - 通常[SHOULD]作为资源，通过Qt资源系统并入模块中（Qt不会暴露它们）
+  - 另一种做法[MAY]是，为 .qml 文件增加 `QOOL_INTERNAL_QML_FILES` 属性，虽然这是Qt的标准做法，但是这些组件无法互相继承
+  - 注意与「暴露形式」区分：那是 C++ 暴露面的层面（几乎全私有、经 QML 暴露），本原则是仓库文件组织的层面。
 
-**qtcreator MCP 工具可用时优先直接用（MUST）**：`qtc_*` 设备提供构建/运行/调试/CMake 重扫描/测试枚举，内部携带正确 MSVC/Qt kit 环境。可用时直接调用，勿经 `Scripts/qoolui_build_*.py` + bash + CMake 组合手工摆弄编译环境（MSYS/bash 下管道伪象、cl.exe 缺 vcvars、exe 路径解析等摩擦易致「环境问题 vs 测试问题」误诊）。
-- **MCP 通道不可用时才退回脚本通道**；面板运行结果/弹窗等 UI 状态 MCP 读不到（`get_test_status`/`get_last_test_results` 快照仅覆盖 MCP 自身触发的运行），只能靠用户人工报告。
-- **判读测试输出走 eval 内核 python `subprocess` + 文件重定向**，勿在 MSYS bash 直接跑 exe 判读（stdout 被吞、退出码不可信、Windows 盘符路径被解析成函数名）。
-- **改了 CMake（拆分/重组 target）后重启 Qt Creator**：`m_mainCppFiles`（cpp→proFile 缓存）仅在全量重解析（fullParse，启动触发）时重建；不重启则解析沿用旧缓存、面板复现旧症状——排查「改了 CMake 但面板没变」先重启。
-- 诊断 Qt Creator 与 QML/QuickTest/CMake 集成问题，源码依据在 `qt-creator` 的 `src/plugins/autotest/quick/`、`cmakeprojectmanager/fileapidataextractor.cpp`（用 `github file_read`，勿用 `curl`/raw）。
+**接口承诺**：`interfaces/` 为插件契约。
+  - 接口可能演进，改 `interfaces/` 须[MUST]同步更新自带插件（同一变更），此时第三方插件 break 是预期代价。
+  - 这些接口本身在设计时，[SHOULD]尽量减少依赖的库，虽然QtCore是避不开的。
 
-**qtcreator MCP 工具可用时优先直接用（MUST）**：本项目配置了 Qt Creator MCP 工具链（`qtc_*` 设备），能直接驱动 Qt Creator 完成构建（`build`）、运行（`run_tests`/`run_project`）、调试（`debug`）、CMake 重扫描（`call_action` `CMakeProject.RescanProject`）、测试枚举（`list_tests`/`list_*`）等。**当这些能用时直接调用它们**——它们内部携带正确的 MSVC/Qt kit 环境，避免反复用 `Scripts/qoolui_build_*.py` + bash + CMake 组合手工摆弄编译环境（那套通道在 MSYS/bash 下有管道伪象、cl.exe 缺 vcvars、exe 路径解析等大量摩擦，且会反复走进「环境问题 vs 测试问题」的误诊循环）。经验：排查测试/构建问题时先试 `qtc_*` 通道，它失败或不可用时再退回脚本通道；面板的运行结果/弹窗状态 MCP 读不到（`get_test_status`/`get_last_test_results` 快照仅覆盖 MCP 自身触发的运行，`run_tests` 稳定返回 0 total）——这类面板 UI 状态只能靠用户人工报告。
+**示例程序**：QoolUIExample 演示程序不只是"演示"。
 
-**工具通道经验**（构建/测试验证的选通道原则）：
-- **判读测试输出走 eval 内核 python `subprocess` + 文件重定向**，勿在 MSYS bash 里直接跑 exe 判读（stdout 被吞、退出码不可信、Windows 盘符路径被解析成函数名）——这是元问题，别把观测通道问题误诊成测试缺陷。
-- Qt Creator 产物的 File API reply（`build/<kit>-<Type>/.cmake/api/v1/reply/`）是 CMake 结构的权威来源：codemodel 主文件（`codemodel-v2-*.json`）的 `targets[]` 是**索引**，每个 target 的 `directory`/`paths.source`/compileGroups 等细节在各自 `target-<name>-<Type>-*.json` 里（`paths` 字段）+ `directories[]` 按 `directoryIndex` 索引——排查 target 归属（如「哪些 target 共享目录」）读这两处。
-- **Qt Creator 源码是诊断 QML/QuickTest/CMake 集成问题的最终依据**（`qt-creator/.../src/plugins/autotest/quick/`、`cmakeprojectmanager/fileapidataextractor.cpp` 等）；用 `github file_read` 官方通道，勿用 `curl`/`raw.githubusercontent`（超时/401）。
-- **改了 CMake（拆分/重组 target）后重启 Qt Creator**：`m_mainCppFiles`（cpp→proFile 缓存）只在全量重解析（fullParse，启动时触发）时重建；不重启则解析仍用旧 proFile 缓存，面板继续复现旧症状——排查「改了 CMake 但面板没变」先重启，别怀疑结构没用。
+它兼具以下作用，修改时[SHOULD]考虑到这些用途：
+  - 作为 QoolUI 库的原型宿主程序，可直接验证组件的效果和行为
+  - 作为 QoolUI 的标准和推荐用法演示，展示各个组件的功能、期望用法以及更多可能
+  - 作为 QoolUI 组件的用法示例，其代码本身就是 examples
 
-## 编码规范（C++）
+---
+  
+## 模块架构
 
-**惯例定义（MUST）**：仅 AGENTS 中列出的惯例才是惯例。如确有必要新增惯例，须先在 AGENTS 中注册再推行；不得以「沿用先例」「仓库惯例」等说法推行未在 AGENTS 注册的做法。
+QoolUI（板块）中，以多个 **模块** 组织各个组件。
 
-### 命名风格
+- 文件组织上，各个模块的目录并列平铺
+- 层级关系上（QML模块的URL树），QoolControls、QoolColor等目录所对应的模块实际上是**在Qool之下，Qool为根模块**。
+- 依赖关系上，所有其它模块都可依赖 Qool(根模块)，Qool.Controls 独立提供基础组件，可被其它平级模块依赖，其它子模块不能[MUST NOT]相互依赖
 
-**「属性」概念界定**：本项目语境下「属性」特指 Qt 元对象系统 property 机制（Q_PROPERTY 注册的成员），非自然语言泛指。
+这三种关系互不影响，新增组件、模块时，[MUST]分别考虑或理解这三个方面。
 
-**文件命名**：C++ 头文件 `qool_类名.h` / `qool_类名.hpp`，源文件 `qool_类名.cpp`；私有组件放 `_private/` 目录；附属类与主类同文件（如 `NumberMapperStop` + `NumberMapper`）。
+### 分层
 
-**命名空间**（MUST）：所有 C++ 文件内容用 `QOOL_NS_BEGIN`/`QOOL_NS_END` 宏包裹，**禁止手写 `namespace qoolui {`**。`QOOL_NS` 由 CMake 从 `includes/qoolns.hpp.config` 生成（C++ 宏与 CMake `${QOOL_NS}` 变量同源），命名空间值统一承载、不硬编码。
-
-**方法命名分层**：
-
-| 层 | 命名 | 示例 |
+| 层 | 模块 | 定位 |
 |---|---|---|
-| QML 暴露 API（Q_INVOKABLE、属性） | camelCase | `valueAt`、`dumpInfo` |
-| 内部辅助方法 | snake_case | `get_value`、`initialize_data`、`propagate_theme` |
-| 槽函数 | `when` 命名（响应信号） | `whenColorChanged` |
-| QQmlListProperty 回调 / 私有辅助 | `__` 双下划线前缀 | `__appendFunction`、`__auto_insert` |
-| bindable 访问器 | `bindable_camelCase` | `bindable_interval` |
+| 0-a | `QoolIncludes`C++ 头文件集合 | 命名空间/版本头 + 插件接口（`interfaces/`），INTERFACE target |
+| 0-b | `QoolCommon`C++ 纯头库 | 仅头文件 C++ 模板库（属性宏体系/工具/math），脱离 Qool 可用 |
+| 0-c | `Qool`根模块 | 核心模块：形状/样式/窗口/工具类型，QML 模块唯一必备件 |
+| 1 | 核心子模块 | `Qool.Controls`——控件基础层（仅次于 Qool，类比 QtQuick.Controls），含其下层模块 |
+| 2 | 其它子模块 | `Qool.Chat` `Qool.Color` 等功能集合 |
+| 3 | 插件`plugins/` | `interfaces`的实现，每个都是独立的 QtPlugin。起示例作用并提供默认资源。 |
 
-**成员变量与 setter / bindable 命名**：私有成员 `m_camelCase`（`m_` 前缀）、setter 参数 `new_` 前缀；bindable 方法 `bindable_camelCase`（camelCase 与属性名一致，不随 Qt 惯例改变大小写）。属性宏体系按此命名，可假定宏行为与惯例一致。
+这些层级是按照依赖关系排列的：
+  - 从上到下可被依赖，较低的不得[MUST NOT]依赖更高的
+  - 0级 的三个模块虽然有依赖关系，但是都可以独立使用
+  - `Qool.Controls` 依赖于 `Qool.Controls.Components`，因为后者定位就是如此，而且后者独立可被依赖（作为 Qool.Controls 的一部分）
+  - 除了 Qool.Controls 之外的其它子模块不得[MUST NOT]互相依赖
 
-**命名全称**：标识符与注释一律全称少缩写（`maxShrinkDistance` 而非 dStar、`shrinkDistance` 而非 shrinkD）；数学记号（√2、θ/2 等）仅限文档公式与算法注释，不进标识符。
+### 插件约定
 
-### 属性
+  - plugins 中的每一个插件，虽然都是动态链接库，但作为**QtPlugin**，从C++层面[MUST NOT]不与Qool组件库链接。
+  - 这些插件虽然是预置实现，但并非必备。不过某些接口要求至少必有一对应插件，相关功能才能工作。
+  - 这些插件通常[SHOULD]存放在 plugins 目录中，并以**接口名**作为目录组织，即 **同接口的多个插件实现放在同一目录中**，[MAY]可以通过多个 CMake target 的方式实现共存，也可以[MAY]再分子目录
+  - [MUST]插件优先级**统一在插件 json 的 `priority` 字段定义**（`PluginLoader` 从 json 元数据读取），接口不提供 priority 方法
+  - [MUST]**所有自带插件 json 必须包含 `priority` 字段**，即使接口不需要——这是 v4 约定性规范，非可选
 
-属性应当优先用 QoolCommon 属性宏定义，以统一风格并集中维护；无宏覆盖的非标准场景手工实现。`Q_PROPERTY` 宏与 qoolcommon 属性宏（`QBINDABLE_*_PROPERTY` 等）集中声明、放在一起，不分开列出。
+### 依赖机制
 
-### 成员初始化
+项目使用 CMake 作为惯例方式，[MUST]**依照 Qt 官方推荐的 CMake 做法进行组织**。
 
-- **声明处初始化**：成员在声明部分用 `{初始值}` 初始化；`nullptr` / 零值均须显式初始化。
-- **static 成员**：在 cpp 中从外部初始化。
-- **宏成员**：因宏（如属性宏）无法在头文件初始化成员时，在构造函数中初始化；此时 QBINDABLE 属性必须用 `QBINDABLE_SET_VALUE` / `QBINDABLE_SET_BINDING` 宏初始化，以强调其 QBINDABLE 身份，字面上与普通值区分。
+- qmldir 由 Qt 自动生成，开发中不[MUST NOT]手写
+- 依赖声明一律[MUST]通过 `qt_add_qml_module` 的 `IMPORTS`/`DEPENDENCIES` 配置
 
-### SmartObject
+---
 
-Qool 自定义强化版 `QtObject`（**非 `QObject`**，兼容 QtObject），等价于非 Item 容器；列表/逻辑容器可选继承，非必须。
+## C++ 编码规范
 
-### 槽/信号标注
+**编写C++代码前**:
+- [MUST]提前阅读 [C++ 编码规范](docs/agents/standards-cxx.md)
+- [MAY] 参考相关的技能
 
-**禁止 `private slots:` / `public signals:` 区语法**，一律以 `Q_SLOT` / `Q_SIGNAL` 宏直接标注成员函数（如 `Q_SLOT void when_xxxChanged()`）。区语法入宏后 moc 不收集（仓库属性宏体系导致的特有约束）。
+## QML 设计与编码规范
 
-### 信号命名（项目惯例 SHOULD）
+**编写QML代码前**:
+- [MUST]提前阅读 [QML 编码规范](docs/agents/standards-qml.md)
+- [MAY] 参考相关的技能
 
-信号是瞬时状态变化的宣告（过去式语义 `somethingHappened`——事件已发生），不是"更新动作"的命名：
-
-- **属性变化（默认）**：无参 `xxxChanged()`，不携带值，对齐 Qt 惯例——**仅值实际变化时触发**
-- **属性变化（需承载值）**：另设 `xxxUpdated(newValue, oldValue)`，必带两个值、新值在前（Qt 惯例；单参 handler 自动降级为新值、旧值丢弃）
-- **通用信号**：动词过去式（`xxxUpdated`、`xxxEdited`、`xxxRequested`…）——其中动作完成类（如 `currentRowUpdated`）宣告动作完成、不承诺值变化，由动作语义决定是否发出
-- **意图请求**：`wannaXxx`（如 `wannaSignIn`、`wannaMove`）——意图/请求信号，与执行槽成对构成实时接口
-- **响应信号的槽**：`when` 命名（如 `whenColorChanged`）
-- **变化汇聚**：多个变更信号汇聚到一个槽 → `when` 命名：`[xChanged, yChanged]` → `whenPositionChanged`
-
-组合链示例（环节可增减，示例非规定）：`wannaChangeName → whenNameChangeRequested → nameChanged → whenNameChanged`。
-
-### 调试信息
-
-调试信息打印使用 `xDebug` / `xDebugQ` 系列宏（QoolCommon 调试工具），不裸用 `qDebug()` / `qWarning()`。
-
-## QML 组件规范
-
-- **多层插拔（v4 设计哲学）**：各种视觉组件、对其子元素应提供插拔能力；若组件或子元素同时包含「特化功能」和「外观」两方面，应将这两方面的插拔能力尽可能解耦。实例：
-  - QoolFile：View 是 Model 的特化视图、Delegate 带配套特化行为，为它专门设可插拔的 Display（`fileInfoDisplay`），让「行为」与「外观」分别可插拔；
-  - Slider：整体是特化风格（无特化行为），`background`/`handle` 沿用 Qt 原本的可插拔行为——外观（两元素分别）可插拔；
-  - QoolBGBox：`title` 属性是特化行为、`titleItem` 是外观组件，二者分别可插拔、默认一致，用户可用任意 Item 替换 `titleItem` 甚至不响应 `title`，完全解耦。
-- 统一 `id: root`
-- **Style 双重身份**：QoolUI 提供强大样式系统，`Qool.Style` 是其实现。Style 在 Qool 内是重要组件（谨慎维护）；在其它模块（Controls 等）是样式扩散机制（类比 QoolCommon 之于 C++，QML 侧应充分使用）
-- **animationEnabled 含义**：完整外观效果的取舍开关——「高性能模式 vs 完整效果」切换，非单纯的动画开关；控制的不只是动画，还包括一切高开销的样式效果（Shader 特效、粒子、复杂效果样式）
-- **animationEnabled 声明序（MUST）**：控件声明 `animationEnabled` 属性时必须置于自定义属性第一位（统一声明序——动画门控是控件常驻接口，固定首位便于宿主识别）
-- `pragma ComponentBehavior: Bound`：按需编写（Bound = 组件内 id 绑定到实例）
+---
 
 ## 注释与文档规范（Markdown）
 
-文档统一 Markdown（`docs/` 下），不使用 QDoc。文档是完整论述、非接口字典——对外呈现，需可读准确，不能乱写。
+本项目的公共记述性内容包括三类：代码注释(commet)、参考文档(reference)、论述文章(article)
 
+### 代码注释
 
-**公开行为必须完整定义（MUST）**：组件公开接口（属性/信号/方法）的行为语义须在 reference 文档中定义完整——每个公开属性的读/写/运行行为、每个公开信号的发射条件与载荷、每个公开方法的前置/边界/返回值/副作用；**文档未定义的公开行为 = 缺陷，打回重做**（测试以文档为准绳，未定义则无法编写测试用例——见 `QoolUITests/AGENTS.md`「覆盖完整度」）。
+- 代码注释用于辅助代码阅读，不可[MUST NOT]写成备忘录、工作日志
+- 非必要则不写
+- [MAY] 适当使用 `TODO` `FIXME` 等标签记述简要备注
+- [SHOULD] 在*内部包含多行作用域*的作用域结束时，进行注释标记
+- [MUST] 代码注释必须**控制在代码本身的5%以下**
+- 如果需要记录的内容较复杂，考虑[SHOULD]考虑将这些内容编写为参考文档、或论述文章
 
-**独立文章（article）**：`docs/articles/`，分设计哲学论述/开发原理推导/开发过程演变三类，非接口文档格式；语言不限（中英文均可），确保准确性 + 可读性。agent 判断有洞察时向用户提示新发现，不得自行增改（专门总结后由用户决定）。
+### 参考文档
 
-**代码注释**：简体中文、点状就地、跟随代码；应当注释设计意图/非显然行为/陷阱约束/复杂算法理由；不注释自解释代码。
+- 参考文档放在 `docs/references/` 目录下
+- 通常每个模块、类、组件对应一篇
+- 参考文档是**行为契约**，是使用手册，是实现的方向
+- [MUST] 在代码实现之前编写
+- [MUST] 使用英文编写，可直接使用英文专有名词、技术用于或常用术语
+- [MUST] 可读、流畅、清晰、准确、详实
+- [SHOULD] 以Qt官方文档的风格编写
+- [MAY] 适当增加简单的示例
+- [MAY] 适当进行较详细的记述讲述
+- [MAY] 复杂内容可链接至相关的论述文章
+- [MUST] 仅包含**当前状态的行为契约**，不写计划、不记过去、不含演变过程
+- [MUST] **公开行为必须完整定义**：
+  组件公开接口（属性/信号/方法）的行为语义须在 reference 文档中定义完整——每个公开属性的读/写/运行行为、每个公开信号的发射条件与载荷、每个公开方法的前置/边界/返回值/副作用
+- **文档未定义的公开行为 = 缺陷**
+- **测试将以行为契约为准绳，未定义则无法编写测试用例**
 
-**分工原则**：注释点状就地（读代码必须知道的）；文档成篇完整（完整理解需要的）。
+### 论述文章
 
-## 测试
+论述文章放在 `docs/articles/`，用于记录**有价值**的内容；
+包括但不限于：设计哲学/原理推导/组件演变/开发过程/经验沉淀等等。
 
-`QoolUITests` 为项目的测试设施（Qt Test + Qt Quick Test 双栈；术语、测试单元编写规范、测试策略与 CMake 组织定案见 `QoolUITests/AGENTS.md`，使用手册见 `QoolUITests/README.md`）。
+- 论述文章**不是**参考文档，写法要灵活
+- 语言不限
+- [SHOULD NOT] 通常不由 agnet 自发编写
+- [MAY] agent 有新的洞察时，可以向用户报告并建议沉淀为文章
+- [MUST] 语言生动、阅读流畅、含义清晰、人类友好
 
-## 验证策略
+---
 
-分级验证模型见文件顶部规则区（第二行起）；本节为行为规则。
+## 编译与测试
 
-### 行为规则
+### 编译
 
-验证决策遵循「提前判断、中途不纠结、具体情况问用户」：
+- [SHOULD] 当有 qt-creator 相关的工具、MCP可用时，应尽量使用它们，这样可以直接使用用户的开发环境，沟通、行动更高效，不可用时才使用脚本构建通道
+- 自主进行编译时，阅读 [编译指南](docs/agents/standards-build.md)
 
-- **判断前置**：改动动手前先按任务性质、用户要求、改动影响面判断验证深度与通道，不把判断拖到中途或事后。
-- **问用户是默认而非兜底**：凡验证深度/通道存在多个合理分支、且你无法低成本确定时，**默认把选择摆给用户**（给出你的倾向与理由），不无条件选「不问用户」的分支闷头走——「判断不清才问」是被动兜底，「动手前主动摆选择」才是正路。
-- **commit 前不做全量**：只做思维检查「本次改动是否都有验证」；有未验证项 → 提醒用户「是否待完整验证后 commit」，由用户决定。
-- **优先用户运行验证**：改动适合人工目视/操作判断时，交付**验证协议**（运行后验证什么、如何观察、如何反馈给我），不写临时探针。临时探针仅在测试本身是任务一部分（回归资产）时写。
-- 验证通道的具体操作与摩擦规避见 `QoolUITests/AGENTS.md`（输出验证通道分级、测试工作流）。
+### 单元测试
+
+- 这些情况下，**不要**[SHOULD NOT]运行测试：
+  - 注释 / 文档 / 无逻辑重命名: 走读检查即可
+  - 纯 QML 内容 / 行为改动: 用户运行验证（交付验证协议）或针对性单测试
+  - 构建结构改动（CMake / 注册 / 资源）: 编译通过即可
+- [SHOULD] 完整落地一套修改/新增组件时: build + 全量 ctest
+- **全量编译+测试不是默认动作**，是工作收尾时的最终检查，[SHOULD NOT]动不动就运行
+
+当需要编写、运行测试时，[MUST]阅读 `QoolUITests/AGENTS.md` 获得完整测试架构的用法和规范
+
+### 设施与演进
+
+`Scripts`目录中包含编译、维护用的脚本，`QoolUIExamples`整个板块是单元测试设施。
+
+[SHOULD] 在本地临时目录中记录编译、测试、调试过程中，这些设施使用时的摩擦，并在事后总结、提醒用户沉淀。
+
+---
 
 ## 工作流约定
 
+[MUST]记住这些内容，在必要时时阅读它们:
 - issue tracker：`docs/agents/issue-tracker.md`（本地 `.scratch/` Markdown 票）
 - triage 标签：`docs/agents/triage-labels.md`
 - 领域文档：`docs/agents/domain.md`（CONTEXT.md + docs/adr 的消费方式）
- - **ADR 时效性（MUST）**：ADR 是决策锚定、优先级最高——任何讨论/修订/决策之后、动手实施之前，先检查相关 ADR 是否需要同步调整，保证 ADR 与当前决策一致、不滞后（索引见 `docs/adr/README.md`）
- - **spec 生命周期（MUST）**：`.scratch/` 下 spec 落地完成后必须更新其 `Status:` 行为 `done`（放弃则 `abandoned`）——"实现完成"不等于"spec 关闭"。写 spec 时即应把"更新 Status → done"列为收尾步骤，杜绝实现完成却遗留开放状态的规格（详见 `docs/agents/issue-tracker.md`）
- - **实现流程（MUST，文档先行）**：新增/修改组件按「**先文档 → 后测试 → 最后实现**」顺序落地——① reference 文档完整定义公开接口行为（见「注释与文档规范」公开行为完整定义条款）；② 测试用例依文档为清单编写（见 `QoolUITests/AGENTS.md`「覆盖完整度」）；③ 实现使测试转绿。**禁止先写实现再补文档/测试**——文档未定义、测试未先行，实现即视为未完成、打回重做
 
-## 已知陷阱
+### 通常的工作流程
 
-**不能假定运行时仅有一个 QML 引擎存在**：`QML_SINGLETON` 暴露的是引擎内单例；禁止以「直接传递 C++ 进程级单例实例」方式实现（多 engine 场景会崩溃）。
+[SHOULD] 任何工作通常遵循这样的过程:
 
-## 变更记录
+1. 发现问题: 可能是你发现了某问题，也可能是用户发现的
+2. 平等讨论: 
+  - 双方以“优雅解决此问题”为方向，进行平等讨论
+  - 讨论可能从识别问题开始，逐步深化对问题本身的理解
+  - 但讨论的内容最终会走向解决方案(solution)，因为讨论的目标是“解决问题”
+  - 双方必须通过讨论解决所有含糊、模糊、抽象的、不清楚的内容
+3. 达成共识:
+  - 总结讨论过程，确保不再有新的问题和含糊之处
+  - 汇总并对齐所有决策
+4. 锚定决策: 
+  - 调整或补充领域文档、ADR等内容
+  - 落地其它在执行前必须规范的内容
+5. 制定计划:
+  - [MUST NOT] 禁止无计划行动
+  - [SHOULD] 行动计划通常落实本地，不远程发布
+  - [MAY] 计划的落地形式包括但不限于：SPEC、TICKET、PLAN、TODO 等等
+  - [SHOULD] **计划本身就是交付物**，应确保阅读顺畅、内容合理、技术准确、独立可使用（尤其是跨会话情形）
+  - [SHOULD NOT] 计划中不应再包含“XX延后执行”“XX待定”等内容，如果仍有无法计划的部分，应该**重新展开讨论**
+6. 执行计划：
+  - [MUST] 审查计划的合理性，不要无脑机械执行
+  - [SHOULD] 一旦开始执行，依照计划行动
+  - [MAY] 在目标不变的前提下，灵活处理意外情况
+7. 执行完毕后：
+  - [SHOULD NOT] 执行结束后通常不提交
+  - [SHOULD] SPEC、TICKET等可追踪计划文档，在执行结束后应 **主动标记执行完毕** ，避免将来误解
+  - [SHOULD] 即时更新 CHANGELOG
 
-每次修改更新 `CHANGELOG.md`（已加入 `QOOL_GENERAL` 目标）。
+### 契约优先
+
+[MUST]**契约优先是最重要的开发纪律**，具体包括：
+- 新增或调整组件、接口、行为时，应当**先编写文档（契约）**
+- **单元测试基于文档设计**，覆盖所有公开契约、行为以及潜在的使用场景
+- 代码编写以文档所述的契约为目标进行，**无契约的行为无法实现**
+- 形成 **契约指导实现，测试验证实现** 的闭环
+
+### CHANELOG
+
+`CHANGELOG.md` **不是工作流水账**，
+不要[MUST NOT]记录测试结果、待办事项、新的问题、未修改的内容等；
+[SHOULD]仅应当包含简短的修改/变更摘要。

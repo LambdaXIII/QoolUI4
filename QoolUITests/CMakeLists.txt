@@ -221,7 +221,7 @@ add_subdirectory(tst_qoolcontrols_qml)
 # 注册表驱动：COMMAND 从 QOOLUI_TEST_TARGETS 自动生成——新增测试（经
 # qoolui_add_cpp_test 注册）自动纳入，无需手改本列表。
 # 逐个运行全部测试 exe（顺序执行，任一失败即中止并返回非零——开发时
-# 快速定位第一个失败；规模化/并行/筛选走 ctest 通道，见 QoolUITests/README.md）。
+# 快速定位第一个失败；规模化/并行/筛选走 ctest 通道，见 QoolUITests/AGENTS.md）。
 set(RUN_TESTS_COMMANDS "")
 foreach(tst IN LISTS QOOLUI_TEST_TARGETS)
   list(APPEND RUN_TESTS_COMMANDS COMMAND $<TARGET_FILE:${tst}>)
