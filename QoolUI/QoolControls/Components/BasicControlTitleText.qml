@@ -7,4 +7,5 @@ Text {
     verticalAlignment: Text.AlignTop
     color: Style.accent
     padding: 2
+    elide: Text.ElideMiddle
 }

@@ -17,7 +17,7 @@ T.ComboBox {
     id: root
 
     property alias title: bgbox.title
-    property alias label: bgbox.label
+    property alias titleItem: bgbox.titleItem
 
     property alias contentPadding: spacer.padding
     property alias contentTopPadding: spacer.topPadding
@@ -134,7 +134,7 @@ T.ComboBox {
         Connections {
             target: root
             function onCurrentTextChanged() {
-                textField.text = root.currentText
+                textField.text = root.currentText;
             }
         }
 
@@ -145,20 +145,20 @@ T.ComboBox {
             // （tf → root）：宿主读 editText 反映文本域实际内容；宿主写
             // editText 不反推（与现状一致——模板识别缺口下同款单向）
             function onTextChanged() {
-                root.editText = textField.text
+                root.editText = textField.text;
             }
             function onEditTextChanged() {
-                root.editText = textField.editText
+                root.editText = textField.editText;
             }
             // 信号透传：accepted（官方语义保持——宿主在 onAccepted 中自行
             // find/editText 处理模型）；rejected（Qool 扩展——编辑输入被拒，
             // 文本保持原值）。收尾时 textField 先写 text 再发 accepted——
             // 上面 onTextChanged 先于本透传执行，宿主读 editText 已是收尾后值
             function onAccepted() {
-                root.accepted()
+                root.accepted();
             }
             function onRejected() {
-                root.rejected()
+                root.rejected();
             }
         }
 
@@ -195,7 +195,7 @@ T.ComboBox {
         // 避免会话跨 popup 存活（期间 TapHandler 禁用——点击内容区无法再进
         // 编辑）
         onVisibleChanged: if (visible && textField.editing)
-                             textField.editing = false
+            textField.editing = false
 
         width: root.width
         height: Math.min(topPadding + implicitContentHeight + bottomPadding, root.Window.height - topMargin - bottomMargin)

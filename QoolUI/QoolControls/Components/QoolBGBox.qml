@@ -1,24 +1,31 @@
 import QtQuick
 import Qool
 
-// 带可选标题标签的 QoolUI 背景盒（供控件 background 使用）：title 经默认
-// label 渲染于盒体顶部，可整体替换 label 为任意 Item；settings 决定外观。
-// space 语义与空安全判断见 docs/reference/Qool.Controls/QoolBGBox.md。
-
 QoolBox {
     id: root
 
     property string title
 
-    // 属性对象须显式挂 parent（QML 属性对象不自动成为声明对象的子项）：
-    // 无 parent 时 effective 可见性恒 false（visible 是 effective 语义），
-    // 标签可见性逻辑全部失效。
-    property Item label: BasicControlTitleText {
-        parent: root
+    //label应该自己控制相对位置和visible
+    property Item titleItem: BasicControlTitleText {
+        parent: root //非必须
         text: root.title
-        visible: text !== ""
+        visible: text && text !== ""
         color: root.settings.borderColor
+        anchors {
+            top: parent.top
+            right: parent.right
+            topMargin: contentBox.borderSpace
+            rightMargin: contentBox.borderSpace + root.settings.cutSizeTR
+            leftMargin: contentBox.borderSpace + root.settings.cutSizeTL
+        }
     }
+
+    readonly property alias contentBoundingRect: contentBox.boundingRect
+    readonly property alias topSpace: contentBox.topSpace
+    readonly property alias leftSpace: contentBox.borderSpace
+    readonly property alias rightSpace: contentBox.borderSpace
+    readonly property alias bottomSpace: contentBox.borderSpace
 
     settings: QoolBoxSettings {
         borderWidth: Style.controlBorderWidth
@@ -27,43 +34,45 @@ QoolBox {
         cutSizeTL: Style.controlCutSize
     }
 
-    Item {
-        id: dummyTitle
-        x: root.settings.borderWidth + root.control.leftSpace
-        y: root.settings.borderWidth
-        width: root.width - root.settings.borderWidth * 2
-               - root.control.leftSpace - root.control.rightSpace
-        implicitHeight: root.control.topSpace - root.settings.borderWidth
+    DummyItem {
+        id: contentBox
+
+        readonly property real borderSpace: root.settings.borderWidth + 1
+
+        readonly property bool hasLabel: root.titleItem?.visible ?? false
+
+        //label所占空间
+        readonly property real implicitLabelHeight: root.titleItem?.implicitHeight ?? 0
+        readonly property real implicitLabelWidth: root.titleItem?.implicitWidth ?? 0
+
+        //上下两端可用空间
+        readonly property real labelTopSpace: hasLabel ? (root.titleItem.y + root.titleItem.height) : 0
+
+        readonly property real topSpace: Math.max(labelTopSpace, root.settings.cutSpaceOnTop) + borderSpace
+        readonly property real bottomSpace: root.settings.cutSpaceOnBottom + borderSpace
+
+        //contentBox 用于测量参考空间坐标，不参与提供implicitSizes
+        x: borderSpace
+        y: topSpace
+        width: root.width - borderSpace * 2
+        height: root.height - topSpace - bottomSpace
     }
 
     Binding {
-        when: root.label && root.label.visible
-        root.label.parent: dummyTitle
-        root.label.width: Math.min(dummyTitle.width, root.label.implicitWidth)
-        root.label.y: 0
-        root.label.x: dummyTitle.width - root.label.width
-        dummyTitle.height: root.label.height
+        when: root.titleItem
+        target: root.titleItem
+        property: "parent"
+        value: root
     }
 
-    readonly property real topSpace: {
-        let t = root.label?.visible ? root.label.height : 0
-        return t + root.settings.borderWidth
-    }
-    readonly property real leftSpace: {
-        let left = root.label?.visible ? 0 : root.control.leftSpace
-        return left + root.settings.borderWidth
-    }
-    readonly property real rightSpace: {
-        let right = root.label?.visible ? 0 : root.control.rightSpace
-        return right + root.settings.borderWidth
+    implicitHeight: {
+        let impLabelSpace = root.titleItem ? (root.titleItem.y + root.titleItem.implicitHeight) : 0;
+        return Math.max(impLabelSpace, root.settings.cutSpaceOnTop);
     }
 
-    readonly property real bottomSpace: {
-        let b = root.label?.visible ? root.control.bottomSpace : 0
-        return b + root.settings.borderWidth
+    implicitWidth: {
+        let cutw = root.settings.cutSpaceOnLeft + root.settings.cutSpaceOnRight;
+        let labelW = root.titleItem ? root.titleItem.implicitWidth : 0;
+        return Math.max(cutw, labelW);
     }
-
-    implicitHeight: root.settings.borderWidth * 2 + root.control.topSpace + root.control.bottomSpace
-    implicitWidth: root.settings.borderWidth * 2 + root.control.leftSpace
-                   + root.control.rightSpace + root.label?.implicitWidth ?? 0
 }

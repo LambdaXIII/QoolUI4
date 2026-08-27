@@ -6,7 +6,7 @@ T.Control {
     id: root
 
     property alias title: bgbox.title
-    property alias label: bgbox.label
+    property alias label: bgbox.titleItem
 
     property alias contentPadding: spacer.padding
     property alias contentTopPadding: spacer.topPadding
