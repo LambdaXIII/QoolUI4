@@ -31,11 +31,8 @@ well-defined limits.
   explicit `width`/`height` are not touched). The engine's implicit size equals the
   path bounds (the geometry), so layout uses the explicit size.
 
-The `control` (required on `OctagonShape`) is satisfied by an internal default
-instantiation inside this component; replacing it is an advanced use (custom geometry
-source). The `settings` object is an internal eight-point contract whose four corner
-cuts are always `shortEdge / 2`; modifying it breaks the shape's self-consistency, so
-`Crystal` exposes no settings configuration surface.
+
+Rendering uses `preferredRendererType: Shape.CurveRenderer` (anti-aliased curves).
 
 ## Signals
 

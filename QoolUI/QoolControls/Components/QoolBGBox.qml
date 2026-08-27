@@ -25,7 +25,7 @@ QoolBox {
     readonly property alias topSpace: contentBox.topSpace
     readonly property alias leftSpace: contentBox.borderSpace
     readonly property alias rightSpace: contentBox.borderSpace
-    readonly property alias bottomSpace: contentBox.borderSpace
+    readonly property alias bottomSpace: contentBox.bottomSpace
 
     settings: QoolBoxSettings {
         borderWidth: Style.controlBorderWidth

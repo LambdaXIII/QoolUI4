@@ -12,6 +12,9 @@ Qool.Controls 提供 QoolUI 控件系列：
 - 进度与滚动：`ProgressBar`、`ScrollIndicator`、`ScrollView`。
 - 基础件：`Button`、`QoolBGBox`（八边形背景盒）、`IndexIndicator`、
   `PaPaWall`（并行竖条动画墙）。
+- 菜单：`MenuBar`（菜单栏）、`Menu`（弹出菜单）、`MenuItem`、
+  `MenuSeparator`（可带文字的分隔线）、`MenuBanner`（菜单横幅）。
+
 
 控件样式遵循 `Qool.Style`（`root.Style.*` 附加属性）。
 
@@ -23,6 +26,11 @@ Qool.Controls 提供 QoolUI 控件系列：
 - [EditableText](EditableText.md)
 - [EditableTextBox](EditableTextBox.md)
 - [IndexIndicator](IndexIndicator.md)
+- [Menu](Menu.md)
+- [MenuBar](MenuBar.md)
+- [MenuBanner](MenuBanner.md)
+- [MenuItem](MenuItem.md)
+- [MenuSeparator](MenuSeparator.md)
 - [PaPaWall](PaPaWall.md)
 - [ProgressBar](ProgressBar.md)
 - [QoolBGBox](QoolBGBox.md)

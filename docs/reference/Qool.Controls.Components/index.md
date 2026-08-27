@@ -11,9 +11,13 @@ Qool.Controls.Components 提供 QoolUI 控件系列的基础原件：
   `ControlPressedCover`、`ControlLockedCover`、`PaPaWall`、`IndexIndicator`、
   `SplitViewHandle` 等。
 - 行为能力件：`CrystalCursor`（延迟缩放基准件——光标/手柄家族共用骨架）。
+- 菜单件：`RadioIndicator`（单选指示器）、`QoolMenuBarItem`（菜单栏条目）。
+
 
 ## 组件参考
 
 - [CrystalCursor](CrystalCursor.md)
+- [QoolMenuBarItem](QoolMenuBarItem.md)
+- [RadioIndicator](RadioIndicator.md)
 
 其余基础原件文档随模块文档补全（当前以源码与 ADR 为契约来源）。

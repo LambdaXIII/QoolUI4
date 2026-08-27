@@ -8,7 +8,7 @@ model. It inherits `T.ComboBox`, so the interface is fully compatible with
 `QtQuick.Controls.ComboBox` — `model`, `currentIndex`, `currentText`,
 `editable`, `editText`, `accepted()`, `find()`, `validator` and the other
 official APIs all work as documented by Qt. On top of the official interface
-it adds appearance customization (`backgroundSettings`, `title`, `label`),
+it adds appearance customization (`backgroundSettings`, `title`, `titleItem`),
 content padding (`contentPadding` family) and popup direction control
 (`popupDirection`).
 
@@ -21,8 +21,9 @@ to customize the item appearance.
 - `title : string` (alias to the background box's `title`)
   Title text, forwarded to the top of the background box.
 
-- `label : string` (alias to the background box's `label`)
-  Label text, forwarded to the inside of the background box.
+- `titleItem : Item` (alias to the background box's `titleItem`)
+  The title component, replaceable wholesale — forwarded to the background
+  box's title item (see `QoolBGBox`).
 
 - `contentPadding : real` (default `0`)
   Uniform padding for all four edges of the content area.

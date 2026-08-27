@@ -36,6 +36,16 @@ gets the current theme's appearance and may override individual fields.
 - `offsetX` / `offsetY` (`real`): the overall offset. Default `0`.
 - `curved` (`bool`): the rounded-corner switch. Default `false`.
 
+## Read-only helpers
+
+- `cutSpaceOnTop` / `cutSpaceOnBottom` / `cutSpaceOnLeft` / `cutSpaceOnRight`
+  (`real`, read-only): the per-edge cut avoidance — the largest adjacent cut
+  on that edge: top `= max(cutSizeTL, cutSizeTR)`, bottom
+  `= max(cutSizeBL, cutSizeBR)`, left `= max(cutSizeTL, cutSizeBL)`, right
+  `= max(cutSizeTR, cutSizeBR)`. Bound as `QProperty` bindings to the four
+  `cutSize*` fields; used by consumers (for example `QoolBGBox`'s `*Space`
+  composition) to reserve the region a corner cut removes.
+
 ## Signals
 
 This type defines no additional signals; each property has the auto-generated

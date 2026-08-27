@@ -36,6 +36,8 @@ inner maximum square, centered. The default logical size is `20 × 20` (explicit
   other value (`Unknown`, or the diagonal `NW`/`NE`/`SW`/`SE`) shows a full diamond
   (all four points in place — the default state). Default `Qore.N`.
 
+Rendering uses `preferredRendererType: Shape.CurveRenderer` (anti-aliased curves).
+
 ## Signals
 
 This type defines no additional signals. (It inherits the standard `Shape`/`Item`
