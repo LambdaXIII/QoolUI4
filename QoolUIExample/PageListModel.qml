@@ -17,18 +17,6 @@ ListModel {
     }
 
     ListElement {
-        title: qsTr("酷酷的 BOX")
-        note: qsTr("QoolUI 4 完全重做了经典的切角矩形。")
-        page: "Page_QoolBox.qml"
-    }
-
-    ListElement {
-        title: qsTr("HalfCrystal")
-        note: qsTr("三角版 Crystal——方向切换/菱形保留/掩码/动画")
-        page: "Page_HalfCrystal.qml"
-    }
-
-    ListElement {
         title: qsTr("基本输入控件")
         note: qsTr("定制的基础输入控件")
         page: "Page_InputControls.qml"
@@ -41,6 +29,12 @@ ListModel {
     }
 
     ListElement {
+        title: qsTr("酷酷的菜单")
+        note: qsTr("菜单栏、菜单层级、菜单组件！")
+        page: "Page_Menus.qml"
+    }
+
+    ListElement {
         title: qsTr("颜色控件")
         note: qsTr("操纵颜色的模块")
         page: "Page_Color.qml"
@@ -50,6 +44,18 @@ ListModel {
         title: qsTr("文件系统")
         note: qsTr("一些和文件系统交互的控件")
         page: "Page_QoolFile.qml"
+    }
+
+    ListElement {
+        title: qsTr("酷酷的 BOX")
+        note: qsTr("QoolUI 4 完全重做了经典的切角矩形。")
+        page: "Page_QoolBox.qml"
+    }
+
+    ListElement {
+        title: qsTr("HalfCrystal")
+        note: qsTr("三角版 Crystal——方向切换/菱形保留/掩码/动画")
+        page: "Page_HalfCrystal.qml"
     }
 
     ListElement {

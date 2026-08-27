@@ -64,6 +64,7 @@ qt_add_qml_module(appQoolUIExample
   QML_FILES pages/Page_InputControls2.qml
   QML_FILES pages/Page_HalfCrystal.qml
   QML_FILES pages/Page_Color.qml
+  QML_FILES pages/Page_Menus.qml
 )
 
 qoolui_collect_assets(QOOL_ASSETS)

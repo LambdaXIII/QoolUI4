@@ -7,6 +7,7 @@ Item {
 
     property color color: Style.base
 
+    //foreground为填充对象，自动填充root并裁剪
     property Component foreground: internalFG
     property Item background: Item {}
 

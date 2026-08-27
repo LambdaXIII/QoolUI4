@@ -36,6 +36,8 @@ Shape {
     width: 20
     height: 20
 
+    preferredRendererType: Shape.CurveRenderer
+
     // —— 几何链：pCtrl（ShapeControl——target 自动 = 根 Shape）→ gA
     // （源头）→ gB（内接画布，本地坐标——组件任意位置/父变换下渲染与
     // 几何同基准）——

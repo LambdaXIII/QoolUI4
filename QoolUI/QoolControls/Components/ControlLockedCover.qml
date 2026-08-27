@@ -13,8 +13,7 @@ Item {
     property color color: Style.negative
 
     property bool rounded: false
-    property QoolBoxSettings settings: parent?.backgroundSettings
-                                       ?? internalSettings
+    property QoolBoxSettings settings: parent?.backgroundSettings ?? internalSettings
 
     z: 90
     anchors {
@@ -26,7 +25,10 @@ Item {
     }
 
     opacity: parent.enabled ? 0 : 1
-    BasicNumberBehavior on opacity {}
+    visible: opacity > 0
+    BasicNumberBehavior on opacity {
+        enabled: root.Style.animationEnabled
+    }
 
     QoolBoxSettings {
         id: internalSettings

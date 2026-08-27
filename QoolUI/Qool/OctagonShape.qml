@@ -32,6 +32,7 @@ Shape {
         fillColor: root.control.settings.fillColor
     }
 
+    // preferredRendererType: Shape.CurveRenderer
     // 命中判定委托数值算法（QObject 掩码）：
     // 切角不命中；判定区随 offset 平移。
     containmentMask: root.control

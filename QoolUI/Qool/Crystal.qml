@@ -4,6 +4,7 @@
 // docs/reference/Qool/Crystal.md。
 
 import QtQuick
+import QtQuick.Shapes
 import Qool
 
 OctagonShape {
@@ -43,4 +44,6 @@ OctagonShape {
             fillColor: root.color
         }
     }
+
+    preferredRendererType: Shape.CurveRenderer
 } //OctagonShape

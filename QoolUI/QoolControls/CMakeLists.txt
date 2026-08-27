@@ -28,6 +28,11 @@ qt_add_qml_module(QoolControls
     QML_FILES ScrollBar.qml
     QML_FILES ScrollView.qml
     QML_FILES Tumbler.qml
+    QML_FILES Menu.qml
+    QML_FILES MenuItem.qml
+    QML_FILES MenuBar.qml
+    QML_FILES MenuSeparator.qml
+    QML_FILES MenuBanner.qml
 )
 
 

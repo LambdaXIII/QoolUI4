@@ -5,8 +5,9 @@
 // ChannelCrystalSlider 下）与竖直（ChannelBoxSlider 上 +
 // tagOnTop 编辑行下），两实例绑定同一共享 ColorAssistant。
 import QtQuick
+import QtQuick.Controls
 import Qool
-import Qool.Controls
+import Qool.Controls as Q
 
 import Qool.Color
 import Qool.Debug
@@ -17,78 +18,60 @@ BasicPage {
     title: qsTr("测试场")
     note: qsTr("ChannelControl 双形态：水平 / 竖直，共享同一 Assistant")
 
-    // 共享色源：本页唯一 Assistant
-    ColorAssistant {
-        id: mainColor
-        color: Style.accent
-        // onColorChanged: console.log("current color", color)
+    Q.QoolButton {
+        id: button
+        text: "CLICK ME!!"
+        ContextMenu.menu: menu
     }
 
-    ColorPreviewer {
-        colorAssistant: mainColor
-    }
+    Q.Menu {
+        id: menu
+        title: "毁天灭地"
+        showTitle: ii.checked
+        Action {
+            text: "AAA"
+            enabled: false
+        }
+        Action {
+            text: "AAA"
+        }
+        Action {
+            text: "AAA"
+        }
+        Action {
+            text: "AAA"
+        }
+        Action {
+            text: "AAA"
+        }
+        Action {
+            id: ii
+            text: "AAA"
+            checkable: true
+        }
 
-    ColorPicker {
-        y: 100
-    }
-
-    BasicControl {
-        x: 400
-        y: 600
-        RectResizer {}
-        contentItem: ColorNameListView {
-            clip: true
-            ScrollIndicator.vertical: ScrollIndicator {}
+        Q.Menu {
+            title: "SUB"
+            Action {
+                text: "AAA"
+                enabled: false
+            }
+            Action {
+                text: "AAA"
+            }
+            Action {
+                text: "AAA"
+            }
+            Action {
+                text: "AAA"
+            }
+            Action {
+                text: "AAA"
+            }
+            Action {
+                text: "AAA"
+                checkable: true
+            }
         }
     }
-
-    BasicControl {
-        x: 20
-        RectResizer {}
-        contentItem: HSVPanel {
-            colorAssistant: mainColor
-        }
-    }
-
-    BasicControl {
-        x: 20
-        RectResizer {}
-        contentItem: ColorBankPanel {
-        }
-    }
-
-    // BasicControl {
-    //     y: 400
-    //     RectResizer {}
-    //     contentItem: Row {
-    //         Repeater {
-    //             model: ColorHQ.channels
-    //             delegate: Loader {
-    //                 asynchronous: true
-    //                 sourceComponent: ChannelControl {
-    //                     channel: modelData
-    //                     colorAssistant: mainColor
-    //                     orientation: Qt.Vertical
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }//sliders
-
-    // BasicControl {
-    //     x: 600
-    //     RectResizer {}
-    //     contentItem: Column {
-    //         Repeater {
-    //             model: ColorHQ.channels
-    //             delegate: Loader {
-    //                 asynchronous: true
-    //                 sourceComponent: ChannelControl {
-    //                     channel: modelData
-    //                     colorAssistant: mainColor
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }//sliders
 }//page

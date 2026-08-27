@@ -28,4 +28,5 @@ Shape {
     }
 
     containsMode: Shape.FillContains
+    // preferredRendererType: Shape.CurveRenderer
 }

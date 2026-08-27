@@ -27,6 +27,8 @@ qt_add_qml_module(QoolControlsComponents
     QML_FILES BasicControlText.qml
     QML_FILES BasicTextArea.qml
     QML_FILES CrystalCursor.qml
+    QML_FILES RadioIndicator.qml
+    QML_FILES QoolMenuBarItem.qml
 )
 
 set_target_properties(QoolControlsComponents PROPERTIES
