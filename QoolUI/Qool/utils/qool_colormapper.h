@@ -48,8 +48,8 @@ protected:
 
   QOBJECT_WRITABLE_PROPERTY(Modes, mode, RGB, FINAL)
 
-#define DECL(N)                                           \
-  QOBJECT_WRITABLE_PROPERTY(qreal, position##N, (N / 10)) \
+#define DECL(N)                                             \
+  QOBJECT_WRITABLE_PROPERTY(qreal, position##N, (N / 10.0)) \
   QOBJECT_READONLY_PROPERTY_DECLARE(QColor, color##N)
 
   QOOL_FOREACH_10(DECL, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)

@@ -76,11 +76,12 @@ update mode is entered.
 
 ## Signals
 
-- `valueChanged()`
-  Emitted when the proxied value changes — on a NOTIFY signal from the
-  target, or when polling detects a change. Suppressed when the value did
-  not actually change (equality guard). Not emitted by the initial sync on
-  (re)establishing an observation.
+- `isReadableChanged()`, `isWritableChanged()`, `isConstantChanged()`,
+  `isResettableChanged()`, `isBindableChanged()`
+  Emitted to refresh the corresponding capability for QML bindings whenever
+  the observation is (re)established — on a `target` or `property` change —
+  or when the target is destroyed. Emitted unconditionally on rebuild and
+  may therefore fire even when the capability value is unchanged.
 
 ## Methods
 

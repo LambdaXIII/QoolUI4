@@ -27,7 +27,9 @@ the item's own property value (no need to listen per ancestor).
   target has no item parent.
 
 - `window : QWindow` (read-only)
-  The window the item is attached to, or `null` when none.
+  The window the item is attached to, or `null` when none. When the target
+  has no item ancestor (`item` is `null`), the search falls back to the
+  nearest `QWindow` ancestor of `target` itself.
 
 - `itemEnabled : bool` (read-only, default `true`)
   Effective enabled state (`isEnabled`, the conjunction over the ancestor

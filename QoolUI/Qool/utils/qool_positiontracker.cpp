@@ -7,26 +7,17 @@ QOOL_NS_BEGIN
 
 PositionTracker::PositionTracker(QObject* parent)
   : QObject { parent } {
-  // target 缺省 = 声明父（构造时快照，不持续跟随 parent）。
-  // 宿主显式赋值（含 null）经 setter 自然覆盖，无「显式 null」歧义。
-  // setValue 先于 connect 执行：不触发 when_targetChanged（无重复重建）。
+  // target 缺省 = 构造时父快照；setValue 先于 connect，不触发重复重建
   m_target.setValue(qobject_cast<QQuickItem*>(parent));
   connect(this, &PositionTracker::targetChanged, this,
     &PositionTracker::when_targetChanged);
   connect(this, &PositionTracker::pointChanged, this,
     &PositionTracker::when_pointChanged);
-  // 首次链路组装 + 置脏：flush 在事件循环首批执行；
-  // QML 晚赋值的 target/point 会再次触发（重配/置脏），最终一致。
   rebuild_chain();
   when_geometryChanged();
 }
 
 void PositionTracker::when_geometryChanged() {
-  // 几何输入变化汇聚（链节点 x/y/scale/rotation/transformOrigin +
-  // 窗口坐标；point 经 when_pointChanged 走同一置脏路径）：
-  // 帧内合并——只置脏，重算延迟到 flush（singleShot(0) 事件循环
-  // 批次，非严格帧级）。已调度则无事可做——一帧内任意多次触发
-  // 合并为一次重算。
   if (m_flushScheduled)
     return;
   m_dirty = true;
@@ -40,8 +31,7 @@ void PositionTracker::when_targetChanged() {
 }
 
 void PositionTracker::when_parentChanged() {
-  // 拓扑变更必须即时重建链路（否则信号从错误的链路来），
-  // 坐标计算延迟到 flush——核心规则：拓扑即时、坐标延迟。
+  // 拓扑即时重建链路，坐标计算延迟到 flush（拓扑即时、坐标延迟）
   rebuild_chain();
   when_geometryChanged();
 }
@@ -56,9 +46,6 @@ void PositionTracker::when_pointChanged() {
 }
 
 void PositionTracker::update() {
-  // 强制立即重算（批次合并的同步入口）：几何变化默认延迟到事件循环
-  // 批次 flush，本方法跳过延迟立即执行。若批次已调度，此处立即执行后，
-  // 后续 flush 回调因 m_dirty 已清而空转。
   m_dirty = true;
   flush();
 }
@@ -72,8 +59,6 @@ void PositionTracker::flush() {
 }
 
 void PositionTracker::rebuild_chain() {
-  // 整条断开重连：disconnect(node, nullptr, this, nullptr) 按节点
-  // 批量断开（连接按节点组织，链路节点列表即连接管理单元）。
   for (auto* node : std::as_const(m_chain))
     disconnect(node, nullptr, this, nullptr);
   m_chain.clear();
@@ -81,8 +66,6 @@ void PositionTracker::rebuild_chain() {
     disconnect(m_window, nullptr, this, nullptr);
   m_window = nullptr;
 
-  // 收集链路：target → 各级父 → 场景根 item（parent 为 null 处终止，
-  // 场景根入链统一逻辑——其坐标恒为 0，不触发但无额外开销）。
   for (auto* node = m_target.value(); node; node = node->parentItem())
     m_chain.append(node);
 
@@ -100,13 +83,11 @@ void PositionTracker::rebuild_chain() {
     connect(node, &QQuickItem::parentChanged, this,
       &PositionTracker::when_parentChanged);
   }
-  // windowChanged 只挂 target 一层：窗口变化沿祖先链传播，
-  // 必然反映到 target 的 window 属性，每层都挂是冗余。
+  // windowChanged 只挂 target：窗口变化沿祖先链传播，必然反映到 target
   if (m_target)
     connect(m_target, &QQuickItem::windowChanged, this,
       &PositionTracker::when_windowChanged);
 
-  // 窗口坐标监听：窗口位置只影响屏幕坐标（scenePos 与窗口位置无关）。
   m_window = m_target ? m_target->window() : nullptr;
   if (m_window) {
     connect(m_window, &QWindow::xChanged, this,
@@ -126,17 +107,13 @@ void PositionTracker::recompute() {
     if (newWindow)
       newGlobalPos = m_target->mapToGlobal(m_point.value());
     else
-      newGlobalPos = newScenePos; // 无窗口：屏幕坐标退化为场景坐标
+      newGlobalPos = newScenePos;
   } else {
-    // target 为空：无坐标系可映射，输出透传输入（scene = global = point）。
-    // 保底语义连续——「未挂窗口」由 currentWindow == null 表达，
-    // 不引入无效值概念（(0,0) 是合法坐标）。
+    // target 为空：无坐标系可映射，输出透传（scene = global = point）
     newScenePos = m_point.value();
     newGlobalPos = m_point.value();
   }
 
-  // 值去重：结果未变不发信号，阻断下游无意义传播
-  // （多层变化相互抵消时下游完全无感）。
   if (newScenePos != m_scenePos.value())
     m_scenePos.setValue(newScenePos);
   if (newGlobalPos != m_globalPos.value())

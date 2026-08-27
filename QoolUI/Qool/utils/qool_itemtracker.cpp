@@ -8,6 +8,10 @@ QOOL_NS_BEGIN
 
 ItemTracker::ItemTracker(QObject* parent)
   : QObject { parent } {
+  // 文档契约：无 item/无窗口视为正常态（enabled/active 默认 true）
+  m_itemEnabled.setValue(true);
+  m_windowActived.setValue(true);
+
   connect(this, &ItemTracker::targetChanged, this, [&] {
     update_item();
     update_window();
@@ -40,12 +44,12 @@ void ItemTracker::setup_item() {
     disconnect(c);
   }
   auto i = m_item.value();
-  if (i == nullptr)
+  if (i == nullptr) {
+    // 无 item：未追踪 = 正常态（enabled 默认 true）
+    m_itemEnabled.setValue(true);
     return;
+  }
 
-  // flow-on 捷径：只监听 item 自身 enabledChanged 即覆盖整条祖先链——
-  // enabled 有 flow-on，祖先链任意层变化必反映到 item 自身属性值
-  // （无需遍历祖先链逐层监听）。windowChanged 用于窗口归属变化重建。
   m_itemConnections << connect(i, &QQuickItem::enabledChanged, this,
     &ItemTracker::update_item_properties)
                     << connect(i, &QQuickItem::windowChanged, this,
@@ -60,8 +64,11 @@ void ItemTracker::setup_window() {
     disconnect(c);
   }
   auto w = m_window.value();
-  if (w == nullptr)
+  if (w == nullptr) {
+    // 无窗口：未挂窗口不算 inactive
+    m_windowActived.setValue(true);
     return;
+  }
 
   m_windowConnections << connect(w, &QWindow::activeChanged, this,
     &ItemTracker::update_window_properties);
@@ -70,15 +77,12 @@ void ItemTracker::setup_window() {
 
 void ItemTracker::update_item_properties() {
   auto i = m_item.value();
-  // 有效 enabled（isEnabled 含祖先链合取）；无 item 时视为启用
-  // （null 是「未追踪」而非「禁用」，默认 true 保持正常态语义）。
   bool _enabled = (i == nullptr) || i->isEnabled();
   m_itemEnabled.setValue(_enabled);
 }
 
 void ItemTracker::update_window_properties() {
   auto w = m_window.value();
-  // 无窗口时视为激活（默认 true：未挂窗口不是「失活」）。
   m_windowActived = w ? w->isActive() : true;
 }
 

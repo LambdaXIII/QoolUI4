@@ -358,25 +358,57 @@ class TestPropertyProxyCore : public QObject {
     QVERIFY(!proxy.isWritable());
   }
 
-  // 10 target 先析构：proxy 不悬空（轮询停、getter 安全返回无效态）
-  QOOL_TEST_CASE(target_destroyed_safety) {
+  // 11 能力变更信号：观测重建（target/property 变化、target 析构）时
+  // 无条件刷新（值未变也可能触发）——文档契约
+  QOOL_TEST_CASE(capability_signals_on_rebuild) {
+    NotifyTarget t;
     PropertyProxy proxy;
-    proxy.set_interval(0); // 开启轮询（零定时器）——析构后 sample 须安全
+    QSignalSpy readableSpy(&proxy, &PropertyProxy::isReadableChanged);
+    QSignalSpy writableSpy(&proxy, &PropertyProxy::isWritableChanged);
+    QSignalSpy constantSpy(&proxy, &PropertyProxy::isConstantChanged);
+    QSignalSpy resettableSpy(&proxy, &PropertyProxy::isResettableChanged);
+    QSignalSpy bindableSpy(&proxy, &PropertyProxy::isBindableChanged);
+
+    // 首次建立观测：5 个能力信号全部刷新（即使能力值相同）
+    proxy.set_target(&t);
+    QCOMPARE(readableSpy.count(), 1);
+    QCOMPARE(writableSpy.count(), 1);
+    QCOMPARE(constantSpy.count(), 1);
+    QCOMPARE(resettableSpy.count(), 1);
+    QCOMPARE(bindableSpy.count(), 1);
+
+    // 换 target：重建观测 → 再次无条件刷新（能力值不变也触发）
+    NotifyTarget t2;
+    proxy.set_target(&t2);
+    QCOMPARE(readableSpy.count(), 2);
+    QCOMPARE(writableSpy.count(), 2);
+    QCOMPARE(constantSpy.count(), 2);
+    QCOMPARE(resettableSpy.count(), 2);
+    QCOMPARE(bindableSpy.count(), 2);
+
+    // 换 property：重建观测 → 再次无条件刷新
+    proxy.set_property("level");
+    QCOMPARE(readableSpy.count(), 3);
+    QCOMPARE(writableSpy.count(), 3);
+    QCOMPARE(constantSpy.count(), 3);
+    QCOMPARE(resettableSpy.count(), 3);
+    QCOMPARE(bindableSpy.count(), 3);
+
+    // target 析构 → 观测重置 → 无条件刷新（能力值由真转假）
+    int before = 0;
     {
-      NoNotifyTarget t;
-      proxy.set_target(&t);
-      proxy.set_property("value");
-      QCOMPARE(proxy.value().toInt(), 0);
-      QVERIFY(proxy.isReadable());
-      // t 出作用域析构 → destroyed → 重置观测
+      ConstantTarget c(7);
+      proxy.set_target(&c);
+      proxy.set_property("fixed");
+      before = readableSpy.count();
+      QCOMPARE(proxy.isReadable(), true);
+      QCOMPARE(proxy.isConstant(), true);
+      // c 析构 → 重置 → 刷新
     }
-    // target 已析构：getter 安全（无效态）、能力 false
-    QVERIFY(proxy.value().isNull());
+    QVERIFY(readableSpy.count() > before);
+    QVERIFY(constantSpy.count() > before);
     QVERIFY(!proxy.isReadable());
-    QVERIFY(!proxy.isWritable());
-    // 事件循环转几圈（触发轮询 sample）：不崩溃、value 仍无效
-    QTest::qWait(50);
-    QVERIFY(proxy.value().isNull());
+    QVERIFY(!proxy.isConstant());
   }
 };
 

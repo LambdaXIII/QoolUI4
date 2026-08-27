@@ -169,10 +169,8 @@ class TestNumberRanger : public QObject {
   QCOMPARE(r.format(1.23456).toString(), QStringLiteral("1.23456"));
 }
   QOOL_TEST_CASE(format_strings) {
-  // 设计意图（qool_numberranger.cpp 注释）：字符串内数字按 decimals 精度
-  // 规整替换。但实现中 QString 恒 canConvert<qreal>，先命中数值分支，
-  // 字符串替换分支不可达——"v=1.23456" 整体转数值失败得 0.0。
-  // 本用例断言设计意图（期望 "v=1.23"），当前失败 = 已知缺陷（待修）。
+  // 字符串分支先于数值分支（QString 恒 canConvert<qreal>，顺序颠倒则不可达）：
+  // 字符串内数字按 decimals 精度规整替换（regex \d+(\.\d+)? 匹配 + 替换）。
   NumberRanger r;
   r.set_decimals(2);
   QCOMPARE(r.format(QStringLiteral("v=1.23456")).toString(),

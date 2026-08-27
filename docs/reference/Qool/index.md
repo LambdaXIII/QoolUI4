@@ -28,6 +28,8 @@ Qool 是 QoolUI 的核心模块，提供：
 - [HalfCrystal](HalfCrystal.md)
 - [ItemAnimatedResizer](ItemAnimatedResizer.md)
 - [ItemTracker](ItemTracker.md)
+- [NumberMapper](NumberMapper.md)
+- [NumberNotifier](NumberNotifier.md)
 - [OctagonCurvedExternalShapePath](OctagonCurvedExternalShapePath.md)
 - [OctagonCurvedInternalShapePath](OctagonCurvedInternalShapePath.md)
 - [OctagonCurvedShape](OctagonCurvedShape.md)

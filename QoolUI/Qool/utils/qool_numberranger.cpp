@@ -83,10 +83,7 @@ QVariant NumberRanger::format(const QVariant& v) const {
   if (v.isNull())
     return v;
 
-  // 注意：QString 恒 canConvert<qreal>（字符串→数值转换恒可用），
-  // 字符串分支必须置于数值分支之前——原实现先判 canConvert<qreal>，
-  // 使下方字符串替换逻辑成为不可达死代码（"v=1.23456" 整体转数值失败
-  // 得 0，替换从未生效）。此顺序即缺陷修复，勿再调整。
+  // QString 恒可转 qreal，字符串分支必须先于数值分支，否则不可达。
   if (v.canConvert<QString>()) {
     auto str = v.toString();
     static const QRegularExpression regex("\\d+(\\.\\d+)?");
@@ -95,9 +92,7 @@ QVariant NumberRanger::format(const QVariant& v) const {
     while (i.hasNext()) {
       const auto a = i.next().captured(0);
       const qreal n = decimalfy(a.toDouble());
-      // 注意：decimalfy 已按 decimals 小数位规整，这里只需默认格式输出。
-      // 原实现用 'g', decimals——'g' 的精度是有效数字位数而非小数位，
-      // decimals=2 时 1.23 被截成 "1.2"（与数值分支结果不一致）。
+      // decimalfy 已按 decimals 规整，默认格式输出即可（勿用 'g'+decimals：其精度是有效数字位）。
       const auto b = QString::number(n);
       replacements.insert(a, b);
     }

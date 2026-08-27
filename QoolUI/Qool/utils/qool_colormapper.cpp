@@ -34,6 +34,11 @@ QColor ColorMapper::colorAt(qreal position) const {
 
   auto stops = m_sortedStops.value();
 
+  if (position < stops.constFirst()->position())
+    return stops.constFirst()->color();
+  if (position > stops.constLast()->position())
+    return stops.constLast()->color();
+
   if (position == stops.constFirst()->position())
     return stops.constFirst()->color();
   if (position == stops.constLast()->position())
@@ -107,6 +112,8 @@ void ColorMapper::__appendFunction(
   self->m_sortedStops.markDirty();
   connect(stop, &ColorMapperStop::positionChanged, self,
       &ColorMapper::updateRequested);
+  connect(stop, &ColorMapperStop::positionChanged, self,
+      [self] { self->m_sortedStops.markDirty(); });
   connect(stop, &ColorMapperStop::colorChanged, self,
       &ColorMapper::updateRequested);
   emit self->updateRequested();

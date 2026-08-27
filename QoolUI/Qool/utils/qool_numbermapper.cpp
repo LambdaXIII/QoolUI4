@@ -65,6 +65,8 @@ void NumberMapper::__appendFunction(
   auto self = qobject_cast<NumberMapper*>(property->object);
   connect(stop, &NumberMapperStop::positionChanged, self,
       &NumberMapper::stopsChanged);
+  connect(stop, &NumberMapperStop::positionChanged, self,
+      [self] { self->m_sortedStops.markDirty(); });
   connect(
       stop, &NumberMapperStop::valueChanged, self, &NumberMapper::stopsChanged);
   self->m_stops.append(stop);

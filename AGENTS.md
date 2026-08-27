@@ -179,7 +179,9 @@ QoolUI（板块）中，以多个 **模块** 组织各个组件。
 
 ### 参考文档
 
-- 参考文档放在 `docs/references/` 目录下
+- **参考文档是给组件使用者消费的契约，而非作为开发者对代码进行的生硬翻译**
+- 内容应当逻辑流畅、调理清晰、用法一目了然，真正起到契约和指导作用
+- 参考文档放在 `docs/reference/` 目录下
 - 通常每个模块、类、组件对应一篇
 - 参考文档是**行为契约**，是使用手册，是实现的方向
 - [MUST] 在代码实现之前编写
@@ -240,6 +242,7 @@ QoolUI（板块）中，以多个 **模块** 组织各个组件。
 - issue tracker：`docs/agents/issue-tracker.md`（本地 `.scratch/` Markdown 票）
 - triage 标签：`docs/agents/triage-labels.md`
 - 领域文档：`docs/agents/domain.md`（CONTEXT.md + docs/adr 的消费方式）
+- 注释与文档事后审计：`docs/agents/workflow-comment-audit.md`（注释清理 + 文档补齐/修订）
 
 ### 通常的工作流程
 
