@@ -6,8 +6,6 @@ import Qool
 Quick.MenuBar {
     id: root
 
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-
     background: QoolBox {
         settings {
             cutSizeTL: Style.menuCutSize
@@ -24,7 +22,5 @@ Quick.MenuBar {
     leftPadding: Style.menuCutSize
     rightPadding: 1
 
-    delegate: QoolMenuBarItem {
-        animationEnabled: root.animationEnabled
-    }
+    delegate: QoolMenuBarItem {}
 }

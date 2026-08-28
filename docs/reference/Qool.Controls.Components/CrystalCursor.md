@@ -26,7 +26,7 @@ sourcing stay with the consumer.
 - Scale: the inner `Crystal` animates from `fullSize − delta` (resting)
   to `fullSize` (expanded) via `ItemAnimatedResizer`. The scale is
   **always animated** — the resizer is hard-wired `animationEnabled:
-  true`; the `animationEnabled` gate covers only the color transitions
+  true`; `Style.animationEnabled` gates only the color transitions
   (internal `BasicColorBehavior on color/borderColor`).
 - The root keeps a constant footprint (the consumer sets its size):
   scaling applies only to the inner `Crystal`, so the root stays a
@@ -65,10 +65,6 @@ sourcing stay with the consumer.
 - `borderColor : color`
   The inner stroke-ring color. Default is an automatic contrast against
   `color` via `ThemeHQ.recommendForeground`.
-
-- `animationEnabled : bool`
-  Animation gate — inherited up the parent chain (the host can turn it
-  off uniformly on a parent), falling back to `Style.animationEnabled`.
 
 - `fullSize : real` (read-only)
   The diamond's full edge = `min(root.width, root.height)` — the

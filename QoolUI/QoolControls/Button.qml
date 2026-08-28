@@ -3,10 +3,7 @@ import QtQuick.Templates as T
 import Qool.Controls.Components
 import Qool
 
-// backgroundSettings 统一控制背景/边框/切角；flat 为"彻底无背景"模式
-// （frameOpacity 置 0——无边框无填充，与保留描边的 QoolButton 差异刻意）。
-// 详细契约见 docs/reference/Qool.Controls/Button.md。
-
+// 完整契约（backgroundSettings / flat / highlighted）见 docs/reference/Qool.Controls/Button.md
 T.AbstractButton {
     id: root
 
@@ -29,14 +26,10 @@ T.AbstractButton {
 
     SmartObject {
         id: pCtrl
-        property real topSpace: Math.max(root.backgroundSettings.cutSizeTL,
-                                         root.backgroundSettings.cutSizeTR)
-        property real bottomSpace: Math.max(root.backgroundSettings.cutSizeBL,
-                                            root.backgroundSettings.cutSizeBR)
-        property real leftSpace: Math.max(root.backgroundSettings.cutSizeTL,
-                                          root.backgroundSettings.cutSizeBL)
-        property real rightSpace: Math.max(root.backgroundSettings.cutSizeTR,
-                                           root.backgroundSettings.cutSizeBR)
+        property real topSpace: Math.max(root.backgroundSettings.cutSizeTL, root.backgroundSettings.cutSizeTR)
+        property real bottomSpace: Math.max(root.backgroundSettings.cutSizeBL, root.backgroundSettings.cutSizeBR)
+        property real leftSpace: Math.max(root.backgroundSettings.cutSizeTL, root.backgroundSettings.cutSizeBL)
+        property real rightSpace: Math.max(root.backgroundSettings.cutSizeTR, root.backgroundSettings.cutSizeBR)
 
         property real frameOpacity: root.flat ? 0 : 1
 
@@ -63,9 +56,6 @@ T.AbstractButton {
     rightPadding: root.backgroundSettings.borderWidth + pCtrl.rightSpace / 2
     topPadding: root.backgroundSettings.borderWidth + pCtrl.topSpace / 2
     bottomPadding: root.backgroundSettings.borderWidth + pCtrl.bottomSpace / 2
-
-    implicitWidth: leftPadding + implicitContentWidth + rightPadding
-    implicitHeight: topPadding + implicitContentHeight + bottomPadding
 
     background: Rectangle {
         id: bgBox
@@ -95,5 +85,17 @@ T.AbstractButton {
     ControlLockedCover {
         color: root.Style.negative
         settings: root.backgroundSettings
+    }
+
+    implicitWidth: {
+        const w1 = leftInset + implicitBackgroundWidth + rightInset;
+        const w2 = leftPadding + implicitContentWidth + rightPadding;
+        return Math.max(w1, w2);
+    }
+
+    implicitHeight: {
+        const h1 = topInset + implicitBackgroundHeight + bottomInset;
+        const h2 = topPadding + implicitContentHeight + bottomPadding;
+        return Math.max(h1, h2);
     }
 }

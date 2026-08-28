@@ -6,20 +6,15 @@ import Qool.Controls.Components
 Quick.Menu {
     id: root
 
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-
-    //默认为 false，以兼容通常的Menu行为
+    // 默认：菜单栏顶级/子菜单隐藏标题，独立（上下文）菜单显示——兼容通常 Menu 行为
     property bool showTitle: !(pCtrl.isInMenuBar || pCtrl.isSubMenu)
 
-    property QoolBoxSettings settings: QoolBoxSettings {
+    property QoolBoxSettings backgroundSettings: QoolBoxSettings {
         borderWidth: root.Style.controlBorderWidth
         borderColor: root.Style.controlBorderColor
         fillColor: root.Style.controlBackgroundColor
         cutSizeTL: root.showTitle ? root.Style.menuCutSize : 0
     }
-
-    //不建议设置为Window，checkable的Action将会有一些问题
-    // popupType: Quick.Popup.Window
 
     QtObject {
         id: pCtrl
@@ -41,7 +36,7 @@ Quick.Menu {
     background: QoolBGBox {
         id: bgBox
         title: root.showTitle ? root.title : ""
-        settings: root.settings
+        settings: root.backgroundSettings
         implicitWidth: 200
     }
 

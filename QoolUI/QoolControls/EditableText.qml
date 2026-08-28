@@ -3,174 +3,50 @@ import QtQuick.Templates as T
 import Qool.Controls.Components
 import Qool
 
-// Qool.Controls.EditableText：Qool 系列文本组件主角——双层强化版（展示层 +
-// 编辑层 + 编辑模型）。系列可编辑控件（ComboBox/SpinBox，未来迁移）的
-// 编辑域统一消费本类型。
-//
-// 双层定位：展示与编辑是两个独立文本对象（双层结构本质——传统覆盖
-// 模式，无单层常驻输入框）。
-// - 平时：displayItem（Item 实例，默认 Text）常驻展示——text 经插拔函数
-//   displayTextFromText 派生 displayText 驱动。
-// - 点击/聚焦进编辑会话后：Loader 延迟加载 BasicTextField 呈现编辑（会话
-//   结束即卸载——大量实例资源节约）；会话数据不驻编辑层（见编辑模型）。
-//
-// 编辑模型（Qool 扩展）——judge（隐藏 TextInput，常驻）：
-// - judge 是编辑会话的模型层：持有会话文本（judge.text）+ validator
-//   （root.validator alias 直通——单点事实源）+ acceptableInput（随文本
-//   实时校验——任何时点可读，判定不依赖编辑层生命周期）。
-// - 呈现层（Loader 内 BasicTextField）无状态：显示 judge.text、输入回写
-//   judge（onTextEdited——用户输入即回写；程序化赋值不发 textEdited——
-//   初始无污染）。非编辑期 judge.text 跟随 root.text 经 Connections 手动
-//   同步 + 收尾显式恢复（不用 Binding 组件覆盖/恢复——其恢复时序
-//   （delayed + restoreMode）在编辑层卸载时不可靠——会话文本残留）。
-// - 编辑层**不挂 validator**：其 accepted/editingFinished 因此无条件发——
-//   结束尝试（Enter/失焦/Esc 全覆盖）100% 可识别，判定全部收拢本类型
-//   层（Qt validator 的 accepted 条件机制不介入——见下）。
-// - accepted/rejected 为 root **独立信号**（判定结果——非编辑层信号转发）：
-//   结束尝试 → 判定 judge.acceptableInput → 接受（text = textFromEditText
-//   + accepted）/ 拒绝（不写 + rejected）→ 结束编辑 → editingFinished。
-//   输入内容与当前 text 一致 = 无处理——accepted/rejected 均不触发。
-//
-// 文本模型（Qool 扩展）：
-// - text：主内容（可写）。编辑结束经 textFromEditText 提交更新。
-// - displayText：只读派生（=== displayTextFromText(text)）。
-// - editText：编辑会话实时通道（alias judge.text——单点）。非编辑期跟随
-//   text（judge 手动同步）；编辑期与编辑层双向同步（编辑层回写 judge /
-//   judge 下发编辑层——同值守卫无循环）。非编辑写入无预设语义（不保证）。
-// 插拔哲学：displayTextFromText / textFromEditText / displayItem 默认实现
-// 全部提供（恒等函数 / Text 组件），宿主经派生类覆盖任一（QML 函数遮蔽
-// 语言机制，同 SpinBox 三钩子）不影响链路。
-// 转换函数语义：displayTextFromText（保存 → 呈现——展示过程）与
-// textFromEditText（编辑文本 → 保存——收尾过程）**相互独立**——各自服务
-// 各自过程，不假设互为逆；实现为互逆运算是可行用法（编辑呈现形式——
-// 编辑层显示与展示一致），非契约要求。
-//
-// 编辑会话（editing 可写——设 true/false 进出；官方无此接口，Qool 扩展）：
-// - **editing 是信号与行为的衔接点**：进入/结束意图（点击/聚焦/Enter/失焦/
-//   程序化）只负责置 editing（唯一状态源），行为统一从 onEditingChanged
-//   启动——true → Loader 绑定装配；false → 数据回流 + editingFinished——
-//   程序化与交互路径行为一致。
-// - 统一收尾（结束尝试）：编辑层 editingFinished（无 validator 无条件发
-//   ——Enter/失焦全覆盖）→ wanna_stop_editing 判定（judge——常驻，不依赖
-//   编辑层卸载时序）——接受替换 / 拒绝回退（text 不变）→ 结束。
-// - Esc = 普通失焦（编辑层 Keys.onEscapePressed → focus=false），落入同一
-//   收尾路径。无取消、无 Esc 区分。
-//
-// 契约差异（与 Qt 官方 TextField 对照）：
-// - 官方 TextField 单层常驻输入（displayText 与编辑同一文本对象）；本类型
-//   双层分离、displayText 只读派生、编辑会话状态机。
-// - editing / editingStarted() / editingFinished() / accepted() / rejected()
-//   为 Qool 扩展（官方无编辑会话开关与对应信号；官方 accepted 仅在 Enter
-//   且可接受时发——本类型 accepted 为结束尝试判定结果，来源语义不同）。
-// - 官方 API 兼容：textEdited（转发编辑层用户编辑事件——模拟官方语义）。
-// - 裸控件：无壳层视觉（背景盒/标题/壳层 covers 由宿主包装 QoolControl
-//   提供）——与 SpinBox 同定位。
-//
-// 焦点行为（已知边界）：
-// - FocusScope 焦点回退：编辑层卸载（Loader 销毁）后焦点自动回退到域内
-//   本控件（Qt 惯例"控件保留焦点"）。
-// - Loader active 绑定求值时机：onLoaded 装配依赖 item 已创建并入树（规避
-//   "信号处理器内绑定延迟求值"——置 editing 当刻读 editLoader.item 不可靠）。
-// - popup 等浮层关闭后焦点归还：浮层抢焦点使编辑层失焦收尾；关闭后 Qt 的
-//   焦点恢复（lastActiveFocusItem 链）可能把焦点落回本控件——若落回将经
-//   onActiveFocusChanged 自动重开会话（实际从未观察到发生）。
-
 T.Control {
     id: root
 
-    /* 动画开关（父链继承——默认 Style.animationEnabled）：控制动画与
-       高开销样式效果（仓库规范——"高性能模式 vs 完整效果"切换）。 */
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-
-    /* 文本模型：主内容（可写）。编辑结束经 textFromEditText 提交更新；
-       平时经 displayTextFromText 派生展示。 */
     property string text
 
-    /* 展示文本：只读派生（插拔点 displayTextFromText；密码回显按 echoMode
-       掩码化）。绑定块内直接引用 passwordCharacter/echoMode——建立依赖
-       跟踪（函数体内引用不建立——必须写在绑定表达式块内）。派生规则：
-       Normal → displayTextFromText(text)；NoEcho → 空串；
-       Password/PasswordEchoOnEdit → 密码化 displayTextFromText(text) 结果
-       （逐字符替换为 passwordCharacter；空时 fallback "•"）。密码化作用于
-       插拔派生结果之后——插拔点保留（自定义保存→展示转换仍生效）。 */
+    /* 只读派生（规则见 EditableText.md）。绑定块内直接引用
+       passwordCharacter/echoMode——建立依赖跟踪（函数体内引用不建立） */
     readonly property string displayText: {
         let base = displayTextFromText(root.text);
         if (root.echoMode === TextInput.Normal)
             return base;
         if (root.echoMode === TextInput.NoEcho)
             return "";
-        // Password / PasswordEchoOnEdit：密码化派生结果（每源字符一个掩码
-        // 字符——取 passwordCharacter 首字符，对齐 Qt 编辑层 TextInput
-        // 语义"多字符取首字符"；空时 fallback "•"）
         let bullet = root.passwordCharacter.length > 0 ? root.passwordCharacter[0] : "•";
         return bullet.repeat(base.length);
     }
 
-    /* 密码回显模式（转发编辑层——官方 TextInput API 对齐）：Normal（默认，
-       原文显示）/ Password（掩码显示——键入新字符短暂明文见
-       passwordMaskDelay）/ NoEcho（不显示任何内容）/ PasswordEchoOnEdit
-       （编辑期间明文、平时掩码）。非 Normal 模式下编辑层内建禁用 copy/cut
-       （官方——防绕过密码特性）。 */
     property int echoMode: TextInput.Normal
 
-    /* 密码字符（转发编辑层——官方 API 对齐）：Password/PasswordEchoOnEdit
-       掩码显示的字符。默认空串 = 透传平台主题字符（编辑层自动取平台字符）；
-       展示层（displayItem 非编辑态掩码派生）在空串时 fallback 固定字符
-       "•"——两处默认可能不一致（编辑态平台字符 vs 非编辑态"•"），需一致时
-       显式设置本属性。多字符取首字符；空串编辑层忽略（用平台默认）。 */
     property string passwordCharacter
 
-    /* 密码掩码延迟（转发编辑层——官方 API 对齐）：Password 模式键入新字符
-       在掩码前明文显示的毫秒数。默认未设置（undefined）——转发编辑层时
-       reset 到其平台默认（官方 TextInput 默认 600ms，官方文档未明写——
-       实测确认）：编辑态短暂明文确认键入。 */
     property var passwordMaskDelay
 
-    /* 编辑会话实时通道（alias judge.text——编辑模型单点）：非编辑期跟随
-       text（judge 手动同步——见 pCtrl Connections）；编辑期与编辑层双向
-       同步；非编辑写入无预设语义（不保证）。 */
     property alias editText: judge.text
 
-    /* 编辑层校验：alias 直通 judge（编辑模型——单点事实源）。宿主挂
-       Qt validator 家族照常（DoubleValidator/IntValidator/...）；编辑层
-       不挂——其 accepted/editingFinished 因此无条件发（结束尝试全识别）。 */
     property alias validator: judge.validator
 
-    /* 编辑会话开关（Qool 扩展）：true = 会话进行中（编辑层在场）。宿主
-       设 true/false 进出会话；点击/聚焦/收尾路径亦驱动本属性。 */
     property bool editing: false
 
-    /* 编辑开关（TextField 惯例命名，不提供 editable——反相冗余）：true =
-       只读。不启动会话（点击/聚焦空转）；编辑层亦只读（显式会话可聚焦
-       选中，不可编辑）。纯行为开关——不触发样式变化；会话进行中变 true
-       时由 pCtrl Connections 统一收尾（见下）。 */
     property bool readOnly: false
 
-    /* 文本色：display 与编辑层共用（T.Control 无 color，Qool 扩展）。 */
     property color color: Style.text
 
-    // display 与编辑层共用（编辑层经转发继承——切换无视觉跳动）
     property int horizontalAlignment: Text.AlignRight
     property int verticalAlignment: Text.AlignVCenter
 
-    /* 输入掩码（转发编辑层——官方 TextField API 对齐）：掩码限制输入
-       字符格式；与 validator 的交互按 Qt 语义（宿主自管）。 */
     property string inputMask: ""
 
-    /* 输入法提示（转发编辑层——官方 API 对齐）：影响软键盘/输入法行为。 */
     property int inputMethodHints: Qt.ImhNone
 
-    /* 换行模式（转发编辑层——官方 API 对齐）：单行文本域默认 NoWrap。 */
     property int wrapMode: TextInput.NoWrap
 
-    /* 鼠标选择开关（转发编辑层——官方 API 对齐）：默认 true——编辑会话
-       中允许鼠标选择（selectAll 后键入覆盖的会话惯例）；外部可关闭。 */
     property bool selectByMouse: true
 
-    /* 展示组件（内容主体——Item 实例属性）：parent 置入控件根（Binding），
-       几何由 GeoLocker 统一锁定到内容容器（见下）——覆写者只负责内容，
-       不声明几何。默认 Text 显示 displayText。编辑时经 Binding 隐藏
-       （不卸载——会话结束恢复，无重建开销）。 */
     property Item displayItem: Text {
         text: root.displayText
         font: root.font
@@ -180,47 +56,28 @@ T.Control {
         verticalAlignment: root.verticalAlignment
         visible: opacity > 0
         BasicTextBehavior on text {
-            enabled: root.animationEnabled && !root.editing
+            enabled: root.Style.animationEnabled && !root.editing
         }
         BasicNumberBehavior on opacity {
             // 显式绑控件自身（而非依赖 Behavior 内部动态查 Style——父链
             // 覆盖可生效）
-            enabled: root.animationEnabled
+            enabled: root.Style.animationEnabled
         }
     }
 
-    /* 插拔函数（默认恒等）：text（保存形式）→ 展示文本派生——展示过程
-       的转换（掩码/格式化等呈现变换）。宿主派生类覆盖同名函数即生效
-       （QML 函数遮蔽语言机制，同 SpinBox 三钩子）——displayText 绑定调用
-       动态解析，text 变化时走覆盖实现。与 textFromEditText **语义独立**
-       （分属展示/收尾两个过程）——不假设互为逆；实现为互逆运算是可行
-       用法（宿主希望编辑呈现形式时——编辑层显示与展示一致），非契约。 */
     property var displayTextFromText: function (text) {
         return text;
     }
 
-    /* 插拔函数（默认恒等）：编辑文本 → text（保存形式）——收尾过程的
-       转换（规范化：Trim/去空格等；直接编辑值语义——编辑层显示保存
-       形式）。与 displayTextFromText **语义独立**（分属收尾/展示两个
-       过程）——不假设互为逆；实现为互逆（编辑呈现形式）是可行用法，
-       非契约。 */
     property var textFromEditText: function (text) {
         return text;
     }
 
-    /* Qool 扩展会话信号：进入编辑会话（编辑层已就绪，宿主可读 editText）/
-       结束编辑会话（编辑结束时刻宣告——发生在判定结果信号（accepted/
-       rejected）之前；接受时 text 已写入，宿主读值可靠）/
-       结束尝试判定结果（accepted：输入被接受且已写入 text；rejected：
-       输入被拒未写入——宿主提示）——仅输入内容与当前 text 不一致时触发
-       （一致 = 无处理，不宣告）。 */
     signal editingStarted
     signal editingFinished
     signal accepted
     signal rejected
 
-    /* 用户编辑事件（转发编辑层 textEdited——模拟官方 TextField 语义）：
-       编辑会话中用户修改文本即发——与收尾判定无关（转发而非独立判断）。 */
     signal textEdited
 
     // 点击聚焦/进编辑由 contentItem 的 TapHandler 实现（无需 activeFocusOnTap——
@@ -418,19 +275,14 @@ T.Control {
                 enabled: root.enabled
                 opacity: 0
                 visible: opacity > 0
-                selectByMouse: root.selectByMouse // 转发（官方 API 对齐——默认 true：selectAll 后键入覆盖的会话惯例）
+                selectByMouse: root.selectByMouse
                 padding: 0 // 与 display 对齐（默认 Text 无 padding）——双层切换无位移
                 // 点击聚焦已被外部管理（TapHandler 进编辑 / 装配
                 // forceActiveFocus）——编辑层自身不抢焦点（避免冲突）
                 activeFocusOnPress: false
-                // 文本行为属性转发（官方 API 对齐——外部可设置并被响应）
                 inputMask: root.inputMask
                 inputMethodHints: root.inputMethodHints
                 wrapMode: root.wrapMode
-                // 密码回显转发（官方 API 对齐）：编辑层真 TextInput 承担
-                // 密码显示/短暂明文/copy-cut 禁用（非 Normal 回显下内建
-                // 失效——官方防绕过）；passwordMaskDelay 为 undefined 时
-                // 编辑层 reset 到平台默认（透传）
                 echoMode: root.echoMode
                 passwordCharacter: root.passwordCharacter
                 passwordMaskDelay: root.passwordMaskDelay
@@ -461,7 +313,7 @@ T.Control {
                 // 编辑层直接移出场景，无帧边界）
                 BasicNumberBehavior on opacity {
                     // 显式绑控件自身（避免 Behavior 内部动态查 Style）
-                    enabled: root.animationEnabled
+                    enabled: root.Style.animationEnabled
                 }
             }
         }
@@ -485,9 +337,8 @@ T.Control {
         }
     }//contentItem
 
-    // displayItem 置入控件根（parent = root——与 contentItem 同父，GeoLocker
-    // 坐标系语义直观）；几何由 GeoLocker 统一锁定到内容容器（见下）。
-    // target 为绑定——宿主替换 displayItem 时新实例同样置入。
+    // displayItem 置入控件根（Binding target——宿主替换 displayItem 时新实例
+    // 同样置入；与 contentItem 同父，GeoLocker 坐标系语义直观）
     Binding {
         when: root.displayItem
         target: root.displayItem
@@ -495,18 +346,13 @@ T.Control {
         value: root
     }
 
-    // displayItem 几何统一锁定：GeoLocker 四维锁定到内容容器（x/y/width/
-    // height 跟随 root.contentItem——displayItem 与 contentItem 同父 root，
-    // 对齐的是内容区在其父坐标系中的位置，语义直观）。宿主覆写
-    // displayItem 无需声明几何（不再 anchors.fill——parent 已是 root，
-    // fill root 会铺满整个控件含背景区）。
+    // displayItem 几何统一锁定到内容容器（GeoLocker——宿主覆写无需声明
+    // 几何；parent 已是 root，anchors.fill 会铺满控件含背景区）
     GeoLocker {
         target: root.displayItem
         lockTo: root.contentItem
     }
 
-    // 编辑时隐藏展示层（不卸载——会话结束恢复，无重建开销；opacity 切换
-    // 为动画留位——Behavior 暂不加）
     Binding {
         target: root.displayItem
         property: "opacity"

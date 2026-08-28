@@ -3,8 +3,8 @@
 //
 // 结构：模板 handle（激活模板交互——点击跳转/拖动连续/键盘步进/倒置范围
 // 免费）+ Crystal 渐变轨道（background，静态）+ handle 内前景 Crystal
-// （hover/按下/值变化锁存展开动画）。轨道渐变与手柄采样色同源——换 color
-// 即换整条视觉。
+// （hover/按下/值变化锁存展开动画）。轨道渐变与手柄采样色同源——换 Style
+// 配色即换整条视觉。
 //
 // 完整契约（几何模型/交互反馈/属性/易误解点）见
 // docs/reference/Qool.Controls/Slider.md。
@@ -17,14 +17,6 @@ import Qool.Controls.Components
 
 T.Slider {
     id: root
-    // 配色模型（统一样式接口——控件不设实例色属性）：轨道渐变 from 端 =
-    // Style.buttonText（名字兼容 Qt palette，实际语义是 control 前景色）
-    // 75% 透明 → to 端 = Style.accent——control 前景 → accent 对照着色；
-    // 描边 = ThemeHQ.recommendForeground(Style.buttonText) 自动对比推荐。
-    // 宿主换色经 Style 附着传播（Style.accent / Style.buttonText，挂本实例
-    // 或任意祖先——附着传播粒度覆盖单实例到全局，无需控件级色接口）。
-    // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
 
     // 尺寸：标准 background 驱动——组件自写 implicit 公式（模板不自带），
     // background 显式 implicit（150×25，与 RangeSlider 统一）供计算；无
@@ -80,7 +72,7 @@ T.Slider {
             borderColor: root.visualFocus ? root.Style.highlight : ThemeHQ.recommendForeground(root.Style.buttonText)
             // 切换动画门控 animationEnabled（关闭时即时跳变）
             BasicColorBehavior on borderColor {
-                enabled: root.animationEnabled
+                enabled: root.Style.animationEnabled
             }
             fillGradient: LinearGradient {
                 // 渐变内联默认（不暴露 fillGradient 通道——换色经 Style 附着
@@ -132,7 +124,6 @@ T.Slider {
         y: root.horizontal ? root.topPadding + (root.availableHeight - height) / 2 : root.topPadding + root.visualPosition * (root.availableHeight - height)
 
         delta: pCtrl.shrinkSize
-        animationEnabled: root.animationEnabled
         expanded: hoverer.hovered || root.pressed || latch.active
 
         // 值变化锁存（TimerLatch，上游脉冲→电平）：valueChanged 是瞬时

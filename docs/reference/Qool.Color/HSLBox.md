@@ -42,9 +42,10 @@ architecture** aligned with the public `HSVWheel`.
 
 ## Properties
 
-- `animationEnabled : bool`
-  Animation switch (inherited from the parent chain — defaults to
-  `Style.animationEnabled`). Declared first (repository convention).
+Animation gating is not a declared property — the cursor expansion /
+position animation is driven by the `Style.animationEnabled` attached
+property, additionally gated by the seeding pass (`seedDone`) and the
+interaction state (`userInteracting`).
 
 - `colorAssistant : ColorAssistant` (default: `ColorAssistant {}`)
   The color object that is the single data source. Interaction writes
@@ -107,7 +108,7 @@ Column {
         colorAssistant: ca
         width: 200
         height: 200
-        animationEnabled: false
+        Style.animationEnabled: false
     }
 }
 ```

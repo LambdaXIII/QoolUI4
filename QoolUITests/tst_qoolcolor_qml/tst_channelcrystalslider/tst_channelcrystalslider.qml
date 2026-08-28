@@ -18,7 +18,7 @@ import Qool.Color
 // - channel 分派：不同 channel 的 value 写入落到对应通道；动态切换 channel
 //   后写入落到新通道
 //
-// 隔离：每个测试函数独立实例；动画统一关闭（animationEnabled: false）。
+// 隔离：每个测试函数独立实例；动画统一关闭（Style.animationEnabled: false）。
 // 断言第三参一律 ASCII 英文（QoolUITests/AGENTS 断言规范）。
 
 TestCase {
@@ -37,7 +37,7 @@ TestCase {
             id: slider
             width: 200
             height: 40
-            animationEnabled: false
+            Style.animationEnabled: false
             property color __assistantColor: "#ff0000"
             colorAssistant: ColorAssistant {
                 color: slider.__assistantColor

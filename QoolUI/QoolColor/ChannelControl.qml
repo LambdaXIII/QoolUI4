@@ -7,7 +7,6 @@ import Qool.Color
 Control {
     id: root
 
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
     property int channel: ColorHQ.HSLHue
     property ColorAssistant colorAssistant: ColorAssistant {
         color: Style.accent
@@ -26,7 +25,6 @@ Control {
             sourceComponent: ChannelBoxSlider {
                 objectName: "vslider"
 
-                animationEnabled: proxy.animationReallyEnabled
                 channel: root.channel
                 colorAssistant: root.colorAssistant
             }
@@ -39,7 +37,6 @@ Control {
             Layout.fillWidth: true
             orientation: root.orientation
             tagOnTop: true
-            animationEnabled: proxy.animationReallyEnabled
             channel: root.channel
             colorAssistant: root.colorAssistant
             readOnly: root.readOnly
@@ -50,7 +47,6 @@ Control {
             sourceComponent: ChannelCrystalSlider {
                 objectName: "hslider"
 
-                animationEnabled: proxy.animationReallyEnabled
                 channel: root.channel
                 colorAssistant: root.colorAssistant
             }
@@ -62,8 +58,6 @@ Control {
         id: proxy
         target: root.colorAssistant
         property: ColorHQ.channelNameF(root.channel)
-        property bool seedDone: false
-        readonly property bool animationReallyEnabled: proxy.seedDone && root.animationEnabled
     }
 
     Connections {
@@ -85,6 +79,5 @@ Control {
         const v = proxy.value;
         if (!Number.isNaN(v))
             root.value = v;
-        proxy.seedDone = true;
     }
 }

@@ -1,10 +1,6 @@
 import QtQuick
 import Qool
 
-// 在配色背景上随机轮换显示大字的装饰墙；refresh() 随机换词并施加
-// 随机偏移、缩放与 ±45° 旋转。详细契约见
-// docs/reference/Qool.Controls/PaPaWall.md。
-
 Item {
     id: root
 
@@ -54,10 +50,8 @@ Item {
         highWord.anchors.horizontalCenterOffset = h_offset;
 
         let words_factor = 1;
-        // 三模式语义：DependsOnFontSize（默认）= 1-2 倍随机缩放（尊重字体、
-        // 与边缘无关）；Larger/SmallerTextSize = 按较大/较小边缘缩放。
-        // 此前此处引用不存在的 RespectFontSize/LargetTextSize 枚举成员，
-        // 运行时 ReferenceError 使功能整体失效。
+        // 三模式：DependsOnFontSize（默认）= 1–2× 随机缩放（与边缘无关）；
+        // Larger/SmallerTextSize = 按较大/较小边缘缩放
         if (root.textSizeMode === PaPaWall.DependsOnFontSize) {
             words_factor = Math.random() + 1;
         } else {

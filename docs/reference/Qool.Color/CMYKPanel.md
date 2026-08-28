@@ -37,12 +37,6 @@ panel behavior, not a bug — do not "fix" it into a plain division.
   this object. Inject a shared `ColorAssistant` to keep multiple panels
   synchronized on the same color.
 
-- `animationEnabled : bool` (default: inherited from the parent, falling
-  back to `Style.animationEnabled`)
-  The animation master switch. Note that this panel does not forward the
-  property to its columns (each column picks it up through the parent
-  chain, matching v3); here it exists as API surface only.
-
 ## Signals
 
 This type defines no additional signals.

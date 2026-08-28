@@ -64,6 +64,15 @@ T.AbstractButton {
         }
     }
 
-    implicitWidth: leftPadding + implicitContentWidth + rightPadding
-    implicitHeight: topPadding + implicitContentHeight + bottomPadding
+    implicitWidth: {
+        const w1 = leftInset + implicitBackgroundWidth + rightInset;
+        const w2 = leftPadding + implicitContentWidth + rightPadding;
+        return Math.max(w1, w2);
+    }
+
+    implicitHeight: {
+        const h1 = topInset + implicitBackgroundHeight + bottomInset;
+        const h2 = topPadding + implicitContentHeight + bottomPadding;
+        return Math.max(h1, h2);
+    }
 }

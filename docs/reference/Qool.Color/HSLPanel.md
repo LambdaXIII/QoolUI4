@@ -58,10 +58,9 @@ size — the host decides the width, height and layout weights.
 - `showAlpha : bool` (default: `true`)
   Whether the alpha control is shown.
 
-- `animationEnabled : bool` (default: inherited from the parent, falling
-  back to `Style.animationEnabled`)
-  The animation master switch. When false, surface/control animations
-  complete instantly.
+Animation gating is not a declared property — surface/control animations
+follow the `Style.animationEnabled` attached property through the parent
+chain.
 
 ## Signals
 

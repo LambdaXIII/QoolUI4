@@ -40,7 +40,7 @@ TestCase {
         ChannelEdit {
             width: 200
             height: 30
-            animationEnabled: false
+            Style.animationEnabled: false
             colorAssistant: ColorAssistant {
                 color: "#ff0000"
             }
@@ -117,7 +117,7 @@ TestCase {
                 id: cce
                 width: 200
                 height: 30
-                animationEnabled: false
+                Style.animationEnabled: false
                 colorAssistant: asst
                 channel: ColorHQ.HSLLightness
             }

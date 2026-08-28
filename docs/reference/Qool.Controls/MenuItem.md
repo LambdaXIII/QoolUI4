@@ -13,10 +13,6 @@ is locked by a `ControlLockedCover` and its text turns `Style.negative`.
 
 ## Properties
 
-- `animationEnabled : bool`
-  Animation switch, propagated from the host (`parent?.animationEnabled`) and
-  falling back to `Style.animationEnabled`.
-
 ## Notes
 
 - Text color states: `enabled` + `highlighted` → `Style.accent`;

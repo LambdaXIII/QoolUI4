@@ -18,12 +18,19 @@ Qool 中提供了一套主题系统，具体组件为 `ThemeHQ` 和 `Style`。
 
 其中 `Qool.Style` 是 Attach 对象，可在各级组件中直接使用，它提供主题 token 支持，可同时作为数据源和样式接口使用。而且它在 QML 树中是**级联感知 & 子树覆盖**的。
 
-## animationEnabled
+- [SHOULD] QoolUI中的组件，对外的样式设定接口就是 `Style`
+- 但较低级别的样式仍然提供样式属性以保证为高级接口服务时提供灵活性
+- 这些样式属性 [SHOULD] 默认绑定至 Style
+
+### animationEnabled
 `animationEnabled` 不是字面意思，它的开关用于**取舍完整的视觉效果和较好的性能**，它:
 
-- [MUST] 必被视觉组件声明，除非父类已经包含它
-- [MUST] 在属性声明的第一位置（全项目统一）
-- [SHOULD] 其标准定义为：`property animationEnabled: parent?.animationEnabled ?? Style.animationEnabled`
+- [SHOULD NOT] 通常不作为独立属性被定义
+- [SHOULD] 需要响应此开关的地方，来源是 Style.animationEnabled
+- [MAY] 为了提高性能，可以考虑将子组件的开关绑定至 root.Style.animationEnabled
+- 极特殊情况可能使用 `parent?.animationEnabled ?? Style.animationEnabled` 兜底
+
+---
 
 ## 编写细节
 - `pragma ComponentBehavior: Bound`：按需编写（Bound = 组件内 id 绑定到实例），[MUST NOT]不得无脑使用

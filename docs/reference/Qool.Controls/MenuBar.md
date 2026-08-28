@@ -10,10 +10,6 @@ background is a `QoolBox` with the top-left corner cut by
 
 ## Properties
 
-- `animationEnabled : bool`
-  Animation switch, propagated from the host (`parent?.animationEnabled`) and
-  falling back to `Style.animationEnabled`. Forwarded to the item delegates.
-
 - `delegate : Component`
   The menu-bar item delegate, defaulting to `QoolMenuBarItem`.
 

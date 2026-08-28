@@ -151,11 +151,6 @@ editable controls (ComboBox, SpinBox, ...).
   inverses; implementing them as inverse operations is a valid usage (edit
   presentation form), not a contract.
 
-- `animationEnabled : bool`
-  Animation switch (inherited up the parent chain — defaults to
-  `Style.animationEnabled`): controls animations and high-cost style effects
-  ("high-performance mode vs full effects" switch).
-
 Inherited from `T.Control`: `font`, `padding`, `enabled`, `focus`,
 `activeFocusOnTab` (defaults to `!readOnly` here), `implicitWidth`/
 `implicitHeight` and all other `Control` members. See the Qt documentation

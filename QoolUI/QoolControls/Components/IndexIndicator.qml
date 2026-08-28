@@ -2,10 +2,7 @@ import QtQuick
 import QtQuick.Templates as T
 import QtQuick.Layouts
 
-// 指示当前索引的圆点指示器。单列/单行按 count 排布是刻意设计（此前
-// rows/columns 绑定 grid 尺寸形成自引用环，绑定循环求值不稳定）。详细
-// 契约见 docs/reference/Qool.Controls/IndexIndicator.md。
-
+//TODO: 重新进行美观性设计+性能设计
 T.Control {
     id: root
 
@@ -40,7 +37,6 @@ T.Control {
             //（裸 Grid 从内容区左上排布，ComboBox 拉满全高时圆点列偏上
             // ~3.5px）
             anchors.centerIn: parent
-            // flow: Grid.TopToBottom
             layoutDirection: root.mirrored ? Qt.LeftToRight : Qt.RightToLeft
 
             Repeater {
@@ -48,24 +44,21 @@ T.Control {
                 delegate: root.delegate
             }
 
-            // rows: Math.floor(grid.height / root.implicitDelegateHeight)
             columnSpacing: 1
             rowSpacing: 1
 
             Binding {
                 when: root.orientation === Qt.Vertical
                 grid.flow: Grid.TopToBottom
-                // 固定单列、按 count 向下排布。此前 rows 绑定 grid.height
-                // 形成自引用环（高度→行数→高度），绑定循环求值不稳定；
-                // 单列同时保证 delegate 行高自适应（等宽覆盖场景独立可用）。
+                // 固定单列、按 count 向下排布——避免 rows↔grid.height 自引用环
+                // （绑定循环求值不稳定）；单列保证 delegate 行高自适应
                 grid.columns: 1
             }
 
             Binding {
                 when: root.orientation === Qt.Horizontal
                 grid.flow: Grid.LeftToRight
-                // 固定单行、按 count 向右排布，理由同上（columns 绑定
-                // grid.width 自引用）。
+                // 固定单行、按 count 向右排布（columns↔grid.width 同理）
                 grid.rows: 1
             }
         }

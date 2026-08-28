@@ -12,9 +12,9 @@
 
 ## Key Decisions
 
-1. **光标 = 内联 CrystalCursor 接线**：HSVWheel 与 HSLBox 各自在 `InteractingArea` 内内联 `CrystalCursor`（`Qool.Controls.Components`）+ `CenterPlacer` + `TimerLatch` + `updateCursor()`——两处同构复制，不引用 `_private/ColorCursor`。定位经 `CenterPlacer centerx/centery = position(...)` 映射（事件驱动赋值，禁止绑定——CenterPlacer 回写破坏绑定）；`color = assistant.solidColor`；hover/交互/值变化「或」→ `expanded`；`animationEnabled = seedDone && root.animationEnabled && !area.userInteracting`（拖动中关动画）。
+1. **光标 = 内联 CrystalCursor 接线**：HSVWheel 与 HSLBox 各自在 `InteractingArea` 内内联 `CrystalCursor`（`Qool.Controls.Components`）+ `CenterPlacer` + `TimerLatch` + `updateCursor()`——两处同构复制，不引用 `_private/ColorCursor`。定位经 `CenterPlacer centerx/centery = position(...)` 映射（事件驱动赋值，禁止绑定——CenterPlacer 回写破坏绑定）；`color = assistant.solidColor`；hover/交互/值变化「或」→ `expanded`；`Style.animationEnabled = seedDone && root.Style.animationEnabled && !area.userInteracting`（拖动中关动画）。
 2. **HSLBox 公开化**：`Qool.Color/HSLBox.qml` 公开一级组件（`QML_FILES` 注册），单向链架构对齐 HSVWheel：
-   - 接口三属性 `hue`/`saturation`/`lightness`（双向）；`animationEnabled` 父链继承（声明序首位）；`colorAssistant` 默认自带。
+   - 接口三属性 `hue`/`saturation`/`lightness`（双向）；`colorAssistant` 默认自带。（`animationEnabled` 不声明为接口属性——光标动画门控经 `Style.animationEnabled`，见决策 1）
    - 交互写 `hslSaturationF`/`hslLightnessF`（hue 外部驱动；hue<0 无色相时先置 0——HSL 平面需要有效色相才能取色）。
    - 写入钳制两路：交互路径保留 HSLSurface 既有映射（sat = x/w、ltn = 1 − y/h）；接口路径 hue 越界（<0 或 NaN）不写/显示保持、hue>1 归一化取模（% 1）、sat/ltn clamp [0,1]。
    - 契约裁剪：无 defaultValue/reset、双击无定义。
@@ -35,3 +35,7 @@
 
 - 决策已定案（2026-08-23，grill-with-docs 讨论定稿）；2026-08-23 重构收尾按代码现状修订——「共用 ColorCursor」未落地，两表面改为各自内联 CrystalCursor 接线；`ColorCursor.qml` 保留为孤儿件（无消费者）。
 - 与 ADR-0014 关系：0014 定 HSVWheel 单向链/钳制/契约原则（仍有效），本 ADR 定「两表面光标内联接线」。
+
+## 更正记录
+
+- **2026-08-28（animationEnabled 迁移收口）**：决策 1 的 `root.animationEnabled` 接线与决策 2 的「`animationEnabled` 父链继承（声明序首位）」**废弃**——HSLBox/HSVWheel 不再声明该属性，光标动画门控改经 `Style.animationEnabled` 附加属性向下级联；「声明序首位」惯例已自 standards-qml.md 移除。决策 1/2 按现状修订。

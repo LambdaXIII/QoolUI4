@@ -6,20 +6,13 @@ import "_private"
 Item {
     id: root
 
-    // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
-    // 声明序首位（AGENTS MUST——统一声明序）。
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-    // 颜色数据源（默认自带——独立使用成立）。
     property ColorAssistant colorAssistant: ColorAssistant {}
-    // 三个通道值（双向属性接口——外部写 → assistant；assistant 变 → 回读）。
-    // 接口层写入各有钳制语义（见文件头写入钳制两路）。hue 恒合法（[0,1)，
-    // 越界正模归一化）；读方向直接回写（assistant 读数恒合法，无 -1）。
+    // 三个通道值：双向属性接口——外部写 → assistant；assistant 变 → 回读。
     property real hue: 0
     property real saturation: .5
     property real value: .5
 
     property real cursorSize: 22
-    // 交互态（转发 InteractingArea——宿主可读拖动态，光标展开/动画门控）。
     readonly property bool userInteracting: area.userInteracting
 
     // 几何重定位：尺寸变化后光标中心不再对应旧坐标（症状 5）——事件驱动
@@ -80,7 +73,7 @@ Item {
         CrystalCursor {
             id: cursor
             property bool seedDone: false
-            animationEnabled: seedDone && root.animationEnabled && !area.userInteracting
+            Style.animationEnabled: seedDone && root.Style.animationEnabled && !area.userInteracting
             width: root.cursorSize
             height: root.cursorSize
             objectName: "hsvWheelCursor"  // 测试定位锚（几何重定位断言）
@@ -96,13 +89,6 @@ Item {
             CenterPlacer {
                 id: centerer
             }
-
-            // BasicNumberBehavior on x {
-            //     enabled: cursor.animationEnabled
-            // }
-            // BasicNumberBehavior on y {
-            //     enabled: cursor.animationEnabled
-            // }
         }
     }
 
@@ -187,13 +173,10 @@ Item {
         }
     }
 
-    // 播种：从 assistant 现读真实通道值（assistant 观察已建立——此处
-    // completeCreate 后 target 绑定求值）。hue 越界（无色相）跳过——
-    // 保持默认 0（hue 0≡0 循环等价）；写回同值 → assistant 相等守卫无环。
     Component.onCompleted: {
         root.value = root.colorAssistant.hsvValueF;
         root.saturation = root.colorAssistant.hsvSaturationF;
-        root.hue = root.colorAssistant.hsvHueF;  // 恒合法（锚 ∈[0,1)）
+        root.hue = root.colorAssistant.hsvHueF;
         // 初始定位延迟到事件循环下一轮：本组件内 CenterPlacer 的初始 resync
         // 在本组件 onCompleted 之后才执行（QML 完成时序），立即调用时 centery
         // 恰为 0 与 position 目标同值 → 同值守卫吞掉首次写入 → 光标 y 错位；

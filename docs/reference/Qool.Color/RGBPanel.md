@@ -55,11 +55,9 @@ width equally through the grid layout.
   Whether the brightness channel column is shown (hidden by default,
   matching v3).
 
-- `animationEnabled : bool` (default: inherited from the parent, falling
-  back to `Style.animationEnabled`)
-  The animation master switch. Note that this panel does not forward the
-  property to its columns (each column picks it up through the parent
-  chain, matching v3); here it exists as API surface only.
+Animation gating is not a declared property — each column picks up the
+`Style.animationEnabled` attached property through the parent chain (the
+panel never forwarded the property to its columns; matching v3).
 
 ## Signals
 

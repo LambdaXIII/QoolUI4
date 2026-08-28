@@ -38,8 +38,8 @@ reset.
   alpha fade runs along the growth axis (leading edge strong → trailing
   edge faint, GradientStop positions 0.9 / 0.1). Fill color is a pure
   binding (zero animation); only the fill size animates
-  (`seedDone && animationEnabled && !pressed` — drag follows instantly,
-  non-interactive changes smooth).
+  (`seedDone && Style.animationEnabled && !pressed` — drag follows
+  instantly, non-interactive changes smooth).
 - **Border**: the `RectShape` background border is the identity
   `pCtrl.channelColor` (fill `Qt.alpha(channelColor, 0.1)` tint) with a
   just-moved highlight: any `value` write (drag, numeric edit, external
@@ -94,10 +94,10 @@ reset.
   color: Style.accent }`)
   The shared color object whose channel is controlled.
 
-- `animationEnabled : bool`
-  Animation switch (inherited up the parent chain — defaults to
-  `Style.animationEnabled`). When off, the fill size, fill color and border
-  transitions jump instantly.
+Animation gating is not a declared property — the fill size, fill color
+and border transitions are driven by the `Style.animationEnabled` attached
+property, additionally gated by the seeding pass (`seedDone`) and the
+pressed state.
 
 Inherited from `T.Slider`: `from`, `to`, `orientation`, `horizontal` /
 `vertical`, `pressed`, `position`, `visualPosition`, `stepSize`, `snapMode`,

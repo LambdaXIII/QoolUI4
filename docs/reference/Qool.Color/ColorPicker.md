@@ -36,10 +36,9 @@ The gradient surface is drawn with the Shapes path
   synchronization. This replaces the former `currentColor` / `defaultColor`
   pair (removed in the `color`-property rewrite).
 
-- `animationEnabled : bool` (default: inherited from the parent, falling
-  back to `Style.animationEnabled`)
-  The animation master switch for the hue surface fade and the transition
-  when not interacting.
+Animation gating is not a declared property — the hue surface fade and the
+non-interacting transition are driven by the `Style.animationEnabled`
+attached property.
 
 ## Signals
 

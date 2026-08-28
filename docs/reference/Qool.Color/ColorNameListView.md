@@ -40,9 +40,8 @@ to the internal `currentColor` (exposed read-only through
   `ColorHQ.colorName(currentColor)` — the nearest name of the selected
   color.
 
-- `animationEnabled : bool` (default: inherited from the parent, falling
-  back to `Style.animationEnabled`)
-  The animation master switch, forwarded to the delegate buttons.
+Animation gating is not a declared property — the delegate buttons read
+the `Style.animationEnabled` attached property directly.
 
 ## Signals
 

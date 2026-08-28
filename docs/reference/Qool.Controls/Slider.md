@@ -27,9 +27,9 @@ gradient sampled at the current value position, rendered opaque
   the shared delayed-scale base component (`Qool.Controls.Components`,
   ADR-0016): a `Crystal` diamond whose resting color samples the track
   gradient at the current value position, expanded by the three-state
-  feedback (hover / pressed / value-change latch via a `TimerLatch`) under
-  the `animationEnabled` gate, and contracted to `side − shrinkSize` when
-  none holds (the resting size hugs the shrunk track; expansion fills the
+  feedback (hover / pressed / value-change latch via a `TimerLatch`), and
+  contracted to `side − shrinkSize` when none holds (the resting size hugs
+  the shrunk track; expansion fills the
   track's normal size — the diamond pops out of the track but never exceeds
   the control). The handle carries a hover cursor
   (`Qt.SizeHorCursor` horizontal / `Qt.SizeVerCursor` vertical, gated by
@@ -81,15 +81,13 @@ tree).
 - The handle's resting color samples the gradient at the current value
   position, rendered opaque (not the track's 75% transparency).
 
-  the focus-highlight border transition (`BasicColorBehavior on
-  borderColor`) and the handle color transition (the inner
-  `CrystalCursor`'s `BasicColorBehavior`); when off, both switch instantly
-  instead of animating. The handle **scale** expansion is not gated — the
-  `CrystalCursor` resizer is hard-wired `animationEnabled: true`, so the
-  expand/contract always animates.
-  the handle expansion animation (`ItemAnimatedResizer`) and the
-  focus-highlight border transition; when off, both switch instantly
-  instead of animating.
+**Animation gating** — `Style.animationEnabled` gates the color
+transitions: the focus-highlight border transition (`BasicColorBehavior on
+borderColor`) and the handle color transition (the inner `CrystalCursor`'s
+`BasicColorBehavior`); when off, both switch instantly instead of
+animating. The handle **scale** expansion is not gated — the
+`CrystalCursor` resizer is hard-wired `animationEnabled: true`, so the
+expand/contract always animates.
 
 Inherited from `T.Slider`: `from`, `to`, `value`, `stepSize`, `snapMode`,
 `live`, `pressed`, `position`, `visualPosition`, `increase()`, `decrease()`,
@@ -160,7 +158,7 @@ Slider {
   and handle share the same resting height, stay center-aligned, and the
   handle's bevels hug the track's bevels), animated via `ItemAnimatedResizer`
   (the scale is always animated — the resizer is hard-wired
-  `animationEnabled: true`, independent of the `animationEnabled` gate).
+  `animationEnabled: true`, independent of the `Style.animationEnabled` gate).
   The hover cursor becomes
   a horizontal double-arrow (vertical: a vertical double-arrow) only when
   `enabled`. When `enabled` is off the
@@ -180,7 +178,7 @@ Slider {
   programmatic and window-switch focus do not light it), the default track
   border switches to `Style.highlight` and reverts to
   `ThemeHQ.recommendForeground(Style.buttonText)` on losing focus, animated
-  under the `animationEnabled` gate. The highlight
+  under the `Style.animationEnabled` gate. The highlight
   color is fixed (`Style.highlight`, no public property) and lives inside
   the default `background` only — replacing `background` removes it.
   Focusability stays at the Qt default — the control does not set

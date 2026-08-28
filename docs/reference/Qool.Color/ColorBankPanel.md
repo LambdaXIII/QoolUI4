@@ -71,9 +71,8 @@ was removed). The host picks one of three approaches:
   writes the cell color back into it. Bind or sync this property to share
   the current color with the rest of the UI (see the usage example).
 
-- `animationEnabled : bool` (default: inherited from the parent, falling
-  back to `Style.animationEnabled`)
-  The animation master switch; forwarded to the cell visuals.
+Animation gating is not a declared property — the cell visuals read the
+`Style.animationEnabled` attached property directly.
 
 ## Signals
 

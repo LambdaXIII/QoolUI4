@@ -39,12 +39,6 @@ range).
   The gradient sample color at the range's middle (`position` 0.5).
 - `lowColor : color` (default `Style.green`)
   The gradient sample color at the range's minimum (`position` 0).
-- `animationEnabled : bool`
-  Animation gate — inherited up the parent chain (the host can turn it off
-  uniformly on a parent), falling back to `Style.animationEnabled`. Gates
-  the focus-highlight border transition; when off, the switch is instant
-  instead of animated.
-
 Inherited from `T.Dial`: `from`, `to`, `value`, `stepSize`, `wrap`,
 `position`, `angle`, `startAngle`, `endAngle`, `inputMode`, `live`,
 `pressed`, `hovered`, `increase()`, `decrease()`, `moved()`, `wrapped()`,
@@ -114,7 +108,7 @@ Dial {
   programmatic and window-switch focus do not light it), the default
   background border switches to `Style.highlight` and reverts to
   `Style.buttonText` on losing focus, animated under the
-  `animationEnabled` gate. The highlight color is fixed
+  `Style.animationEnabled` gate. The highlight color is fixed
   (`Style.highlight`, no public property) and lives inside the default
   `background` only — replacing `background` removes it. Focusability
   stays at the Qt default — the control does not set `activeFocusOnTab`;

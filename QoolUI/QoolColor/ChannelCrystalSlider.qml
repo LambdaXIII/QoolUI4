@@ -10,8 +10,6 @@ import "_private"
 T.Slider {
     id: root
 
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-
     property int channel: ColorHQ.HSLHue
     property ColorAssistant colorAssistant: ColorAssistant {
         color: Style.accent
@@ -19,7 +17,6 @@ T.Slider {
 
     orientation: Qt.Horizontal
 
-    // 默认 1（hue 1≡0 循环等价）；实际值由 onCompleted 播种。
     value: 1
 
     implicitWidth: leftInset + implicitBackgroundWidth + rightInset
@@ -63,7 +60,7 @@ T.Slider {
                     channel: root.channel
                     mirrored: root.mirrored
                 }
-            }//simple
+            }
             Component {
                 id: realGradient
                 ChannelGradient {
@@ -74,7 +71,7 @@ T.Slider {
                     mirrored: root.mirrored
                     toColor: root.colorAssistant.color
                 }
-            }//simple
+            }
             Component {
                 id: rainbowGradient
                 RainbowGradient {
@@ -83,10 +80,10 @@ T.Slider {
                     horizontal: root.horizontal
                     mirrored: root.mirrored
                 }
-            }//rainbow
+            }
 
         }
-    }//background
+    }
 
     handle: CrystalCursor {
         id: cursor
@@ -123,7 +120,7 @@ T.Slider {
         }
 
         delta: pCtrl.shrinkSize
-        animationEnabled: pCtrl.animationReallyEnabled
+        Style.animationEnabled: pCtrl.animationReallyEnabled
         color: root.colorAssistant.solidColor
         expanded: hoverer.hovered || root.pressed || crystalValueLatch.active
         enabled: root.enabled
@@ -139,7 +136,7 @@ T.Slider {
             id: hoverer
             enabled: root.enabled
         }
-    }//handle
+    }
 
     SmartObject {
         id: pCtrl
@@ -149,7 +146,7 @@ T.Slider {
         // readonly property bool isHue: root.channel === ColorHQ.HSVHue || root.channel === ColorHQ.HSLHue
         property bool seedDone: false
 
-        readonly property bool animationReallyEnabled: seedDone && root.animationEnabled && !root.pressed
+        readonly property bool animationReallyEnabled: seedDone && root.Style.animationEnabled && !root.pressed
 
         PropertyProxy {
             id: proxy

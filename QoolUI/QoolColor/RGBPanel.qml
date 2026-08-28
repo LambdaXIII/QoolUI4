@@ -6,8 +6,6 @@ import Qool.Color
 GridLayout {
     id: root
 
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-
     property bool showAlpha: false
     property bool showBrightness: false
 

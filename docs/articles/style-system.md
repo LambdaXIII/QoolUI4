@@ -113,7 +113,7 @@ Style 的可写属性（60+ 属性 × 3 组）构成与宿主的稳定契约面�
 常量里的同名键是遗留数据，typed 属性通道不消费它。设置它只沿
 附加属性树**向下**传播（`set_animationEnabled` 遍历 attachedChildren
 递归覆盖），无向上回退。语义是「高性能模式 vs 完整效果」开关，
-控件应置于自定义属性首位声明（AGENTS.md MUST）。
+与其它样式属性平等：需要响应处直接读 `Style.animationEnabled`。
 
 ## 持久化分层（宿主注入）
 

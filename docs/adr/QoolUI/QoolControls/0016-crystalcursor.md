@@ -23,7 +23,7 @@ Color 模块光标/手柄重构中，三个光标/手柄存在**必然重复的�
    - `Qool.Controls.Slider` handle：内联 CrystalCursor——x/y 由模板 visualPosition 驱动、color = 采样色（ColorMapper colorAt）、expanded = hover‖pressed‖值变化锁存「或」。
    - `ColorChannelSlider` handle：内联 CrystalCursor——x/y 由 displayValue 驱动、color = solidColor、expanded = 三态或。
    - `_private/ColorChannelSliderHandle.qml` 删除（唯一消费方 ColorChannelSlider 改内联，独立文件无存在必要）。
-9. **契约裁剪**：无 defaultValue/reset、双击无定义；`animationEnabled` 持有于基准件（父链继承，回退 `Style.animationEnabled`），但**仅门控颜色过渡**（内部 `BasicColorBehavior on color/borderColor`）——尺寸缩放恒动画（见决策 3），消费方自行门控位置动画（如 `BasicNumberBehavior`）等自身行为。
+9. **契约裁剪**：无 defaultValue/reset、双击无定义；动画门控读 `Style.animationEnabled`（基准件不声明该属性，内部 `BasicColorBehavior on color/borderColor` 直接 `enabled: Style.animationEnabled`），**仅门控颜色过渡**——尺寸缩放恒动画（见决策 3），消费方自行门控位置动画（如 `BasicNumberBehavior`）等自身行为。
 
 ## Consequences
 
@@ -38,3 +38,7 @@ Color 模块光标/手柄重构中，三个光标/手柄存在**必然重复的�
 
 - 决策已定案（2026-08-23，grill-with-docs 讨论定稿）；实现按本 ADR 执行。
 - 与 ADR-0013（ColorChannelSlider 高定）/0014（HSVWheel 单向链）同属 Color 迁移主线：0013 定一维通道滑块、0014 定二维取色表面、本 ADR 定共享光标基底；与 ADR-0015（CenterPlacer）为依赖关系。
+
+## 更正记录
+
+- **2026-08-28（animationEnabled 迁移收口）**：决策 9 的「`animationEnabled` 持有于基准件（父链继承）」**废弃**——CrystalCursor 不再声明该属性，颜色过渡门控改直接读 `Style.animationEnabled`；「声明序首位」惯例已自 standards-qml.md 移除。决策 9 按现状修订；决策 3（缩放恒动画，resizer 硬编码 `animationEnabled: true`）仍有效。

@@ -9,9 +9,9 @@ vertical is a `ChannelBoxSlider` above a vertical
 the short label at the bottom).
 
 `ChannelControl` bundles the properties the two children share
-(`channel`, `colorAssistant`, `animationEnabled`, `value`, `readOnly`) on
-one `Control`, so a host configures one component instead of pairing an edit
-and a slider per channel.
+(`channel`, `colorAssistant`, `value`, `readOnly`) on one `Control`, so a
+host configures one component instead of pairing an edit and a slider per
+channel.
 
 - **Bundling invariant**: `colorAssistant` is a **single shared instance**
   declared by the control and forwarded to both children. The edit and the
@@ -34,12 +34,9 @@ and a slider per channel.
 
 ## Properties
 
-- `animationEnabled : bool`
-  Animation switch (inherited up the parent chain — defaults to
-  `Style.animationEnabled`). Declared first (repository convention) and
-  forwarded **explicitly** to both children — a child's `parent` is the
-  content layout, not the control, so the parent-chain lookup alone cannot
-  reach it.
+Animation gating is not a declared property — the children read the
+`Style.animationEnabled` attached property directly (per the module
+standard).
 
 - `channel : int` (default: `ColorHQ.HSLHue`)
   The channel to control on `colorAssistant` — one of the `ColorHQ`

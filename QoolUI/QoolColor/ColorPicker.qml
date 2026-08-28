@@ -7,8 +7,6 @@ import "_private"
 Item {
     id: root
 
-    // 动画总开关：v4 惯例，取自父级或附加 Style。
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
     property color color: "white"
 
     implicitHeight: 50
@@ -58,7 +56,7 @@ Item {
             border.width: 0
             opacity: pControl.altPressed ? 0 : 1
             BasicNumberBehavior on opacity {
-                enabled: root.animationEnabled
+                enabled: root.Style.animationEnabled
             }
             gradient: Gradient {
                 orientation: Gradient.Vertical
@@ -75,8 +73,8 @@ Item {
                     color: "black"
                 }
             }
-        } //valueBox
-    } //hueBox
+        }
+    }
 
     Rectangle {
         id: borderBox
@@ -85,7 +83,7 @@ Item {
         border.width: 1
         color: "transparent"
         border.color: pControl.foregroundColor
-    } //borderBox
+    }
 
     InteractingArea {
         id: mouseArea
@@ -105,7 +103,7 @@ Item {
         onPressAndHold: set_color()
         onPositionChanged: set_color()
         onEntered: root.forceActiveFocus()
-    } //mouseArea
+    }
 
     states: [
         State {
@@ -119,7 +117,7 @@ Item {
 
     transitions: [
         Transition {
-            enabled: root.animationEnabled && (!mouseArea.userInteracting)
+            enabled: root.Style.animationEnabled && (!mouseArea.userInteracting)
             NumberAnimation {
                 property: "opacity"
                 duration: Style.movementDuration

@@ -8,7 +8,6 @@ import "_private"
 
 B.AbstractButton {
     id: root
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
 
     property color color: "white"
 
@@ -32,14 +31,13 @@ B.AbstractButton {
         opacity: root.hovered ? 1 : 0
         visible: opacity > 0
         BasicNumberBehavior on opacity {
-            enabled: root.animationEnabled
+            enabled: root.Style.animationEnabled
         }
     }
 
     padding: 4
     contentItem: ColorNameButtonSurface {
         id: surface
-        animationEnabled: root.animationEnabled
         colorName: root.text
         color: root.color
         highlighted: root.checkable && root.checked
@@ -57,5 +55,5 @@ B.AbstractButton {
             value: Style.negative
             when: !root.enabled
         }
-    }//contentItem
+    }
 }

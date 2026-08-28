@@ -10,10 +10,6 @@ bottom underline (`HorizontalBar` filling to `percentage` 1 on
 
 ## Properties
 
-- `animationEnabled : bool`
-  Animation switch, propagated from the host (`parent?.animationEnabled`) and
-  falling back to `Style.animationEnabled`.
-
 ## Notes
 
 - Text color states: `enabled` + `highlighted` → `Style.highlight`;

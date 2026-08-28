@@ -26,9 +26,8 @@ swatch and name are rendered by the internal
 - `color : color` (default: `"white"`)
   The swatch color; the button name and contrast derive from it.
 
-- `animationEnabled : bool` (default: inherited from the parent, falling
-  back to `Style.animationEnabled`)
-  The animation master switch, forwarded to the surface.
+Animation gating is not a declared property — the surface transitions
+read the `Style.animationEnabled` attached property directly.
 
 Inherited from `AbstractButton`: `text`, `font`, `checkable`, `checked`,
 `down`, `hovered`, `enabled`, plus all `AbstractButton` members. See the

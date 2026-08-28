@@ -21,7 +21,7 @@ Color 模块迁移适配中，旧 `_private/HSVWheel.qml` 是 v3 迁移的临时
 4. **三值双向接口**：`hue`/`saturation`/`value` 暴露为公开双向属性（外部写 → assistant；assistant 变 → 回读）。`value` 用户操控不写（交互只写 hue/sat）、仅驱动圆盘绘制（压暗层 alpha = 1 - value）——value 由外部通道行/联动驱动。
 5. **光标 = 内联 CrystalCursor + CenterPlacer（单向派生定位）**：取色光标是值的可视化——在 `InteractingArea` 内内联 `CrystalCursor`（`Qool.Controls.Components`）+ `CenterPlacer` + `TimerLatch`（不引用独立 `_private/ColorCursor` 组合件，两表面各自内联接线，见 ADR-0017）。实现用 `Qool.Crystal`（弃旧 `ColorCrystal`）；外观反馈结构借鉴 `ColorChannelSliderHandle`（Crystal + 三态展开 hover/userInteracting/值变化锁存 + TimerLatch + HoverHandler + 菱形掩码）；定位仅中心定位（`centerx/centery = position(hue,sat)` 事件驱动赋值，去 x/y↔centerx/centery 双同步环；绑定会被 CenterPlacer 回写破坏，禁止绑定）。两光标（slider handle / surface cursor）同族，维护心智负担小。契约裁剪：无 defaultValue/reset；`delta = Qore.bound(4, size×0.35, 15)`。
 6. **HSVSurface 保持 `_private` 不动**：圆盘绘制（色相环 ConicalGradient + 饱和径向 + 明度压暗三层叠加）、映射数学（hueAt/saturationAt/position/check_point + 圆几何）原样复用，仅新增 `darkAlpha` 只读派生契约点（压暗层 alpha 锚，Shape 内 ShapePath 不可经 children 遍历）。
-7. **交互契约裁剪**：无 `defaultValue`/`reset`、双击无定义行为。`animationEnabled` 父链继承（`parent?.animationEnabled ?? Style.animationEnabled`，声明序首位——AGENTS MUST）。
+7. **交互契约裁剪**：无 `defaultValue`/`reset`、双击无定义行为。`animationEnabled` 不声明为属性——光标动画门控经 `Style.animationEnabled` 附加属性向下级联（`Style.animationEnabled: seedDone && root.Style.animationEnabled && !area.userInteracting`）。
 
 ## Consequences
 
@@ -41,3 +41,4 @@ Color 模块迁移适配中，旧 `_private/HSVWheel.qml` 是 v3 迁移的临时
 
 - **2026-08-23（grill-with-docs）**：第 5 条「光标」更正——原定 `_private/HSVWheelCursor` 为 HSVWheel 私有光标，**更正为共用 `_private/ColorCursor`**（HSVWheel 与 HSLBox 共用，取色光标本是一回事，不拆分）。连带：`_private/HSVWheelCursor.qml` 删除（逻辑并入 ColorCursor）；`HSVWheel.qml` 改引用 `ColorCursor`；旧 `_private/ColorCursor.qml`（双模式 + 旧 ColorCrystal + hoveredSize）删除，`ColorCrystal.qml` 连带删除（唯一消费方消失）。实现落地见后续提交。
 - **2026-08-23（重构收尾）**：共用 `_private/ColorCursor` **未落地**——HSVWheel/HSLBox 实际各自内联 CrystalCursor + CenterPlacer + TimerLatch + `updateCursor()` 接线（两处复制）；`ColorCursor.qml` 为孤儿件（无实例化点）。第 5 条按代码现状修订为内联接线（见 ADR-0017 定案）。
+- **2026-08-28（animationEnabled 迁移收口）**：决策 7 的「`animationEnabled` 父链继承 + 声明序首位」**废弃**——HSVWheel 不再声明该属性，光标动画门控统一读 `Style.animationEnabled`（附加属性向下级联）；「声明序首位」惯例已自 standards-qml.md 移除。决策 7 按现状修订。

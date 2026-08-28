@@ -10,8 +10,11 @@ Qool.Controls 提供 QoolUI 控件系列：
 - 选择控件：`ComboBox`（可编辑下拉框）、`Slider` / `RangeSlider`
   （范围滑块）、`Dial`（圆形转盘）。
 - 进度与滚动：`ProgressBar`、`ScrollIndicator`、`ScrollView`。
-- 基础件：`Button`、`QoolBGBox`（八边形背景盒）、`IndexIndicator`、
-  `PaPaWall`（并行竖条动画墙）。
+- 基础件：`Button`、`ToolButton`、`ClickableText`（带下划线反馈的可点击
+  文本）、`QoolBGBox`（八边形背景盒）、`IndexIndicator`、`PaPaWall`
+  （并行竖条动画墙）。
+- Action 实例化：`ActionInstantiator`（把 `Action` 列表实例化为
+  `ClickableText` 条目）。
 - 菜单：`MenuBar`（菜单栏）、`Menu`（弹出菜单）、`MenuItem`、
   `MenuSeparator`（可带文字的分隔线）、`MenuBanner`（菜单横幅）。
 
@@ -20,7 +23,9 @@ Qool.Controls 提供 QoolUI 控件系列：
 
 ## 组件参考
 
+- [ActionInstantiator](ActionInstantiator.md)
 - [Button](Button.md)
+- [ClickableText](ClickableText.md)
 - [ComboBox](ComboBox.md)
 - [Dial](Dial.md)
 - [EditableText](EditableText.md)
@@ -39,4 +44,5 @@ Qool.Controls 提供 QoolUI 控件系列：
 - [ScrollView](ScrollView.md)
 - [Slider](Slider.md)
 - [SpinBox](SpinBox.md)
+- [ToolButton](ToolButton.md)
 - [BasicTextArea](BasicTextArea.md)

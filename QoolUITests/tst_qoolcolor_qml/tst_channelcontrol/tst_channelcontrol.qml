@@ -28,7 +28,7 @@ TestCase {
         id: ctrlComp
 
         ChannelControl {
-            animationEnabled: false
+            Style.animationEnabled: false
         }
     }
 

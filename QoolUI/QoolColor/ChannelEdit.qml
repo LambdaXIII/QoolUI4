@@ -8,7 +8,6 @@ import "_private"
 Control {
     id: root
 
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
     property int channel: ColorHQ.HSLHue
 
     property ColorAssistant colorAssistant: ColorAssistant {
@@ -28,16 +27,13 @@ Control {
     contentItem: Item {
         id: contentBox
 
-        implicitWidth: root.horizontal ? tag.implicitWidth + editor.width + 5
-                                       : Math.max(tag.implicitWidth, editor.width)
-        implicitHeight: root.horizontal ? Math.max(tag.implicitHeight, editor.implicitHeight)
-                                        : tag.implicitHeight + editor.implicitHeight
+        implicitWidth: root.horizontal ? tag.implicitWidth + editor.width + 5 : Math.max(tag.implicitWidth, editor.width)
+        implicitHeight: root.horizontal ? Math.max(tag.implicitHeight, editor.implicitHeight) : tag.implicitHeight + editor.implicitHeight
 
         ColorNumText {
             id: tag
             objectName: "tag"
-            text: root.vertical ? ColorHQ.channelTagShort(root.channel)
-                                : ColorHQ.channelTag(root.channel)
+            text: root.vertical ? ColorHQ.channelTagShort(root.channel) : ColorHQ.channelTag(root.channel)
             color: Style.buttonText
             horizontalAlignment: Text.AlignHCenter
         }
@@ -45,7 +41,7 @@ Control {
         EditableText {
             id: editor
             objectName: "editor"
-            animationEnabled: false
+            Style.animationEnabled: false
             readOnly: root.readOnly
             font: PixelFont.normal
 
@@ -56,22 +52,18 @@ Control {
 
             // displayItem 是 alias 子对象，PropertyChanges 无法寻址——此处唯一形态绑定。
             displayItem: ColorNumText {
-                horizontalAlignment: root.horizontal
-                                     ? (root.mirrored ? Text.AlignLeft
-                                                      : Text.AlignRight)
-                                     : Text.AlignHCenter
+                horizontalAlignment: root.horizontal ? (root.mirrored ? Text.AlignLeft : Text.AlignRight) : Text.AlignHCenter
             }
 
             textFromEditText: function (s) {
-                let v = ColorHQ.parseChannelNumberFloat(s)
+                let v = ColorHQ.parseChannelNumberFloat(s);
                 if (Number.isNaN(v))
-                    v = proxy.value
+                    v = proxy.value;
                 else
-                    root.value = v
-                return ColorHQ.formatChannelNumberFloat(v)
+                    root.value = v;
+                return ColorHQ.formatChannelNumberFloat(v);
             }
 
-            // 4 字符锁宽（最长显示形态 '.xxx'）。
             width: textMetrics.advanceWidth("0000")
         }
 
@@ -132,7 +124,7 @@ Control {
                 }
             }
         ]
-    }//contentItem
+    }
 
     FontMetrics {
         id: textMetrics
@@ -148,10 +140,10 @@ Control {
     // 手动同步（绑定求值早于 proxy 观察建立，不依赖引擎求值序）；编辑基准
     // 仅非编辑态写（用户输入优先）。播种于 onCompleted。
     function update_display() {
-        let s = ColorHQ.formatChannelNumberFloat(proxy.value)
-        editor.displayItem.text = s
+        let s = ColorHQ.formatChannelNumberFloat(proxy.value);
+        editor.displayItem.text = s;
         if (!editor.editing)
-            editor.text = s
+            editor.text = s;
     }
 
     // 双向同步：读 assistant → root.value + update_display；写编辑收尾/外部
@@ -160,13 +152,13 @@ Control {
         target: proxy
         function onValueChanged() {
             root.value = proxy.value;
-            update_display()
+            update_display();
         }
     }
     Connections {
         target: root
         function onValueChanged() {
-            proxy.value = root.value
+            proxy.value = root.value;
         }
     }
 

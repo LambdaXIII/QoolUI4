@@ -20,7 +20,7 @@ import Qool.Color
 //   （test_geometryRelocation，症状 5）
 // - 无 defaultValue/reset、双击无定义行为（交互契约裁剪）
 //
-// 隔离：每个测试函数独立实例；动画统一关闭（animationEnabled: false）。
+// 隔离：每个测试函数独立实例；动画统一关闭（Style.animationEnabled: false）。
 // 真实鼠标交互（拖动/圆外点击）不在自动化范围（offscreen 不注入合成事件，
 // 与 tst_colorchannelslider 同策略）——交互映射以几何断言 + 人工运行验证
 // 覆盖。
@@ -44,7 +44,7 @@ TestCase {
             id: wheel
             width: 200
             height: 200
-            animationEnabled: false
+            Style.animationEnabled: false
             property color __assistantColor: "#ff0000"
             colorAssistant: ColorAssistant {
                 color: wheel.__assistantColor

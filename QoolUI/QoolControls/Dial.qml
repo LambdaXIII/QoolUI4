@@ -6,9 +6,6 @@ import "_private"
 T.Dial {
     id: root
 
-    // 动画门控——父链继承（宿主可在父级统一关闭），回退 Style.animationEnabled。
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-
     property color highColor: Style.red
     property color midColor: Style.yellow
     property color lowColor: Style.green
@@ -62,7 +59,7 @@ T.Dial {
         border.color: root.visualFocus ? root.Style.highlight : root.Style.buttonText
         // 切换动画门控 animationEnabled（关闭时即时跳变）
         BasicColorBehavior on border.color {
-            enabled: root.animationEnabled
+            enabled: root.Style.animationEnabled
         }
         color: root.Style.controlBackgroundColor
         border.width: root.Style.controlBorderWidth

@@ -7,6 +7,7 @@ import Qool
 AbstractButton {
     id: root
 
+    // 动画开关接口，供宿主覆盖；未覆盖时兜底父级或 Style.animationEnabled
     property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
     property real buttonSpacing: 8
     property real windowCutSize: Style.windowCutSize

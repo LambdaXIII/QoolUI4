@@ -9,7 +9,6 @@ import "_private"
 T.Slider {
     id: root
 
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
     property int channel: ColorHQ.HSLHue
     property ColorAssistant colorAssistant: ColorAssistant {
         color: Style.accent
@@ -17,7 +16,6 @@ T.Slider {
 
     orientation: Qt.Vertical
 
-    // 默认 1（hue 1≡0 循环等价）；实际值由 onCompleted 播种。
     value: 1
 
     implicitWidth: leftInset + implicitBackgroundWidth + rightInset
@@ -69,9 +67,9 @@ T.Slider {
                     mirrored: root.mirrored
                     alpha: .25
                 }
-            }//rainbow
-        }//rectShape
-    }//background
+            }
+        }
+    }
 
     // 透明手柄：交互由模板控制层承担，栏上点击跳转。
     handle: Item {
@@ -209,16 +207,16 @@ T.Slider {
                     position: 0.9
                     color: fillHost.endColor
                 }
-            }//fillGradient
-        }//filler
-    }//contentItem
+            }
+        }
+    }
 
     SmartObject {
         id: pCtrl
         readonly property real side: root.horizontal ? root.availableHeight : root.availableWidth
         readonly property bool isHue: root.channel === ColorHQ.HSVHue || root.channel === ColorHQ.HSLHue
         property bool seedDone: false
-        readonly property bool animationReallyEnabled: seedDone && root.animationEnabled && !root.pressed
+        readonly property bool animationReallyEnabled: seedDone && root.Style.animationEnabled && !root.pressed
 
         // 最小高度＝轨道圆角直径（position=0 时保留极小渐变条）。
         readonly property real fillMin: trackShape.radius * 2

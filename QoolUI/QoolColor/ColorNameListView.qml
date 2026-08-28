@@ -7,8 +7,6 @@ import Qool.Color
 ListView {
     id: root
 
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-
     property string category: "DEFAULT"
 
     readonly property string currentColorName: ColorHQ.colorName(pCtrl.currentColor)

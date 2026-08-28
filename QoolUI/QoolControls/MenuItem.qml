@@ -7,8 +7,6 @@ import Qool.Controls.Components
 Quick.MenuItem {
     id: root
 
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-
     font.pixelSize: Style.controlTextSize - 2
 
     arrow: HalfCrystal {
@@ -65,7 +63,7 @@ Quick.MenuItem {
         }//foreground
 
         BasicNumberBehavior on percentage {
-            enabled: root.animationEnabled
+            enabled: root.Style.animationEnabled
         }
     }//background
 

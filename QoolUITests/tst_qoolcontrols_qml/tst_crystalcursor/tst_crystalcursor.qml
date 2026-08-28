@@ -17,7 +17,7 @@ import Qool.Controls.Components
 // - 长方形根：菱形内切 min 边居中（fullSize = 短边）
 // - 根 footprint 恒定：根尺寸不随缩放变化（定位锚稳定）
 //
-// 隔离策略：每测试函数独立实例；动画统一关闭（animationEnabled: false——
+// 隔离策略：每测试函数独立实例；动画统一关闭（Style.animationEnabled: false——
 // 尺寸跳变即时）；delay 设小值加速窗口落定。
 // 命中域（菱形 contains）不经鼠标事件自动化（offscreen 不注入合成事件）——
 // Crystal 自身掩码契约由 tst_crystal 覆盖。
@@ -34,7 +34,7 @@ TestCase {
         CrystalCursor {
             width: 40
             height: 40
-            animationEnabled: false
+            Style.animationEnabled: false
             delay: 20
             delta: 10
         }

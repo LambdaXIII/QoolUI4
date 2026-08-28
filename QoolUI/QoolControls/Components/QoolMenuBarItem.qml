@@ -5,8 +5,6 @@ import Qool
 Quick.MenuBarItem {
     id: root
 
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-
     font.pixelSize: Style.controlTextSize
 
     QtObject {
@@ -20,7 +18,7 @@ Quick.MenuBarItem {
         }
 
         BasicColorBehavior on textColor {
-            enabled: root.animationEnabled
+            enabled: root.Style.animationEnabled
             easing.type: Easing.InOutQuart
         }
     }
@@ -56,7 +54,7 @@ Quick.MenuBarItem {
         }//foreground
 
         BasicNumberBehavior on percentage {
-            enabled: root.animationEnabled
+            enabled: root.Style.animationEnabled
         }
     }//background
 }

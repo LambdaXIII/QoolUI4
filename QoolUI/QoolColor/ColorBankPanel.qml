@@ -10,9 +10,6 @@ import "_private"
 GridLayout {
     id: root
 
-    // 动画总开关：父级属性 → Style 传播，传给槽位按钮。
-    property bool animationEnabled: parent?.animationEnabled ?? Style.animationEnabled
-
     property int cells: 24
 
     property ColorBank colorBank: ColorBank {}
@@ -67,7 +64,7 @@ GridLayout {
 
                 onClicked: root.color = cellControl.color
             }
-        }//previewer
+        }
     }
 
     Repeater {

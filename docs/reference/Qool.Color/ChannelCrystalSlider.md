@@ -45,9 +45,9 @@ plug-points and can be replaced wholesale.
   the drag follows instantly, external changes animate), expanded by the
   three-state feedback (hover / pressed / value-change `TimerLatch`),
   `delta = pCtrl.shrinkSize`. The scale animation is always on (the resizer
-  is hard-wired `animationEnabled: true`); the `animationEnabled` gate
-  covers the position smoothing (`BasicNumberBehavior on displayValue`) and
-  the color transitions. A `NoButton` `MouseArea` supplies the direction
+  is hard-wired `Style.animationEnabled: true`); the `Style.animationEnabled`
+  gate covers the position smoothing (`BasicNumberBehavior on displayValue`)
+  and the color transitions. A `NoButton` `MouseArea` supplies the direction
   cursor (`Qt.SizeHorCursor` / `Qt.SizeVerCursor`), gated by `enabled`.
   Replacing `handle` with any `Item` remains the template plug-point.
 
@@ -68,11 +68,11 @@ plug-points and can be replaced wholesale.
   color: Style.accent }`)
   The shared color object whose channel is controlled.
 
-- `animationEnabled : bool`
-  Animation switch (inherited up the parent chain — defaults to
-  `Style.animationEnabled`). When off, the handle position smoothing, handle
-  color and stroke transitions jump instantly. The handle **scale**
-  expansion is not gated (the resizer is always animated).
+Animation gating is not a declared property — the handle position
+smoothing and color/stroke transitions are driven by the
+`Style.animationEnabled` attached property, additionally gated by the
+seeding pass (`seedDone`) and the pressed state. The handle **scale**
+expansion is not gated (the resizer is always animated).
 
 Inherited from `T.Slider`: `from`, `to`, `orientation`, `horizontal` /
 `vertical`, `pressed`, `position`, `visualPosition`, `stepSize`, `snapMode`,
