@@ -59,6 +59,12 @@ ListModel {
     }
 
     ListElement {
+        title: qsTr("消息总线")
+        note: qsTr("ChatRoom / Beeper / MessageLogger——房间、终端与记录器")
+        page: "Page_Chat.qml"
+    }
+
+    ListElement {
         title: qsTr("试炼场")
         note: qsTr("测试空间")
         page: "Page_Playground.qml"

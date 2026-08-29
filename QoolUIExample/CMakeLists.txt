@@ -58,6 +58,10 @@ qt_add_qml_module(appQoolUIExample
   QML_FILES pages/components/QoolTipPanel.qml
   QML_FILES MainWindowToolBar.qml
   QML_FILES pages/components/SectionBar.qml
+  QML_FILES pages/Page_Chat.qml
+  QML_FILES pages/components/ChatSender.qml
+  QML_FILES pages/components/ChannelTerminalCard.qml
+  QML_FILES pages/components/ChatLogView.qml
   QML_FILES pages/components/ExampleBasicButton.qml
   QML_FILES pages/Page_QoolFile.qml
   QML_FILES pages/Page_InputControls.qml
