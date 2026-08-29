@@ -42,6 +42,7 @@ BasicPage {
                     }
                     anchors.left: parent.left
                     anchors.bottom: parent.bottom
+                    anchors.right: parent.right
                     anchors.margins: 10
                     horizontalAlignment: Text.AlignLeft
                     color: ThemeHQ.recommendForeground(value)

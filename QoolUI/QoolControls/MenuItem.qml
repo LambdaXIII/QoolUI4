@@ -40,7 +40,7 @@ Quick.MenuItem {
         font: root.font
         color: pCtrl.fgColor
         horizontalAlignment: Text.AlignLeft
-        leftPadding: root.textPadding
+        leftPadding: Math.max(root.textPadding, root.implicitTextPadding, indicator.visible ? indicator.width : 0) //Temprory fix
         rightPadding: root.arrow.visible ? root.arrow.width : 0
     }
 
