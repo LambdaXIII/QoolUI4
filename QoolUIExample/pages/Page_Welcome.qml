@@ -1,15 +1,48 @@
 import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Qool
+import Qool.Controls
 
 BasicPage {
     id: root
 
     title: qsTr("欢迎")
-    note: qsTr(
-              "欢迎使用 QoolUI 4! 一个月前，乐元素也首曝了一款基于UE5研发的大世界都市ARPG：《白银之城》，从官方展示的11分钟实机画面来看，该作的完成度已经相当高了。而在上述两款产品曝光之前，都市开放世界作为国内新兴细分游戏品类的“扛把子”，早已有多款二游新品严阵以待：网易雷火《无限大》，完美世界《异环》，诗悦《望月》，不论是投入力度、重视程度，还是从PV及测试所展示的产品质量来看，一众厂商俨然已将这个品类视作开放世界赛道下一世代的“入场券”。")
+    note: qsTr("欢迎使用 QoolUI 4! ")
 
-    Rectangle {
-        anchors.fill: parent
-        color: root.Style.accent
-    }
+    ColumnLayout {
+        anchors.centerIn: parent
+
+        Image {
+            source: "qrc:/qoolui/assets/qoolui_color.svg"
+            fillMode: Image.PreserveAspectFit
+            Layout.alignment: Qt.AlignHCenter
+            Layout.preferredHeight: 250
+        }
+
+        Item {
+            Layout.preferredHeight: 50
+        }
+
+        Text {
+            text: qsTr("欢迎探索来到酷酷的世界")
+            font.pixelSize: 36
+            color: Style.text
+            horizontalAlignment: Text.AlignHCenter
+            Layout.alignment: Qt.AlignHCenter
+        }
+
+        Item {
+            Layout.preferredHeight: 150
+        }
+
+        LinkButton {
+            text: "LambdaXIII/QoolUI4"
+            url: "https://github.com/LambdaXIII/QoolUI4"
+            Layout.alignment: Qt.AlignHCenter
+        }
+        Item {
+            Layout.preferredHeight: 100
+        }
+    }//column
 }

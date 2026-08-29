@@ -33,6 +33,7 @@ qt_add_qml_module(QoolControls
     QML_FILES MenuBar.qml
     QML_FILES MenuSeparator.qml
     QML_FILES MenuBanner.qml
+    QML_FILES LinkButton.qml
 )
 
 

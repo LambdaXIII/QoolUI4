@@ -34,8 +34,15 @@ BasicControl {
         property string note
     }
 
-    label: ColumnLayout {
-        spacing: 0
+    titleItem: ColumnLayout {
+        spacing: 2
+        anchors {
+            top: parent.top
+            right: parent.right
+            margins: root.backgroundSettings.borderWidth + 2
+        }
+        width: root.width - (root.backgroundSettings.borderWidth + 2) * 2 - root.backgroundSettings.cutSpaceOnLeft
+
         BasicBigTitleText {
             text: pCtrl.title
             Layout.alignment: Qt.AlignRight
@@ -46,10 +53,10 @@ BasicControl {
             text: pCtrl.note
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             Layout.alignment: Qt.AlignRight
-            Layout.maximumWidth: root.contentItem.width
+            Layout.maximumWidth: parent.width
             rightPadding: 6
         }
-    }
+    }//titleItem
 
     contentPadding: 6
     contentItem: Flickable {

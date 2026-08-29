@@ -9,44 +9,14 @@ import "pages"
 
 QoolWindow {
     id: root
-    objectName: "XXXX"
-    width: 1024
-    height: 720
+    width: 1280
+    height: 960
     visible: true
     title: qsTr("Hello, Qool World!")
 
     Style.theme: "midnight"
 
     toolBar: MainWindowToolBar {}
-
-    // QoolWindowHud {
-    //     window: root
-    // }
-
-    header: Row {
-        ToolButton {
-            text: "CHANGE"
-            onClicked: {
-                root.Style.theme = root.Style.theme === "system" ? "midnight" :
-                                                                   "system";
-                pageFrame.Style.theme = root.Style.theme;
-            }
-        }
-        ToolButton {
-            text: "DEBUG"
-            onClicked: {
-                console.log(root.backgroundSettings.borderColor,
-                            root.Style.active.accent, root.Style.inactive.accent,
-                            root.Style.disabled.accent);
-            }
-        }
-        ToolButton {
-            text: "DEBUG2"
-            onClicked: {
-                root.Style.dumpInfo();
-            }
-        }
-    }
 
     content: SplitView {
         PageListView {

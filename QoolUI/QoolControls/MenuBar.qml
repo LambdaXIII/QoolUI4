@@ -6,21 +6,23 @@ import Qool
 Quick.MenuBar {
     id: root
 
+    property QoolBoxSettings backgroundSettings: QoolBoxSettings {
+        cutSizeTL: root.Style.menuCutSize
+        fillColor: root.Style.controlBackgroundColor
+        borderWidth: 1
+        borderColor: root.Style.controlBorderColor
+    }
+
     background: QoolBox {
-        settings {
-            cutSizeTL: Style.menuCutSize
-            fillColor: Style.controlBackgroundColor
-            borderWidth: 1
-            borderColor: Style.controlBorderColor
-        }
+        settings: root.backgroundSettings
         implicitHeight: 5
         implicitWidth: 5
     }
 
-    topPadding: 1
-    bottomPadding: 1
-    leftPadding: Style.menuCutSize
-    rightPadding: 1
+    topPadding: root.backgroundSettings.borderWidth
+    bottomPadding: root.backgroundSettings.borderWidth
+    leftPadding: (background?.settings?.cutSpaceOnLeft ?? 0) + root.backgroundSettings.borderWidth
+    rightPadding: root.backgroundSettings.borderWidth
 
     delegate: QoolMenuBarItem {}
 }
