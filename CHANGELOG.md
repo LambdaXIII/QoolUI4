@@ -1,5 +1,17 @@
 [最新变更]
 
+### 变更（debug-facility-rework，QoolCommon 调试设施重写——C++20 函数化 + 宏门控分离）
+
+- **架构分层**：入口宏（`xDebug`/`xInfo`/`xWarning`/`xCritical` + Q 后缀）保留为永久 API——只有宏能在调用点做条件编译与 `this` 注入；实现全部函数化收进 `QOOL_NS::debug`，宏名仅转发。25 个消费文件约 150 调用点零改动
+- **Release 门控**：`XDBG_NO_DEBUG`/`XDBG_NO_INFO`/`XDBG_NO_WARNING` 抹除对应入口（同时尊重 `QT_NO_DEBUG_OUTPUT`/`QT_NO_WARNING_OUTPUT`）；抹除态走 `NoDebug` sink 吞掉整条 `<<` 链，包装器不被遍历；`xCritical` 永远编译
+- **`xCritical` 修正**：通道由 `qDebug()` 改 `qCritical()`（旧版严重级别信息丢失）；`xFatal` 删除（`qFatal` 无法流式、伪装致命，零调用点）
+- **`xDBGList` 泛化**：`Range1D` concept 支持 QList/QSet/QStringList/std::vector/std::set/std::array 等全部一维容器；字符串容器（QString/QByteArray/char 派生值类型）显式排除；输出标签统一 `[List:N]`
+- **`xDBGMap` 泛化**：`MapLike` concept 接受 pair-range 或 `asKeyValueRange()` 视图（兼容 Qt 6.11 迭代器行为）；键值宽度保留 16/30 对齐；`[Map:N]` 标签
+- **Q 后缀 QGADGET 支持**：实现改模板按 `staticMetaObject` 取类名（旧 QObject 转型收窄了 Theme/Message 等元对象类型的适用面）
+- **`xDBGVariant` 修正**：类型名统一走兜底回退（null 值 `???`）、删死色彩宏
+- **颜色宏保留**：67 处字面量相邻拼接调用点依赖宏展开，30+ 颜色宏不动
+- **新增 `docs/reference/QoolCommon/debug.md`**：入口宏门控矩阵、NoDebug sink、包装器 concept 门禁、Qt 6.11 迭代器事实、Release 启用方式（未在 CMake 自动接线，由构建配置决定）
+
 ### 变更（channel-anchor，ColorAssistant 通道锚定——灰轴塌缩根治，ADR-0020）
 
 - **通道锚定模型**（ColorAssistant）：RGBA 单权威 + hue/hsvSaturation/hslSaturation 三锚定坐标；锚更新三分支——显式写总是落锚、有表达跟随真实换算、无表达冻结；hue=-1 从公开契约退役（无彩判定改 `valueF==0 ∨ saturationF==0`）
