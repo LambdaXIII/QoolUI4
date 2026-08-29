@@ -267,9 +267,9 @@ QVariantMap XMLThemeLoaderImpl::solve_values(
           << xDBGYellow << cycle << xDBGReset << "cycles. Yay!";
   if (! processing_keys.isEmpty())
     xWarning << xDBGToken("XMLThemeLoader")
-             << "Some keys were not processed after" << xDBGYellow
-             << cycle << xDBGReset << "cycles:" << xDBGRed
-             << processing_keys << xDBGReset;
+             << "Some keys were not processed after" << xDBGYellow << cycle
+             << xDBGReset << "cycles:" << xDBGRed << xDBGList(processing_keys)
+             << xDBGReset;
 
   for (auto iter = listProperties.constBegin();
     iter != listProperties.constEnd();
