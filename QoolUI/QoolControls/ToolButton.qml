@@ -27,7 +27,10 @@ T.ToolButton {
         verticalAlignment: Text.AlignVCenter
     }
 
-    padding: 2
+    topPadding: 2
+    bottomPadding: 2
+    leftPadding: 4
+    rightPadding: 4
 
     background: QoolBox {
         settings: root.backgroundSettings

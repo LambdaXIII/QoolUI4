@@ -2,41 +2,91 @@ import QtQuick
 import QtQuick.Layouts
 import Qool
 import Qool.Chat
+import Qool.Controls
 import Qool.Controls.Components
 
-BasicButton {
+QoolButton {
     id: root
     required property ChatRoom chatRoom
-    required property string channel      // 角色名==属性名，引擎填充
+    required property string channel
     required property int index
+    required property string name
+    required property color channelColor
     readonly property alias logger: messageLogger
-    checkable: true
 
-    backgroundSettings.borderColor: checked ? Style.accent : Style.controlBorderColor
+    title: name
+    Style.highlight: channelColor
+    Style.papaWords: [name]
 
     // Beeper 默认属性 apps 挂载 MessageLogger——刻意展示的标准惯用法
     Beeper {
         id: beeper
         chatRoom: root.chatRoom
         channel: root.channel
-        apps: MessageLogger {
+        MessageLogger {
             id: messageLogger
             maxLength: 500    // 显式放宽（模块默认 50），issue 05 验收项
         }
+        onMessageRecieved: msg => msgText.text = msg.content
     }
 
-    // Beeper 不缓存消息：最新消息取 logger 尾元素，计数取 length
-    readonly property string latestMessage: messageLogger.length > 0
-        ? messageLogger.messages[messageLogger.length - 1].content : ""
-    // "__ALL__" 是 MsgChannel::ALL 的符号化结果，显示层还原为 ALL
-    readonly property string displayChannel: beeper.channel === "__ALL__"
-        ? "ALL" : beeper.channel
+    contentItem: BasicControlText {
+        id: msgText
+        color: root.channelColor
+        font.pixelSize: 28
+        padding: 8
+        BasicTextBehavior on text {}
+        BasicDecorativeText {
+            text: qsTr("消息计数:%1条").arg(messageLogger.length)
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+        }
+        HorizontalBar {
+            id: box
+            anchors.fill: parent
+            color: root.channelColor
+            alignment: Qt.AlignRight
+            percentage: 0
+            opacity: 0
+            z: -1
+        }
+        onTextChanged: boxAni.start()
+    }//contentItem
 
-    contentItem: ColumnLayout {
-        spacing: 4
-        Text { text: root.displayChannel; font.pixelSize: Style.controlTitleTextSize; color: Style.text; elide: Text.ElideRight; Layout.fillWidth: true }
-        Text { text: root.latestMessage; font.pixelSize: Style.controlTextSize; color: Style.text; elide: Text.ElideRight; Layout.fillWidth: true }
-        Text { text: qsTr("记录 %1 条").arg(messageLogger.length); font.pixelSize: Style.controlTextSize; color: Style.text }
-    }
-    // 不设 enabled 开关：所有 Beeper 常驻工作（issue 05）
+    SequentialAnimation {
+        id: boxAni
+        alwaysRunToEnd: true
+        ParallelAnimation {
+            NumberAnimation {
+                target: box
+                property: "percentage"
+                from: 0
+                to: 1
+                duration: 400
+                easing.type: Easing.InOutCubic
+            }
+            SequentialAnimation {
+                NumberAnimation {
+                    target: box
+                    property: "opacity"
+                    from: 0
+                    to: .5
+                    duration: 100
+                    easing.type: Easing.InQuad
+                }
+                NumberAnimation {
+                    target: box
+                    property: "opacity"
+                    to: 0
+                    duration: 300
+                    easing.type: Easing.OutQuad
+                }
+            }
+        }
+        PropertyAction {
+            target: box
+            property: "percentage"
+            value: 0
+        }
+    }//boxAni
 }

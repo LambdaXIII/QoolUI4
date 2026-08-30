@@ -6,9 +6,29 @@ import Qool.Controls.Components
 
 BasicControl {
     id: root
-    required property var messages      // 外部传入：某卡的 logger.messages
+    property var messages: []
     readonly property bool empty: !messages || messages.length === 0
     title: qsTr("消息日志")
+
+    Component {
+        id: msgRow
+        RowLayout {
+            width: ListView.view.width
+            spacing: 8
+            Text {
+                text: Qt.formatDateTime(modelData.created, "hh:mm:ss")
+                font.pixelSize: Style.controlTextSize
+                color: Style.accent
+            }
+            Text {
+                text: modelData.content
+                font.pixelSize: Style.controlTextSize
+                color: Style.text
+                elide: Text.ElideRight
+                Layout.fillWidth: true
+            }
+        }
+    }
 
     contentItem: Item {
         implicitHeight: 340
@@ -20,20 +40,15 @@ BasicControl {
             spacing: 2
             model: root.messages
             ScrollIndicator.vertical: ScrollIndicator {}
-            // 本 delegate 无 required property → modelData context 注入正常（02 的根因结论）
-            delegate: RowLayout {
-                width: ListView.view.width
-                spacing: 8
-                Text { text: Qt.formatDateTime(modelData.created, "hh:mm:ss"); font.pixelSize: Style.controlTextSize; color: Style.accent }
-                Text { text: modelData.content; font.pixelSize: Style.controlTextSize; color: Style.text; elide: Text.ElideRight; Layout.fillWidth: true }
-            }
-            onCountChanged: if (count > 0) positionViewAtEnd()
+            delegate: msgRow
+            onCountChanged: if (count > 0)
+                positionViewAtEnd()
         }
         Text {
             anchors.centerIn: parent
             visible: root.empty
-            text: qsTr("暂无消息")
-            color: Style.text
+            text: qsTr("点击频道终端展示消息历史")
+            color: Style.infoColor
             opacity: 0.5
         }
     }
