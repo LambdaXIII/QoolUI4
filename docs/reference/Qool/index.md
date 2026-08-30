@@ -16,7 +16,6 @@ Qool 是 QoolUI 的核心模块，提供：
 
 ## 组件参考
 
-- [BasicLabel](BasicLabel.md)
 - [BasicRotationBehavior](BasicRotationBehavior.md)
 - [CenterPlacer](CenterPlacer.md)
 - [Crystal](Crystal.md)

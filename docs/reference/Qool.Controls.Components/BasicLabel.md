@@ -46,7 +46,8 @@ This type defines no additional methods (inherits all methods from
 
 ```qml
 import QtQuick
-import Qool
+import Qool              // Style
+import Qool.Controls.Components
 
 BasicLabel {
     text: "Open"

@@ -16,6 +16,7 @@ Qool.Controls.Components 提供 QoolUI 控件系列的基础原件：
 
 ## 组件参考
 
+- [BasicLabel](BasicLabel.md)
 - [BasicTextField](BasicTextField.md)
 - [CrystalCursor](CrystalCursor.md)
 - [QoolMenuBarItem](QoolMenuBarItem.md)

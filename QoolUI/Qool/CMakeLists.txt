@@ -89,7 +89,6 @@ qt_add_qml_module(
             OctagonCurvedInternalShapePath.qml
             Floater.qml
             CutSizeBinding.qml
-            BasicLabel.qml
             TimerLatch.qml
             ItemAnimatedResizer.qml
             GeoLocker.qml

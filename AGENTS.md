@@ -215,7 +215,7 @@ QoolUI（板块）中，以多个 **模块** 组织各个组件。
 ### 编译
 
 - [SHOULD] 当有 qt-creator 相关的工具、MCP可用时，应尽量使用它们，这样可以直接使用用户的开发环境，沟通、行动更高效，不可用时才使用脚本构建通道
-- 自主进行编译时，阅读 [编译指南](docs/agents/standards-build.md)
+- 自主组织编译工作前，[MUST]一定要阅读 [编译指南](docs/agents/standards-build.md)
 
 ### 单元测试
 
