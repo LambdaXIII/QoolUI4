@@ -18,6 +18,11 @@ qt_add_resources(qool_themeloader_default "qool_themes"
   PREFIX "/qoolui/themes"
   FILES
     midnight.xml
+    catppuccin.xml
+    nord.xml
+    tokyonight.xml
+    onelight.xml
+    gruvboxlight.xml
 )
 
 # target_sources(qool_themeloader_default)

@@ -18,6 +18,18 @@ QoolWindow {
 
     toolBar: MainWindowToolBar {}
 
+    header: Flow {
+        Repeater {
+            model: ThemeHQ.themes
+            delegate: ToolButton {
+                text: modelData
+                checkable: true
+                checked: root.Style.theme === modelData
+                onClicked: root.Style.theme = modelData
+            }
+        }
+    }
+
     content: SplitView {
         PageListView {
             id: tocView

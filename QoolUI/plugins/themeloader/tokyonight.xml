@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<qooltheme name="tokyonight">
+    <author>qoolui</author>
+    <description>A Qool Tokyo Night theme</description>
+    <constants>
+
+        <stringlist property="papaWords">
+            <string>Pa !</string>
+            <string>啪！</string>
+            <string>啪!!!</string>
+            <string>啪啪!</string>
+            <string>啪啪啪</string>
+        </stringlist>
+
+        <number property="instantDuration" value="100"/>
+        <number property="transitionDuration" value="200"/>
+        <number property="movementDuration" value="400"/>
+
+        <number property="menuCutSize" copy="buttonCutSize"/>
+        <number property="buttonCutSize" value="5"/>
+
+        <number property="textSize" value="16" />
+        <number property="titleTextSize" copy="textSize" add="4"/>
+        <number property="toolTipTextSize" copy="textSize" add="-6"/>
+        <number property="importantTextSize" copy="textSize" multiply="2"/>
+        <number property="decorativeTextSize" copy="toolTipTextSize"/>
+
+        <number property="controlCutSize" value="10"/>
+        <number property="controlBorderWidth" value="1"/>
+        <number property="controlTitleTextSize" copy="controlTextSize" add="-4" />
+        <number property="controlTextSize" copy="textSize" add="-2"/>
+
+        <number property="windowCutSize" value="35"/>
+        <number property="windowElementSpacing" value="5"/>
+        <number property="windowEdgeSpacing" value="5"/>
+        <number property="windowTitleTextSize" value="14"/>
+        <number property="windowBorderWidth" value="1"/>
+
+        <number property="dialogCutSize" copy="controlCutSize"/>
+        <number property="dialogBorderWidth" copy="controlBorderWidth"/>
+
+        <!-- Default Colors (Tokyo Night) -->
+        <color property="white" value="#C0CAF5"/>
+        <color property="silver" value="#A9B1D6"/>
+        <color property="grey" value="#414868"/>
+        <color property="black" value="#1A1B26"/>
+        <color property="red" value="#F7768E"/>
+        <color property="maroon" value="#DB4B4B"/>
+        <color property="yellow" value="#E0AF68"/>
+        <color property="olive" value="#9ECE6A"/>
+        <color property="lime" value="#9ECE6A"/>
+        <color property="green" value="#9ECE6A"/>
+
+        <color property="aqua" value="#73DACA"/>
+        <color property="cyan" value="#7DCFFF"/>
+        <color property="teal" value="#73DACA"/>
+        <color property="blue" value="#7AA2F7"/>
+        <color property="navy" value="#3D59A1"/>
+        <color property="fuchsia" value="#BB9AF7"/>
+        <color property="purple" value="#BB9AF7"/>
+        <color property="orange" value="#FF9E64"/>
+        <color property="brown" value="#FF9E64"/>
+        <color property="pink" value="#BB9AF7"/>
+
+        <!-- Main Styles -->
+        <color property="positive" copy="green"/>
+        <color property="negative" copy="red"/>
+        <color property="warning" copy="pink"/>
+
+        <color property="controlBackgroundColor" copy="grey"/>
+        <color property="controlBorderColor" value="#A9B1D6"/>
+        <color property="infoColor" copy="cyan"/>
+    </constants>
+    <active>
+        <!--Active group is a must-have-->
+        <!--Tone Colors-->
+        <color property="accent" copy="blue"/>
+        <!-- BG Colors-->
+        <color property="light" value="#C0CAF5"/>
+        <color property="midlight" copy="light" darker="1.2"/>
+        <color property="dark" value="#1A1B26"/>
+        <color property="mid" copy="dark" darker="1.2"/>
+        <color property="shadow" copy="dark" darker="1.5"/>
+        <!-- Highlights-->
+        <color property="highlight" value="#BB9AF7" />
+        <color property="highlightedText" copy="dark" />
+        <color property="link" value="#7DCFFF"/>
+        <color property="linkVisited" value="#BB9AF7" />
+        <!--UI Control Colors-->
+        <color property="text" value= "#C0CAF5"/>
+        <color property="base" value="#414868"/>
+        <color property="alternateBase" copy="base" lighter="1.1"/>
+        <color property="window" copy="dark" />
+        <color property="windowText" copy="text"/>
+        <color property="button" copy="base"/>
+        <color property="buttonText" copy="text"/>
+        <color property="placeholderText" copy="text" darker="1.5"/>
+        <color property="toolTipBase" value= "#292E42"/>
+        <color property="toolTipText" copy="text"/>
+    </active>
+    <inactive>
+        <!--Can contain different vlues only-->
+        <color property="accent" copy="buttonText"/>
+    </inactive>
+    <disabled>
+        <!--Can contain different vlues only-->
+        <color property="accent" copy="negative"/>
+        <color property="text" copy="text" darker="1.8"/>
+        <color property="windowText" copy="text" darker="1.8"/>
+        <color property="buttonText" copy="text" darker="1.8"/>
+        <color property="controlBorderColor" copy="negative"/>
+    </disabled>
+</qooltheme>
