@@ -216,6 +216,7 @@ add_subdirectory(core)
 add_subdirectory(tst_qool_qml)
 add_subdirectory(tst_qoolcolor_qml)
 add_subdirectory(tst_qoolcontrols_qml)
+add_subdirectory(tst_qooldialogs_qml)
 
 # ---- 聚合运行 target：cmake --build build --target run-tests ----
 # 注册表驱动：COMMAND 从 QOOLUI_TEST_TARGETS 自动生成——新增测试（经

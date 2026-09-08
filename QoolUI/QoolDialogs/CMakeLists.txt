@@ -9,6 +9,8 @@ qt_add_qml_module(
 
   QML_FILES DialogSurface.qml
   QML_FILES QoolDialog.qml
+  QML_FILES DialogButtonBox.qml
+  QML_FILES DialogButton.qml
 )
 
 set_target_properties(

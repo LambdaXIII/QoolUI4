@@ -197,6 +197,29 @@ BasicPage {
                 }
             }
         }
+
+        // —— QoolDialog + DialogButtonBox：标准按钮排（语义皮肤）——
+        QoolControl {
+            title: qsTr("QoolDialog 按钮排")
+            width: 360
+
+            contentItem: Column {
+                spacing: 8
+
+                Button {
+                    text: qsTr("打开带按钮排的对话框")
+                    onClicked: buttonBoxDialog.open()
+                }
+
+                Text {
+                    text: qsTr("Ok/Discard/Cancel 经 delegate 自动携带语义色；onAccepted/onRejected 两行接线。")
+                    color: root.Style.text
+                    wrapMode: Text.Wrap
+                    width: parent.width
+                }
+            }
+        }
+
     }
 
     // —— Popup overlay ——
@@ -300,6 +323,30 @@ BasicPage {
                 text: qsTr("关闭")
                 onClicked: modalityDialog.reject()
             }
+        }
+    }
+
+    // —— QoolDialog + DialogButtonBox：footer 按钮排两行接线 ——
+    QoolDialog {
+        id: buttonBoxDialog
+        title: qsTr("保存更改？")
+        onAccepted: root.lastResult = qsTr("accepted")
+        onRejected: root.lastResult = qsTr("rejected")
+
+        content: Column {
+            spacing: 12
+
+            Text {
+                text: qsTr("有未保存的更改。")
+                color: root.Style.windowText
+            }
+        }
+
+        footer: DialogButtonBox {
+            standardButtons: DialogButtonBox.Ok | DialogButtonBox.Discard
+                             | DialogButtonBox.Cancel
+            onAccepted: buttonBoxDialog.accept()
+            onRejected: buttonBoxDialog.reject()
         }
     }
 }

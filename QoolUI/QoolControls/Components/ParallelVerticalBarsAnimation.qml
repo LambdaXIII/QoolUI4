@@ -1,6 +1,9 @@
 import QtQuick
-import QtQuick.Controls
 import Qool
+
+// 注：勿 import QtQuick.Controls——本文件不使用任何 Controls 类型；冗余
+// import 会在运行时拉起样式插件依赖链（Fusion/Windows），QML 测试通道
+// 无 Qt bin PATH 时直接加载失败（tst_dialogbutton 实案）。
 
 NumberAnimation {
     id: root

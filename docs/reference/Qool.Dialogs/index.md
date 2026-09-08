@@ -6,12 +6,19 @@
   `Qt.Dialog | Qt.CustomizeWindowHint | Qt.FramelessWindowHint`，color
   transparent）。标题走 `Window.title`（surface 跟随），内容走
   `header`/`content`/`footer` 三槽。开箱即得窗口模态对话框。
-- `DialogSurface`：容器无关的对话框表面件——QoolBGBox 背景（dialog 主题
-  token）+ title 槽 + header/content/footer 三槽。overlay 场景由使用者自拼
-  `Popup + DialogSurface`。
+- `DialogButtonBox`：T.DialogButtonBox 的特化换皮件（裸名导出，接口完全兼容）
+  ——机制（standardButtons、role 信号、平台排序、本地化、默认按钮）全部继承
+  Template 层，只换 Qool 皮肤：padding 0、spacing 4、无 background、
+  delegate 为 DialogButton。对盒内已存在的按钮零干预。
+- `DialogButton`：对话域语义按钮——role 驱动语义色（Accept/Yes → positive、
+  Destructive → negative，边框+填充；语义填充上前景走
+  `ThemeHQ.recommendForeground`）。delegate 产物与自拼用法同一身体。
 
 
 ## 组件参考
 
 - [QoolDialog](QoolDialog.md)
 - [DialogSurface](DialogSurface.md)
+- [DialogButtonBox](DialogButtonBox.md)
+- [DialogButton](DialogButton.md)
+
