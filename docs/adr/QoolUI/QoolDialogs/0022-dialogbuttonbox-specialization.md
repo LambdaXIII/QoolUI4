@@ -27,7 +27,7 @@ Qool.Dialogs 的按钮盒 **DialogButtonBox 继承 QtQuick.Controls 的 T.Dialog
 
 ## Key Decisions
 
-1. **DialogButtonBox = T.DialogButtonBox 子类 + 裸名**：接口合同内特化。壳内仅 `padding: 0`（盒外间距归 DialogSurface 槽位）、`spacing: Style.windowElementSpacing`（与 surface 槽间距同源；Template 默认 0 会让按钮贴接；提新 token 不在本刀范围）、无 background、`delegate: DialogButton`；alignment 保持 T 默认（填满）。
+1. **DialogButtonBox = T.DialogButtonBox 子类 + 裸名**：接口合同内特化。壳内仅 `padding: 0`（盒外间距归 DialogSurface 槽位）、`spacing: 4`（**字面量，暂定**——按钮族行内密度不上主题 token：窗口元素间距与按钮间距是两码事，且不改主题系统；ToolButton padding 字面量 2/4 先例）、无 background、`delegate: DialogButton`；alignment 保持 T 默认（填满）。
 2. **DialogButton = 自包含语义按钮**（ToolButton 手法：单文件皮肤，T 根 + QoolBoxSettings/QoolBox 背景 + 三张 cover + 居中文字 contentItem——照 ToolButton 的裸 Text 先例，不照搬 Button 族 BasicButtonText（右对齐），不跨模块继承 QML 组件）：role 经限定名 attached `T.DialogButtonBox.buttonRole` 读取；AcceptRole/YesRole → `positive`、DestructiveRole → `negative`、其余 role 不映射；语义落**边框+填充**两面；语义填充上的前景对比走 `ThemeHQ.recommendForeground`（Q_INVOKABLE static，Crystal.qml/Slider.qml 先例；Style 单例不承载该机制）。强调 cover 的 opacity 源为 `highlighted || hovered`（T.Button 的 highlighted 无默认 hover 绑定，聚合两源共用一条强调通道，承载 hover 反馈与默认按钮强调）。自拼用法（`DialogButton { T.DialogButtonBox.buttonRole: ... }`）与 delegate 用法同一身体。
 3. **接线纯接口驱动，QoolDialog 零新增**：使用者在 footer 显式 `onAccepted: root.accept()` 等。判例：**接口一致的组件不允许行为分叉**——marker/扫描接线判死的本质理由不是脏，是它让同接口的组件在同一槽位行为不同。
 4. **归属 Qool.Dialogs**：role 语义是对话域词汇；DialogSurface「容器无关仍归 Dialogs」的先例延续；依赖方向无环（Dialogs 已依赖 Qool.Controls.Components，反身不依赖）。
@@ -45,3 +45,5 @@ Qool.Dialogs 的按钮盒 **DialogButtonBox 继承 QtQuick.Controls 的 T.Dialog
 
 已定案（2026-09-08，grilling 讨论收敛）。实现待 spec。
 修订（2026-09-08，spec 发布后 rehearsal 修正）：KD1 spacing 预收敛 `Style.windowElementSpacing`；KD2 三处口径修正——contentItem 照 ToolButton 裸 Text（BasicButtonText 属 Button 族且右对齐，不照搬）、前景对比机制改挂 `ThemeHQ.recommendForeground`（Style 不承载，原表述挂错层）、强调 cover 的 opacity 源定为 `highlighted || hovered`（原「零额外代码」不成立：ToolButton 的 cover 绑 hovered，默认按钮强调需聚合源）。
+修订（2026-09-08，spacing 复议）：KD1 spacing 改为**新 token `Style.buttonSpacing`（qreal 组，system theme 默认 4，暂定）**——用户裁定「按钮间距和窗口元素间距完全是两码事」，撤销 windowElementSpacing 预收敛；提新 token 入本刀范围（Style 宏族多文件，照既有 qreal token 家族模式加）。
+修订（2026-09-08，spacing 终定）：KD1 spacing 定为**字面量 4（暂定）**——用户裁定不改主题系统，撤销上一条「提新 token buttonSpacing」方案；按钮行内密度不进 Style（ToolButton padding 字面量先例），将来若需主题化再议。
