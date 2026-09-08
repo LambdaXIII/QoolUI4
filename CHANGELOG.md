@@ -1,5 +1,13 @@
 [最新变更]
 
+### 变更（dialog-surface-slots，DialogSurface 三槽骨架化 + QoolDialog 接口与尺寸调整，ADR-0021）
+
+- **DialogSurface 去 BasicControl 化**：改为 Item + QoolBGBox 背景（dialog token 组：`cutSizeTL: Style.dialogCutSize`、`borderWidth: Style.dialogBorderWidth`、`borderColor: Style.accent`、`fillColor: Style.window`，TL 单角切）+ DummyItem 三槽纵向骨架（`header`/`content`/`footer`，间距 `Style.windowElementSpacing`，QoolWindow 手法）；title/titleItem 经背景件标题槽暴露（自定义 titleItem 自行定位）；implicit 尺寸由背景件与三槽推导；`containmentMask` = 背景件；无默认属性
+- **QoolDialog 公开面**：新增 `header`/`content`/`footer` 三槽别名；去掉 `readonly property alias surface` 与默认属性重定向（裸子元素进 `Window.data`，不参与槽位布局）；标题入口改为 `Window.title`，预置 surface 的 `title` 跟随（任务栏与画面标题同源），`surface.titleItem` 不经 QoolDialog 暴露
+- **QoolDialog 尺寸**：最小尺寸改为背景件切角 + 边框推导（`cutSpaceOnLeft + cutSpaceOnRight + borderWidth × 2`，纵向同理）——弃用固定 200×200 下限，并消除 `minimumWidth: width` 与内容驱动 width 的绑定循环；`maximumWidth/Height` 跟随当前尺寸
+- **Example**：对话框页按新接口调整（`title:` 入口 + `content:` 槽位）；自定义 titleItem 演示补锚定（照 PageFrame 先例）
+- **文档**：`docs/reference/Qool.Dialogs/` 两份参考文档按新契约重写、模块 index 同步；ADR-0021 KD1–KD4 与 Consequences 修正并追加修订记录
+
 ### 变更（qool-dialogs，Qool.Dialogs 模块首刀：QoolDialog + DialogSurface，ADR-0021）
 
 - **新模块 `Qool.Dialogs`**：对话框组件族首刀，交付两个公开组件（裸名 `Dialog` 按命名契约保留给将来 T.Dialog 接口完全兼容的换皮件）

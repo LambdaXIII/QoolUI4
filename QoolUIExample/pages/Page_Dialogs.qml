@@ -31,19 +31,20 @@ BasicPage {
                 anchors.fill: parent
                 anchors.margins: 16
                 title: qsTr("确认操作")
-                contentPadding: 12
 
-                Text {
-                    anchors.centerIn: parent
-                    width: parent.width
-                    wrapMode: Text.Wrap
-                    text: qsTr("标题经 surface.title 设置；背景为 dialog 主题 token——TL 切角、accent 描边、window 底色。切换主题观察变化。")
-                    color: root.Style.text
+                content: Item {
+                    Text {
+                        anchors.centerIn: parent
+                        width: parent.width
+                        wrapMode: Text.Wrap
+                        text: qsTr("标题由 title 设置；背景为 dialog 主题 token——TL 切角、accent 描边、window 底色。切换主题观察变化。")
+                        color: root.Style.text
+                    }
                 }
             }
         }
 
-        // —— surface.titleItem 替换默认标题渲染 ——
+        // —— titleItem 替换默认标题渲染 ——
         QoolControl {
             title: qsTr("titleItem 替换标题")
             width: 360
@@ -53,10 +54,15 @@ BasicPage {
                 id: surface2
                 anchors.fill: parent
                 anchors.margins: 16
-                contentPadding: 12
 
                 titleItem: Row {
                     spacing: 6
+                    anchors {
+                        top: parent.top
+                        right: parent.right
+                        topMargin: surface2.backgroundSettings.borderWidth + 1
+                        rightMargin: surface2.backgroundSettings.borderWidth + 1
+                    }
                     Rectangle {
                         width: 10
                         height: 10
@@ -71,10 +77,12 @@ BasicPage {
                     }
                 }
 
-                Text {
-                    anchors.centerIn: parent
-                    text: qsTr("标题渲染被 titleItem 接管。")
-                    color: root.Style.text
+                content: Item {
+                    Text {
+                        anchors.centerIn: parent
+                        text: qsTr("标题渲染被 titleItem 接管。")
+                        color: root.Style.text
+                    }
                 }
             }
         }
@@ -197,6 +205,8 @@ BasicPage {
         modal: true
         dim: true
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        // Surface 自带 QoolBox 背景；Popup 默认背景会在切角外露出一圈
+        background: Item {}
         width: 360
         height: 220
         anchors.centerIn: Overlay.overlay
@@ -204,15 +214,16 @@ BasicPage {
         DialogSurface {
             anchors.fill: parent
             title: qsTr("overlay 对话框")
-            contentPadding: 12
 
-            Text {
-                anchors.centerIn: parent
-                width: parent.width
-                wrapMode: Text.Wrap
-                horizontalAlignment: Text.AlignHCenter
-                text: qsTr("按 Esc 或点击遮罩外部关闭。")
-                color: root.Style.text
+            content: Item {
+                Text {
+                    anchors.centerIn: parent
+                    width: parent.width
+                    wrapMode: Text.Wrap
+                    horizontalAlignment: Text.AlignHCenter
+                    text: qsTr("按 Esc 或点击遮罩外部关闭。")
+                    color: root.Style.text
+                }
             }
         }
     }
@@ -220,12 +231,11 @@ BasicPage {
     // —— QoolDialog 基础：内容反推尺寸 ——
     QoolDialog {
         id: basicDialog
-        surface.title: qsTr("删除项目？")
+        title: qsTr("删除项目？")
         onAccepted: root.lastResult = qsTr("accepted")
         onRejected: root.lastResult = qsTr("rejected")
 
-        Column {
-            anchors.centerIn: parent
+        content: Column {
             spacing: 12
 
             Text {
@@ -250,14 +260,13 @@ BasicPage {
     // —— QoolDialog 显式尺寸：内容区扩展 ——
     QoolDialog {
         id: sizedDialog
-        surface.title: qsTr("固定尺寸")
+        title: qsTr("固定尺寸")
         width: 420
         height: 260
         onAccepted: root.lastResult = qsTr("accepted")
         onRejected: root.lastResult = qsTr("rejected")
 
-        Column {
-            anchors.centerIn: parent
+        content: Column {
             spacing: 12
 
             Text {
@@ -266,7 +275,6 @@ BasicPage {
             }
 
             Button {
-                anchors.horizontalCenter: parent.horizontalCenter
                 text: qsTr("确定")
                 onClicked: sizedDialog.accept()
             }
@@ -276,12 +284,11 @@ BasicPage {
     // —— modality 演示 ——
     QoolDialog {
         id: modalityDialog
-        surface.title: qsTr("模态演示")
+        title: qsTr("模态演示")
         onAccepted: root.lastResult = qsTr("accepted")
         onRejected: root.lastResult = qsTr("rejected")
 
-        Column {
-            anchors.centerIn: parent
+        content: Column {
             spacing: 12
 
             Text {
@@ -290,7 +297,6 @@ BasicPage {
             }
 
             Button {
-                anchors.horizontalCenter: parent.horizontalCenter
                 text: qsTr("关闭")
                 onClicked: modalityDialog.reject()
             }
