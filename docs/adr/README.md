@@ -55,5 +55,5 @@
 | 编号 | 主题 |
 |---|---|
 | 0021 | QoolDialog 独立窗口血统与命名契约（不走 T.Dialog、DialogSurface 表面件、同名=接口合同） |
+| 0022 | DialogButtonBox 特化换皮、DialogButton 语义件与显式接线（按钮装配） |
 
-领域术语见根 `CONTEXT.md`「形状体系（QoolBox）」节。
