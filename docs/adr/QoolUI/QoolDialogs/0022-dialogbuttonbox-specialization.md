@@ -27,8 +27,8 @@ Qool.Dialogs 的按钮盒 **DialogButtonBox 继承 QtQuick.Controls 的 T.Dialog
 
 ## Key Decisions
 
-1. **DialogButtonBox = T.DialogButtonBox 子类 + 裸名**：接口合同内特化。壳内仅 `padding: 0`（盒外间距归 DialogSurface 槽位）、`spacing: <待定 token>`（Template 默认 0 会让按钮贴接，需补）、无 background、`delegate: DialogButton`；alignment 保持 T 默认（填满）。
-2. **DialogButton = 自包含语义按钮**（ToolButton 手法：单文件皮肤，T 根 + QoolBoxSettings/QoolBox 背景 + 三张 cover + BasicButtonText，不跨模块继承 QML 组件）：role 经限定名 attached `T.DialogButtonBox.buttonRole` 读取；AcceptRole/YesRole → `positive`、DestructiveRole → `negative`、其余 role 不映射；语义落**边框+填充**两面；语义填充上的前景对比走 Style 的 recommendForeground 机制。自拼用法（`DialogButton { T.DialogButtonBox.buttonRole: ... }`）与 delegate 用法同一身体。
+1. **DialogButtonBox = T.DialogButtonBox 子类 + 裸名**：接口合同内特化。壳内仅 `padding: 0`（盒外间距归 DialogSurface 槽位）、`spacing: Style.windowElementSpacing`（与 surface 槽间距同源；Template 默认 0 会让按钮贴接；提新 token 不在本刀范围）、无 background、`delegate: DialogButton`；alignment 保持 T 默认（填满）。
+2. **DialogButton = 自包含语义按钮**（ToolButton 手法：单文件皮肤，T 根 + QoolBoxSettings/QoolBox 背景 + 三张 cover + 居中文字 contentItem——照 ToolButton 的裸 Text 先例，不照搬 Button 族 BasicButtonText（右对齐），不跨模块继承 QML 组件）：role 经限定名 attached `T.DialogButtonBox.buttonRole` 读取；AcceptRole/YesRole → `positive`、DestructiveRole → `negative`、其余 role 不映射；语义落**边框+填充**两面；语义填充上的前景对比走 `ThemeHQ.recommendForeground`（Q_INVOKABLE static，Crystal.qml/Slider.qml 先例；Style 单例不承载该机制）。强调 cover 的 opacity 源为 `highlighted || hovered`（T.Button 的 highlighted 无默认 hover 绑定，聚合两源共用一条强调通道，承载 hover 反馈与默认按钮强调）。自拼用法（`DialogButton { T.DialogButtonBox.buttonRole: ... }`）与 delegate 用法同一身体。
 3. **接线纯接口驱动，QoolDialog 零新增**：使用者在 footer 显式 `onAccepted: root.accept()` 等。判例：**接口一致的组件不允许行为分叉**——marker/扫描接线判死的本质理由不是脏，是它让同接口的组件在同一槽位行为不同。
 4. **归属 Qool.Dialogs**：role 语义是对话域词汇；DialogSurface「容器无关仍归 Dialogs」的先例延续；依赖方向无环（Dialogs 已依赖 Qool.Controls.Components，反身不依赖）。
 5. **盒子对已存在的按钮零干预**：语义活在件自身（出生皮肤），不写在干预逻辑里；T 原生按钮放入本盒仍可用，只是无语义色。
@@ -39,8 +39,9 @@ Qool.Dialogs 的按钮盒 **DialogButtonBox 继承 QtQuick.Controls 的 T.Dialog
 - 标准按钮的文案、翻译、平台排序、role 信号、默认按钮机制全部由 Template 层承担，本件零文案代码。
 - role→语义色（边框+填充）为仓库第一例，无先例背书；修正成本收敛于 DialogButton 单文件。
 - QoolDialog 公开面保持 KD1 不变；ADR-0021 KD4「届时补齐 QoolDialog 的对应接口」改判为「无需」（修订已落 0021）。
-- 实现期核实清单（进 spec）：限定名 attached 访问（`T.DialogButtonBox.buttonRole`）与使用者侧同名 attached 解析（T 的 C++ attached vs 本模块 QML 复合件裸名）；`Style.recommendForeground` 的 QML 暴露签名；盒内 spacing 的 token 取值；根类型 T.Button（倾向，白送 flat/highlighted）vs T.AbstractButton（Button.qml 先例）；机制考证基于 5.15 源码 + 6.11 文档，spec 期对 6.11 源码复核一遍。
+- 实现期核实清单（进 spec）：限定名 attached 访问（`T.DialogButtonBox.buttonRole`）与使用者侧同名 attached 解析（T 的 C++ attached vs 本模块 QML 复合件裸名）；根类型 T.Button（倾向，白送 flat/highlighted）vs T.AbstractButton（Button.qml 先例）；机制考证基于 5.15 源码 + 6.11 文档，对 6.11 源码复核一遍（本机 Qt 安装未含 Sources 时走在线 qtdeclarative 源码复核；不可得则降级为 6.11 文档 + 5.15 已考源码为准并记录）。
 
 ## 决策状态
 
 已定案（2026-09-08，grilling 讨论收敛）。实现待 spec。
+修订（2026-09-08，spec 发布后 rehearsal 修正）：KD1 spacing 预收敛 `Style.windowElementSpacing`；KD2 三处口径修正——contentItem 照 ToolButton 裸 Text（BasicButtonText 属 Button 族且右对齐，不照搬）、前景对比机制改挂 `ThemeHQ.recommendForeground`（Style 不承载，原表述挂错层）、强调 cover 的 opacity 源定为 `highlighted || hovered`（原「零额外代码」不成立：ToolButton 的 cover 绑 hovered，默认按钮强调需聚合源）。
