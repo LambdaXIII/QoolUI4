@@ -50,4 +50,10 @@
 | 0019 | ColorChannelEdit 镜像布局：响应 Control 内置只读 `mirrored`（LayoutMirroring 驱动），不自声明——Color 组件族镜像约定 |
 | 0020 | ColorAssistant 通道锚定模型（单权威 RGBA + 无表达维度记忆，hue=-1 语义退役） |
 
+### QoolUI/QoolDialogs/（Dialogs 模块）
+
+| 编号 | 主题 |
+|---|---|
+| 0021 | QoolDialog 独立窗口血统与命名契约（不走 T.Dialog、DialogSurface 表面件、同名=接口合同） |
+
 领域术语见根 `CONTEXT.md`「形状体系（QoolBox）」节。

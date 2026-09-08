@@ -65,6 +65,12 @@ ListModel {
     }
 
     ListElement {
+        title: qsTr("对话框")
+        note: qsTr("QoolDialog 窗口对话框与 DialogSurface 表面件")
+        page: "Page_Dialogs.qml"
+    }
+
+    ListElement {
         title: qsTr("试炼场")
         note: qsTr("测试空间")
         page: "Page_Playground.qml"

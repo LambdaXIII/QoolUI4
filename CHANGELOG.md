@@ -1,5 +1,13 @@
 [最新变更]
 
+### 变更（qool-dialogs，Qool.Dialogs 模块首刀：QoolDialog + DialogSurface，ADR-0021）
+
+- **新模块 `Qool.Dialogs`**：对话框组件族首刀，交付两个公开组件（裸名 `Dialog` 按命名契约保留给将来 T.Dialog 接口完全兼容的换皮件）
+- **DialogSurface**：容器无关的对话框表面件，BasicControl 子类，仅覆写 `backgroundSettings` 默认值为 dialog token 组（`cutSizeTL: Style.dialogCutSize`、`borderWidth: Style.dialogBorderWidth`、`borderColor: Style.accent`、`fillColor: Style.window`）；title/titleItem/内容区/隐式尺寸机制全部继承 BasicControl，TL 单角切跟随仓库视觉语言
+- **QoolDialog**：预置 DialogSurface 的对话框窗口壳，独立 `Window` 血统（`Qt.Dialog | Qt.CustomizeWindowHint | Qt.FramelessWindowHint`，color transparent，非 T.Dialog——T.Dialog 窗口形态 flag 被 Qt 源码写死，无法承载 QoolBox 视觉）；`readonly property alias surface` 暴露标题入口（不重声明 `title`，Window.title 跟随 surface.title）；默认属性重定向进 surface 内容区；`open()/close()` 薄转发，`accept()/reject()` 发射 `accepted/rejected`，Esc 与系统关闭请求统一走 `reject()`；modality 默认 `Qt.WindowModal` 显式可改；尺寸由内容隐式反推（下限 200×200 照 QoolWindowBasic 先例）显式赋值即生效，minimum=maximum 跟随当前尺寸（禁交互 resize、不锁程序化赋值）；无关闭按钮、无拖动
+- **Example**：新增「对话框」页——Surface 独立面板（title/titleItem）、Surface 拼进 Popup 的 overlay 用法（dim/closePolicy 由 Popup 提供）、QoolDialog 基础（Esc 与按钮双关闭路径 + accepted/rejected 反馈）、显式尺寸（420×260）、modality 切换演示
+- **文档**：新增 `docs/reference/Qool.Dialogs/`（index / QoolDialog / DialogSurface，以引用 BasicControl 既有契约为基，只展开覆写差异与新增面）
+
 ### 变更（debug-facility-rework，QoolCommon 调试设施重写——C++20 函数化 + 宏门控分离）
 
 - **架构分层**：入口宏（`xDebug`/`xInfo`/`xWarning`/`xCritical` + Q 后缀）保留为永久 API——只有宏能在调用点做条件编译与 `this` 注入；实现全部函数化收进 `QOOL_NS::debug`，宏名仅转发。25 个消费文件约 150 调用点零改动
