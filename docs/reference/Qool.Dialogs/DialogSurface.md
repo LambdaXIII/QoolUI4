@@ -4,7 +4,9 @@ Container-agnostic dialog surface: a `QoolBGBox` background plus a title slot
 and three vertical content slots (`header` / `content` / `footer`).
 `DialogSurface` assumes no container semantics by itself — embed it in
 `QoolDialog` (prebuilt) or assemble it into a `Popup` yourself for overlay
-semantics (dim/closePolicy come from the `Popup`, not from this type).
+semantics (dim/closePolicy come from the `Popup`, not from this type). Note
+that `Popup.focus` defaults to `false`, so `Popup.CloseOnEscape` never fires
+unless the popup is told to take focus.
 
 The background is a `QoolBGBox` configured with the dialog token group:
 
@@ -85,6 +87,7 @@ DialogSurface {
 Popup {
     modal: true
     dim: true
+    focus: true   // Popup.focus 默认 false——不取焦点，CloseOnEscape 收不到 Esc
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
     background: Item {}   // the surface draws its own QoolBox background
     width: 320

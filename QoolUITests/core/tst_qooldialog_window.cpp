@@ -29,6 +29,8 @@ class TestQoolDialogWindow: public QObject {
 private slots:
   void footerButtonsAreHosted();
   void escapeRejectsLikeCancel();
+  void escapeActivatesCancelButton();
+  void overlayPopupClosesOnEscape();
   void systemCloseRejects();
   void acceptAndRejectResults();
 
@@ -39,9 +41,9 @@ private:
     QScopedPointer<QObject> root;
     QQuickWindow* window = nullptr;
 
-    bool build() {
+    bool build(const char* source = kDialogQml) {
       engine.addImportPath(QStringLiteral(QOOLUI_TEST_QML_IMPORT_PATH));
-      component.setData(kDialogQml, QUrl());
+      component.setData(source, QUrl());
       if (!component.isReady()) {
         qWarning("%s", qPrintable(component.errorString()));
         return false;
@@ -76,7 +78,72 @@ QoolDialog {
 
     footer: DialogButtonBox {
         standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
+        onAccepted: dialog.accept()
+        onRejected: dialog.reject()
     }
+}
+)";
+
+  // Esc 走 Cancel 按钮通道的证据面：Cancel 刻意不关窗，只记账。
+  static constexpr const char* kCancelChannelQml = R"(
+import QtQuick
+import Qool
+import Qool.Dialogs
+
+QoolDialog {
+    id: dialog
+    title: "Cancel 通道"
+
+    property int cancelClicks: 0
+
+    content: Item {
+        implicitWidth: 160
+        implicitHeight: 40
+    }
+
+    footer: DialogButtonBox {
+        standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
+        onRejected: dialog.cancelClicks++
+    }
+}
+)";
+
+  // 参考文档里 overlay 用法的镜像：Popup 自带 dim/closePolicy，表面件只管表面。
+  static constexpr const char* kPopupQml = R"(
+import QtQuick
+import QtQuick.Window
+import QtQuick.Controls
+import Qool
+import Qool.Dialogs
+
+Window {
+    id: win
+    width: 400
+    height: 300
+    visible: true
+
+    property alias popup: popup
+
+    Popup {
+        id: popup
+        modal: true
+        dim: true
+        // Popup.focus 默认 false——不取焦点就没有 CloseOnEscape
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        background: Item {}
+        width: 320
+        height: 200
+        anchors.centerIn: Overlay.overlay
+
+        DialogSurface {
+            anchors.fill: parent
+            title: "overlay"
+            content: Item {}
+        }
+    }
+
+    Component.onCompleted: popup.open()
 }
 )";
 };
@@ -136,6 +203,34 @@ void TestQoolDialogWindow::escapeRejectsLikeCancel() {
   QTRY_COMPARE(rejectedSpy.count(), 1);
   QCOMPARE(acceptedSpy.count(), 0);
   QVERIFY2(!f.window->isVisible(), "Esc 必须关闭对话框（等价于 Cancel）");
+}
+
+void TestQoolDialogWindow::escapeActivatesCancelButton() {
+  Fixture f;
+  QVERIFY(f.build(kCancelChannelQml));
+  QVERIFY(f.window->isVisible());
+
+  // 刻意把 Cancel 接到计数器而不是 reject()：Esc 若直接关窗，这个计数不会动
+  QCOMPARE(f.window->property("cancelClicks").toInt(), 0);
+
+  QTest::keyClick(f.window, Qt::Key_Escape);
+
+  QTRY_COMPARE(f.window->property("cancelClicks").toInt(), 1);
+  QVERIFY2(f.window->isVisible(),
+      "Esc 走的是 Cancel 按钮通道——按钮自己没关窗，对话框就不该关");
+}
+
+void TestQoolDialogWindow::overlayPopupClosesOnEscape() {
+  Fixture f;
+  QVERIFY(f.build(kPopupQml));
+
+  QObject* popup = f.window->property("popup").value<QObject*>();
+  QVERIFY(popup);
+  QTRY_VERIFY(popup->property("visible").toBool());
+
+  QTest::keyClick(f.window, Qt::Key_Escape);
+  QTRY_VERIFY2(!popup->property("visible").toBool(),
+      "overlay 用法的 Esc 由 Popup 的 closePolicy 负责");
 }
 
 void TestQoolDialogWindow::systemCloseRejects() {

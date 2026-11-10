@@ -59,19 +59,29 @@ dragging, no interactive resize.
 
 - `open()` / `close()`
   Thin forwarders to `visible`. `open()` also requests window activation, so
-  the window-level Escape shortcut and any content focus are live immediately
-  after opening.
+  any content focus is live immediately after opening.
 
 - `accept()` / `reject()`
   The call surface for content-side buttons: close the window and emit the
   matching signal.
 
+- `cancel()`
+  What Escape does: finds the `RejectRole` button in the slots (the standard
+  `Cancel`) and clicks it, so the result travels the same path as a real
+  Cancel click — the box's `rejected()` and whatever you wired to it. When no
+  `RejectRole` button exists, it falls back to `reject()`, so a dialog is
+  never unclosable.
+
 ## Exit paths
 
 Every exit ends in one of the two result signals — there is no third way out:
 
-- **Escape** → `reject()`, i.e. exactly what a `Cancel` button
-  (`RejectRole` → `rejected()`) does.
+- **Escape** → `cancel()`: it activates the Cancel button rather than closing
+  the dialog directly, so custom Cancel wiring (confirmations, guards) applies
+  to Esc exactly as it applies to the button. Bound as an application-level
+  shortcut enabled while the dialog is visible — a frameless dialog window is
+  not guaranteed to become the *active* window (verified: `active` stays
+  false on Windows), and a window-level shortcut would then never match.
 - **System close** (Alt+F4, window manager close) → `reject()`: the request is
   vetoed and converted to `rejected()`, so the window is never torn down
   behind the caller's back.

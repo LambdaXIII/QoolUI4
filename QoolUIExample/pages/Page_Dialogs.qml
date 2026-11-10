@@ -227,6 +227,8 @@ BasicPage {
         id: overlayPopup
         modal: true
         dim: true
+        // Popup.focus 默认 false：不取焦点，CloseOnEscape 就永远收不到 Esc
+        focus: true
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
         // Surface 自带 QoolBox 背景；Popup 默认背景会在切角外露出一圈
         background: Item {}
