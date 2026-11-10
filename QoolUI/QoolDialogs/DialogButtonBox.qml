@@ -1,18 +1,21 @@
-import QtQuick.Templates as T
+import QtQuick.Controls.Basic as Basic
 
-// DialogButtonBox：T.DialogButtonBox 的特化换皮薄壳（ADR-0022 KD1）。
-// 机制全部继承 Template 层；此处声明皮肤四件事（padding/spacing/delegate/
-// 无 background）+ implicit 尺寸——Template 的 C++ contentItem 是裸 Item，
-// 控件自尺寸由样式层计算（Basic 样式同此手法）：缺了它盒 implicit 尺寸
-// 恒 0，QoolDialog 内容反推尺寸不含按钮排，footer 槽给出负宽度、按钮
-// 不可见且布局互喂成 polish 循环。其余（background、alignment、文案）
-// 一概不声明——对盒内已存在的按钮零干预。
-T.DialogButtonBox {
-    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                            implicitContentWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
-                             implicitContentHeight + topPadding + bottomPadding)
+// DialogButtonBox：样式层 DialogButtonBox 的皮肤特化（ADR-0022 KD1）。
+//
+// 基座必须取样式层的 DialogButtonBox，不能取 QtQuick.Templates 的
+// DialogButtonBox：Template 层只有算法（实例化、role 分发、平台排序、默认
+// 按钮），**内容宿主 contentItem 与按钮排布在样式层**。只继承 Template 时
+// standardButtons 照样实例化、implicit 尺寸也照算，但按钮没有父件，永不进入
+// 场景图——count/implicit 全对，屏幕上什么都没有。
+//
+// 基座锚死 Basic 风格（而非随应用风格变化）：皮肤四件事全部覆写，
+// 平台风格只影响内部宿主形态，锚死才有确定行为，且只依赖 Qt 必装的 Basic 插件。
+//
+// 皮肤四件事：padding 0（盒外间距归 DialogSurface 槽位）/ spacing 4 /
+// 无 background（盒子在表面件底上天然透明）/ delegate: DialogButton。
+Basic.DialogButtonBox {
     padding: 0
     spacing: 4
+    background: null
     delegate: DialogButton {}
 }

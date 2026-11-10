@@ -58,12 +58,28 @@ dragging, no interactive resize.
 ## Methods
 
 - `open()` / `close()`
-  Thin forwarders to `visible`.
+  Thin forwarders to `visible`. `open()` also requests window activation, so
+  the window-level Escape shortcut and any content focus are live immediately
+  after opening.
 
 - `accept()` / `reject()`
   The call surface for content-side buttons: close the window and emit the
-  matching signal. Escape and system close requests are routed to
-  `reject()` uniformly.
+  matching signal.
+
+## Exit paths
+
+Every exit ends in one of the two result signals — there is no third way out:
+
+- **Escape** → `reject()`, i.e. exactly what a `Cancel` button
+  (`RejectRole` → `rejected()`) does.
+- **System close** (Alt+F4, window manager close) → `reject()`: the request is
+  vetoed and converted to `rejected()`, so the window is never torn down
+  behind the caller's back.
+- **`accept()` / `reject()`** from your own content buttons.
+
+Because the window is frameless, has no close button, and every platform
+close request is routed to `reject()`, a dialog whose result must be
+*accepted* has to offer an explicit button — but it can always be dismissed.
 
 ## Usage Example
 

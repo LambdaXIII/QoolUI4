@@ -2,6 +2,8 @@
 
 Qool.Dialogs 的按钮盒 **DialogButtonBox 继承 QtQuick.Controls 的 T.DialogButtonBox 并以裸名导出**——接口完全兼容的特化换皮件（ADR-0021 KD3 命名合同的正例）：standardButtons/role 机制、平台排序、语言切换、6.11 默认按钮机制全部白送，本件只补 Qool 皮肤。皮肤独立为 **DialogButton**（对话域按钮件，role 驱动语义色：AcceptRole/YesRole → positive、DestructiveRole → negative，落边框+填充）；DialogButtonBox 为薄壳装配（`delegate: DialogButton` + `padding: 0` + 无 background）。**QoolDialog 零新增接口**：盒到对话框的 accepted/rejected 接线由使用者按接口显式完成。
 
+> **基座已于 2026-11-11 改判**：`T.DialogButtonBox` → QtQuick.Controls **Basic 样式**的 `DialogButtonBox`。理由见文末修订——下文「Template 含全部机制」与「样式层零算法」两处前提有误，保留原文以便追溯。
+
 ## 考证（Template 含算法，Basic 只含视觉）
 
 - **T.DialogButtonBox 继承 Container**；其 C++ 实现（QQuickDialogButtonBox，Qt 6 位于 qtdeclarative/src/quicktemplates；机制经 5.15 源码全文核实，6.11 API 面经官方文档核实）包含全部算法：
@@ -48,3 +50,4 @@ Qool.Dialogs 的按钮盒 **DialogButtonBox 继承 QtQuick.Controls 的 T.Dialog
 修订（2026-09-08，spacing 复议）：KD1 spacing 改为**新 token `Style.buttonSpacing`（qreal 组，system theme 默认 4，暂定）**——用户裁定「按钮间距和窗口元素间距完全是两码事」，撤销 windowElementSpacing 预收敛；提新 token 入本刀范围（Style 宏族多文件，照既有 qreal token 家族模式加）。
 修订（2026-09-08，spacing 终定）：KD1 spacing 定为**字面量 4（暂定）**——用户裁定不改主题系统，撤销上一条「提新 token buttonSpacing」方案；按钮行内密度不进 Style（ToolButton padding 字面量先例），将来若需主题化再议。
 修订（2026-09-08，实现期）：KD2 根类型落定 **`T.AbstractButton` + 自声明 `property bool highlighted: false`**（`Button.qml:7,21` 先例）——修正原「T.Button 白送 flat/highlighted」归因：6.11 官方文档核实 `flat`/`highlighted` 是 **Button 类型的属性，AbstractButton 没有**，T.Button 无可白送之物（默认按钮第二重强调本就是被拒项）。T.AbstractButton 是对话域语义按钮的诚实根类型（不冒领通用按钮身份；盒对 delegate 类型无要求）。
+修订（2026-11-11，基座改判）：**KD1 的基座改为 QtQuick.Controls Basic 样式的 `DialogButtonBox`，皮肤四件不变**。实测否证了本 ADR 两处前提：（1）「Template 含全部机制」——算法确在 Template，但 **内容宿主 `contentItem` 与按钮排布在样式层**，Template 层不提供；（2）「Basic 只是视觉默认、零算法」——宿主与排布正是它提供的。只继承 Template 的后果：standardButtons 照常实例化、`count` 与 implicit 尺寸全对，但按钮**无父件、永不进入场景图**——屏幕上什么都没有，且既有测试（数数 + 颜色 + implicit 尺寸）全绿。窗口级测试证据：`contentItem == null`、按钮 `parent == null`；换成样式层基座后按钮进入场景图并有非重叠几何。Basic 基座同时锚死风格（皮肤四件已全覆盖），宿主形态不随应用风格漂移。原「继承 Basic 样式」的拒因（"算法并不在那层"）随之失效——算法与宿主分属两层，必须一起继承。

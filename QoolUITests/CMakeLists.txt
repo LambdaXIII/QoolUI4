@@ -101,6 +101,66 @@ endfunction()
 #                POST_BUILD 复制重跑，副本同步）+ DLL 复制（RUNTIME_DLLS +
 #                TARGET_FILE——Qoolplugin.dll 从 qml 输出目录加载，其依赖链
 #                须在 exe 目录；copy_if_different 幂等）
+# Qt 运行时插件 DLL 部署：引擎 import 时才加载的插件依赖（QuickShapes /
+# QuickLayouts / QtQuick.Controls 的 Basic 风格），不是任何 target 的链接
+# 依赖——缺了会在运行时「插件加载失败」，QML 类型整个不可用。需要这些插件
+# 的测试（QML 批次、窗口级 C++ 测试）必须自带这些 DLL。
+function(qoolui_copy_qt_plugin_dlls _target)
+  if(NOT DEFINED QOOLUI_QT6_QUICKSHAPES_DBG)
+    find_file(QOOLUI_QT6_QUICKSHAPES_DBG NAMES Qt6QuickShapesd.dll
+      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
+    set(QOOLUI_QT6_QUICKSHAPES_DBG ${QOOLUI_QT6_QUICKSHAPES_DBG} CACHE INTERNAL "")
+  endif()
+  if(NOT DEFINED QOOLUI_QT6_QUICKSHAPES_REL)
+    find_file(QOOLUI_QT6_QUICKSHAPES_REL NAMES Qt6QuickShapes.dll
+      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
+    set(QOOLUI_QT6_QUICKSHAPES_REL ${QOOLUI_QT6_QUICKSHAPES_REL} CACHE INTERNAL "")
+  endif()
+  if(NOT DEFINED QOOLUI_QT6_QUICKLAYOUTS_DBG)
+    find_file(QOOLUI_QT6_QUICKLAYOUTS_DBG NAMES Qt6QuickLayoutsd.dll
+      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
+    set(QOOLUI_QT6_QUICKLAYOUTS_DBG ${QOOLUI_QT6_QUICKLAYOUTS_DBG} CACHE INTERNAL "")
+  endif()
+  if(NOT DEFINED QOOLUI_QT6_QUICKLAYOUTS_REL)
+    find_file(QOOLUI_QT6_QUICKLAYOUTS_REL NAMES Qt6QuickLayouts.dll
+      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
+    set(QOOLUI_QT6_QUICKLAYOUTS_REL ${QOOLUI_QT6_QUICKLAYOUTS_REL} CACHE INTERNAL "")
+  endif()
+  # QtQuick.Controls Basic 风格插件依赖（qtquickcontrols2basicstyleplugin 运行时
+  # 加载——import QtQuick.Controls 即触发默认 Basic 风格；其依赖
+  # Qt6QuickControls2Basic.dll 非任何 target 链接依赖，缺则插件加载失败）
+  if(NOT DEFINED QOOLUI_QT6_QUICKCONTROLS2_BASIC_DBG)
+    find_file(QOOLUI_QT6_QUICKCONTROLS2_BASIC_DBG NAMES Qt6QuickControls2Basicd.dll
+      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
+    set(QOOLUI_QT6_QUICKCONTROLS2_BASIC_DBG ${QOOLUI_QT6_QUICKCONTROLS2_BASIC_DBG} CACHE INTERNAL "")
+  endif()
+  if(NOT DEFINED QOOLUI_QT6_QUICKCONTROLS2_BASIC_REL)
+    find_file(QOOLUI_QT6_QUICKCONTROLS2_BASIC_REL NAMES Qt6QuickControls2Basic.dll
+      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
+    set(QOOLUI_QT6_QUICKCONTROLS2_BASIC_REL ${QOOLUI_QT6_QUICKCONTROLS2_BASIC_REL} CACHE INTERNAL "")
+  endif()
+  if(NOT DEFINED QOOLUI_QT6_QUICKCONTROLS2_IMPL_DBG)
+    find_file(QOOLUI_QT6_QUICKCONTROLS2_IMPL_DBG NAMES Qt6QuickControls2Impld.dll
+      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
+    set(QOOLUI_QT6_QUICKCONTROLS2_IMPL_DBG ${QOOLUI_QT6_QUICKCONTROLS2_IMPL_DBG} CACHE INTERNAL "")
+  endif()
+  if(NOT DEFINED QOOLUI_QT6_QUICKCONTROLS2_IMPL_REL)
+    find_file(QOOLUI_QT6_QUICKCONTROLS2_IMPL_REL NAMES Qt6QuickControls2Impl.dll
+      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
+    set(QOOLUI_QT6_QUICKCONTROLS2_IMPL_REL ${QOOLUI_QT6_QUICKCONTROLS2_IMPL_REL} CACHE INTERNAL "")
+  endif()
+  foreach(_dll IN ITEMS QOOLUI_QT6_QUICKSHAPES_DBG QOOLUI_QT6_QUICKSHAPES_REL
+                       QOOLUI_QT6_QUICKLAYOUTS_DBG QOOLUI_QT6_QUICKLAYOUTS_REL
+                       QOOLUI_QT6_QUICKCONTROLS2_BASIC_DBG QOOLUI_QT6_QUICKCONTROLS2_BASIC_REL
+                       QOOLUI_QT6_QUICKCONTROLS2_IMPL_DBG QOOLUI_QT6_QUICKCONTROLS2_IMPL_REL)
+    if(EXISTS "${${_dll}}")
+      add_custom_command(TARGET ${_target} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${${_dll}}" $<TARGET_FILE_DIR:${_target}>)
+    endif()
+  endforeach()
+endfunction()
+
 function(qoolui_add_qml_test name unit_dir)
   # 单元目录解析：支持两种结构 ——
   # (a) 批次文件调用：unit_dir 为相对本文件子目录（cpp 在其下）
@@ -163,52 +223,7 @@ function(qoolui_add_qml_test name unit_dir)
     add_custom_command(TARGET ${name} POST_BUILD ${_copy_cmds})
   endif()
 
-  # QML 插件 DLL（QuickShapes/QuickLayouts）：引擎运行时 import 才加载的插件
-  # 依赖，非任何 target 链接依赖——find_file 定位（全局缓存，仅首次搜索）+
-  # 存在时复制（Release 无 debug 后缀文件则跳过）。QuickShapes 供 Shape 组件
-  # （Crystal/HalfCrystal），QuickLayouts 供 import QtQuick.Layouts 的单元。
-  if(NOT DEFINED QOOLUI_QT6_QUICKSHAPES_DBG)
-    find_file(QOOLUI_QT6_QUICKSHAPES_DBG NAMES Qt6QuickShapesd.dll
-      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
-    set(QOOLUI_QT6_QUICKSHAPES_DBG ${QOOLUI_QT6_QUICKSHAPES_DBG} CACHE INTERNAL "")
-  endif()
-  if(NOT DEFINED QOOLUI_QT6_QUICKSHAPES_REL)
-    find_file(QOOLUI_QT6_QUICKSHAPES_REL NAMES Qt6QuickShapes.dll
-      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
-    set(QOOLUI_QT6_QUICKSHAPES_REL ${QOOLUI_QT6_QUICKSHAPES_REL} CACHE INTERNAL "")
-  endif()
-  if(NOT DEFINED QOOLUI_QT6_QUICKLAYOUTS_DBG)
-    find_file(QOOLUI_QT6_QUICKLAYOUTS_DBG NAMES Qt6QuickLayoutsd.dll
-      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
-    set(QOOLUI_QT6_QUICKLAYOUTS_DBG ${QOOLUI_QT6_QUICKLAYOUTS_DBG} CACHE INTERNAL "")
-  endif()
-  if(NOT DEFINED QOOLUI_QT6_QUICKLAYOUTS_REL)
-    find_file(QOOLUI_QT6_QUICKLAYOUTS_REL NAMES Qt6QuickLayouts.dll
-      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
-    set(QOOLUI_QT6_QUICKLAYOUTS_REL ${QOOLUI_QT6_QUICKLAYOUTS_REL} CACHE INTERNAL "")
-  endif()
-  # QtQuick.Controls Basic 风格插件依赖（qtquickcontrols2basicstyleplugin 运行时
-  # 加载——import QtQuick.Controls 即触发默认 Basic 风格；其依赖
-  # Qt6QuickControls2Basic.dll 非任何 target 链接依赖，缺则插件加载失败）
-  if(NOT DEFINED QOOLUI_QT6_QUICKCONTROLS2_BASIC_DBG)
-    find_file(QOOLUI_QT6_QUICKCONTROLS2_BASIC_DBG NAMES Qt6QuickControls2Basicd.dll
-      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
-    set(QOOLUI_QT6_QUICKCONTROLS2_BASIC_DBG ${QOOLUI_QT6_QUICKCONTROLS2_BASIC_DBG} CACHE INTERNAL "")
-  endif()
-  if(NOT DEFINED QOOLUI_QT6_QUICKCONTROLS2_BASIC_REL)
-    find_file(QOOLUI_QT6_QUICKCONTROLS2_BASIC_REL NAMES Qt6QuickControls2Basic.dll
-      HINTS "${QOOLUI_QT6_PREFIX}/bin" NO_DEFAULT_PATH)
-    set(QOOLUI_QT6_QUICKCONTROLS2_BASIC_REL ${QOOLUI_QT6_QUICKCONTROLS2_BASIC_REL} CACHE INTERNAL "")
-  endif()
-  foreach(_dll IN ITEMS QOOLUI_QT6_QUICKSHAPES_DBG QOOLUI_QT6_QUICKSHAPES_REL
-                       QOOLUI_QT6_QUICKLAYOUTS_DBG QOOLUI_QT6_QUICKLAYOUTS_REL
-                       QOOLUI_QT6_QUICKCONTROLS2_BASIC_DBG QOOLUI_QT6_QUICKCONTROLS2_BASIC_REL)
-    if(EXISTS "${${_dll}}")
-      add_custom_command(TARGET ${name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${${_dll}}" $<TARGET_FILE_DIR:${name}>)
-    endif()
-  endforeach()
+  qoolui_copy_qt_plugin_dlls(${name})
 endfunction()
 
 add_subdirectory(common)

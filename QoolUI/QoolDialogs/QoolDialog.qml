@@ -36,6 +36,8 @@ Window {
         }
     }
 
+    // Esc ≡ Cancel：窗口级快捷键，结果与 Cancel（RejectRole → rejected）一致。
+    // 窗口级快捷键要求本窗口是活动窗口——open() 负责请求激活。
     Shortcut {
         sequence: "Escape"
         onActivated: root.reject()
@@ -49,6 +51,7 @@ Window {
 
     function open() {
         root.visible = true;
+        root.requestActivate();
     }
 
     function close() {

@@ -5,11 +5,16 @@
 
 #include <QQmlEngine>
 
-class QoolTestSetup : public QObject {
+class QoolTestSetup: public QObject {
   Q_OBJECT
 
 public:
-  QoolTestSetup() {}
+  QoolTestSetup() {
+    // Qool.Dialogs 的 DialogButtonBox 基座在 QtQuick.Controls 样式层：import
+    // 该模块会加载所选风格插件。测试锚死 Basic（Qt 必装，DLL 已部署），
+    // 平台默认的 Windows 风格插件在测试 exe 目录不可加载。
+    qputenv("QT_QUICK_CONTROLS_STYLE", "Basic");
+  }
 
 public slots:
   void qmlEngineAvailable(QQmlEngine* engine) {
