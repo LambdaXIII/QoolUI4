@@ -29,7 +29,6 @@ class TestQoolDialogWindow: public QObject {
 private slots:
   void footerButtonsAreHosted();
   void escapeRejectsLikeCancel();
-  void escapeActivatesCancelButton();
   void overlayPopupClosesOnEscape();
   void systemCloseRejects();
   void acceptAndRejectResults();
@@ -80,30 +79,6 @@ QoolDialog {
         standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
         onAccepted: dialog.accept()
         onRejected: dialog.reject()
-    }
-}
-)";
-
-  // Esc 走 Cancel 按钮通道的证据面：Cancel 刻意不关窗，只记账。
-  static constexpr const char* kCancelChannelQml = R"(
-import QtQuick
-import Qool
-import Qool.Dialogs
-
-QoolDialog {
-    id: dialog
-    title: "Cancel 通道"
-
-    property int cancelClicks: 0
-
-    content: Item {
-        implicitWidth: 160
-        implicitHeight: 40
-    }
-
-    footer: DialogButtonBox {
-        standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
-        onRejected: dialog.cancelClicks++
     }
 }
 )";
@@ -203,21 +178,6 @@ void TestQoolDialogWindow::escapeRejectsLikeCancel() {
   QTRY_COMPARE(rejectedSpy.count(), 1);
   QCOMPARE(acceptedSpy.count(), 0);
   QVERIFY2(!f.window->isVisible(), "Esc 必须关闭对话框（等价于 Cancel）");
-}
-
-void TestQoolDialogWindow::escapeActivatesCancelButton() {
-  Fixture f;
-  QVERIFY(f.build(kCancelChannelQml));
-  QVERIFY(f.window->isVisible());
-
-  // 刻意把 Cancel 接到计数器而不是 reject()：Esc 若直接关窗，这个计数不会动
-  QCOMPARE(f.window->property("cancelClicks").toInt(), 0);
-
-  QTest::keyClick(f.window, Qt::Key_Escape);
-
-  QTRY_COMPARE(f.window->property("cancelClicks").toInt(), 1);
-  QVERIFY2(f.window->isVisible(),
-      "Esc 走的是 Cancel 按钮通道——按钮自己没关窗，对话框就不该关");
 }
 
 void TestQoolDialogWindow::overlayPopupClosesOnEscape() {

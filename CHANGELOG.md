@@ -4,11 +4,11 @@
 
 - **根因**：只继承 `T.DialogButtonBox` 时 `contentItem` 为 null——Template 层只有算法（实例化、role 分发、平台排序、默认按钮），**内容宿主与按钮排布在样式层**。standardButtons 照常创建、`count` 与 implicit 尺寸全对，但按钮无父件、永不进入场景图（用户实报：对话框中无按钮条 → 无退出口 → 模态窗口卡死）
 - **DialogButtonBox 基座改判**：`T.DialogButtonBox` → `QtQuick.Controls.Basic` 的 `DialogButtonBox`（宿主与排布随基座继承；风格锚死 Basic 使宿主形态确定）。皮肤四件不变：`padding: 0` / `spacing: 4` / `background: null` / `delegate: DialogButton`
-- **QoolDialog 退出行为**：`open()` 追加 `requestActivate()`；**Esc ≡ Cancel 按钮通道**——新增 `cancel()`，在槽位子树里找 `RejectRole` 按钮并 `click()`，结果沿按钮通道走（盒的 `rejected()` + 使用者接线），无该按钮才退回 `reject()`；系统关闭请求继续被否决并转 `reject()`
+- **QoolDialog 退出行为**：`open()` 追加 `requestActivate()`；Esc 仍直接 `reject()`（与 Cancel 同一结果语义），系统关闭请求继续被否决并转 `reject()`
 - **Esc 快捷键改应用级**：frameless 对话框窗口在 Windows 上不保证成为活动窗口（实测 `active == false`），窗口级快捷键永不匹配——改 `Qt.ApplicationShortcut` 并以 `visible` 门控
 - **overlay 用法修复**：`Popup.focus` 默认 `false`，`CloseOnEscape` 因此收不到 Esc——Example 与 `DialogSurface.md` 的 overlay 示例补 `focus: true`
-- **测试**：新增窗口级 `tst_qooldialog_window`（真实 QQuickWindow）——footer 按钮必须进入场景图、有非零几何且不重叠（回退基座即红）；Esc 走 Cancel 按钮通道（Cancel 只记账不关窗时对话框必须仍然打开）、Esc ≡ Cancel 关闭、overlay Popup 的 Esc、系统关闭 ≡ reject、accept/reject 各发一次信号。测试设施抽出 `qoolui_copy_qt_plugin_dlls()`（补 `Qt6QuickControls2Impl` 依赖、Controls 风格锚死 Basic）；C++ 测试补 `LINK_DEPENDS`——库模块 QML 只进 DLL 的 qrc，缺这条会静默用旧组件跑
-- **文档**：`DialogButtonBox.md` 重写（基座原因、宿主契约、尺寸与可见性）；`QoolDialog.md` 增「Exit paths」与 `cancel()`；`DialogSurface.md` overlay 示例补 `focus: true`；ADR-0022 KD1 追加基座改判、ADR-0021 KD1 追加 Esc 语义修订（原文前提保留以便追溯）
+- **测试**：新增窗口级 `tst_qooldialog_window`（真实 QQuickWindow）——footer 按钮必须进入场景图、有非零几何且不重叠（回退基座即红）；Esc ≡ Cancel 关闭、overlay Popup 的 Esc、系统关闭 ≡ reject、accept/reject 各发一次信号。测试设施抽出 `qoolui_copy_qt_plugin_dlls()`（补 `Qt6QuickControls2Impl` 依赖、Controls 风格锚死 Basic）；C++ 测试补 `LINK_DEPENDS`——库模块 QML 只进 DLL 的 qrc，缺这条会静默用旧组件跑
+- **文档**：`DialogButtonBox.md` 重写（基座原因、宿主契约、尺寸与可见性）；`QoolDialog.md` 增「Exit paths」；`DialogSurface.md` overlay 示例补 `focus: true`；ADR-0022 KD1 追加基座改判、ADR-0021 KD1 追加 Esc 送达修订（原文前提保留以便追溯）
 
 ### 变更（dialog-surface-slots，DialogSurface 三槽骨架化 + QoolDialog 接口与尺寸调整，ADR-0021）
 
