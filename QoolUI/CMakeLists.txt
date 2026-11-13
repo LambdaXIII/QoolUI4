@@ -41,6 +41,7 @@ add_subdirectory(QoolCommon)
 
 add_subdirectory(Qool)
 add_subdirectory(QoolControls)
+add_subdirectory(QoolDialogs)
 add_subdirectory(QoolColor)
 add_subdirectory(QoolChat)
 add_subdirectory(QoolFile)

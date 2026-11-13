@@ -32,6 +32,7 @@ qt_add_qml_module(appQoolUIExample
   IMPORTS Qool.Controls
   IMPORTS Qool.Controls.Components
   IMPORTS Qool.Debug
+  IMPORTS Qool.Dialogs
   IMPORTS Qool.File
 
   DEPENDENCIES TARGET Qool
@@ -40,11 +41,12 @@ qt_add_qml_module(appQoolUIExample
   TARGET QoolControls
   TARGET QoolControlsComponents
   TARGET QoolDebug
+  TARGET QoolDialogs
   TARGET QoolFile
+
 
   QML_FILES Main.qml
   QML_FILES pages/Page_QoolBox.qml
-  QML_FILES
   QML_FILES pages/components/QoolBoxShapeControlPanel.qml
 
   QML_FILES PageListModel.qml
@@ -69,6 +71,7 @@ qt_add_qml_module(appQoolUIExample
   QML_FILES pages/Page_HalfCrystal.qml
   QML_FILES pages/Page_Color.qml
   QML_FILES pages/Page_Menus.qml
+  QML_FILES pages/Page_Dialogs.qml
 )
 
 qoolui_collect_assets(QOOL_ASSETS)

@@ -168,6 +168,30 @@ target_link_libraries(tst_qool_hover_e2e PRIVATE
 target_compile_definitions(tst_qool_hover_e2e PRIVATE
   QOOLUI_TEST_QML_IMPORT_PATH="${QT_QML_OUTPUT_DIRECTORY}")
 
+# QoolDialog 窗口级行为：footer 按钮宿主（可见性）、Esc ≡ Cancel、
+# 系统关闭 ≡ reject、accept/reject 结果。对话框是独立 Window，按键与
+# 关闭请求到不了 QML 批次的 TestCase 窗口，故在本层验证。
+# 窗口测试：ctest/run-tests 双通道注入 -platform offscreen（无头）。
+set(QOOLUI_TEST_ARGS_tst_qooldialog_window "-platform;offscreen" CACHE INTERNAL "")
+qoolui_add_cpp_test(
+  tst_qooldialog_window
+  tst_qooldialog_window.cpp
+)
+target_link_libraries(tst_qooldialog_window PRIVATE
+  Qool QoolDialogs QoolControls QoolControlsComponents
+  QoolCommon QoolUITestSupport Qt6::Quick Qt6::QuickControls2 Qt6::Qml)
+target_compile_definitions(tst_qooldialog_window PRIVATE
+  QOOLUI_TEST_QML_IMPORT_PATH="${QT_QML_OUTPUT_DIRECTORY}")
+# LINK_DEPENDS：模块 DLL 更新 → 重链 → POST_BUILD 重拷 → exe 旁副本同步。
+# 库模块的 QML 只进 DLL 的 qrc 资源，import lib 不变，ninja 不会因此重链
+# 测试 target——缺这条会静默用旧组件跑（与 QML 批次同一机制）。
+set_property(TARGET tst_qooldialog_window APPEND PROPERTY LINK_DEPENDS
+  "$<TARGET_FILE:QoolDialogs>" "$<TARGET_FILE:QoolControls>"
+  "$<TARGET_FILE:QoolControlsComponents>" "$<TARGET_FILE:Qool>")
+# DialogButtonBox 基座在 QtQuick.Controls 样式层——引擎 import 时加载 Basic
+# 风格插件，其依赖 DLL 非链接依赖，需显式部署（与 QML 批次同一机制）。
+qoolui_copy_qt_plugin_dlls(tst_qooldialog_window)
+
 # ---- 单例契约修复测试（DB/HQ/HQModel 拆分）----# 分层：QML 面测试（contract/write）走模块插件（类型注册在模块 DLL 内），
 # 链接模块 target 仅为头文件 + DLL 部署；C++ 面测试（model/db）直接编译
 # 被测源（仓库「绝不动态导出」，测试 target 内副本与模块内副本行为等价）。

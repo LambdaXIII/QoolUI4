@@ -22,6 +22,7 @@ BasicPage {
         id: button
         text: "CLICK ME!!"
         ContextMenu.menu: menu
+        onClicked: dia.open()
     }
 
     Q.Menu {
@@ -73,5 +74,12 @@ BasicPage {
                 checkable: true
             }
         }
+    }//menu
+
+    Dialog {
+        id: dia
+        title: 'HELLO'
+        standardButtons: Dialog.Accepted | Dialog.Cancel
+        popupType: Popup.Window
     }
 }//page

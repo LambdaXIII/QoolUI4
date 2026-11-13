@@ -1,5 +1,31 @@
 [最新变更]
 
+### 修复（dialogs-buttonbox-host，DialogButtonBox 按钮不可见 + QoolDialog 退出行为，ADR-0022 修订）
+
+- **根因**：只继承 `T.DialogButtonBox` 时 `contentItem` 为 null——Template 层只有算法（实例化、role 分发、平台排序、默认按钮），**内容宿主与按钮排布在样式层**。standardButtons 照常创建、`count` 与 implicit 尺寸全对，但按钮无父件、永不进入场景图（用户实报：对话框中无按钮条 → 无退出口 → 模态窗口卡死）
+- **DialogButtonBox 基座改判**：`T.DialogButtonBox` → `QtQuick.Controls.Basic` 的 `DialogButtonBox`（宿主与排布随基座继承；风格锚死 Basic 使宿主形态确定）。皮肤四件不变：`padding: 0` / `spacing: 4` / `background: null` / `delegate: DialogButton`
+- **QoolDialog 退出行为**：`open()` 追加 `requestActivate()`；Esc 仍直接 `reject()`（与 Cancel 同一结果语义），系统关闭请求继续被否决并转 `reject()`
+- **Esc 快捷键改应用级**：frameless 对话框窗口在 Windows 上不保证成为活动窗口（实测 `active == false`），窗口级快捷键永不匹配——改 `Qt.ApplicationShortcut` 并以 `visible` 门控
+- **overlay 用法修复**：`Popup.focus` 默认 `false`，`CloseOnEscape` 因此收不到 Esc——Example 与 `DialogSurface.md` 的 overlay 示例补 `focus: true`
+- **测试**：新增窗口级 `tst_qooldialog_window`（真实 QQuickWindow）——footer 按钮必须进入场景图、有非零几何且不重叠（回退基座即红）；Esc ≡ Cancel 关闭、overlay Popup 的 Esc、系统关闭 ≡ reject、accept/reject 各发一次信号。测试设施抽出 `qoolui_copy_qt_plugin_dlls()`（补 `Qt6QuickControls2Impl` 依赖、Controls 风格锚死 Basic）；C++ 测试补 `LINK_DEPENDS`——库模块 QML 只进 DLL 的 qrc，缺这条会静默用旧组件跑
+- **文档**：`DialogButtonBox.md` 重写（基座原因、宿主契约、尺寸与可见性）；`QoolDialog.md` 增「Exit paths」；`DialogSurface.md` overlay 示例补 `focus: true`；ADR-0022 KD1 追加基座改判、ADR-0021 KD1 追加 Esc 送达修订（原文前提保留以便追溯）
+
+### 变更（dialog-surface-slots，DialogSurface 三槽骨架化 + QoolDialog 接口与尺寸调整，ADR-0021）
+
+- **DialogSurface 去 BasicControl 化**：改为 Item + QoolBGBox 背景（dialog token 组：`cutSizeTL: Style.dialogCutSize`、`borderWidth: Style.dialogBorderWidth`、`borderColor: Style.accent`、`fillColor: Style.window`，TL 单角切）+ DummyItem 三槽纵向骨架（`header`/`content`/`footer`，间距 `Style.windowElementSpacing`，QoolWindow 手法）；title/titleItem 经背景件标题槽暴露（自定义 titleItem 自行定位）；implicit 尺寸由背景件与三槽推导；`containmentMask` = 背景件；无默认属性
+- **QoolDialog 公开面**：新增 `header`/`content`/`footer` 三槽别名；去掉 `readonly property alias surface` 与默认属性重定向（裸子元素进 `Window.data`，不参与槽位布局）；标题入口改为 `Window.title`，预置 surface 的 `title` 跟随（任务栏与画面标题同源），`surface.titleItem` 不经 QoolDialog 暴露
+- **QoolDialog 尺寸**：最小尺寸改为背景件切角 + 边框推导（`cutSpaceOnLeft + cutSpaceOnRight + borderWidth × 2`，纵向同理）——弃用固定 200×200 下限，并消除 `minimumWidth: width` 与内容驱动 width 的绑定循环；`maximumWidth/Height` 跟随当前尺寸
+- **Example**：对话框页按新接口调整（`title:` 入口 + `content:` 槽位）；自定义 titleItem 演示补锚定（照 PageFrame 先例）
+- **文档**：`docs/reference/Qool.Dialogs/` 两份参考文档按新契约重写、模块 index 同步；ADR-0021 KD1–KD4 与 Consequences 修正并追加修订记录
+
+### 变更（qool-dialogs，Qool.Dialogs 模块首刀：QoolDialog + DialogSurface，ADR-0021）
+
+- **新模块 `Qool.Dialogs`**：对话框组件族首刀，交付两个公开组件（裸名 `Dialog` 按命名契约保留给将来 T.Dialog 接口完全兼容的换皮件）
+- **DialogSurface**：容器无关的对话框表面件，BasicControl 子类，仅覆写 `backgroundSettings` 默认值为 dialog token 组（`cutSizeTL: Style.dialogCutSize`、`borderWidth: Style.dialogBorderWidth`、`borderColor: Style.accent`、`fillColor: Style.window`）；title/titleItem/内容区/隐式尺寸机制全部继承 BasicControl，TL 单角切跟随仓库视觉语言
+- **QoolDialog**：预置 DialogSurface 的对话框窗口壳，独立 `Window` 血统（`Qt.Dialog | Qt.CustomizeWindowHint | Qt.FramelessWindowHint`，color transparent，非 T.Dialog——T.Dialog 窗口形态 flag 被 Qt 源码写死，无法承载 QoolBox 视觉）；`readonly property alias surface` 暴露标题入口（不重声明 `title`，Window.title 跟随 surface.title）；默认属性重定向进 surface 内容区；`open()/close()` 薄转发，`accept()/reject()` 发射 `accepted/rejected`，Esc 与系统关闭请求统一走 `reject()`；modality 默认 `Qt.WindowModal` 显式可改；尺寸由内容隐式反推（下限 200×200 照 QoolWindowBasic 先例）显式赋值即生效，minimum=maximum 跟随当前尺寸（禁交互 resize、不锁程序化赋值）；无关闭按钮、无拖动
+- **Example**：新增「对话框」页——Surface 独立面板（title/titleItem）、Surface 拼进 Popup 的 overlay 用法（dim/closePolicy 由 Popup 提供）、QoolDialog 基础（Esc 与按钮双关闭路径 + accepted/rejected 反馈）、显式尺寸（420×260）、modality 切换演示
+- **文档**：新增 `docs/reference/Qool.Dialogs/`（index / QoolDialog / DialogSurface，以引用 BasicControl 既有契约为基，只展开覆写差异与新增面）
+
 ### 变更（debug-facility-rework，QoolCommon 调试设施重写——C++20 函数化 + 宏门控分离）
 
 - **架构分层**：入口宏（`xDebug`/`xInfo`/`xWarning`/`xCritical` + Q 后缀）保留为永久 API——只有宏能在调用点做条件编译与 `this` 注入；实现全部函数化收进 `QOOL_NS::debug`，宏名仅转发。25 个消费文件约 150 调用点零改动
